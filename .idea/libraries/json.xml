@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="json" type="repository">
+    <properties maven-id="org.json:json:20210307" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/json-20210307.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/json-20210307-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
