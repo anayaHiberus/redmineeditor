@@ -35,20 +35,16 @@ public class SwingCalendar extends JPanel {
         tablecolors = new Color[32];
         clearDaycolors();
 
-
-        // label
+        // top panel content
         label = new JLabel();
         label.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // buttons
         JButton btn_prev = new JButton("<-");
         btn_prev.addActionListener(ae -> changeMonth(-1));
 
         JButton btn_next = new JButton("->");
         btn_next.addActionListener(ae -> changeMonth(1));
 
-        // content
-        setLayout(new BorderLayout());
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(btn_prev, BorderLayout.WEST);
@@ -60,9 +56,7 @@ public class SwingCalendar extends JPanel {
         String[] columns = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
         model = new DefaultTableModel(null, columns);
 
-        JTextField txt = new JTextField();
-        txt.setBackground(Color.BLUE);
-
+        // calendar content
         JTable table = new JTable(model) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -87,10 +81,11 @@ public class SwingCalendar extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowSelectionAllowed(false);
         table.setColumnSelectionAllowed(false);
-        JScrollPane pane = new JScrollPane(table);
 
+        // this panel content
+        this.setLayout(new BorderLayout());
         this.add(panel, BorderLayout.NORTH);
-        this.add(pane, BorderLayout.CENTER);
+        this.add(new JScrollPane(table), BorderLayout.CENTER);
 
         refresh();
     }
