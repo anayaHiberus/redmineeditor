@@ -5,8 +5,8 @@ import java.awt.*;
 
 public class MainScreen extends JFrame {
 
-    public final Configuration configuration;
-    public final SwingCalendar calendar;
+    public final ConfigurationPanel configuration;
+    public final CalendarPanel calendar;
 
     public MainScreen() throws HeadlessException {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -15,7 +15,7 @@ public class MainScreen extends JFrame {
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
         // configuration
-        configuration = new Configuration();
+        configuration = new ConfigurationPanel();
         this.add(configuration);
 
         // separator
@@ -23,7 +23,7 @@ public class MainScreen extends JFrame {
         this.add(new JSeparator(SwingConstants.HORIZONTAL));
 
         // calendar
-        calendar = new SwingCalendar();
+        calendar = new CalendarPanel();
         this.add(calendar);
 
 

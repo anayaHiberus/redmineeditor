@@ -2,12 +2,12 @@ package com.hiberus.anaya.UI;
 
 import javax.swing.*;
 
-public class Configuration extends JPanel {
+public class ConfigurationPanel extends JPanel {
 
     private final JTextField user;
 //    private final JTextField token;
 
-    public Configuration() {
+    public ConfigurationPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         // user

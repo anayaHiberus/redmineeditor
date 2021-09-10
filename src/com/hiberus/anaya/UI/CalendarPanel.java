@@ -14,7 +14,7 @@ import java.util.Locale;
  * A Calendar Component
  * Base from https://javacodex.com/Swing/Swing-Calendar
  */
-public class SwingCalendar extends JPanel {
+public class CalendarPanel extends JPanel {
 
     // layout
     private final DefaultTableModel model;
@@ -26,7 +26,7 @@ public class SwingCalendar extends JPanel {
     private int padding;
     private Listener listener = null;
 
-    SwingCalendar() {
+    CalendarPanel() {
 
         // init variables
         cal = new GregorianCalendar();

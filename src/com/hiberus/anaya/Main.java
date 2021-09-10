@@ -1,15 +1,15 @@
 package com.hiberus.anaya;
 
+import com.hiberus.anaya.UI.CalendarPanel;
 import com.hiberus.anaya.UI.MainScreen;
-import com.hiberus.anaya.UI.SwingCalendar;
+import com.hiberus.anaya.hiberus.Schedule;
 import com.hiberus.anaya.redmine.Data;
 import com.hiberus.anaya.utils.IsoDate;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.Calendar;
 
-public class Main implements SwingCalendar.Listener {
+public class Main implements CalendarPanel.Listener {
     public static void main(String[] arguments) {
         new Main();
     }
@@ -29,7 +29,7 @@ public class Main implements SwingCalendar.Listener {
 
     @Override
     public void onNewMonth() {
-        SwingCalendar calendar = screen.calendar;
+        CalendarPanel calendar = screen.calendar;
 
         Calendar from = calendar.getMonth();
         Calendar to = (Calendar) from.clone();
@@ -37,27 +37,13 @@ public class Main implements SwingCalendar.Listener {
 
         data.loadEntries(screen.configuration.getUser(), from, to);
 
-        Calendar now = Calendar.getInstance();
-
-        while (from.compareTo(to) <= 0 && from.compareTo(now) < 0) {
-            int day = from.get(Calendar.DAY_OF_MONTH);
+        while (from.compareTo(to) <= 0) {
 
             double spent = data.getSpent(from);
-
-            double expected = new double[]{-1, 0, 8.5, 8.5, 8.5, 8.5, 7, 0}[from.get(Calendar.DAY_OF_WEEK)];
+            double expected = Schedule.getExpectedHours(from);
 
             System.out.println(IsoDate.format(from) + ": Expected " + expected + " obtained " + spent);
-
-            if (expected == spent) {
-                if (expected != 0)
-                    calendar.setDaycolor(day, Color.GREEN);
-            } else {
-                if (IsoDate.format(from).equals(IsoDate.format(now))) {
-                    calendar.setDaycolor(day, Color.orange);
-                } else {
-                    calendar.setDaycolor(day, Color.red);
-                }
-            }
+            calendar.setDaycolor(from.get(Calendar.DAY_OF_MONTH), Schedule.getColor(expected, spent, from));
 
             from.add(Calendar.DAY_OF_MONTH, 1);
         }
