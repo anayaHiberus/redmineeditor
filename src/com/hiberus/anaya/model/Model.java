@@ -4,6 +4,7 @@ import com.hiberus.anaya.utils.hiberus.Redmine;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.YearMonth;
@@ -50,7 +51,11 @@ public class Model {
     private JSONArray entries = new JSONArray();
 
     public void loadEntries() {
-        entries = Redmine.getHourEntries(user, month.atDay(1), month.atEndOfMonth());
+        try {
+            entries = Redmine.getHourEntries(user, month.atDay(1), month.atEndOfMonth());
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load entries from Redmine", e);
+        }
     }
 
     public double getSpent(LocalDate day) {

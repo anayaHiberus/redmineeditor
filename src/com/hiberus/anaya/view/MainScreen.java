@@ -19,18 +19,25 @@ public class MainScreen extends JFrame {
 
         // configuration
         configuration = new ConfigurationPanel(controller);
-        this.add(configuration);
+        addBox(configuration);
 
         // separator
-        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
-        separator.setBorder(new EmptyBorder(5, 0, 5, 0)); // TODO FIX
-        this.add(separator);
+        addBox(new JSeparator(SwingConstants.HORIZONTAL));
 
         // calendar
         calendar = new CalendarPanel(controller);
-        this.add(calendar);
+        addBox(calendar);
 
 
         setVisible(true);
     }
+
+    private void addBox(Component component) {
+        JPanel jPanel = new JPanel();
+        jPanel.setBorder(new EmptyBorder(5, 5, 5, 5)); // TODO FIX
+        jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.X_AXIS));
+        jPanel.add(component);
+        this.add(jPanel);
+    }
+
 }
