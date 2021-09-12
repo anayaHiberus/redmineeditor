@@ -1,14 +1,16 @@
-package com.hiberus.anaya.UI;
+package com.hiberus.anaya.view;
+
+import com.hiberus.anaya.controller.Controller;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 /**
  * A Calendar Component
@@ -17,22 +19,18 @@ import java.util.Locale;
 public class CalendarPanel extends JPanel {
 
     // layout
-    private final DefaultTableModel model;
+    private final DefaultTableModel tableModel;
     private final JLabel label;
 
     // variables
-    private final Calendar cal;
-    private final Color[] tablecolors;
+    private final Color[] tableColors;
     private int padding;
-    private Listener listener = null;
 
-    CalendarPanel() {
+    CalendarPanel(Controller controller) {
+
 
         // init variables
-        cal = new GregorianCalendar();
-        cal.setFirstDayOfWeek(Calendar.MONDAY);
-
-        tablecolors = new Color[32];
+        tableColors = new Color[32];
         clearDaycolors();
 
         // top panel content
@@ -40,10 +38,10 @@ public class CalendarPanel extends JPanel {
         label.setHorizontalAlignment(SwingConstants.CENTER);
 
         JButton btn_prev = new JButton("<-");
-        btn_prev.addActionListener(ae -> changeMonth(-1));
+        btn_prev.addActionListener(ae -> controller.changeMonth(-1));
 
         JButton btn_next = new JButton("->");
-        btn_next.addActionListener(ae -> changeMonth(1));
+        btn_next.addActionListener(ae -> controller.changeMonth(1));
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -54,10 +52,10 @@ public class CalendarPanel extends JPanel {
 
         // calendar data
         String[] columns = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-        model = new DefaultTableModel(null, columns);
+        tableModel = new DefaultTableModel(null, columns);
 
         // calendar content
-        JTable table = new JTable(model) {
+        JTable table = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -69,9 +67,9 @@ public class CalendarPanel extends JPanel {
                     @Override
                     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-                        int index = row * 7 + column - padding;
+                        int index = row * 7 + column - padding + 1;
                         if (index >= 1 && index <= 31)
-                            setBackground(tablecolors[index]);
+                            setBackground(tableColors[index]);
 
                         return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                     }
@@ -87,60 +85,41 @@ public class CalendarPanel extends JPanel {
         this.add(panel, BorderLayout.NORTH);
         this.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        refresh();
     }
 
-    private void changeMonth(int offset) {
-        cal.add(Calendar.MONTH, offset);
+    public void drawMonth(YearMonth month) {
+
+        // clear
         clearDaycolors();
-        refresh();
-        if (listener != null) listener.onNewMonth();
-    }
+        tableModel.setRowCount(0);
 
-    public void refresh() {
+        // draw label
+        label.setText(month.format(new DateTimeFormatterBuilder()
+                .appendText(ChronoField.YEAR)
+                .appendLiteral(" ")
+                .appendText(ChronoField.MONTH_OF_YEAR)
+                .toFormatter()));
 
-        cal.set(Calendar.DAY_OF_MONTH, 1);
-
-        String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
-        int year = cal.get(Calendar.YEAR);
-        label.setText(month + " " + year);
-
-        padding = (cal.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY + 7) % 7 - 1;
-        int numberOfDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-        model.setRowCount(0);
-        model.setRowCount(cal.getActualMaximum(Calendar.WEEK_OF_MONTH));
-
+        // draw month
+        padding = month.atDay(1).getDayOfWeek().getValue() - 1; // number of days between monday and 1
+        int numberOfDays = month.getMonth().maxLength(); // days in month
+        tableModel.setRowCount((int) Math.ceil((numberOfDays + padding) / 7d));
         for (int day = 1; day <= numberOfDays; day++) {
-            int i = day + padding;
-            model.setValueAt(day, i / 7, i % 7);
-            model.getValueAt(i / 7, i % 7);
+            int i = day + padding - 1;
+            tableModel.setValueAt(day, i / 7, i % 7);
+            tableModel.getValueAt(i / 7, i % 7);
         }
-
     }
 
     //--------------------
 
-    public interface Listener {
-        void onNewMonth();
-
-        void onNewDay();
-    }
-
     public void clearDaycolors() {
-        Arrays.fill(tablecolors, null);
+        Arrays.fill(tableColors, null);
     }
 
     public void setDaycolor(int day, Color color) {
-        tablecolors[day] = color;
+        tableColors[day] = color;
         this.repaint();
     }
 
-    public void setListener(Listener listener) {
-        this.listener = listener;
-    }
-
-    public Calendar getMonth() {
-        return (Calendar) cal.clone();
-    }
 }
