@@ -35,14 +35,18 @@ public class Controller {
             model.loadEntries();
 
             // check days
-            for (int i = 1; i <= model.getMonth().lengthOfMonth(); ++i) {
-                LocalDate day = model.getMonth().atDay(i);
-                double expected = Schedule.getExpectedHours(day);
-                double spent = model.getSpent(day);
-                System.out.println(day + ": Expected " + expected + " obtained " + spent);
+            for (int day = 1; day <= model.getMonth().lengthOfMonth(); ++day) {
+                LocalDate date = model.getMonth().atDay(day);
+                double expected = Schedule.getExpectedHours(date);
+                double spent = model.getSpent(date);
+                System.out.println(date + ": Expected " + expected + " obtained " + spent);
 
                 // color
-                view.calendar.setDaycolor(i, Schedule.getColor(expected, spent, day));
+                view.calendar.setDaycolor(day, Schedule.getColor(expected, spent, date));
+
+                if (day == model.getDay()) {
+                    view.summary.setInfo(date, spent);
+                }
             }
 
         });
@@ -56,5 +60,16 @@ public class Controller {
         model.setMonth(model.getMonth().plusMonths(offset));
 
         reload();
+    }
+
+    public void selectDay(int day) {
+        model.setDay(day);
+
+        if (day == 0) {
+            view.summary.clear();
+        } else {
+            LocalDate date = model.getMonth().atDay(day);
+            view.summary.setInfo(date, model.getSpent(date));
+        }
     }
 }

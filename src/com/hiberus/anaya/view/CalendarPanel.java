@@ -3,6 +3,7 @@ package com.hiberus.anaya.view;
 import com.hiberus.anaya.controller.Controller;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -76,9 +77,18 @@ public class CalendarPanel extends JPanel {
                 };
             }
         };
+        table.setCellSelectionEnabled(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        ListSelectionListener listener = e -> {
+            if (e.getValueIsAdjusting()) return;
+            Object value = table.getSelectedRow() == -1 ? null : table.getValueAt(table.getSelectedRow(), table.getSelectedColumn());
+            controller.selectDay(value == null ? 0 : (int) value);
+        };
+        table.getSelectionModel().addListSelectionListener(listener);
+        table.getColumnModel().getSelectionModel().addListSelectionListener(listener);
         table.setRowSelectionAllowed(false);
         table.setColumnSelectionAllowed(false);
+        table.getTableHeader().setReorderingAllowed(false);
 
         // this panel content
         this.setLayout(new BorderLayout());
@@ -95,9 +105,9 @@ public class CalendarPanel extends JPanel {
 
         // draw label
         label.setText(month.format(new DateTimeFormatterBuilder()
-                .appendText(ChronoField.YEAR)
-                .appendLiteral(" ")
                 .appendText(ChronoField.MONTH_OF_YEAR)
+                .appendLiteral(", ")
+                .appendText(ChronoField.YEAR)
                 .toFormatter()));
 
         // draw month

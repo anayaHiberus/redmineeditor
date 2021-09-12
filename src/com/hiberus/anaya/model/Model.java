@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.Objects;
 
@@ -36,13 +35,13 @@ public class Model {
 
     //-----------------------------------
 
-    private MonthDay day = MonthDay.now();
+    private int day = 0; // if 0, no day selected
 
-    public MonthDay getDay() {
+    public int getDay() {
         return day;
     }
 
-    public void setDay(MonthDay day) {
+    public void setDay(int day) {
         this.day = day;
     }
 

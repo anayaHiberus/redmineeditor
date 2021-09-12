@@ -10,6 +10,7 @@ public class MainScreen extends JFrame {
 
     public final ConfigurationPanel configuration;
     public final CalendarPanel calendar;
+    public final SummaryPanel summary;
 
     public MainScreen(Controller controller) throws HeadlessException {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,6 +29,12 @@ public class MainScreen extends JFrame {
         calendar = new CalendarPanel(controller);
         addBox(calendar);
 
+        // separator
+        addBox(new JSeparator(SwingConstants.HORIZONTAL));
+
+        // summary
+        summary = new SummaryPanel();
+        addBox(summary);
 
         setVisible(true);
     }
