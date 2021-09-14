@@ -29,6 +29,10 @@ public class Controller {
         // draw month
         view.calendar.drawMonth(model.getMonth());
 
+        if (model.getDay() != 0) {
+            view.calendar.setSelected(model.getDay());
+        }
+
         ProgressDialog.showProgress(view, () -> {
 
             // reload entries
@@ -42,7 +46,7 @@ public class Controller {
                 System.out.println(date + ": Expected " + expected + " obtained " + spent);
 
                 // color
-                view.calendar.setDaycolor(day, Schedule.getColor(expected, spent, date));
+                view.calendar.setDayColor(day, Schedule.getColor(expected, spent, date));
 
                 if (day == model.getDay()) {
                     view.summary.setInfo(date, spent);

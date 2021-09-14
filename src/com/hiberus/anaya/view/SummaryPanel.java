@@ -26,10 +26,10 @@ public class SummaryPanel extends JPanel {
         double expected = Schedule.getExpectedHours(day);
         info.setText(
                 day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
-                        + " --- Required: " + expected
-                        + " --- Spent: " + spent
+                        + " --- Hours: " + spent + "/" + expected
                         + (spent < expected ? " --- Missing: " + (expected - spent)
                         : spent > expected ? " --- Extra: " + (spent - expected)
+                        : spent == expected && expected != 0 ? " --- OK"
                         : "")
         );
         info.setBackground(Schedule.getColor(expected, spent, day));

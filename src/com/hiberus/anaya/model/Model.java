@@ -35,7 +35,7 @@ public class Model {
 
     //-----------------------------------
 
-    private int day = 0; // if 0, no day selected
+    private int day = LocalDate.now().getDayOfMonth(); // if 0, no day selected
 
     public int getDay() {
         return day;

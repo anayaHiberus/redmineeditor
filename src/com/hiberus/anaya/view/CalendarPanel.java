@@ -25,14 +25,16 @@ public class CalendarPanel extends JPanel {
 
     // variables
     private final Color[] tableColors;
+    private final JTable jTable;
     private int padding;
+    private boolean disableListener = false;
 
     CalendarPanel(Controller controller) {
 
 
         // init variables
         tableColors = new Color[32];
-        clearDaycolors();
+        clearDayColors();
 
         // top panel content
         label = new JLabel();
@@ -56,7 +58,7 @@ public class CalendarPanel extends JPanel {
         tableModel = new DefaultTableModel(null, columns);
 
         // calendar content
-        JTable table = new JTable(tableModel) {
+        jTable = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -77,30 +79,31 @@ public class CalendarPanel extends JPanel {
                 };
             }
         };
-        table.setCellSelectionEnabled(true);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jTable.setCellSelectionEnabled(true);
+        jTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionListener listener = e -> {
-            if (e.getValueIsAdjusting()) return;
-            Object value = table.getSelectedRow() == -1 ? null : table.getValueAt(table.getSelectedRow(), table.getSelectedColumn());
+            if (disableListener || e.getValueIsAdjusting()) return;
+            Object value = jTable.getSelectedRow() == -1 ? null : jTable.getValueAt(jTable.getSelectedRow(), jTable.getSelectedColumn());
             controller.selectDay(value == null ? 0 : (int) value);
         };
-        table.getSelectionModel().addListSelectionListener(listener);
-        table.getColumnModel().getSelectionModel().addListSelectionListener(listener);
-        table.setRowSelectionAllowed(false);
-        table.setColumnSelectionAllowed(false);
-        table.getTableHeader().setReorderingAllowed(false);
+        jTable.getSelectionModel().addListSelectionListener(listener);
+        jTable.getColumnModel().getSelectionModel().addListSelectionListener(listener);
+        jTable.setRowSelectionAllowed(false);
+        jTable.setColumnSelectionAllowed(false);
+        jTable.getTableHeader().setReorderingAllowed(false);
+
 
         // this panel content
         this.setLayout(new BorderLayout());
         this.add(panel, BorderLayout.NORTH);
-        this.add(new JScrollPane(table), BorderLayout.CENTER);
+        this.add(new JScrollPane(jTable), BorderLayout.CENTER);
 
     }
 
     public void drawMonth(YearMonth month) {
 
         // clear
-        clearDaycolors();
+        clearDayColors();
         tableModel.setRowCount(0);
 
         // draw label
@@ -123,13 +126,23 @@ public class CalendarPanel extends JPanel {
 
     //--------------------
 
-    public void clearDaycolors() {
+    public void setSelected(int day) {
+        disableListener = true;
+        int i = day + padding - 1;
+        jTable.clearSelection();
+        jTable.changeSelection(i / 7, i % 7, true, false);
+        // TODO: show clicked
+        disableListener = false;
+    }
+
+    public void clearDayColors() {
         Arrays.fill(tableColors, null);
     }
 
-    public void setDaycolor(int day, Color color) {
+    public void setDayColor(int day, Color color) {
         tableColors[day] = color;
-        this.repaint();
+        int i = day + padding - 1;
+        tableModel.fireTableCellUpdated(i / 7, i % 7);
     }
 
 }
