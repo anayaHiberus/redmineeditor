@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -20,5 +21,12 @@ public class JavaFXUtils {
         label.setMaxWidth(Double.MAX_VALUE);
         label.setAlignment(Pos.CENTER);
         return label;
+    }
+
+    public static void runInBackground(Runnable background, Runnable foreground) {
+        new Thread(() -> {
+            background.run();
+            Platform.runLater(foreground);
+        }).start();
     }
 }

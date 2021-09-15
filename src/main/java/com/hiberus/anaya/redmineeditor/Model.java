@@ -1,9 +1,9 @@
 package com.hiberus.anaya.redmineeditor;
 
+import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Redmine;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
-import javafx.application.Platform;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -47,13 +47,13 @@ public class Model {
         private final Set<YearMonth> monthsLoaded = new HashSet<>();
 
         public void loadMonth(YearMonth month) {
-            if(monthsLoaded.contains(month)) return;
+            if (monthsLoaded.contains(month)) return;
             monthsLoaded.add(month);
 
             loading = true;
             hour_entries.wasChanged();
 
-            new Thread(() -> {
+            JavaFXUtils.runInBackground(() -> {
                 try {
                     entries.putAll(Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth()));
                 } catch (IOException e) {
@@ -68,12 +68,10 @@ public class Model {
 
                     System.out.println(date + ": Expected " + expected + " obtained " + spent);
                 }
-
-                Platform.runLater(() -> {
-                    loading = false;
-                    hour_entries.wasChanged();
-                });
-            }).start();
+            }, () -> {
+                loading = false;
+                hour_entries.wasChanged();
+            });
         }
 
         public void reload() {
