@@ -1,12 +1,16 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
+import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
+import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
+import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.TextStyle;
@@ -14,7 +18,7 @@ import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class CalendarCtrl extends InnerCtrl {
+public class CalendarCtrl implements InnerCtrl {
 
     // ------------------------- views -------------------------
 
@@ -27,8 +31,32 @@ public class CalendarCtrl extends InnerCtrl {
 
     // ------------------------- data -------------------------
 
-    private YearMonth month;
     private final Label[] days = new Label[31];
+
+    private ObservableProperty<YearMonth>.ObservedProperty monthProperty;
+    private ObservableProperty<Integer>.ObservedProperty dayProperty;
+    private ObservableProperty<Model.TimeEntries>.ObservedProperty hourEntriesProperty;
+
+    // ------------------------- init -------------------------
+
+    @Override
+    public void init(Model model) {
+        monthProperty = model.month.registerObserver(this::drawMonth);
+        dayProperty = model.day.registerObserver(this::selectDay);
+        hourEntriesProperty = model.hour_entries.registerObserver(newValue -> {
+            if(newValue.isLoading()) return;
+
+            for (int day = 1; day <= monthProperty.get().lengthOfMonth(); ++day) {
+                LocalDate date = monthProperty.get().atDay(day);
+                double expected = Schedule.getExpectedHours(date);
+                double spent = newValue.getSpent(date);
+                System.out.println(date + ": Expected " + expected + " obtained " + spent);
+
+                // color day
+                setDayColor(day, Schedule.getColor(expected, spent, date));
+            }
+        });
+    }
 
     // ------------------------- reactions -------------------------
 
@@ -41,18 +69,17 @@ public class CalendarCtrl extends InnerCtrl {
 
     @FXML
     void onNextMonth() {
-        mainCtrl.onNewMonth(month.plusMonths(1));
+        monthProperty.setAndNotify(monthProperty.get().plusMonths(1));
     }
 
     @FXML
     void onPreviousMonth() {
-        mainCtrl.onNewMonth(month.plusMonths(-1));
+        monthProperty.setAndNotify(monthProperty.get().plusMonths(-1));
     }
 
     // ------------------------- actions -------------------------
 
-    public void drawMonth(YearMonth month) {
-        this.month = month;
+    private void drawMonth(YearMonth month) {
 
         // clear
         calendar.getChildren().clear();
@@ -78,22 +105,22 @@ public class CalendarCtrl extends InnerCtrl {
             }
             Label centeredLabel = JavaFXUtils.getCenteredLabel(Integer.toString(day));
             days[day - 1] = centeredLabel;
-            int listenerDay = day;
-            centeredLabel.setOnMouseClicked(event -> mainCtrl.onDaySelected(listenerDay));
+            int finalDay = day;
+            centeredLabel.setOnMouseClicked(event -> dayProperty.setAndNotify(finalDay));
             calendar.add(centeredLabel, i % 7, i / 7);
         }
         while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 1)
             calendar.getRowConstraints().remove(calendar.getRowCount() - 1);
     }
 
-    public void selectDay(int day) {
+    private void selectDay(int day) {
         for (Label label : days) {
             if (label != null) label.setBorder(null);
         }
         days[day - 1].setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, new CornerRadii(5.0), new BorderWidths(1))));
     }
 
-    public void setDayColor(int day, Color color) {
+    private void setDayColor(int day, Color color) {
         JavaFXUtils.setBackgroundColor(days[day - 1], color);
     }
 

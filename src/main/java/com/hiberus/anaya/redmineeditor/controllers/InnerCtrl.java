@@ -1,10 +1,7 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
-public abstract class InnerCtrl {
-    protected MainCtrl mainCtrl;
+import com.hiberus.anaya.redmineeditor.Model;
 
-    protected void setMainController(MainCtrl mainCtrl) {
-        this.mainCtrl = mainCtrl;
-    }
-
+public interface InnerCtrl {
+    void init(Model model);
 }
