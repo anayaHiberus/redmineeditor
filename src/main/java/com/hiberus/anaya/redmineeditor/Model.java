@@ -6,6 +6,7 @@ import com.hiberus.anaya.redmineeditor.utils.hiberus.Redmine;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.scene.control.Alert;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class Model {
 
                         System.out.println(date + ": Expected " + expected + " obtained " + spent);
                     }
-                } catch (IOException e) {
+                } catch (IOException | JSONException e) {
                     // error, mark
                     e.printStackTrace();
                     ok.set(false);

@@ -5,11 +5,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 
-public class MainCtrl {
+/**
+ * Controller for the parent app. Manages the loading indicator
+ */
+public class ParentCtrl {
 
     // ------------------------- model -------------------------
 
-    private final Model model = new Model();
+    private final Model model = new Model(); // this is the application model object
 
     // ------------------------- subcontrollers -------------------------
 
@@ -22,7 +25,7 @@ public class MainCtrl {
     @FXML
     ActionsCtrl actionsController;
 
-    // ------------------------- loading -------------------------
+    // ------------------------- views -------------------------
 
     @FXML
     ProgressIndicator progress;
@@ -30,18 +33,18 @@ public class MainCtrl {
     @FXML
     VBox parent;
 
-    // ------------------------- reactions -------------------------
+    // ------------------------- init -------------------------
 
     @FXML
     void initialize() {
         // init subcontrollers, like manual dependency injection
-        calendarController.init(model);
-        settingsController.init(model);
-        summaryController.init(model);
-        actionsController.init(model);
+        calendarController.initCtrl(model);
+        settingsController.initCtrl(model);
+        summaryController.initCtrl(model);
+        actionsController.initCtrl(model);
 
-        // loading
         model.hour_entries.observeAndNotify(entries -> {
+            // when entries are loading, show indicator and disable the rest
             boolean loading = entries.isLoading();
             progress.setVisible(loading);
             parent.setDisable(loading);

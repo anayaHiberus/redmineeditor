@@ -5,6 +5,9 @@ import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
+/**
+ * A view with editexts for editable data
+ */
 public class SettingsCtrl implements InnerCtrl {
 
     // ------------------------- views -------------------------
@@ -12,17 +15,23 @@ public class SettingsCtrl implements InnerCtrl {
     @FXML
     TextField user;
 
+    // ------------------------- properties -------------------------
+
     private ObservableProperty<String>.ObservedProperty userProperty;
 
+    // ------------------------- init -------------------------
+
     @Override
-    public void init(Model model) {
+    public void initCtrl(Model model) {
+        // on new user, change the edittext
         userProperty = model.user.observeAndNotify(newUser -> user.setText(newUser));
     }
 
-    // ------------------------- reactions -------------------------
+    // ------------------------- onActions -------------------------
 
     @FXML
     void onChangedUser() {
+        // when user changes
         userProperty.set(user.getText());
     }
 

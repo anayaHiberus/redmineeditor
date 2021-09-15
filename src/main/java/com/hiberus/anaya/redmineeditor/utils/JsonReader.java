@@ -1,6 +1,5 @@
 package com.hiberus.anaya.redmineeditor.utils;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -15,12 +14,12 @@ public class JsonReader {
 
     /**
      * Reads JSON data from an url
+     *
      * @param url url to load
      * @return the json data returned
      * @throws IOException on network errors
-     * @throws JSONException on json errors
      */
-    public static JSONObject fromUrl(String url) throws IOException, JSONException {
+    public static JSONObject fromUrl(String url) throws IOException {
         try (InputStream is = new URL(url).openStream()) {
             return new JSONObject(readAll(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))));
         }
