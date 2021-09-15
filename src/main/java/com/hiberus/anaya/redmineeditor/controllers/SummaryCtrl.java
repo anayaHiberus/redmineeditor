@@ -22,9 +22,9 @@ public class SummaryCtrl implements InnerCtrl {
 
     @Override
     public void init(Model model) {
-        model.day.registerSilently(day -> update(model.month.get(), day, model.hour_entries.get()));
-        model.hour_entries.registerSilently(entries -> update(model.month.get(), model.day.get(), entries));
-        model.month.registerObserver(month -> update(month, model.day.get(), model.hour_entries.get()));
+        model.day.observe(day -> update(model.month.get(), day, model.hour_entries.get()));
+        model.hour_entries.observe(entries -> update(model.month.get(), model.day.get(), entries));
+        model.month.observeAndNotify(month -> update(month, model.day.get(), model.hour_entries.get()));
     }
 
 

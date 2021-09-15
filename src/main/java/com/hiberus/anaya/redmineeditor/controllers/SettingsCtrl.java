@@ -16,7 +16,7 @@ public class SettingsCtrl implements InnerCtrl {
 
     @Override
     public void init(Model model) {
-        userProperty = model.user.registerObserver(newUser -> user.setText(newUser));
+        userProperty = model.user.observeAndNotify(newUser -> user.setText(newUser));
     }
 
     // ------------------------- reactions -------------------------

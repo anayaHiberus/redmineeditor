@@ -29,7 +29,7 @@ public class Model {
 
     public Model() {
         // on new month, load it
-        month.registerSilently(newMonth -> {
+        month.observe(newMonth -> {
             day.set(0);
             hour_entries.get().loadMonth(newMonth);
         });
@@ -40,7 +40,7 @@ public class Model {
 
     // ------------------------- entries -------------------------
 
-    public class TimeEntries {
+    public class TimeEntries extends ObservableProperty.Data {
 
         private boolean loading = false;
 
@@ -53,7 +53,7 @@ public class Model {
             monthsLoaded.add(month);
 
             loading = true;
-            hour_entries.wasChanged();
+            notifyChanged();
 
             AtomicBoolean ok = new AtomicBoolean(true);
             JavaFXUtils.runInBackground(() -> {
@@ -74,7 +74,7 @@ public class Model {
                 }
             }, () -> { // then in foreground
                 loading = false;
-                hour_entries.wasChanged();
+                notifyChanged();
                 if (!ok.get()) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText("Network error");

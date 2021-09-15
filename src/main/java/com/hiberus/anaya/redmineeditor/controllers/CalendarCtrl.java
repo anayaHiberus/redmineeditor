@@ -41,12 +41,12 @@ public class CalendarCtrl implements InnerCtrl {
 
     @Override
     public void init(Model model) {
-        monthProperty = model.month.registerObserver(month -> {
+        monthProperty = model.month.observeAndNotify(month -> {
             drawMonth(month);
             colorDays(model.hour_entries.get());
         });
-        dayProperty = model.day.registerObserver(this::selectDay);
-        hourEntriesProperty = model.hour_entries.registerObserver(this::colorDays);
+        dayProperty = model.day.observeAndNotify(this::selectDay);
+        hourEntriesProperty = model.hour_entries.observeAndNotify(this::colorDays);
     }
 
     // ------------------------- reactions -------------------------

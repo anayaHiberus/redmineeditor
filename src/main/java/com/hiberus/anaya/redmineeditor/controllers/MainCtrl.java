@@ -22,24 +22,6 @@ public class MainCtrl {
     @FXML
     ActionsCtrl actionsController;
 
-    // ------------------------- reactions -------------------------
-
-    @FXML
-    void initialize() {
-        // init subcontrollers
-        calendarController.init(model);
-        settingsController.init(model);
-        summaryController.init(model);
-        actionsController.init(model);
-
-        // loading
-        model.hour_entries.registerObserver(entries -> {
-            boolean loading = entries.isLoading();
-            progress.setVisible(loading);
-            parent.setDisable(loading);
-        });
-    }
-
     // ------------------------- loading -------------------------
 
     @FXML
@@ -47,5 +29,24 @@ public class MainCtrl {
 
     @FXML
     VBox parent;
+
+    // ------------------------- reactions -------------------------
+
+    @FXML
+    void initialize() {
+        // init subcontrollers, like manual dependency injection
+        calendarController.init(model);
+        settingsController.init(model);
+        summaryController.init(model);
+        actionsController.init(model);
+
+        // loading
+        model.hour_entries.observeAndNotify(entries -> {
+            boolean loading = entries.isLoading();
+            progress.setVisible(loading);
+            parent.setDisable(loading);
+        });
+    }
+
 
 }

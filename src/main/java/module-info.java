@@ -8,5 +8,6 @@ module com.hiberus.anaya.redmineeditor {
 
     exports com.hiberus.anaya.redmineeditor;
     exports com.hiberus.anaya.redmineeditor.controllers;
+    exports com.hiberus.anaya.redmineeditor.utils;
     opens com.hiberus.anaya.redmineeditor.controllers to javafx.fxml;
 }

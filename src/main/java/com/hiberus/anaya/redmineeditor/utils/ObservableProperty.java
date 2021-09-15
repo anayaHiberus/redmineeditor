@@ -10,6 +10,9 @@ public class ObservableProperty<T> {
 
     public ObservableProperty(T data) {
         this.data = data;
+        if(data instanceof Data){
+            ((Data) data).property = this;
+        }
     }
 
     public T get() {
@@ -21,16 +24,12 @@ public class ObservableProperty<T> {
         notifyExcept(null);
     }
 
-    public void wasChanged(){
-        notifyExcept(null);
-    }
-
-    public ObservedProperty registerObserver(OnChangedListener<T> listener){
+    public ObservedProperty observeAndNotify(OnChangedListener<T> listener){
         listener.onChanged(get());
         return new ObservedProperty(listener);
     }
 
-    public ObservedProperty registerSilently(OnChangedListener<T> listener){
+    public ObservedProperty observe(OnChangedListener<T> listener){
         return new ObservedProperty(listener);
     }
 
@@ -67,6 +66,17 @@ public class ObservableProperty<T> {
         public void setAndNotify(T value){
             data = value;
             notifyExcept(null);
+        }
+    }
+
+    // ------------------------- own manager -------------------------
+
+    public static class Data {
+
+        private ObservableProperty<?> property;
+
+        public void notifyChanged(){
+            property.notifyExcept(null);
         }
     }
 }
