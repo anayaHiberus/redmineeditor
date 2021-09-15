@@ -1,6 +1,8 @@
 package com.hiberus.anaya.redmineeditor;
 
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Redmine;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,17 +13,7 @@ import java.util.Objects;
 
 public class Model {
 
-    // ------------------------- user -------------------------
-
-    private String user = "me";
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
+    public final StringProperty user = new SimpleStringProperty("me");
 
     // ------------------------- date -------------------------
 
@@ -54,7 +46,7 @@ public class Model {
 
     public void loadEntries() {
         try {
-            entries = Redmine.getHourEntries(user, month.atDay(1), month.atEndOfMonth());
+            entries = Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth());
         } catch (IOException e) {
             throw new RuntimeException("Unable to load entries from Redmine", e);
         }

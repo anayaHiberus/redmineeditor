@@ -37,14 +37,16 @@ public class MainCtrl {
         summaryController.setMainController(this);
         actionsController.setMainController(this);
 
+        settingsController.init(model);
+
         // load
-        settingsController.setUser(model.getUser());
+//        settingsController.setUser(model.getUser());
         reload();
     }
 
-    public void onChangedUser(String user) {
-        model.setUser(user);
-    }
+//    public void onChangedUser(String user) {
+//        model.setUser(user);
+//    }
 
     public void onDaySelected(int day) {
         calendarController.selectDay(day);
