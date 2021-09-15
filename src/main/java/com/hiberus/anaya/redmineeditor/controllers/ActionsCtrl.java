@@ -16,6 +16,6 @@ public class ActionsCtrl implements InnerCtrl {
 
     @FXML
     void onReload() {
-        hour_entries.get().loadEntries();
+        hour_entries.get().reload();
     }
 }

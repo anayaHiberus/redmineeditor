@@ -26,20 +26,17 @@ public class MainCtrl {
 
     @FXML
     void initialize() {
-        // init
+        // init subcontrollers
         calendarController.init(model);
         settingsController.init(model);
         summaryController.init(model);
         actionsController.init(model);
 
-        model.hour_entries.registerObserver(newValue -> {
-            boolean loading = newValue.isLoading();
+        // loading
+        model.hour_entries.registerObserver(entries -> {
+            boolean loading = entries.isLoading();
             progress.setVisible(loading);
             parent.setDisable(loading);
-        });
-
-        model.month.registerObserver(newValue -> {
-            model.hour_entries.get().loadEntries();
         });
     }
 

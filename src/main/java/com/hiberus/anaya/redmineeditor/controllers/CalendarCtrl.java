@@ -41,21 +41,12 @@ public class CalendarCtrl implements InnerCtrl {
 
     @Override
     public void init(Model model) {
-        monthProperty = model.month.registerObserver(this::drawMonth);
-        dayProperty = model.day.registerObserver(this::selectDay);
-        hourEntriesProperty = model.hour_entries.registerObserver(newValue -> {
-            if(newValue.isLoading()) return;
-
-            for (int day = 1; day <= monthProperty.get().lengthOfMonth(); ++day) {
-                LocalDate date = monthProperty.get().atDay(day);
-                double expected = Schedule.getExpectedHours(date);
-                double spent = newValue.getSpent(date);
-                System.out.println(date + ": Expected " + expected + " obtained " + spent);
-
-                // color day
-                setDayColor(day, Schedule.getColor(expected, spent, date));
-            }
+        monthProperty = model.month.registerObserver(month -> {
+            drawMonth(month);
+            colorDays(model.hour_entries.get());
         });
+        dayProperty = model.day.registerObserver(this::selectDay);
+        hourEntriesProperty = model.hour_entries.registerObserver(this::colorDays);
     }
 
     // ------------------------- reactions -------------------------
@@ -78,6 +69,19 @@ public class CalendarCtrl implements InnerCtrl {
     }
 
     // ------------------------- actions -------------------------
+
+    private void colorDays(Model.TimeEntries entries) {
+        if (entries.isLoading()) return;
+
+        for (int day = 1; day <= monthProperty.get().lengthOfMonth(); ++day) {
+            LocalDate date = monthProperty.get().atDay(day);
+            double expected = Schedule.getExpectedHours(date);
+            double spent = entries.getSpent(date);
+
+            // color day
+            setDayColor(day, Schedule.getColor(expected, spent, date));
+        }
+    }
 
     private void drawMonth(YearMonth month) {
 
@@ -114,6 +118,8 @@ public class CalendarCtrl implements InnerCtrl {
     }
 
     private void selectDay(int day) {
+        if(day == 0) return;
+
         for (Label label : days) {
             if (label != null) label.setBorder(null);
         }

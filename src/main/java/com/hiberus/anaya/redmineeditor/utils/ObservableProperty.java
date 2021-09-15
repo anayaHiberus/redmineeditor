@@ -30,6 +30,10 @@ public class ObservableProperty<T> {
         return new ObservedProperty(listener);
     }
 
+    public ObservedProperty registerSilently(OnChangedListener<T> listener){
+        return new ObservedProperty(listener);
+    }
+
     private void notifyExcept(OnChangedListener<T> dontNotify) {
         for (OnChangedListener<T> listener : listeners) {
             if(listener!=dontNotify) listener.onChanged(data);

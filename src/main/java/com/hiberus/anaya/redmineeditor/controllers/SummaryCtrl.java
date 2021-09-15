@@ -2,12 +2,12 @@ package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
-import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
@@ -22,36 +22,34 @@ public class SummaryCtrl implements InnerCtrl {
 
     @Override
     public void init(Model model) {
-        ObservableProperty.OnChangedListener listener = newValue -> {
-            LocalDate day = model.month.get().atDay(model.day.get());
-            if (model.hour_entries.get().isLoading())
-                loading();
-            else
-                set(day, model.hour_entries.get().getSpent(day));
-        };
-        model.day.registerObserver(listener);
-        model.hour_entries.registerObserver(listener);
-        model.month.registerObserver(listener);
+        model.day.registerSilently(day -> update(model.month.get(), day, model.hour_entries.get()));
+        model.hour_entries.registerSilently(entries -> update(model.month.get(), model.day.get(), entries));
+        model.month.registerObserver(month -> update(month, model.day.get(), model.hour_entries.get()));
     }
 
 
     // ------------------------- actions -------------------------
 
-    private void set(LocalDate day, double spent) {
-        double expected = Schedule.getExpectedHours(day);
-        summary.setText(
-                day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
-                        + " --- Hours: " + spent + "/" + expected
-                        + (spent < expected ? " --- Missing: " + (expected - spent)
-                        : spent > expected ? " --- Extra: " + (spent - expected)
-                        : spent == expected && expected != 0 ? " --- OK"
-                        : "")
-        );
-        JavaFXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, day));
-    }
-
-    private void loading() {
-        summary.setText("Loading...");
-        summary.setBackground(null);
+    private void update(YearMonth month, int day, Model.TimeEntries entries) {
+        if (entries.isLoading()) {
+            summary.setText("Loading...");
+            summary.setBackground(null);
+        } else if (day == 0) {
+            summary.setText("Select day");
+            summary.setBackground(null);
+        } else {
+            LocalDate date = month.atDay(day);
+            double spent = entries.getSpent(date);
+            double expected = Schedule.getExpectedHours(date);
+            summary.setText(
+                    date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+                            + " --- Hours: " + spent + "/" + expected
+                            + (spent < expected ? " --- Missing: " + (expected - spent)
+                            : spent > expected ? " --- Extra: " + (spent - expected)
+                            : spent == expected && expected != 0 ? " --- OK"
+                            : "")
+            );
+            JavaFXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, date));
+        }
     }
 }
