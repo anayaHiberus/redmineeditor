@@ -16,16 +16,34 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * The data of the app
+ */
 public class Model {
 
-    // properties
+    // ------------------------- properties -------------------------
+
+    /**
+     * Current user
+     */
     public final ObservableProperty<String> user = new ObservableProperty<>("me");
+
+    /**
+     * Current month
+     */
     public final ObservableProperty<YearMonth> month = new ObservableProperty<>(YearMonth.now());
-    public final ObservableProperty<Integer> day = new ObservableProperty<>(LocalDate.now().getDayOfMonth()); // if 0, no day selected
+
+    /**
+     * Selected day. If 0 no day is displayed
+     */
+    public final ObservableProperty<Integer> day = new ObservableProperty<>(LocalDate.now().getDayOfMonth());
+
+    /**
+     * Hour entries from redmine
+     */
     public final ObservableProperty<TimeEntries> hour_entries = new ObservableProperty<>(new TimeEntries());
 
     // ------------------------- model logic -------------------------
-
 
     public Model() {
         // on new month, load it
@@ -40,27 +58,38 @@ public class Model {
 
     // ------------------------- entries -------------------------
 
-    public class TimeEntries extends ObservableProperty.Data {
+    /**
+     * Redmine entries manager
+     */
+    public class TimeEntries extends ObservableProperty.Property {
 
-        private boolean loading = false;
+        private boolean loading = false; // if data is being loaded
 
-        private final JSONArray entries = new JSONArray();
+        private final JSONArray entries = new JSONArray(); // raw api entries
 
-        private final Set<YearMonth> monthsLoaded = new HashSet<>();
+        private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
 
+        /**
+         * Loads a specific month (if it is already loaded this does nothing)
+         * @param month month to load
+         */
         public void loadMonth(YearMonth month) {
+            // skip if already loaded
             if (monthsLoaded.contains(month)) return;
             monthsLoaded.add(month);
 
+            // notify loading
             loading = true;
             notifyChanged();
+
 
             AtomicBoolean ok = new AtomicBoolean(true);
             JavaFXUtils.runInBackground(() -> {
                 try {
+                    // load from the internet
                     entries.putAll(Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth()));
 
-                    // debug data
+                    // debug data (display loaded value)
                     for (int day = 1; day <= month.lengthOfMonth(); ++day) {
                         LocalDate date = month.atDay(day);
                         double expected = Schedule.getExpectedHours(date);
@@ -69,13 +98,17 @@ public class Model {
                         System.out.println(date + ": Expected " + expected + " obtained " + spent);
                     }
                 } catch (IOException e) {
+                    // error, mark
                     e.printStackTrace();
                     ok.set(false);
                 }
             }, () -> { // then in foreground
+                // notify loaded ended
                 loading = false;
                 notifyChanged();
+
                 if (!ok.get()) {
+                    // on error, show dialog
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText("Network error");
                     alert.setContentText("Can't load content from Redmine. Try again later");
@@ -84,22 +117,35 @@ public class Model {
             });
         }
 
+        /**
+         * Discards all data and loads current month again
+         */
         public void reload() {
             monthsLoaded.clear();
             entries.clear();
             loadMonth(month.get());
         }
 
+        /**
+         * Calculates the hours spent in a day
+         * @param day day to check
+         * @return hours spent that day
+         */
         public double getSpent(LocalDate day) {
             double spent = 0;
             for (int i = 0; i < entries.length(); i++) {
+                // check each entry
                 JSONObject entry = entries.getJSONObject(i);
                 if (Objects.equals(entry.getString("spent_on"), day.toString()))
+                    // if from day, count
                     spent += entry.getDouble("hours");
             }
             return spent;
         }
 
+        /**
+         * @return true iff the data is being loaded (which means that internal data may not be accurate yet)
+         */
         public boolean isLoading() {
             return loading;
         }
