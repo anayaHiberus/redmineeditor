@@ -4,6 +4,7 @@ import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Redmine;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
+import javafx.scene.control.Alert;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -13,6 +14,7 @@ import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Model {
 
@@ -53,24 +55,32 @@ public class Model {
             loading = true;
             hour_entries.wasChanged();
 
+            AtomicBoolean ok = new AtomicBoolean(true);
             JavaFXUtils.runInBackground(() -> {
                 try {
                     entries.putAll(Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth()));
+
+                    // debug data
+                    for (int day = 1; day <= month.lengthOfMonth(); ++day) {
+                        LocalDate date = month.atDay(day);
+                        double expected = Schedule.getExpectedHours(date);
+                        double spent = getSpent(date);
+
+                        System.out.println(date + ": Expected " + expected + " obtained " + spent);
+                    }
                 } catch (IOException e) {
-                    throw new RuntimeException("Unable to load entries from Redmine", e);
+                    e.printStackTrace();
+                    ok.set(false);
                 }
-
-                // debug data
-                for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-                    LocalDate date = month.atDay(day);
-                    double expected = Schedule.getExpectedHours(date);
-                    double spent = getSpent(date);
-
-                    System.out.println(date + ": Expected " + expected + " obtained " + spent);
-                }
-            }, () -> {
+            }, () -> { // then in foreground
                 loading = false;
                 hour_entries.wasChanged();
+                if (!ok.get()) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("Network error");
+                    alert.setContentText("Can't load content from Redmine. Try again later");
+                    alert.showAndWait();
+                }
             });
         }
 
