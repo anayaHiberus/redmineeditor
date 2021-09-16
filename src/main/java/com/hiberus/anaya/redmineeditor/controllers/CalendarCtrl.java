@@ -29,6 +29,7 @@ public class CalendarCtrl implements InnerCtrl {
     private ObservableProperty<Integer>.ObservedProperty dayProperty;
 
     private final Label[] days = new Label[31]; // for coloring days
+    private int selected = -1;
 
     // ------------------------- views -------------------------
 
@@ -97,6 +98,7 @@ public class CalendarCtrl implements InnerCtrl {
         // clear
         calendar.getChildren().clear();
         Arrays.fill(days, null);
+        clearSelected();
 
         // draw label
         calendarLabel.setText(month.format(new DateTimeFormatterBuilder()
@@ -131,17 +133,22 @@ public class CalendarCtrl implements InnerCtrl {
             calendar.getRowConstraints().remove(calendar.getRowCount() - 1);
     }
 
+    private void clearSelected() {
+        // unselect if existing
+        if (selected != -1 && days[selected] != null)
+            days[selected].setBorder(null);
+        selected = -1;
+    }
+
     private void selectDay(int day) {
-        // skip no day
-        if (day == 0) return;
+        // unselect
+        clearSelected();
 
-        for (Label label : days) {
-            // unselect all days (maybe save selected day?)
-            if (label != null) label.setBorder(null);
+        // select
+        if (day != 0) {
+            selected = day - 1;
+            days[selected].setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, new CornerRadii(5.0), new BorderWidths(1))));
         }
-
-        // select day
-        days[day - 1].setBorder(new Border(new BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, new CornerRadii(5.0), new BorderWidths(1))));
     }
 
 }

@@ -16,13 +16,14 @@ import javafx.scene.paint.Color;
 public class JavaFXUtils {
 
     /**
-     * Sets the bacground color of a region
+     * Sets the background color of a region
      *
      * @param node  region to change
      * @param color color to set
      */
     static public void setBackgroundColor(Region node, Color color) {
-        node.setBackground(new Background(new BackgroundFill(color, new CornerRadii(5.0), new Insets(1))));
+        if (color == null) node.setBackground(null);
+        else node.setBackground(new Background(new BackgroundFill(color, new CornerRadii(5.0), new Insets(1))));
     }
 
     /**

@@ -12,9 +12,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,7 +46,7 @@ public class Model {
 
     public Model() {
         // on new month, load it
-        month.observe(newMonth -> {
+        month.bind(newMonth -> {
             day.set(0);
             hour_entries.get().loadMonth(newMonth);
         });
@@ -66,12 +64,13 @@ public class Model {
 
         private boolean loading = false; // if data is being loaded
 
-        private final JSONArray entries = new JSONArray(); // raw api entries
+        private final List<TimeEntry> entries = new ArrayList<>(); // raw api entries
 
         private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
 
         /**
          * Loads a specific month (if it is already loaded this does nothing)
+         *
          * @param month month to load
          */
         public void loadMonth(YearMonth month) {
@@ -88,7 +87,11 @@ public class Model {
             JavaFXUtils.runInBackground(() -> {
                 try {
                     // load from the internet
-                    entries.putAll(Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth()));
+                    JSONArray rawEntries = Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth());
+                    for (int i = 0; i < rawEntries.length(); i++) {
+                        // add to existing
+                        entries.add(new TimeEntry(rawEntries.getJSONObject(i)));
+                    }
 
                     // debug data (display loaded value)
                     for (int day = 1; day <= month.lengthOfMonth(); ++day) {
@@ -129,19 +132,12 @@ public class Model {
 
         /**
          * Calculates the hours spent in a day
+         *
          * @param day day to check
          * @return hours spent that day
          */
         public double getSpent(LocalDate day) {
-            double spent = 0;
-            for (int i = 0; i < entries.length(); i++) {
-                // check each entry
-                JSONObject entry = entries.getJSONObject(i);
-                if (Objects.equals(entry.getString("spent_on"), day.toString()))
-                    // if from day, count
-                    spent += entry.getDouble("hours");
-            }
-            return spent;
+            return entries.stream().filter(entry -> Objects.equals(entry.getSpent_on(), day.toString())).mapToDouble(TimeEntry::getHours).sum();
         }
 
         /**
@@ -149,6 +145,24 @@ public class Model {
          */
         public boolean isLoading() {
             return loading;
+        }
+
+        public class TimeEntry {
+            private String spent_on;
+            private double hours;
+
+            public TimeEntry(JSONObject entry) {
+                spent_on = entry.getString("spent_on");
+                hours = entry.getDouble("hours");
+            }
+
+            public String getSpent_on() {
+                return spent_on;
+            }
+
+            public double getHours() {
+                return hours;
+            }
         }
     }
 

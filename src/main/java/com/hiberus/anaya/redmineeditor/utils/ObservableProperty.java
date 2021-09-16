@@ -1,7 +1,9 @@
+/*
+ * This whole class is ugly, but using the original javafx.beans.property.Property doesn't allow for an object to be modified instead
+ */
 package com.hiberus.anaya.redmineeditor.utils;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * A custom property with data that will notify others when its value changes
@@ -11,7 +13,8 @@ import java.util.Set;
 public class ObservableProperty<T> {
 
     private T data; // the data
-    private final Set<OnChangedListener<T>> listeners = new HashSet<>(); // list of listeners
+    private OnChangedListener<T> binding; // this will always be called first
+    private final ArrayList<OnChangedListener<T>> listeners = new ArrayList<>(); // list of listeners
 
     /**
      * Wraps data into an observable property.
@@ -66,8 +69,21 @@ public class ObservableProperty<T> {
         return new ObservedProperty(listener);
     }
 
+    /**
+     * Registers a unique special listener that will be notified when this property changes.
+     * This will always be called first
+     * The listener will NOT be called now
+     *
+     * @param listener listener to register
+     */
+    public void bind(OnChangedListener<T> listener) {
+        assert binding == null;
+        binding = listener;
+    }
+
     private void notifyExcept(OnChangedListener<T> dontNotify) {
         // notify all listeners except required
+        if (binding != null && binding != dontNotify) binding.onChanged(data);
         for (OnChangedListener<T> listener : listeners) {
             if (listener != dontNotify) listener.onChanged(data);
         }
