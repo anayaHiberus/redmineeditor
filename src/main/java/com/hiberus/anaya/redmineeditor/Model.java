@@ -12,8 +12,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * The data of the app
@@ -133,11 +137,11 @@ public class Model {
         /**
          * Calculates the hours spent in a day
          *
-         * @param day day to check
+         * @param date day to check
          * @return hours spent that day
          */
-        public double getSpent(LocalDate day) {
-            return entries.stream().filter(entry -> Objects.equals(entry.getSpent_on(), day.toString())).mapToDouble(TimeEntry::getHours).sum();
+        public double getSpent(LocalDate date) {
+            return getEntriesForDate(date).stream().mapToDouble(TimeEntry::getHours).sum();
         }
 
         /**
@@ -147,21 +151,47 @@ public class Model {
             return loading;
         }
 
+        public List<TimeEntry> getEntriesForDate(LocalDate date) {
+            return entries.stream().filter(entry -> entry.wasSpentOn(date)).collect(Collectors.toList());
+        }
+
         public class TimeEntry {
-            private String spent_on;
+            private final int id;
+            public final int issue;
+            private LocalDate spent_on;
             private double hours;
+            private String comment;
 
             public TimeEntry(JSONObject entry) {
-                spent_on = entry.getString("spent_on");
+                id = entry.getInt("id");
+                issue = entry.getJSONObject("issue").getInt("id");
+                spent_on = LocalDate.parse(entry.getString("spent_on"));
                 hours = entry.getDouble("hours");
+                comment = entry.optString("comments");
             }
 
-            public String getSpent_on() {
-                return spent_on;
+            public boolean wasSpentOn(LocalDate date) {
+                return spent_on.equals(date);
             }
 
             public double getHours() {
                 return hours;
+            }
+
+            public String getComment() {
+                return comment;
+            }
+
+            public void setComment(String comment) {
+                this.comment = comment;
+            }
+
+            public void changeHours(double amount) {
+                double newHours = hours + amount;
+                if (newHours >= 0) {
+                    hours = newHours;
+                    notifyChanged();
+                }
             }
         }
     }

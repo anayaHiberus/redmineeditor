@@ -24,6 +24,8 @@ public class ParentCtrl {
     SummaryCtrl summaryController;
     @FXML
     ActionsCtrl actionsController;
+    @FXML
+    EntriesCtrl entriesController;
 
     // ------------------------- views -------------------------
 
@@ -42,6 +44,7 @@ public class ParentCtrl {
         settingsController.initCtrl(model);
         summaryController.initCtrl(model);
         actionsController.initCtrl(model);
+        entriesController.initCtrl(model);
 
         model.hour_entries.observeAndNotify(entries -> {
             // when entries are loading, show indicator and disable the rest

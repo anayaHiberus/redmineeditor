@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.2"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <!--fx:controller="com.hiberus.anaya.redmineeditor.controllers.EntryCell"-->
+
+    <graphic>
+        <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
+            <children>
+                <Label fx:id="issue" text="Id"/>
+                <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
+                <VBox alignment="CENTER_RIGHT" fillWidth="false" HBox.hgrow="NEVER">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#changeHours" text="-1"/>
+                        <Button mnemonicParsing="false" onAction="#changeHours" text="-0.25"/>
+                    </children>
+                </VBox>
+                <Label fx:id="hours" text="hh"/>
+                <VBox alignment="CENTER_LEFT" fillWidth="false" HBox.hgrow="NEVER">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#changeHours" text="+1"/>
+                        <Button mnemonicParsing="false" onAction="#changeHours" text="+0.25"/>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </graphic>
+</fx:root>

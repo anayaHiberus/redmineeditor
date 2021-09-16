@@ -20,7 +20,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         // load and show
         stage.setTitle("Redmine editor");
-        FXMLLoader loader = new FXMLLoader(Main.class.getResource("main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("parent.fxml"));
         stage.setScene(new Scene(loader.load()));
         stage.show();
     }
