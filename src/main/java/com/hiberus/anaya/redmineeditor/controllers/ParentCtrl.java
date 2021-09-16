@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.utils.SimpleChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
@@ -43,12 +44,12 @@ public class ParentCtrl {
         summaryController.initCtrl(model);
         actionsController.initCtrl(model);
 
-        model.hour_entries.observeAndNotify(entries -> {
+        SimpleChangeListener.register(model.hour_entries, (entries -> {
             // when entries are loading, show indicator and disable the rest
-            boolean loading = entries.isLoading();
+            boolean loading = model.hour_entries.isLoading();
             progress.setVisible(loading);
             parent.setDisable(loading);
-        });
+        }));
     }
 
 

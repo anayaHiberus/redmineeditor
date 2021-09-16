@@ -1,9 +1,13 @@
 package com.hiberus.anaya.redmineeditor;
 
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
-import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
+import com.hiberus.anaya.redmineeditor.utils.SimpleChangeListener;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Redmine;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Alert;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,34 +31,34 @@ public class Model {
     /**
      * Current user
      */
-    public final ObservableProperty<String> user = new ObservableProperty<>("me");
+    public final SimpleStringProperty user = new SimpleStringProperty("me");
 
     /**
      * Current month
      */
-    public final ObservableProperty<YearMonth> month = new ObservableProperty<>(YearMonth.now());
+    public final SimpleObjectProperty<YearMonth> month = new SimpleObjectProperty<>(YearMonth.now());
 
     /**
      * Selected day. If 0 no day is displayed
      */
-    public final ObservableProperty<Integer> day = new ObservableProperty<>(LocalDate.now().getDayOfMonth());
+    public final SimpleIntegerProperty day = new SimpleIntegerProperty(LocalDate.now().getDayOfMonth());
 
     /**
      * Hour entries from redmine
      */
-    public final ObservableProperty<TimeEntries> hour_entries = new ObservableProperty<>(new TimeEntries());
+    public final TimeEntries hour_entries = new TimeEntries();
 
     // ------------------------- model logic -------------------------
 
     public Model() {
         // on new month, load it
-        month.observe(newMonth -> {
+        SimpleChangeListener.registerSilently(month, newMonth -> {
             day.set(0);
-            hour_entries.get().loadMonth(newMonth);
+            hour_entries.loadMonth(newMonth);
         });
 
-        // start by loading entries of current month
-        hour_entries.get().reload();
+        // start by reloading
+        hour_entries.reload();
     }
 
     // ------------------------- entries -------------------------
@@ -62,7 +66,7 @@ public class Model {
     /**
      * Redmine entries manager
      */
-    public class TimeEntries extends ObservableProperty.Property {
+    public class TimeEntries extends SimpleSetProperty<TimeEntry> {
 
         private boolean loading = false; // if data is being loaded
 
@@ -72,6 +76,7 @@ public class Model {
 
         /**
          * Loads a specific month (if it is already loaded this does nothing)
+         *
          * @param month month to load
          */
         public void loadMonth(YearMonth month) {
@@ -81,7 +86,7 @@ public class Model {
 
             // notify loading
             loading = true;
-            notifyChanged();
+            fireValueChangedEvent();
 
 
             AtomicBoolean ok = new AtomicBoolean(true);
@@ -106,7 +111,7 @@ public class Model {
             }, () -> { // then in foreground
                 // notify loaded ended
                 loading = false;
-                notifyChanged();
+                fireValueChangedEvent();
 
                 if (!ok.get()) {
                     // on error, show dialog
@@ -129,6 +134,7 @@ public class Model {
 
         /**
          * Calculates the hours spent in a day
+         *
          * @param day day to check
          * @return hours spent that day
          */
@@ -150,6 +156,27 @@ public class Model {
         public boolean isLoading() {
             return loading;
         }
+
+
+        // ------------------------- why? -------------------------
+
+
+        @Override
+        public TimeEntries get() {
+            return this;
+        }
+
+        @Override
+        public Object getBean() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return "";
+        }
     }
 
+    public class TimeEntry {
+    }
 }

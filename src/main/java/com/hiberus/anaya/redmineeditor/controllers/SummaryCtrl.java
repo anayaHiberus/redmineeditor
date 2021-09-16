@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
+import com.hiberus.anaya.redmineeditor.utils.SimpleChangeListener;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -26,9 +27,9 @@ public class SummaryCtrl implements InnerCtrl {
     @Override
     public void initCtrl(Model model) {
         // when day, entries or month changes, update label
-        model.day.observe(day -> update(model.month.get(), day, model.hour_entries.get()));
-        model.hour_entries.observe(entries -> update(model.month.get(), model.day.get(), entries));
-        model.month.observeAndNotify(month -> update(month, model.day.get(), model.hour_entries.get()));
+        SimpleChangeListener.registerSilently(model.day, day -> update(model.month.get(), day.intValue(), model.hour_entries));
+        SimpleChangeListener.registerSilently(model.hour_entries, entries -> update(model.month.get(), model.day.get(), model.hour_entries));
+        SimpleChangeListener.register(model.month, month -> update(month, model.day.get(), model.hour_entries));
     }
 
 

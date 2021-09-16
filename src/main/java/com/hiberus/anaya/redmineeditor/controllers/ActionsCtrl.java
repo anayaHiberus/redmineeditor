@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
-import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import javafx.fxml.FXML;
 
 /**
@@ -11,7 +10,7 @@ public class ActionsCtrl implements InnerCtrl {
 
     // ------------------------- properties -------------------------
 
-    private ObservableProperty<Model.TimeEntries> hour_entries;
+    private Model.TimeEntries hour_entries;
 
     // ------------------------- init -------------------------
 
@@ -25,6 +24,6 @@ public class ActionsCtrl implements InnerCtrl {
     @FXML
     void onReload() {
         // press the reload button to reload the data
-        hour_entries.get().reload();
+        hour_entries.reload();
     }
 }
