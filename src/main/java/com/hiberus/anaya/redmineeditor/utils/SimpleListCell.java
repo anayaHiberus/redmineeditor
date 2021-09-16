@@ -6,6 +6,11 @@ import javafx.scene.control.ListCell;
 
 import java.io.IOException;
 
+/**
+ * Adapted from https://stackoverflow.com/a/47526952
+ *
+ * @param <T>
+ */
 public abstract class SimpleListCell<T> extends ListCell<T> {
 
     public SimpleListCell(String resource) {

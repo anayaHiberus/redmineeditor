@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.cells;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
@@ -9,13 +9,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class EntryCell extends SimpleListCell<Model.TimeEntries.TimeEntry> {
-    @FXML
-    Label hours;
+
+    // ------------------------- views -------------------------
     @FXML
     Label issue;
-
     @FXML
     TextField comment;
+    @FXML
+    Label hours;
+
+    // ------------------------- init -------------------------
 
     public EntryCell() {
         super("entry_cell.fxml");
@@ -23,18 +26,22 @@ public class EntryCell extends SimpleListCell<Model.TimeEntries.TimeEntry> {
 
     @Override
     public void update() {
-        hours.setText(Double.toString(getItem().getHours()));
         issue.setText(Integer.toString(getItem().issue));
         comment.setText(getItem().getComment());
+        hours.setText(Double.toString(getItem().getHours()));
     }
+
+    // ------------------------- actions -------------------------
 
     @FXML
     void changedComment() {
+        // update comment
         getItem().setComment(comment.getText());
     }
 
     @FXML
     void changeHours(Event node) {
+        // the button label is the amount
         getItem().changeHours(Double.parseDouble(((Button) node.getTarget()).getText()));
     }
 }

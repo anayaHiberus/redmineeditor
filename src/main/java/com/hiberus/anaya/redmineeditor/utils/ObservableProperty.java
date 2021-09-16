@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 /**
  * A custom property with data that will notify others when its value changes
+ * TODO: replace with {@link javafx.beans.property.Property}, probably data will be separated (loading, listOfEntries, ...)
  *
  * @param <T> Type of the data
  */

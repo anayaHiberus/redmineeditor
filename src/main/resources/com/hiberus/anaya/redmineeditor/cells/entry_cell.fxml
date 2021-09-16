@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.hiberus.anaya.redmineeditor.cells.EntryCell?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<fx:root type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.2"
+<fx:root type="com.hiberus.anaya.redmineeditor.cells.EntryCell" xmlns="http://javafx.com/javafx/11.0.2"
          xmlns:fx="http://javafx.com/fxml/1">
-    <!--fx:controller="com.hiberus.anaya.redmineeditor.controllers.EntryCell"-->
-
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
             <children>

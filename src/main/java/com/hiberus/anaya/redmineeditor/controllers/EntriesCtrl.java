@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.cells.EntryCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
