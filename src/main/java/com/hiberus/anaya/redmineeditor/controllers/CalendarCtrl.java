@@ -37,8 +37,6 @@ public class CalendarCtrl implements InnerCtrl {
     Label calendarLabel;
     @FXML
     GridPane calendar;
-    @FXML
-    GridPane calendarHeader;
 
     // ------------------------- init -------------------------
 
@@ -46,7 +44,7 @@ public class CalendarCtrl implements InnerCtrl {
     void initialize() {
         for (DayOfWeek field : DayOfWeek.values()) {
             // create the header
-            calendarHeader.add(JavaFXUtils.getCenteredLabel(field.getDisplayName(TextStyle.SHORT, Locale.getDefault())), field.getValue() - 1, 0);
+            calendar.add(JavaFXUtils.getCenteredLabel(field.getDisplayName(TextStyle.SHORT, Locale.getDefault())), field.getValue() - 1, 0);
         }
     }
 
@@ -96,7 +94,7 @@ public class CalendarCtrl implements InnerCtrl {
 
     private void drawMonth(YearMonth month) {
         // clear
-        calendar.getChildren().clear();
+        calendar.getChildren().removeAll(days);
         Arrays.fill(days, null);
         clearSelected();
 
@@ -114,7 +112,8 @@ public class CalendarCtrl implements InnerCtrl {
         for (int day = 1; day <= numberOfDays; day++) {
             // foreach day in month
             int index = day + padding - 1;
-            if (index / 7 >= calendar.getRowCount()) {
+            int column = index / 7 + 1;
+            if (column >= calendar.getRowCount()) {
                 // add missing row
                 RowConstraints row = new RowConstraints();
                 row.setVgrow(Priority.SOMETIMES);
@@ -126,9 +125,9 @@ public class CalendarCtrl implements InnerCtrl {
             days[day - 1] = centeredLabel;
             int finalDay = day;
             centeredLabel.setOnMouseClicked(event -> dayProperty.setAndNotify(finalDay));
-            calendar.add(centeredLabel, index % 7, index / 7);
+            calendar.add(centeredLabel, index % 7, column);
         }
-        while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 1)
+        while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 2)
             // remove extra rows
             calendar.getRowConstraints().remove(calendar.getRowCount() - 1);
     }

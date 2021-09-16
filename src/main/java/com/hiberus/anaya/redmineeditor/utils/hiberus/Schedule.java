@@ -40,21 +40,21 @@ public class Schedule {
      * @return the color of that day (null for no color)
      */
     static public Color getColor(double expected, double spent, LocalDate day) {
-        if (expected == spent) {
-            if (expected != 0)
-                // something to spend, and correctly spent, GOOD!
-                return Color.LIGHTGREEN;
+        if (expected != 0 && expected == spent) {
+            return Color.LIGHTGREEN;
+        } else if (expected == 0 && spent == 0) {
             // nothing to spend and nothing spent -> ignore
-        } else {
-            if (day.equals(LocalDate.now())) {
-                // today, but still not all, WARNING!
-                return Color.ORANGE;
-            } else if (day.isBefore(LocalDate.now())) {
-                // past day and not all!, ERROR!
-                return Color.RED;
-            }
-            // future day -> ignore
+        } else if (spent > expected) {
+            // spent greater than expected, ERROR!
+            return Color.RED;
+        } else if (day.equals(LocalDate.now())) {
+            // today, but still not all, WARNING!
+            return Color.ORANGE;
+        } else if (day.isBefore(LocalDate.now())) {
+            // past day and not all, ERROR!
+            return Color.RED;
         }
+        // future day -> ignore
 
         // ignored, null (no color)
         return null;
