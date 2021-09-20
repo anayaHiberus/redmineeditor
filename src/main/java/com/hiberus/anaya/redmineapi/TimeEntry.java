@@ -1,12 +1,11 @@
 package com.hiberus.anaya.redmineapi;
 
-import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class TimeEntry extends ObservableProperty.Property {
+public class TimeEntry {
     public final int id;
     public final int issue;
     private final LocalDate spent_on;
@@ -50,7 +49,6 @@ public class TimeEntry extends ObservableProperty.Property {
         double newHours = hours + amount;
         if (newHours >= 0) {
             hours = newHours;
-            notifyChanged();
         }
     }
 

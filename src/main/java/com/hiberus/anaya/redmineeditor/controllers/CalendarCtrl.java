@@ -2,7 +2,6 @@ package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
-import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -21,12 +20,9 @@ import java.util.Locale;
 /**
  * A calendar view with colored days
  */
-public class CalendarCtrl implements InnerCtrl {
+public class CalendarCtrl extends InnerCtrl {
 
     // ------------------------- properties -------------------------
-
-    private ObservableProperty<YearMonth>.ObservedProperty monthProperty;
-    private ObservableProperty<Integer>.ObservedProperty dayProperty;
 
     private final Label[] days = new Label[31]; // for coloring days
     private int selected = -1;
@@ -49,16 +45,18 @@ public class CalendarCtrl implements InnerCtrl {
     }
 
     @Override
-    public void initCtrl(Model model) {
-        monthProperty = model.month.observeAndNotify(month -> {
+    public void initCtrl() {
+        model.onChanges(() -> {
             // month changed, draw new and color days
-            drawMonth(month);
-            colorDays(model.hour_entries.get());
+            drawMonth(model.getMonth());
+            colorDays(model.hour_entries);
+
+            // day changed, select new
+            selectDay(model.getDay());
+
+            // hours changed, color days again
+            colorDays(model.hour_entries);
         });
-        // day changed, select new
-        dayProperty = model.day.observeAndNotify(this::selectDay);
-        // hours changed, color days again
-        model.hour_entries.observeAndNotify(this::colorDays);
     }
 
     // ------------------------- onActions -------------------------
@@ -66,13 +64,13 @@ public class CalendarCtrl implements InnerCtrl {
     @FXML
     void onNextMonth() {
         // set next month
-        monthProperty.setAndNotify(monthProperty.get().plusMonths(1));
+        model.setMonth(model.getMonth().plusMonths(1));
     }
 
     @FXML
     void onPreviousMonth() {
         // set previous month
-        monthProperty.setAndNotify(monthProperty.get().plusMonths(-1));
+        model.setMonth(model.getMonth().minusMonths(1));
     }
 
     // ------------------------- actions -------------------------
@@ -81,9 +79,9 @@ public class CalendarCtrl implements InnerCtrl {
         // skip if loading
         if (entries.isLoading()) return;
 
-        for (int day = 1; day <= monthProperty.get().lengthOfMonth(); ++day) {
+        for (int day = 1; day <= model.getMonth().lengthOfMonth(); ++day) {
             // foreach day of the month
-            LocalDate date = monthProperty.get().atDay(day);
+            LocalDate date = model.getMonth().atDay(day);
             double expected = Schedule.getExpectedHours(date);
             double spent = entries.getSpent(date);
 
@@ -124,7 +122,7 @@ public class CalendarCtrl implements InnerCtrl {
             Label centeredLabel = JavaFXUtils.getCenteredLabel(Integer.toString(day));
             days[day - 1] = centeredLabel;
             int finalDay = day;
-            centeredLabel.setOnMouseClicked(event -> dayProperty.setAndNotify(finalDay));
+            centeredLabel.setOnMouseClicked(event -> model.setDay(finalDay));
             calendar.add(centeredLabel, index % 7, column);
         }
         while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 2)

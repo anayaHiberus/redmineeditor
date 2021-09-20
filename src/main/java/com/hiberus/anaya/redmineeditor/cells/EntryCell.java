@@ -22,9 +22,11 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     Label hours;
 
     // ------------------------- init -------------------------
+    private final Runnable listener;
 
-    public EntryCell() {
+    public EntryCell(Runnable onChangeListener) {
         super("entry_cell.fxml");
+        listener = onChangeListener;
     }
 
     @Override
@@ -47,5 +49,6 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     void changeHours(Event node) {
         // the button label is the amount
         getItem().changeHours(Double.parseDouble(((Button) node.getTarget()).getText()));
+        listener.run();
     }
 }

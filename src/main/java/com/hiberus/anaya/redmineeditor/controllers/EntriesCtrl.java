@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.cells.EntryCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,9 +9,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
-public class EntriesCtrl implements InnerCtrl {
+public class EntriesCtrl extends InnerCtrl {
 
     public ChoiceBox<Integer> choice;
 
@@ -20,44 +18,40 @@ public class EntriesCtrl implements InnerCtrl {
     ListView<TimeEntry> list;
     private final ObservableList<TimeEntry> listItems = FXCollections.observableArrayList();
     private final ObservableList<Integer> choiceItems = FXCollections.observableArrayList();
-    private Model model;
 
     @FXML
     void initialize() {
         choice.setItems(choiceItems);
         list.setItems(listItems);
-        list.setCellFactory(param -> new EntryCell());
+        list.setCellFactory(param -> new EntryCell(() -> model.notifyChanged()));
 
         choice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            // when selected entry, add issue
             Integer issue = choice.getValue();
             if (issue == null) return;
-            model.hour_entries.get().createIssue(model.month.get().atDay(model.day.get()), issue);
+            LocalDate date = model.getDate();
+            if (date != null) model.hour_entries.createIssue(date, issue);
             choice.setValue(null);
         });
     }
 
     @Override
-    public void initCtrl(Model model) {
-        this.model = model;
-        model.month.observe(month ->
-                replace(month, model.hour_entries.get(), model.day.get())
-        );
-        model.day.observe(day ->
-                replace(model.month.get(), model.hour_entries.get(), day)
-        );
-        model.hour_entries.observeAndNotify(entries -> {
-            replace(model.month.get(), entries, model.day.get());
+    public void initCtrl() {
+        model.onChanges(() -> {
+            // replace entries
+            replace();
+            // populate issues
             choiceItems.clear();
-            choiceItems.addAll(entries.getAllIssues());
+            choiceItems.addAll(model.hour_entries.getAllIssues());
         });
     }
 
-    private void replace(YearMonth month, Model.TimeEntries timeEntries, int day) {
+    private void replace() {
         listItems.clear();
-        if (day != 0) {
-            LocalDate date = month.atDay(day);
-            timeEntries.prepareEntriesForDate(date);
-            listItems.addAll(timeEntries.getEntriesForDate(date));
+        LocalDate date = model.getDate();
+        if (date != null) {
+            model.hour_entries.prepareEntriesForDate(date);
+            listItems.addAll(model.hour_entries.getEntriesForDate(date));
         }
     }
 

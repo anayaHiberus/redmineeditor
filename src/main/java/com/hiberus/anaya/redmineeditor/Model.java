@@ -3,8 +3,8 @@ package com.hiberus.anaya.redmineeditor;
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
-import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Alert;
 import org.json.JSONException;
 
@@ -23,35 +23,67 @@ import java.util.stream.Collectors;
  */
 public class Model {
 
-    // ------------------------- properties -------------------------
+    // ------------------------- month -------------------------
 
     /**
      * Current month
      */
-    public final ObservableProperty<YearMonth> month = new ObservableProperty<>(YearMonth.now());
+    private YearMonth month = YearMonth.now();
+
+    public YearMonth getMonth() {
+        return month;
+    }
+
+    public void setMonth(YearMonth month) {
+        this.month = month;
+
+        // on new month, reset day and load hours
+        setDay(0);
+        hour_entries.loadMonth(month);
+        notifyChanged();
+    }
+
+    // ------------------------- day -------------------------
 
     /**
      * Selected day. If 0 no day is displayed
      */
-    public final ObservableProperty<Integer> day = new ObservableProperty<>(LocalDate.now().getDayOfMonth());
+    private int day = LocalDate.now().getDayOfMonth();
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        if (day == 0 || month.isValidDay(day))
+            this.day = day;
+        // else assert?
+        notifyChanged();
+    }
+
+    public LocalDate getDate() {
+        if (day == 0) return null;
+        else return month.atDay(day);
+    }
+
+    // ------------------------- entries -------------------------
 
     /**
      * Hour entries from redmine
      */
-    public final ObservableProperty<TimeEntries> hour_entries = new ObservableProperty<>(new TimeEntries());
+    public final TimeEntries hour_entries = new TimeEntries();
 
-    // ------------------------- model logic -------------------------
+    // ------------------------- notifier -------------------------
 
-    public Model() {
-        // on new month, load it
-        month.bind(newMonth -> {
-            day.set(0);
-            hour_entries.get().loadMonth(newMonth);
-        });
+    SimpleBooleanProperty changed = new SimpleBooleanProperty();
 
-        // start by loading entries of current month
-        hour_entries.get().clear();
-        hour_entries.get().loadMonth(month.get());
+    public void onChanges(Runnable listener) {
+        listener.run();
+        changed.addListener((observable, oldValue, newValue) -> listener.run());
+    }
+
+    public void notifyChanged() {
+        changed.set(!changed.get());
     }
 
     // ------------------------- entries -------------------------
@@ -59,12 +91,12 @@ public class Model {
     /**
      * Redmine entries manager
      */
-    public static class TimeEntries extends ObservableProperty.Property {
+    public class TimeEntries {
         private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY);
 
         private boolean loading = false; // if data is being loaded
 
-        private final List<ObservableProperty<TimeEntry>> entries = new ArrayList<>(); // raw api entries
+        private final List<TimeEntry> entries = new ArrayList<>(); // raw api entries
 
         private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
 
@@ -83,7 +115,7 @@ public class Model {
             loading = true;
             notifyChanged();
 
-
+            // in background...
             AtomicBoolean ok = new AtomicBoolean(true);
             JavaFXUtils.runInBackground(() -> {
                 try {
@@ -105,7 +137,7 @@ public class Model {
                     e.printStackTrace();
                     ok.set(false);
                 }
-            }, () -> { // then in foreground
+            }, () -> { // then in foreground...
                 // notify loaded ended
                 loading = false;
                 notifyChanged();
@@ -121,9 +153,8 @@ public class Model {
         }
 
         private void addEntry(TimeEntry timeEntry) {
-            ObservableProperty<TimeEntry> observable = new ObservableProperty<>(timeEntry);
-            observable.observe(newValue -> notifyChanged());
-            entries.add(observable);
+            entries.add(timeEntry);
+            notifyChanged();
         }
 
         /**
@@ -153,7 +184,9 @@ public class Model {
         }
 
         public List<TimeEntry> getEntriesForDate(LocalDate date) {
-            return entries.stream().map(ObservableProperty::get).filter(entry -> entry.wasSpentOn(date)).collect(Collectors.toList());
+            return entries.stream()
+                    .filter(entry -> entry.wasSpentOn(date))
+                    .collect(Collectors.toList());
         }
 
         public void prepareEntriesForDate(LocalDate date) {
@@ -173,13 +206,15 @@ public class Model {
 
         public boolean update() {
             return entries.stream()
-                    .map(ObservableProperty::get)
                     .map(manager::uploadTimeEntry)
                     .reduce(true, Boolean::logicalAnd);
         }
 
         public Set<Integer> getAllIssues() {
-            return entries.stream().map(entries -> entries.get().issue).filter(issue -> issue != -1).collect(Collectors.toSet());
+            return entries.stream()
+                    .map(entries -> entries.issue)
+                    .filter(issue -> issue != -1)
+                    .collect(Collectors.toSet());
         }
 
         public void createIssue(LocalDate date, Integer issue) {
