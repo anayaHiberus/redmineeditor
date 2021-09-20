@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 public class EntriesCtrl implements InnerCtrl {
@@ -53,8 +54,11 @@ public class EntriesCtrl implements InnerCtrl {
 
     private void replace(YearMonth month, Model.TimeEntries timeEntries, int day) {
         listItems.clear();
-        if (day != 0)
-            listItems.addAll(timeEntries.getEntriesForDate(month.atDay(day)));
+        if (day != 0) {
+            LocalDate date = month.atDay(day);
+            timeEntries.prepareEntriesForDate(date);
+            listItems.addAll(timeEntries.getEntriesForDate(date));
+        }
     }
 
 }

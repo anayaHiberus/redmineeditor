@@ -7,10 +7,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
 public class EntryCell extends SimpleListCell<TimeEntry> {
 
     // ------------------------- views -------------------------
+    @FXML
+    HBox translucent;
     @FXML
     Label issue;
     @FXML
@@ -29,6 +32,7 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         issue.setText(Integer.toString(getItem().issue));
         comment.setText(getItem().getComment());
         hours.setText(Double.toString(getItem().getHours()));
+        translucent.setOpacity(getItem().getHours() > 0 ? 1.0 : 0.5);
     }
 
     // ------------------------- actions -------------------------

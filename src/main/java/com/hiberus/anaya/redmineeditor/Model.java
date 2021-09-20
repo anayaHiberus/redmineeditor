@@ -157,6 +157,21 @@ public class Model {
             return entries.stream().map(ObservableProperty::get).filter(entry -> entry.wasSpentOn(date)).collect(Collectors.toList());
         }
 
+        public void prepareEntriesForDate(LocalDate date) {
+            Set<Integer> issues = getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toSet());
+
+            for (int days = 1; days <= 7; ++days) {
+                for (TimeEntry prevEntry : getEntriesForDate(date.minusDays(days))) {
+                    if (prevEntry.getHours() != 0 && !issues.contains(prevEntry.issue)) {
+                        TimeEntry newEntry = new TimeEntry(prevEntry.issue, date);
+                        newEntry.setComment(prevEntry.getComment());
+                        addEntry(newEntry);
+                        issues.add(prevEntry.issue); // in loops instead of stream because we only want one for each issue
+                    }
+                }
+            }
+        }
+
         public void update() {
             entries.forEach(entry -> {
                 JSONObject changes = entry.get().getChanges();

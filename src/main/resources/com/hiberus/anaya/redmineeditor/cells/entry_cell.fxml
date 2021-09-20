@@ -8,8 +8,10 @@
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
             <children>
-                <Label fx:id="issue" text="Id"/>
-                <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
+                <HBox fx:id="translucent" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <Label fx:id="issue" text="Id"/>
+                    <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
+                </HBox>
                 <VBox alignment="CENTER_RIGHT" fillWidth="false" HBox.hgrow="NEVER">
                     <children>
                         <Button mnemonicParsing="false" onAction="#changeHours" text="-1"/>
