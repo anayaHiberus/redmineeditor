@@ -6,7 +6,6 @@ import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.scene.control.Alert;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,11 +25,6 @@ import java.util.stream.Collectors;
 public class Model {
 
     // ------------------------- properties -------------------------
-
-    /**
-     * Current user
-     */
-    public final ObservableProperty<String> user = new ObservableProperty<>("me");
 
     /**
      * Current month
@@ -55,9 +49,6 @@ public class Model {
             day.set(0);
             hour_entries.get().loadMonth(newMonth);
         });
-
-        // on new user, update
-        user.bind(newUser -> hour_entries.get().setUser(newUser));
 
         // start by loading entries of current month
         hour_entries.get().clear();
@@ -97,16 +88,9 @@ public class Model {
             AtomicBoolean ok = new AtomicBoolean(true);
             JavaFXUtils.runInBackground(() -> {
                 try {
-                    Set<Integer> issues = new HashSet<>();
 
                     // load from the internet
-                    JSONArray rawEntries = manager.getHourEntries(month.atDay(1), month.atEndOfMonth());
-                    for (int i = 0; i < rawEntries.length(); i++) {
-                        // add to existing
-                        TimeEntry timeEntry = new TimeEntry(rawEntries.getJSONObject(i));
-                        addEntry(timeEntry);
-                        issues.add(timeEntry.issue);
-                    }
+                    manager.getHourEntries(month.atDay(1), month.atEndOfMonth()).forEach(this::addEntry);
 
                     // debug data (display loaded value)
                     for (int day = 1; day <= month.lengthOfMonth(); ++day) {
@@ -116,6 +100,7 @@ public class Model {
 
                         System.out.println(date + ": Expected " + expected + " obtained " + spent);
                     }
+
                 } catch (IOException | JSONException e) {
                     // error, mark
                     e.printStackTrace();
@@ -170,10 +155,6 @@ public class Model {
 
         public List<TimeEntry> getEntriesForDate(LocalDate date) {
             return entries.stream().map(ObservableProperty::get).filter(entry -> entry.wasSpentOn(date)).collect(Collectors.toList());
-        }
-
-        public void setUser(String user) {
-            manager.setUser(user);
         }
 
         public void update() {

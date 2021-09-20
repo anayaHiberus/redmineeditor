@@ -17,8 +17,6 @@ public class ParentCtrl {
     // ------------------------- subcontrollers -------------------------
 
     @FXML
-    SettingsCtrl settingsController;
-    @FXML
     CalendarCtrl calendarController;
     @FXML
     SummaryCtrl summaryController;
@@ -41,7 +39,6 @@ public class ParentCtrl {
     void initialize() {
         // init subcontrollers, like manual dependency injection
         calendarController.initCtrl(model);
-        settingsController.initCtrl(model);
         summaryController.initCtrl(model);
         actionsController.initCtrl(model);
         entriesController.initCtrl(model);

@@ -6,23 +6,24 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Redmine API.
  * The 'official' one is not used because it doesn't allow searching with multiple filters
  */
 public class RedmineManager {
+    // static
+    private static final String USER = "me";
+
+    // configurable
     private final String domain;
     private final String key;
-    private String user = "me";
 
     public RedmineManager(String domain, String key) {
         this.domain = domain;
         this.key = key;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
     }
 
     /**
@@ -33,22 +34,28 @@ public class RedmineManager {
      * @return the JSON data
      * @throws IOException if network failed
      */
-    public JSONArray getHourEntries(LocalDate from, LocalDate to) throws IOException {
+    public List<TimeEntry> getHourEntries(LocalDate from, LocalDate to) throws IOException {
         int offset = 0;
-        JSONArray allEntries = new JSONArray();
+        List<TimeEntry> allEntries = new ArrayList<>();
         int total_count;
         do {
             // get page
-            JSONObject pageEntries = JSONUtils.getFromUrl(domain + "time_entries.json?utf8=✓&"
-                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=" + user
+            JSONObject page = JSONUtils.getFromUrl(domain + "time_entries.json?utf8=✓&"
+                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=" + USER
                     + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=" + from.toString() + "&v[spent_on][]=" + to.toString()
                     + "&key=" + key
                     + "&limit=100&offset=" + offset
             );
-            allEntries.putAll(pageEntries.getJSONArray("time_entries"));
-            offset = allEntries.length();
+
+            // add page
+            JSONArray pageEntries = page.getJSONArray("time_entries");
+            for (int i = 0; i < pageEntries.length(); i++) {
+                allEntries.add(new TimeEntry(pageEntries.getJSONObject(i)));
+            }
+            offset = allEntries.size();
+
             // repeat if still not all
-            total_count = pageEntries.getInt("total_count");
+            total_count = page.getInt("total_count");
         } while (offset < total_count);
 
         return allEntries;
