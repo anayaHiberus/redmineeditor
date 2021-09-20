@@ -54,11 +54,11 @@ public class TimeEntry extends ObservableProperty.Property {
         }
     }
 
+    /**
+     * @return a list of changes made to this entry, as an object (empty means no changes)
+     */
     public JSONObject getChanges() {
         JSONObject changes = new JSONObject();
-
-        // no hours, return empty (means delete or ignore)
-        if (hours == 0) return changes;
 
         if (original == null || hours != original.getDouble("hours")) {
             changes.put("hours", hours);
@@ -67,12 +67,12 @@ public class TimeEntry extends ObservableProperty.Property {
             changes.put("comments", comment);
         }
         if (id == -1) {
+            // without original, this data is considered new
             changes.put("issue_id", issue);
             changes.put("spent_on", spent_on);
         }
 
-        // return changes (or null for nothing)
-        if (changes.isEmpty()) return null;
-        else return changes;
+        // return changes (empty for nothing)
+        return changes;
     }
 }

@@ -7,7 +7,6 @@ import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.scene.control.Alert;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -172,15 +171,11 @@ public class Model {
             }
         }
 
-        public void update() {
-            entries.forEach(entry -> {
-                JSONObject changes = entry.get().getChanges();
-                if (changes != null) {
-                    int id = entry.get().id;
-                    System.out.println("Updating entry " + id + " with changes " + changes);
-                    manager.uploadTimeEntry(id, changes);
-                }
-            });
+        public boolean update() {
+            return entries.stream()
+                    .map(ObservableProperty::get)
+                    .map(manager::uploadTimeEntry)
+                    .reduce(true, Boolean::logicalAnd);
         }
 
         public Set<Integer> getAllIssues() {

@@ -15,7 +15,8 @@ import java.util.List;
  */
 public class RedmineManager {
     // static
-    private static final String USER = "me";
+    static private final String USER = "me";
+    static private final boolean OFFLINE = false; // for debug purpose, set to true to disable changes
 
     // configurable
     private final String domain;
@@ -61,22 +62,34 @@ public class RedmineManager {
         return allEntries;
     }
 
-    public boolean uploadTimeEntry(int id, JSONObject entry) {
+    public boolean uploadTimeEntry(TimeEntry entry) {
+
+        int id = entry.id;
+
+        // get changes
+        JSONObject changes = entry.getChanges();
+
+        // ignore unmodified
+        if (changes.isEmpty()) return true;
+
         if (id == -1) {
-            if (!entry.isEmpty()) {
+            if (entry.getHours() > 0) {
                 // create
-                return JSONUtils.postToUrl(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", entry)) == 201;
+                System.out.println("Creating entry with data: " + changes);
+                return OFFLINE || JSONUtils.postToUrl(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) == 201;
             } else {
                 // ignore
                 return true;
             }
         } else {
-            if (!entry.isEmpty()) {
+            if (entry.getHours() > 0) {
                 // update
-                return JSONUtils.putToUrl(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", entry)) == 204;
+                System.out.println("Updating entry " + id + " with data: " + changes);
+                return OFFLINE || JSONUtils.putToUrl(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) == 200;
             } else {
                 // delete
-                return JSONUtils.delete(domain + "time_entries/" + id + ".json?key=" + key) == 204;
+                System.out.println("Deleting entry " + id);
+                return OFFLINE || JSONUtils.delete(domain + "time_entries/" + id + ".json?key=" + key) == 200;
             }
         }
     }

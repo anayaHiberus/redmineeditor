@@ -27,49 +27,36 @@ public class JSONUtils {
     }
 
     public static int putToUrl(String url, JSONObject object) {
-        try {
-            URL _url = new URL(url);
-            HttpURLConnection http = (HttpURLConnection) _url.openConnection();
-            http.setRequestMethod("PUT");
-            http.setDoOutput(true);
-            http.setRequestProperty("Content-Type", "application/json");
-
-            http.getOutputStream().write(object.toString().getBytes(StandardCharsets.UTF_8));
-
-            int responseCode = http.getResponseCode();
-            http.disconnect();
-            return responseCode;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return send(url, "PUT", object);
     }
 
     public static int postToUrl(String url, JSONObject object) {
-        try {
-            URL _url = new URL(url);
-            HttpURLConnection http = (HttpURLConnection) _url.openConnection();
-            http.setRequestMethod("POST");
-            http.setDoOutput(true);
-            http.setRequestProperty("Content-Type", "application/json");
-
-            http.getOutputStream().write(object.toString().getBytes(StandardCharsets.UTF_8));
-            System.out.println(http.getResponseMessage());
-            int responseCode = http.getResponseCode();
-            http.disconnect();
-            return responseCode;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return send(url, "POST", object);
     }
 
     public static int delete(String url) {
+        return send(url, "DELETE", null);
+    }
+
+    // ------------------------- utils -------------------------
+
+    private static int send(String url, String method, JSONObject body) {
         try {
+            // init
             URL _url = new URL(url);
             HttpURLConnection http = (HttpURLConnection) _url.openConnection();
-            http.setRequestMethod("DELETE");
+            http.setRequestMethod(method);
+            if (body != null) {
+                http.setDoOutput(true);
+                http.setRequestProperty("Content-Type", "application/json");
+                http.getOutputStream().write(body.toString().getBytes(StandardCharsets.UTF_8));
+            }
+
+            // get
             int responseCode = http.getResponseCode();
+            System.out.println(responseCode + ": " + http.getResponseMessage());
+
+            // end
             http.disconnect();
             return responseCode;
         } catch (IOException e) {
@@ -77,8 +64,6 @@ public class JSONUtils {
         }
         return -1;
     }
-
-    // ------------------------- utils -------------------------
 
     private static String readAll(Reader rd) throws IOException {
         // from https://www.baeldung.com/java-convert-reader-to-string

@@ -1,10 +1,13 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 
 import java.time.YearMonth;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A list of action buttons
@@ -35,9 +38,19 @@ public class ActionsCtrl implements InnerCtrl {
 
     @FXML
     void update() {
-        // update changes
-        hour_entries.get().update();
-        // and reload
-        reload();
+        AtomicBoolean ok = new AtomicBoolean();
+        JavaFXUtils.runInBackground(() -> {
+            // update changes
+            ok.set(hour_entries.get().update());
+        }, () -> {
+            if (!ok.get()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Network error");
+                alert.setContentText("Can't upload content to Redmine. Try again later");
+                alert.showAndWait();
+            }
+            // and reload
+            reload();
+        });
     }
 }
