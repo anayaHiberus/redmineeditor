@@ -4,8 +4,10 @@ module com.hiberus.anaya.redmineeditor {
     requires javafx.graphics;
     requires kotlin.stdlib;
     requires org.json;
+    // requires redmine.java.api;
 
 
+    exports com.hiberus.anaya.redmineapi;
     exports com.hiberus.anaya.redmineeditor;
     exports com.hiberus.anaya.redmineeditor.controllers;
     exports com.hiberus.anaya.redmineeditor.utils;

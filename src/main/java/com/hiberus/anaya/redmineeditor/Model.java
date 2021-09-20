@@ -1,8 +1,9 @@
 package com.hiberus.anaya.redmineeditor;
 
+import com.hiberus.anaya.redmineapi.RedmineManager;
+import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.ObservableProperty;
-import com.hiberus.anaya.redmineeditor.utils.hiberus.Redmine;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.scene.control.Alert;
 import org.json.JSONArray;
@@ -55,8 +56,12 @@ public class Model {
             hour_entries.get().loadMonth(newMonth);
         });
 
+        // on new user, update
+        user.bind(newUser -> hour_entries.get().setUser(newUser));
+
         // start by loading entries of current month
-        hour_entries.get().reload();
+        hour_entries.get().clear();
+        hour_entries.get().loadMonth(month.get());
     }
 
     // ------------------------- entries -------------------------
@@ -64,13 +69,15 @@ public class Model {
     /**
      * Redmine entries manager
      */
-    public class TimeEntries extends ObservableProperty.Property {
+    public static class TimeEntries extends ObservableProperty.Property {
+        private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY);
 
         private boolean loading = false; // if data is being loaded
 
-        private final List<TimeEntry> entries = new ArrayList<>(); // raw api entries
+        private final List<ObservableProperty<TimeEntry>> entries = new ArrayList<>(); // raw api entries
 
         private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
+
 
         /**
          * Loads a specific month (if it is already loaded this does nothing)
@@ -90,11 +97,15 @@ public class Model {
             AtomicBoolean ok = new AtomicBoolean(true);
             JavaFXUtils.runInBackground(() -> {
                 try {
+                    Set<Integer> issues = new HashSet<>();
+
                     // load from the internet
-                    JSONArray rawEntries = Redmine.getHourEntries(user.get(), month.atDay(1), month.atEndOfMonth());
+                    JSONArray rawEntries = manager.getHourEntries(month.atDay(1), month.atEndOfMonth());
                     for (int i = 0; i < rawEntries.length(); i++) {
                         // add to existing
-                        entries.add(new TimeEntry(rawEntries.getJSONObject(i)));
+                        TimeEntry timeEntry = new TimeEntry(rawEntries.getJSONObject(i));
+                        addEntry(timeEntry);
+                        issues.add(timeEntry.issue);
                     }
 
                     // debug data (display loaded value)
@@ -125,13 +136,19 @@ public class Model {
             });
         }
 
+        private void addEntry(TimeEntry timeEntry) {
+            ObservableProperty<TimeEntry> observable = new ObservableProperty<>(timeEntry);
+            observable.observe(newValue -> notifyChanged());
+            entries.add(observable);
+        }
+
         /**
-         * Discards all data and loads current month again
+         * Discards all data
          */
-        public void reload() {
+        public void clear() {
             monthsLoaded.clear();
             entries.clear();
-            loadMonth(month.get());
+            notifyChanged();
         }
 
         /**
@@ -152,47 +169,31 @@ public class Model {
         }
 
         public List<TimeEntry> getEntriesForDate(LocalDate date) {
-            return entries.stream().filter(entry -> entry.wasSpentOn(date)).collect(Collectors.toList());
+            return entries.stream().map(ObservableProperty::get).filter(entry -> entry.wasSpentOn(date)).collect(Collectors.toList());
         }
 
-        public class TimeEntry {
-            private final int id;
-            public final int issue;
-            private LocalDate spent_on;
-            private double hours;
-            private String comment;
+        public void setUser(String user) {
+            manager.setUser(user);
+        }
 
-            public TimeEntry(JSONObject entry) {
-                id = entry.getInt("id");
-                issue = entry.getJSONObject("issue").getInt("id");
-                spent_on = LocalDate.parse(entry.getString("spent_on"));
-                hours = entry.getDouble("hours");
-                comment = entry.optString("comments");
-            }
-
-            public boolean wasSpentOn(LocalDate date) {
-                return spent_on.equals(date);
-            }
-
-            public double getHours() {
-                return hours;
-            }
-
-            public String getComment() {
-                return comment;
-            }
-
-            public void setComment(String comment) {
-                this.comment = comment;
-            }
-
-            public void changeHours(double amount) {
-                double newHours = hours + amount;
-                if (newHours >= 0) {
-                    hours = newHours;
-                    notifyChanged();
+        public void update() {
+            entries.forEach(entry -> {
+                JSONObject changes = entry.get().getChanges();
+                if (changes != null) {
+                    int id = entry.get().id;
+                    System.out.println("Updating entry " + id + " with changes " + changes);
+                    manager.uploadTimeEntry(id, changes);
                 }
-            }
+            });
+        }
+
+        public Set<Integer> getAllIssues() {
+            return entries.stream().map(entries -> entries.get().issue).filter(issue -> issue != -1).collect(Collectors.toSet());
+        }
+
+        public void createIssue(LocalDate date, Integer issue) {
+            addEntry(new TimeEntry(issue, date));
+            notifyChanged();
         }
     }
 

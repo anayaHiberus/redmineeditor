@@ -13,7 +13,7 @@ repositories {
 }
 
 ext {
-    junitVersion = '5.7.1'
+    junitVersion = '5.7.2'
 }
 
 sourceCompatibility = '16'
@@ -37,9 +37,10 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
 
     implementation "org.json:json:20210307"
+    // implementation "com.taskadapter:redmine-java-api:4.0.0.rc4" // useless api, cant search using multiple filters
 }
 
 test {

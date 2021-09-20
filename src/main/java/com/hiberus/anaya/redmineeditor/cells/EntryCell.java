@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.cells;
 
-import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -8,7 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
-public class EntryCell extends SimpleListCell<Model.TimeEntries.TimeEntry> {
+public class EntryCell extends SimpleListCell<TimeEntry> {
 
     // ------------------------- views -------------------------
     @FXML
