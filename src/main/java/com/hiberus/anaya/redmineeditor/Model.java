@@ -176,4 +176,16 @@ public class Model {
     public boolean hasChanges() {
         return entries.stream().anyMatch(manager::requiresUpload);
     }
+
+    public double[] getSpentForMonth() {
+        double[] spent = new double[month.lengthOfMonth()];
+        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
+            // foreach day of the month
+            LocalDate date = month.atDay(day);
+
+            // color the day
+            spent[day - 1] = getSpent(month.atDay(day));
+        }
+        return spent;
+    }
 }

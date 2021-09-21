@@ -36,7 +36,7 @@ public class ParentView {
     @FXML
     void initialize() {
         // this is the application controller
-        Controller controller = new Controller(calendarController, summaryController, actionsController, entriesController, this);
+        Controller controller = new Controller(calendarController, summaryController, entriesController, this);
 
         // init subviews, like manual dependency injection
         calendarController.injectController(controller);

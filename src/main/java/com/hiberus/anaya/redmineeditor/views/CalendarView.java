@@ -63,7 +63,14 @@ public class CalendarView extends InnerView {
 
     // ------------------------- actions -------------------------
 
+    public void colorDays(YearMonth month, double[] spents) {
+        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
+            colorDay(month.atDay(day), spents[day - 1]);
+        }
+    }
+
     public void colorDay(LocalDate day, double spent) {
+        // assume date.month is the displayed one
         JavaFXUtils.setBackgroundColor(days[day.getDayOfMonth() - 1], Schedule.getColor(Schedule.getExpectedHours(day), spent, day));
     }
 
