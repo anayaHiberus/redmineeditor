@@ -7,12 +7,6 @@ import javafx.fxml.FXML;
  */
 public class ActionsView extends InnerView {
 
-
-    @Override
-    public void initView() {
-        // nothing to initialize
-    }
-
     // ------------------------- onActions -------------------------
 
     @FXML

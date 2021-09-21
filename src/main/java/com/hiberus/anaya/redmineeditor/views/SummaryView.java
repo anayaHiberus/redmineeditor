@@ -21,10 +21,6 @@ public class SummaryView extends InnerView {
 
     // ------------------------- init -------------------------
 
-    @Override
-    public void initView() {
-    }
-
 
     // ------------------------- actions -------------------------
 

@@ -5,19 +5,20 @@ import com.hiberus.anaya.redmineeditor.Controller;
 /**
  * Just an interface for inner views, so that they can be populated with the model from the parent (instead of using dependency injection)
  */
-public abstract class InnerView {
-
-    protected Controller controller;
+abstract class InnerView {
 
     /**
-     * Initializes this inner view with the model object
-     *
-     * @param model application model object
+     * The global controller
      */
-    protected void injectController(Controller model) {
-        this.controller = model;
-        initView();
+    Controller controller;
+
+    /**
+     * Initializes this inner view with the global controller
+     *
+     * @param controller global controller
+     */
+    void injectController(Controller controller) {
+        this.controller = controller;
     }
 
-    public abstract void initView();
 }

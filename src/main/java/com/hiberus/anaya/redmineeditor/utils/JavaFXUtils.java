@@ -1,6 +1,5 @@
 package com.hiberus.anaya.redmineeditor.utils;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -9,9 +8,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Utilities to use JavaFX even better
@@ -42,18 +38,4 @@ public class JavaFXUtils {
         return label;
     }
 
-    /**
-     * Runs something in the background, then notify on foreground
-     *
-     * @param background something to run in background
-     * @param foreground something to run in foreground AFTER background finishes
-     */
-    public static <T> void runInBackground(Supplier<T> background, Consumer<T> foreground) {
-        new Thread(() -> {
-            T result = background.get();
-            Platform.runLater(() -> {
-                foreground.accept(result);
-            });
-        }).start();
-    }
 }

@@ -24,7 +24,7 @@ public class CalendarView extends InnerView {
     // ------------------------- properties -------------------------
 
     private final Label[] days = new Label[31]; // for coloring days
-    private int selected = -1;
+    private int selected = -1; // the selected day index
 
     // ------------------------- views -------------------------
 
@@ -37,14 +37,11 @@ public class CalendarView extends InnerView {
 
     @FXML
     void initialize() {
+        // create the header
         for (DayOfWeek field : DayOfWeek.values()) {
-            // create the header
+            // append each day
             calendar.add(JavaFXUtils.getCenteredLabel(field.getDisplayName(TextStyle.SHORT, Locale.getDefault())), field.getValue() - 1, 0);
         }
-    }
-
-    @Override
-    public void initView() {
     }
 
     // ------------------------- onActions -------------------------

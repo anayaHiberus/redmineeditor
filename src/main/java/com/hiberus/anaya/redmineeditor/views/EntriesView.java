@@ -35,10 +35,6 @@ public class EntriesView extends InnerView {
         });
     }
 
-    @Override
-    public void initView() {
-    }
-
     public void clear() {
         listItems.clear();
     }
