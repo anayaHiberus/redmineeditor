@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.views;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import javafx.fxml.FXML;
@@ -6,24 +6,25 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 
 /**
- * Controller for the parent app. Manages the loading indicator
+ * View for the parent app. Manages the loading indicator
  */
-public class ParentCtrl {
+public class ParentView {
 
     // ------------------------- model -------------------------
 
     private final Model model = new Model(); // this is the application model object
 
-    // ------------------------- subcontrollers -------------------------
+    // ------------------------- subviews -------------------------
 
+    // 'controller' is the wrong name by fxml
     @FXML
-    CalendarCtrl calendarController;
+    CalendarView calendarController;
     @FXML
-    SummaryCtrl summaryController;
+    SummaryView summaryController;
     @FXML
-    ActionsCtrl actionsController;
+    ActionsView actionsController;
     @FXML
-    EntriesCtrl entriesController;
+    EntriesView entriesController;
 
     // ------------------------- views -------------------------
 
@@ -37,7 +38,7 @@ public class ParentCtrl {
 
     @FXML
     void initialize() {
-        // init subcontrollers, like manual dependency injection
+        // init subviews, like manual dependency injection
         calendarController.injectModel(model);
         summaryController.injectModel(model);
         actionsController.injectModel(model);
@@ -45,13 +46,13 @@ public class ParentCtrl {
 
         model.onChanges(() -> {
             // when entries are loading, show indicator and disable the rest
-            boolean loading = model.hour_entries.isLoading();
+            boolean loading = model.time_entries.isLoading();
             progress.setVisible(loading);
             parent.setDisable(loading);
         });
 
         // start by loading entries of current month
-        model.hour_entries.loadMonth(model.getMonth());
+        model.time_entries.loadMonth(model.getMonth());
     }
 
 

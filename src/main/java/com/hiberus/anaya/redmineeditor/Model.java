@@ -4,6 +4,7 @@ import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Alert;
 import org.json.JSONException;
@@ -39,7 +40,7 @@ public class Model {
 
         // on new month, reset day and load hours
         setDay(0);
-        hour_entries.loadMonth(month);
+        time_entries.loadMonth(month);
         notifyChanged();
     }
 
@@ -69,21 +70,27 @@ public class Model {
     // ------------------------- entries -------------------------
 
     /**
-     * Hour entries from redmine
+     * Time entries from redmine
      */
-    public final TimeEntries hour_entries = new TimeEntries();
+    public final TimeEntries time_entries = new TimeEntries();
 
     // ------------------------- notifier -------------------------
 
-    SimpleBooleanProperty changed = new SimpleBooleanProperty();
+    private final SimpleBooleanProperty notificator = new SimpleBooleanProperty();
+    private boolean changes = false;
 
     public void onChanges(Runnable listener) {
         listener.run();
-        changed.addListener((observable, oldValue, newValue) -> listener.run());
+        notificator.addListener((observable, oldValue, newValue) -> listener.run());
     }
 
     public void notifyChanged() {
-        changed.set(!changed.get());
+        changes = true;
+        Platform.runLater(() -> {
+            if (!changes) return;
+            changes = false;
+            notificator.set(!notificator.get());
+        });
     }
 
     // ------------------------- entries -------------------------
@@ -121,7 +128,7 @@ public class Model {
                 try {
 
                     // load from the internet
-                    manager.getHourEntries(month.atDay(1), month.atEndOfMonth()).forEach(this::addEntry);
+                    manager.getTimeEntries(month.atDay(1), month.atEndOfMonth()).forEach(this::addEntry);
 
                     // debug data (display loaded value)
                     for (int day = 1; day <= month.lengthOfMonth(); ++day) {

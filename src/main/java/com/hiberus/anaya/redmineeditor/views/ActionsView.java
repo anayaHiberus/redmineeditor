@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.views;
 
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import javafx.fxml.FXML;
@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A list of action buttons
  */
-public class ActionsCtrl extends InnerCtrl {
+public class ActionsView extends InnerView {
 
 
     @Override
-    public void initCtrl() {
+    public void initView() {
         // nothing to initialize
     }
 
@@ -22,8 +22,8 @@ public class ActionsCtrl extends InnerCtrl {
     @FXML
     void reload() {
         // press the reload button to reload the data
-        model.hour_entries.clear();
-        model.hour_entries.loadMonth(model.getMonth());
+        model.time_entries.clear();
+        model.time_entries.loadMonth(model.getMonth());
     }
 
     @FXML
@@ -31,7 +31,7 @@ public class ActionsCtrl extends InnerCtrl {
         AtomicBoolean ok = new AtomicBoolean();
         JavaFXUtils.runInBackground(() -> {
             // update changes
-            ok.set(model.hour_entries.update());
+            ok.set(model.time_entries.update());
         }, () -> {
             if (!ok.get()) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);

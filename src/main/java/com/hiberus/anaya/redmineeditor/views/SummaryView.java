@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.views;
 
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
@@ -12,7 +12,7 @@ import java.time.format.FormatStyle;
 /**
  * A simple label with info of the current selected day
  */
-public class SummaryCtrl extends InnerCtrl {
+public class SummaryView extends InnerView {
 
     // ------------------------- views -------------------------
 
@@ -22,7 +22,7 @@ public class SummaryCtrl extends InnerCtrl {
     // ------------------------- init -------------------------
 
     @Override
-    public void initCtrl() {
+    public void initView() {
         // when day, entries or month changes, update label
         model.onChanges(this::update);
     }
@@ -31,7 +31,7 @@ public class SummaryCtrl extends InnerCtrl {
     // ------------------------- actions -------------------------
 
     private void update() {
-        if (model.hour_entries.isLoading()) {
+        if (model.time_entries.isLoading()) {
             // while loading, inform
             summary.setText("Loading...");
             summary.setBackground(null);
@@ -44,7 +44,7 @@ public class SummaryCtrl extends InnerCtrl {
             summary.setBackground(null);
         } else {
             // on something selected
-            double spent = model.hour_entries.getSpent(date);
+            double spent = model.time_entries.getSpent(date);
             double expected = Schedule.getExpectedHours(date);
 
             // display info

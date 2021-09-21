@@ -35,7 +35,7 @@ public class RedmineManager {
      * @return the JSON data
      * @throws IOException if network failed
      */
-    public List<TimeEntry> getHourEntries(LocalDate from, LocalDate to) throws IOException {
+    public List<TimeEntry> getTimeEntries(LocalDate from, LocalDate to) throws IOException {
         int offset = 0;
         List<TimeEntry> allEntries = new ArrayList<>();
         int total_count;

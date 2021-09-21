@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.views;
 
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.cells.EntryCell;
@@ -10,7 +10,7 @@ import javafx.scene.control.ListView;
 
 import java.time.LocalDate;
 
-public class EntriesCtrl extends InnerCtrl {
+public class EntriesView extends InnerView {
 
     public ChoiceBox<Integer> choice;
 
@@ -30,19 +30,19 @@ public class EntriesCtrl extends InnerCtrl {
             Integer issue = choice.getValue();
             if (issue == null) return;
             LocalDate date = model.getDate();
-            if (date != null) model.hour_entries.createIssue(date, issue);
+            if (date != null) model.time_entries.createIssue(date, issue);
             choice.setValue(null);
         });
     }
 
     @Override
-    public void initCtrl() {
+    public void initView() {
         model.onChanges(() -> {
             // replace entries
             replace();
             // populate issues
             choiceItems.clear();
-            choiceItems.addAll(model.hour_entries.getAllIssues());
+            choiceItems.addAll(model.time_entries.getAllIssues());
         });
     }
 
@@ -50,8 +50,8 @@ public class EntriesCtrl extends InnerCtrl {
         listItems.clear();
         LocalDate date = model.getDate();
         if (date != null) {
-            model.hour_entries.prepareEntriesForDate(date);
-            listItems.addAll(model.hour_entries.getEntriesForDate(date));
+            model.time_entries.prepareEntriesForDate(date);
+            listItems.addAll(model.time_entries.getEntriesForDate(date));
         }
     }
 

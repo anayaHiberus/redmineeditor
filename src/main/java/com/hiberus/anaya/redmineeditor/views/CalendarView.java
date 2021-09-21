@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.views;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
@@ -20,7 +20,7 @@ import java.util.Locale;
 /**
  * A calendar view with colored days
  */
-public class CalendarCtrl extends InnerCtrl {
+public class CalendarView extends InnerView {
 
     // ------------------------- properties -------------------------
 
@@ -45,17 +45,17 @@ public class CalendarCtrl extends InnerCtrl {
     }
 
     @Override
-    public void initCtrl() {
+    public void initView() {
         model.onChanges(() -> {
             // month changed, draw new and color days
             drawMonth(model.getMonth());
-            colorDays(model.hour_entries);
+            colorDays(model.time_entries);
 
             // day changed, select new
             selectDay(model.getDay());
 
             // hours changed, color days again
-            colorDays(model.hour_entries);
+            colorDays(model.time_entries);
         });
     }
 
