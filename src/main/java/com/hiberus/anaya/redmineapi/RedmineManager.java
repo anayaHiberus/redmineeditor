@@ -13,25 +13,29 @@ import java.util.List;
  * The 'official' one is not used because it doesn't allow searching with multiple filters
  */
 public class RedmineManager {
-    // static
-    static private final String USER = "me";
     static private final boolean OFFLINE = false; // for debug purpose, set to true to disable changes
 
     // configurable
-    private final String domain;
-    private final String key;
+    private final String domain; // the redmine domain
+    private final String key; // the api key
 
+    /**
+     * Initializes a manager
+     *
+     * @param domain the redmine domain
+     * @param key    the redmine api key
+     */
     public RedmineManager(String domain, String key) {
         this.domain = domain;
         this.key = key;
     }
 
     /**
-     * Returns all the hours
+     * Returns all the hours on a timeframe
      *
      * @param from from this date (included)
      * @param to   to this date (included)
-     * @return the JSON data
+     * @return the list of entries from that data
      * @throws IOException if network failed
      */
     public List<TimeEntry> getTimeEntries(LocalDate from, LocalDate to) throws IOException {
@@ -40,8 +44,8 @@ public class RedmineManager {
         int total_count;
         do {
             // get page
-            JSONObject page = JSONUtils.getFromUrl(domain + "time_entries.json?utf8=✓&"
-                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=" + USER
+            JSONObject page = UrlJSON.get(domain + "time_entries.json?utf8=✓&"
+                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=" + "me" // you can only edit your own entries, so 'me' is the only useful value
                     + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=" + from.toString() + "&v[spent_on][]=" + to.toString()
                     + "&key=" + key
                     + "&limit=100&offset=" + offset
@@ -54,23 +58,20 @@ public class RedmineManager {
             }
             offset = allEntries.size();
 
-            // repeat if still not all
+            // continue next page if still not all
             total_count = page.getInt("total_count");
         } while (offset < total_count);
 
         return allEntries;
     }
 
-    public boolean requiresUpload(TimeEntry entry) {
-        JSONObject changes = entry.getChanges();
-        if (changes.isEmpty()) return false;
-        if (entry.id == -1 && entry.getHours() <= 0) return false;
-
-        return true;
-    }
-
+    /**
+     * Uploads an entry to redmine (unless not needed)
+     *
+     * @param entry entry to upload
+     * @throws IOException on upload error
+     */
     public void uploadTimeEntry(TimeEntry entry) throws IOException {
-
         int id = entry.id;
 
         // get changes
@@ -81,28 +82,28 @@ public class RedmineManager {
 
         if (id == -1) {
             if (entry.getHours() > 0) {
-                // create
+                // new entry with hours, create
                 System.out.println("Creating entry with data: " + changes);
                 if (OFFLINE) return;
-                if (JSONUtils.postToUrl(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) != 201) {
-                    throw new IOException("Can't create entry with data: " + changes);
+                if (UrlJSON.post(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) != 201) {
+                    throw new IOException("Error when creating entry with data: " + changes);
                 }
             }
-            //else ignore
+            //new entry without hours, ignore
         } else {
             if (entry.getHours() > 0) {
-                // update
+                // existing entry with hours, update
                 System.out.println("Updating entry " + id + " with data: " + changes);
                 if (OFFLINE) return;
-                if (JSONUtils.putToUrl(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) != 200) {
-                    throw new IOException("Can't update entry " + id + " with data: " + changes);
+                if (UrlJSON.put(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) != 200) {
+                    throw new IOException("Error when updating entry " + id + " with data: " + changes);
                 }
             } else {
-                // delete
+                // existing entry without hours, delete
                 System.out.println("Deleting entry " + id);
                 if (OFFLINE) return;
-                if (JSONUtils.delete(domain + "time_entries/" + id + ".json?key=" + key) != 200) {
-                    throw new IOException("Can't delete entry " + id);
+                if (UrlJSON.delete(domain + "time_entries/" + id + ".json?key=" + key) != 200) {
+                    throw new IOException("Error when deleting entry " + id);
                 }
             }
         }

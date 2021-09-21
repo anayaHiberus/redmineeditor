@@ -10,6 +10,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 
+/**
+ * One of the entries in the entries list
+ */
 public class EntryCell extends SimpleListCell<TimeEntry> {
 
     // ------------------------- views -------------------------

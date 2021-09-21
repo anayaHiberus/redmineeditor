@@ -174,7 +174,7 @@ public class Model {
     }
 
     public boolean hasChanges() {
-        return entries.stream().anyMatch(manager::requiresUpload);
+        return entries.stream().anyMatch(TimeEntry::requiresUpload);
     }
 
     public double[] getSpentForMonth() {

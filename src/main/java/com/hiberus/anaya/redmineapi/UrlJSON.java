@@ -8,32 +8,57 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @see JSONUtils#getFromUrl(String)
- * From https://stackoverflow.com/a/4308662
+ * Utilities for urls with JSON
  */
-public class JSONUtils {
+public class UrlJSON {
 
     /**
      * Reads JSON data from an url
+     * From https://stackoverflow.com/a/4308662
      *
      * @param url url to load
      * @return the json data returned
      * @throws IOException on network errors
      */
-    public static JSONObject getFromUrl(String url) throws IOException {
+    public static JSONObject get(String url) throws IOException {
         try (InputStream is = new URL(url).openStream()) {
             return new JSONObject(readAll(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))));
         }
     }
 
-    public static int putToUrl(String url, JSONObject object) throws IOException {
+    /**
+     * Performs a PUT to an url with JSON data
+     *
+     * @param url    url to put to
+     * @param object the json data to put
+     * @return the response status code
+     * @throws IOException on network errors
+     */
+    public static int put(String url, JSONObject object) throws IOException {
         return send(url, "PUT", object);
     }
 
-    public static int postToUrl(String url, JSONObject object) throws IOException {
+
+    /**
+     * Performs a POST to an url with JSON data
+     *
+     * @param url    url to post to
+     * @param object the json data to post
+     * @return the response status code
+     * @throws IOException on network errors
+     */
+    public static int post(String url, JSONObject object) throws IOException {
         return send(url, "POST", object);
     }
 
+
+    /**
+     * Performs a DELETE to an url
+     *
+     * @param url url to delete
+     * @return the response status code
+     * @throws IOException on network errors
+     */
     public static int delete(String url) throws IOException {
         return send(url, "DELETE", null);
     }
@@ -41,11 +66,13 @@ public class JSONUtils {
     // ------------------------- utils -------------------------
 
     private static int send(String url, String method, JSONObject body) throws IOException {
-        // init
-        URL _url = new URL(url);
-        HttpURLConnection http = (HttpURLConnection) _url.openConnection();
+        // performs a send to an url
+
+        // prepare connection
+        HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
         http.setRequestMethod(method);
         if (body != null) {
+            // append body
             http.setDoOutput(true);
             http.setRequestProperty("Content-Type", "application/json");
             http.getOutputStream().write(body.toString().getBytes(StandardCharsets.UTF_8));
@@ -61,6 +88,7 @@ public class JSONUtils {
     }
 
     private static String readAll(Reader rd) throws IOException {
+        // converts a reader to a string
         // from https://www.baeldung.com/java-convert-reader-to-string
         char[] arr = new char[8 * 1024];
         StringBuilder buffer = new StringBuilder();
