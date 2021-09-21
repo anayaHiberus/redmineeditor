@@ -2,11 +2,7 @@ package com.hiberus.anaya.redmineeditor;
 
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.Alert;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -16,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -37,11 +32,6 @@ public class Model {
 
     public void setMonth(YearMonth month) {
         this.month = month;
-
-        // on new month, reset day and load hours
-        setDay(0);
-        time_entries.loadMonth(month);
-        notifyChanged();
     }
 
     // ------------------------- day -------------------------
@@ -58,8 +48,6 @@ public class Model {
     public void setDay(int day) {
         if (day == 0 || month.isValidDay(day))
             this.day = day;
-        // else assert?
-        notifyChanged();
     }
 
     public LocalDate getDate() {
@@ -69,165 +57,123 @@ public class Model {
 
     // ------------------------- entries -------------------------
 
-    /**
-     * Time entries from redmine
-     */
-    public final TimeEntries time_entries = new TimeEntries();
+    private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY);
 
-    // ------------------------- notifier -------------------------
+    private final List<TimeEntry> entries = new ArrayList<>(); // raw api entries
 
-    private final SimpleBooleanProperty notificator = new SimpleBooleanProperty();
-    private boolean changes = false;
-
-    public void onChanges(Runnable listener) {
-        listener.run();
-        notificator.addListener((observable, oldValue, newValue) -> listener.run());
-    }
-
-    public void notifyChanged() {
-        changes = true;
-        Platform.runLater(() -> {
-            if (!changes) return;
-            changes = false;
-            notificator.set(!notificator.get());
-        });
-    }
-
-    // ------------------------- entries -------------------------
+    private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
 
     /**
-     * Redmine entries manager
+     * Loads the current month (if it is already loaded this does nothing)
+     * Long operation
      */
-    public class TimeEntries {
-        private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY);
+    public void loadMonth() throws MyException {
+        // skip if already loaded
+        if (monthsLoaded.contains(month)) return;
 
-        private boolean loading = false; // if data is being loaded
-
-        private final List<TimeEntry> entries = new ArrayList<>(); // raw api entries
-
-        private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
-
-
-        /**
-         * Loads a specific month (if it is already loaded this does nothing)
-         *
-         * @param month month to load
-         */
-        public void loadMonth(YearMonth month) {
-            // skip if already loaded
-            if (monthsLoaded.contains(month)) return;
-            monthsLoaded.add(month);
-
-            // notify loading
-            loading = true;
-            notifyChanged();
-
-            // in background...
-            AtomicBoolean ok = new AtomicBoolean(true);
-            JavaFXUtils.runInBackground(() -> {
-                try {
-
-                    // load from the internet
-                    manager.getTimeEntries(month.atDay(1), month.atEndOfMonth()).forEach(this::addEntry);
-
-                    // debug data (display loaded value)
-                    for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-                        LocalDate date = month.atDay(day);
-                        double expected = Schedule.getExpectedHours(date);
-                        double spent = getSpent(date);
-
-                        System.out.println(date + ": Expected " + expected + " obtained " + spent);
-                    }
-
-                } catch (IOException | JSONException e) {
-                    // error, mark
-                    e.printStackTrace();
-                    ok.set(false);
-                }
-            }, () -> { // then in foreground...
-                // notify loaded ended
-                loading = false;
-                notifyChanged();
-
-                if (!ok.get()) {
-                    // on error, show dialog
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setHeaderText("Network error");
-                    alert.setContentText("Can't load content from Redmine. Try again later");
-                    alert.showAndWait();
-                }
-            });
+        try {
+            // load from the internet
+            manager.getTimeEntries(month.atDay(1), month.atEndOfMonth())
+                    .forEach(this::addEntry);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new MyException("Network error", "Can't load content from Redmine. Try again later.", e);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new MyException("Parsing error", "Unknown Redmine response. Try again later.", e);
         }
 
-        private void addEntry(TimeEntry timeEntry) {
-            entries.add(timeEntry);
-            notifyChanged();
+        // mark
+        monthsLoaded.add(month);
+
+        // debug data (display loaded value)
+        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
+            LocalDate date = month.atDay(day);
+            double expected = Schedule.getExpectedHours(date);
+            double spent = getSpent(date);
+
+            System.out.println(date + ": Expected " + expected + " obtained " + spent);
         }
+    }
 
-        /**
-         * Discards all data
-         */
-        public void clear() {
-            monthsLoaded.clear();
-            entries.clear();
-            notifyChanged();
-        }
+    private void addEntry(TimeEntry timeEntry) {
+        entries.add(timeEntry);
+    }
 
-        /**
-         * Calculates the hours spent in a day
-         *
-         * @param date day to check
-         * @return hours spent that day
-         */
-        public double getSpent(LocalDate date) {
-            return getEntriesForDate(date).stream().mapToDouble(TimeEntry::getHours).sum();
-        }
+    /**
+     * Discards all data
+     */
+    public void clear() {
+        monthsLoaded.clear();
+        entries.clear();
+    }
 
-        /**
-         * @return true iff the data is being loaded (which means that internal data may not be accurate yet)
-         */
-        public boolean isLoading() {
-            return loading;
-        }
+    /**
+     * Calculates the hours spent in a day
+     *
+     * @param date day to check
+     * @return hours spent that day
+     */
+    public double getSpent(LocalDate date) {
+        return _getEntriesForDate(date).stream().mapToDouble(TimeEntry::getHours).sum();
+    }
 
-        public List<TimeEntry> getEntriesForDate(LocalDate date) {
-            return entries.stream()
-                    .filter(entry -> entry.wasSpentOn(date))
-                    .collect(Collectors.toList());
-        }
+    public List<TimeEntry> getEntriesForDate(LocalDate date) {
+        // prepare
+        Set<Integer> issues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toSet());
 
-        public void prepareEntriesForDate(LocalDate date) {
-            Set<Integer> issues = getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toSet());
-
-            for (int days = 1; days <= 7; ++days) {
-                for (TimeEntry prevEntry : getEntriesForDate(date.minusDays(days))) {
-                    if (prevEntry.getHours() != 0 && !issues.contains(prevEntry.issue)) {
+        for (int days = 1; days <= 7; ++days) {
+            _getEntriesForDate(date.minusDays(days)).stream()
+                    .filter(prevEntry -> prevEntry.getHours() != 0)
+                    .filter(prevEntry -> !issues.contains(prevEntry.issue))
+                    .forEach(prevEntry -> {
                         TimeEntry newEntry = new TimeEntry(prevEntry.issue, date);
                         newEntry.setComment(prevEntry.getComment());
                         addEntry(newEntry);
-                        issues.add(prevEntry.issue); // in loops instead of stream because we only want one for each issue
-                    }
-                }
+                        issues.add(prevEntry.issue);
+                    });
+        }
+
+        return _getEntriesForDate(date);
+    }
+
+    public void uploadEntries() throws MyException {
+        boolean ok = true;
+        MyException exception = new MyException("Updating error", "An error ocurred while updating entries", null);
+        for (TimeEntry entry : entries) {
+            try {
+                manager.uploadTimeEntry(entry);
+            } catch (MyException e) {
+                exception.merge(e);
+                ok = false;
             }
         }
-
-        public boolean update() {
-            return entries.stream()
-                    .map(manager::uploadTimeEntry)
-                    .reduce(true, Boolean::logicalAnd);
-        }
-
-        public Set<Integer> getAllIssues() {
-            return entries.stream()
-                    .map(entries -> entries.issue)
-                    .filter(issue -> issue != -1)
-                    .collect(Collectors.toSet());
-        }
-
-        public void createIssue(LocalDate date, Integer issue) {
-            addEntry(new TimeEntry(issue, date));
-            notifyChanged();
+        if (!ok) {
+            throw exception;
         }
     }
 
+    public Set<Integer> getAllIssues() {
+        return entries.stream()
+                .map(entries -> entries.issue)
+                .filter(issue -> issue != -1)
+                .collect(Collectors.toSet());
+    }
+
+    public void createTimeEntry(LocalDate date, int issue) {
+        addEntry(new TimeEntry(issue, date));
+    }
+
+    // ------------------------- private -------------------------
+
+    public List<TimeEntry> _getEntriesForDate(LocalDate date) {
+        // todo replace with a map with date as key
+        return entries.stream()
+                .filter(entry -> entry.wasSpentOn(date))
+                .collect(Collectors.toList());
+    }
+
+    public boolean hasChanges() {
+        return entries.stream().anyMatch(manager::requiresUpload);
+    }
 }

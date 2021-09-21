@@ -10,6 +10,9 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 /**
  * Utilities to use JavaFX even better
  */
@@ -45,10 +48,12 @@ public class JavaFXUtils {
      * @param background something to run in background
      * @param foreground something to run in foreground AFTER background finishes
      */
-    public static void runInBackground(Runnable background, Runnable foreground) {
+    public static <T> void runInBackground(Supplier<T> background, Consumer<T> foreground) {
         new Thread(() -> {
-            background.run();
-            Platform.runLater(foreground);
+            T result = background.get();
+            Platform.runLater(() -> {
+                foreground.accept(result);
+            });
         }).start();
     }
 }

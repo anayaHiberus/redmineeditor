@@ -8,7 +8,7 @@
     <children>
         <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#reload" text="Refresh"
                 HBox.hgrow="ALWAYS"/>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#update" text="Apply"
+        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#upload" text="Apply"
                 HBox.hgrow="ALWAYS"/>
     </children>
 </HBox>

@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineapi;
 
+import com.hiberus.anaya.redmineeditor.MyException;
 import com.hiberus.anaya.redmineeditor.utils.JSONUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -62,7 +63,15 @@ public class RedmineManager {
         return allEntries;
     }
 
-    public boolean uploadTimeEntry(TimeEntry entry) {
+    public boolean requiresUpload(TimeEntry entry) {
+        JSONObject changes = entry.getChanges();
+        if (changes.isEmpty()) return false;
+        if (entry.id == -1 && entry.getHours() <= 0) return false;
+
+        return true;
+    }
+
+    public void uploadTimeEntry(TimeEntry entry) throws MyException {
 
         int id = entry.id;
 
@@ -70,26 +79,33 @@ public class RedmineManager {
         JSONObject changes = entry.getChanges();
 
         // ignore unmodified
-        if (changes.isEmpty()) return true;
+        if (changes.isEmpty()) return;
 
         if (id == -1) {
             if (entry.getHours() > 0) {
                 // create
                 System.out.println("Creating entry with data: " + changes);
-                return OFFLINE || JSONUtils.postToUrl(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) == 201;
-            } else {
-                // ignore
-                return true;
+                if (OFFLINE) return;
+                if (JSONUtils.postToUrl(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) != 201) {
+                    throw new MyException("Upload exception", "Can't create entry", null);
+                }
             }
+            //else ignore
         } else {
             if (entry.getHours() > 0) {
                 // update
                 System.out.println("Updating entry " + id + " with data: " + changes);
-                return OFFLINE || JSONUtils.putToUrl(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) == 200;
+                if (OFFLINE) return;
+                if (JSONUtils.putToUrl(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) != 200) {
+                    throw new MyException("Updating exception", "Can't update entry", null);
+                }
             } else {
                 // delete
                 System.out.println("Deleting entry " + id);
-                return OFFLINE || JSONUtils.delete(domain + "time_entries/" + id + ".json?key=" + key) == 200;
+                if (OFFLINE) return;
+                if (JSONUtils.delete(domain + "time_entries/" + id + ".json?key=" + key) != 200) {
+                    throw new MyException("Deleting exception", "Can't delete entry", null);
+                }
             }
         }
     }

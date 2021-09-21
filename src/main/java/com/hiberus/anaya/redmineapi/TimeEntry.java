@@ -23,7 +23,7 @@ public class TimeEntry {
         comment = entry.optString("comments");
     }
 
-    public TimeEntry(Integer issue, LocalDate spent_on) {
+    public TimeEntry(int issue, LocalDate spent_on) {
         this.id = -1;
         this.issue = issue;
         this.spent_on = spent_on;

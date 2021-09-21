@@ -1,6 +1,5 @@
 package com.hiberus.anaya.redmineeditor.views;
 
-import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
@@ -46,17 +45,6 @@ public class CalendarView extends InnerView {
 
     @Override
     public void initView() {
-        model.onChanges(() -> {
-            // month changed, draw new and color days
-            drawMonth(model.getMonth());
-            colorDays(model.time_entries);
-
-            // day changed, select new
-            selectDay(model.getDay());
-
-            // hours changed, color days again
-            colorDays(model.time_entries);
-        });
     }
 
     // ------------------------- onActions -------------------------
@@ -64,37 +52,32 @@ public class CalendarView extends InnerView {
     @FXML
     void onNextMonth() {
         // set next month
-        model.setMonth(model.getMonth().plusMonths(1));
+        controller.changeMonth(1);
     }
 
     @FXML
     void onPreviousMonth() {
         // set previous month
-        model.setMonth(model.getMonth().minusMonths(1));
+        controller.changeMonth(-1);
     }
 
     // ------------------------- actions -------------------------
 
-    private void colorDays(Model.TimeEntries entries) {
-        // skip if loading
-        if (entries.isLoading()) return;
+    public void colorDay(LocalDate day, double spent) {
+        JavaFXUtils.setBackgroundColor(days[day.getDayOfMonth() - 1], Schedule.getColor(Schedule.getExpectedHours(day), spent, day));
+    }
 
-        for (int day = 1; day <= model.getMonth().lengthOfMonth(); ++day) {
-            // foreach day of the month
-            LocalDate date = model.getMonth().atDay(day);
-            double expected = Schedule.getExpectedHours(date);
-            double spent = entries.getSpent(date);
-
-            // color the day
-            JavaFXUtils.setBackgroundColor(days[day - 1], Schedule.getColor(expected, spent, date));
+    public void clearColors() {
+        for (Label day : days) {
+            if (day != null) JavaFXUtils.setBackgroundColor(day, null);
         }
     }
 
-    private void drawMonth(YearMonth month) {
+    public void drawMonth(YearMonth month) {
         // clear
         calendar.getChildren().removeAll(days);
         Arrays.fill(days, null);
-        clearSelected();
+        unselect();
 
         // draw label
         calendarLabel.setText(month.format(new DateTimeFormatterBuilder()
@@ -122,7 +105,7 @@ public class CalendarView extends InnerView {
             Label centeredLabel = JavaFXUtils.getCenteredLabel(Integer.toString(day));
             days[day - 1] = centeredLabel;
             int finalDay = day;
-            centeredLabel.setOnMouseClicked(event -> model.setDay(finalDay));
+            centeredLabel.setOnMouseClicked(event -> controller.setDay(finalDay));
             calendar.add(centeredLabel, index % 7, column);
         }
         while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 2)
@@ -130,16 +113,16 @@ public class CalendarView extends InnerView {
             calendar.getRowConstraints().remove(calendar.getRowCount() - 1);
     }
 
-    private void clearSelected() {
+    public void unselect() {
         // unselect if existing
         if (selected != -1 && days[selected] != null)
             days[selected].setBorder(null);
         selected = -1;
     }
 
-    private void selectDay(int day) {
+    public void selectDay(int day) {
         // unselect
-        clearSelected();
+        unselect();
 
         // select
         if (day != 0) {

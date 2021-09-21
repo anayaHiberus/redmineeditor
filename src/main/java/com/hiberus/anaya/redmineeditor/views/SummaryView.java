@@ -23,42 +23,40 @@ public class SummaryView extends InnerView {
 
     @Override
     public void initView() {
-        // when day, entries or month changes, update label
-        model.onChanges(this::update);
     }
 
 
     // ------------------------- actions -------------------------
 
-    private void update() {
-        if (model.time_entries.isLoading()) {
-            // while loading, inform
-            summary.setText("Loading...");
-            summary.setBackground(null);
-            return;
-        }
-        LocalDate date = model.getDate();
-        if (date == null) {
-            // if nothing selected, just ask
-            summary.setText("Select day");
-            summary.setBackground(null);
-        } else {
-            // on something selected
-            double spent = model.time_entries.getSpent(date);
-            double expected = Schedule.getExpectedHours(date);
+    public void asLoading() {
+        // while loading, inform
+        summary.setText("Loading...");
+        summary.setBackground(null);
+    }
 
-            // display info
-            summary.setText(
-                    date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
-                            + " --- Hours: " + spent + "/" + expected
-                            + (spent < expected ? " --- Missing: " + (expected - spent)
-                            : spent > expected ? " --- Extra: " + (spent - expected)
-                            : spent == expected && expected != 0 ? " --- OK"
-                            : "")
-            );
+    public void unselected() {
+        // if nothing selected, just ask
+        summary.setText("Select day");
+        summary.setBackground(null);
+    }
 
-            // and change color
-            JavaFXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, date));
-        }
+    public void selected(LocalDate date, double spent) {
+        // on something selected
+
+        double expected = Schedule.getExpectedHours(date);
+
+        // display info
+        summary.setText(
+                date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+                        + " --- Hours: " + spent + "/" + expected
+                        + (spent < expected ? " --- Missing: " + (expected - spent)
+                        : spent > expected ? " --- Extra: " + (spent - expected)
+                        : spent == expected && expected != 0 ? " --- OK"
+                        : "")
+        );
+
+        // and change color
+        JavaFXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, date));
+
     }
 }

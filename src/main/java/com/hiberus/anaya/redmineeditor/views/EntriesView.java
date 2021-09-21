@@ -8,7 +8,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 
-import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 public class EntriesView extends InnerView {
 
@@ -23,36 +24,33 @@ public class EntriesView extends InnerView {
     void initialize() {
         choice.setItems(choiceItems);
         list.setItems(listItems);
-        list.setCellFactory(param -> new EntryCell(() -> model.notifyChanged()));
+        list.setCellFactory(param -> new EntryCell(controller));
 
         choice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // when selected entry, add issue
             Integer issue = choice.getValue();
             if (issue == null) return;
-            LocalDate date = model.getDate();
-            if (date != null) model.time_entries.createIssue(date, issue);
+            controller.addIssueForCurrentDate(issue);
             choice.setValue(null);
         });
     }
 
     @Override
     public void initView() {
-        model.onChanges(() -> {
-            // replace entries
-            replace();
-            // populate issues
-            choiceItems.clear();
-            choiceItems.addAll(model.time_entries.getAllIssues());
-        });
     }
 
-    private void replace() {
+    public void clear() {
         listItems.clear();
-        LocalDate date = model.getDate();
-        if (date != null) {
-            model.time_entries.prepareEntriesForDate(date);
-            listItems.addAll(model.time_entries.getEntriesForDate(date));
-        }
+    }
+
+    public void setIssues(Collection<Integer> issues) {
+        choiceItems.clear();
+        choiceItems.addAll(issues);
+    }
+
+    public void replace(List<TimeEntry> rows) {
+        clear();
+        listItems.addAll(rows);
     }
 
 }
