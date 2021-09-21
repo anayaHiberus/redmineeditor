@@ -17,12 +17,13 @@ public class ActionsView extends InnerView {
 
     @FXML
     void reload() {
-        // press the reload button to reload the data
+        // press the refresh button to reload the data
         controller.reload();
     }
 
     @FXML
     void upload() {
+        // press the save button to upload data
         controller.upload();
     }
 }

@@ -110,7 +110,10 @@ public class Controller {
 
     public void addIssueForCurrentDate(int issueId) {
         LocalDate date = model.getDate();
-        if (date != null) model.createTimeEntry(date, issueId);
+        if (date != null) {
+            model.createTimeEntry(date, issueId);
+            entriesView.replace(model.getEntriesForDate(date));
+        }
     }
 
     // ------------------------- private -------------------------

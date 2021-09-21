@@ -31,7 +31,7 @@ public class EntriesView extends InnerView {
             Integer issue = choice.getValue();
             if (issue == null) return;
             controller.addIssueForCurrentDate(issue);
-            choice.setValue(null);
+            choice.getSelectionModel().clearSelection(); // choice.setValue(null);
         });
     }
 

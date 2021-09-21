@@ -6,9 +6,9 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.hiberus.anaya.redmineeditor.views.ActionsView">
     <children>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#reload" text="Refresh"
+        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#reload" text="Reload"
                 HBox.hgrow="ALWAYS"/>
-        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#upload" text="Apply"
+        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#upload" text="Save"
                 HBox.hgrow="ALWAYS"/>
     </children>
 </HBox>
