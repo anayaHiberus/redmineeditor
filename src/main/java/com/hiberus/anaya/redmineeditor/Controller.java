@@ -12,11 +12,15 @@ import java.time.LocalDate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * The class between the views and the model
+ * Should I replace it with listeners? callables? events? hmmmm
+ */
 public class Controller {
 
     // ------------------------- model -------------------------
 
-    private final Model model = new Model();
+    private final Model model = new Model(); // the global model class
 
     // ------------------------- views -------------------------
 
@@ -25,6 +29,9 @@ public class Controller {
     private final EntriesView entriesView;
     private final ParentView parentView;
 
+    /**
+     * Initializes the controller with all the views
+     */
     public Controller(CalendarView calendarView, SummaryView summaryView, EntriesView entriesView, ParentView parentView) {
         this.calendarView = calendarView;
         this.summaryView = summaryView;
@@ -34,23 +41,18 @@ public class Controller {
 
     // ------------------------- actions -------------------------
 
-    public void start() {
-        // start by loading entries of current month
-        loadMonth();
-    }
-
+    /**
+     * Reload the app
+     */
     public void reload() {
-        // reload everything
         if (model.hasChanges()) {
+            // if there are changes, ask first
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     "There are unsaved changes, do you want to lose them and reload?",
                     ButtonType.YES, ButtonType.CANCEL);
             alert.setHeaderText("Unsaved changes");
             alert.setTitle("Warning");
-
-
             alert.showAndWait();
-
             if (alert.getResult() != ButtonType.YES) {
                 // cancel
                 return;
@@ -64,26 +66,36 @@ public class Controller {
         loadMonth();
     }
 
+    /**
+     * Upload changes
+     */
     public void upload() {
-        // upload entries
         backgroundLoad(() -> {
             try {
-                // upload changes
+                // upload changes in background
                 model.uploadEntries();
                 return null;
             } catch (MyException e) {
-                return e;
+                return e; // TODO move to backgroundLoad logic
             }
         }, error -> {
             if (error != null) {
+                // an error occurred
                 error.showAndWait();
+            } else {
+                // and reload in foreground
+                model.clear(); // clear first so that reload don't notify of unsaved changes
+                reload();
             }
-            // and reload
-            model.clear(); // clear first so that reload don't notify of unsaved changes
-            reload();
         });
     }
 
+    /**
+     * Changes the displayed month.
+     * Also resets the day
+     *
+     * @param offset offset for the new month to load
+     */
     public void changeMonth(int offset) {
         // change month and reset day
         model.setMonth(model.getMonth().plusMonths(offset));
@@ -93,7 +105,12 @@ public class Controller {
         loadMonth();
     }
 
-    public void setDay(int day) {
+    /**
+     * Selects a day
+     *
+     * @param day day to select (from current month)
+     */
+    public void selectDay(int day) {
         // change day
         model.setDay(day);
 
@@ -101,9 +118,14 @@ public class Controller {
         showDay();
     }
 
-    public void addIssueForCurrentDate(int issueId) {
+    /**
+     * Add a new entry for the current date
+     *
+     * @param issueId id of the issue the entry will be attached to
+     */
+    public void addEntryForCurrentDate(int issueId) {
         LocalDate date = model.getDate();
-        if (date == null) return;
+        assert date != null;
 
         // create and add issue
         model.createTimeEntry(date, issueId);
@@ -114,8 +136,19 @@ public class Controller {
 
     // ------------------------- callables -------------------------
 
+    /**
+     * When the app starts
+     */
+    public void onStart() {
+        // start by loading entries of current month
+        loadMonth();
+    }
+
+    /**
+     * When hours from an entry in the current day change
+     */
     public void onHourChanged() {
-        // when hours from an item were changed
+        // update that item
         updateDay(model.getDate());
     }
 
@@ -124,8 +157,10 @@ public class Controller {
     private void showDay() {
         // day was changed
         LocalDate date = model.getDate();
+
         // update day
         updateDay(date);
+
         // update calendar and entries
         if (date == null) {
             // unselect
@@ -142,7 +177,7 @@ public class Controller {
         // load current month
         backgroundLoad(() -> {
             try {
-                // first load
+                // first load in background
                 model.loadMonth();
                 return null;
             } catch (MyException e) {
@@ -153,7 +188,7 @@ public class Controller {
                 // on error, show dialog
                 error.showAndWait();
             } else {
-                // update
+                // update all
                 calendarView.drawMonth(model.getMonth());
                 calendarView.colorDays(model.getMonth(), model.getSpentForMonth());
                 entriesView.setIssues(model.getAllIssues());
@@ -163,19 +198,42 @@ public class Controller {
     }
 
     private <T> void backgroundLoad(Supplier<T> background, Consumer<T> foreground) {
-        // run something in background
+        // set as loading
         parentView.setLoading(true);
         calendarView.clearColors();
         summaryView.asLoading();
 
+        // container
+        var ref = new Object() {
+            T result = null; // transfer from background to foreground
+            MyException error = null; // unexpected
+        };
+
         new Thread(() -> {
-            // in background
-            T result = background.get();
+            try {
+                // run in background
+                ref.result = background.get();
+            } catch (Throwable e) {
+                // background error
+                e.printStackTrace();
+                ref.error = new MyException("Internal error", "Something unexpected happened in background", e);
+            }
             Platform.runLater(() -> {
-                // in foreground
-                foreground.accept(result);
+                if (ref.error == null) {
+                    try {
+                        // run in foreground
+                        foreground.accept(ref.result);
+                    } catch (Throwable e) {
+                        // foreground error
+                        ref.error = new MyException("Internal error", "Something unexpected happened in foreground", e);
+                    }
+                }
+                // unset as loading
                 parentView.setLoading(false);
-                updateDay(model.getDate());
+                if (ref.error != null) {
+                    // show error
+                    ref.error.showAndWait();
+                }
             });
         }).start();
     }

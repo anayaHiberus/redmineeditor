@@ -15,26 +15,26 @@ public class ParentView {
 
     // 'controller' is the wrong name by fxml
     @FXML
-    CalendarView calendarController;
+    private CalendarView calendarController;
     @FXML
-    SummaryView summaryController;
+    private SummaryView summaryController;
     @FXML
-    ActionsView actionsController;
+    private ActionsView actionsController;
     @FXML
-    EntriesView entriesController;
+    private EntriesView entriesController;
 
     // ------------------------- elements -------------------------
 
     @FXML
-    ProgressIndicator progress;
+    private ProgressIndicator progress; // that circular thingy
 
     @FXML
-    VBox parent;
+    private VBox parent; // the main app, disabled while loading
 
     // ------------------------- init -------------------------
 
     @FXML
-    void initialize() {
+    private void initialize() {
         // this is the application controller
         Controller controller = new Controller(calendarController, summaryController, entriesController, this);
 
@@ -45,11 +45,17 @@ public class ParentView {
         entriesController.injectController(controller);
 
         // start
-        controller.start();
+        controller.onStart();
     }
 
     // ------------------------- actions -------------------------
 
+    /**
+     * When loading, the indicator is shown and the whole app is disabled.
+     * Make sure to enable it again!
+     *
+     * @param loading the loading state
+     */
     public void setLoading(boolean loading) {
         progress.setVisible(loading);
         parent.setDisable(loading);

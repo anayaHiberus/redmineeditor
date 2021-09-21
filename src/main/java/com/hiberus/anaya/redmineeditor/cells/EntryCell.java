@@ -46,13 +46,13 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     // ------------------------- actions -------------------------
 
     @FXML
-    void changedComment() {
+    private void changedComment() {
         // update comment
         getItem().setComment(comment.getText());
     }
 
     @FXML
-    void changeHours(Event node) {
+    private void changeHours(Event node) {
         // update entry
         TimeEntry entry = getItem();
         entry.changeHours(Double.parseDouble(((Button) node.getTarget()).getText())); // the button label is the amount

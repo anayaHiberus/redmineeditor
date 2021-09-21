@@ -17,25 +17,33 @@ public class SummaryView extends InnerView {
     // ------------------------- views -------------------------
 
     @FXML
-    public Label summary;
-
-    // ------------------------- init -------------------------
-
+    private Label summary;
 
     // ------------------------- actions -------------------------
 
+    /**
+     * Display a 'loading' indicator
+     */
     public void asLoading() {
-        // while loading, inform
         summary.setText("Loading...");
         summary.setBackground(null);
     }
 
+    /**
+     * Display an unselected state
+     */
     public void unselected() {
         // if nothing selected, just ask
         summary.setText("Select day");
         summary.setBackground(null);
     }
 
+    /**
+     * Display a selected state
+     *
+     * @param date  current date
+     * @param spent current spent hours
+     */
     public void selected(LocalDate date, double spent) {
         // on something selected
 
@@ -53,6 +61,5 @@ public class SummaryView extends InnerView {
 
         // and change color
         JavaFXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, date));
-
     }
 }

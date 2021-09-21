@@ -9,7 +9,7 @@ public class MyException extends Exception {
 
     private final StringJoiner details = new StringJoiner("\n");
 
-    public MyException(String title, String message, Exception cause) {
+    public MyException(String title, String message, Throwable cause) {
         super(message, cause);
         this.title = title;
     }

@@ -10,13 +10,13 @@ public class ActionsView extends InnerView {
     // ------------------------- onActions -------------------------
 
     @FXML
-    void reload() {
+    private void reload() {
         // press the refresh button to reload the data
         controller.reload();
     }
 
     @FXML
-    void upload() {
+    private void upload() {
         // press the save button to upload data
         controller.upload();
     }
