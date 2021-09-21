@@ -1,7 +1,5 @@
 package com.hiberus.anaya.redmineapi;
 
-import com.hiberus.anaya.redmineeditor.MyException;
-import com.hiberus.anaya.redmineeditor.utils.JSONUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -71,7 +69,7 @@ public class RedmineManager {
         return true;
     }
 
-    public void uploadTimeEntry(TimeEntry entry) throws MyException {
+    public void uploadTimeEntry(TimeEntry entry) throws IOException {
 
         int id = entry.id;
 
@@ -87,7 +85,7 @@ public class RedmineManager {
                 System.out.println("Creating entry with data: " + changes);
                 if (OFFLINE) return;
                 if (JSONUtils.postToUrl(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) != 201) {
-                    throw new MyException("Upload exception", "Can't create entry", null);
+                    throw new IOException("Can't create entry with data: " + changes);
                 }
             }
             //else ignore
@@ -97,14 +95,14 @@ public class RedmineManager {
                 System.out.println("Updating entry " + id + " with data: " + changes);
                 if (OFFLINE) return;
                 if (JSONUtils.putToUrl(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) != 200) {
-                    throw new MyException("Updating exception", "Can't update entry", null);
+                    throw new IOException("Can't update entry " + id + " with data: " + changes);
                 }
             } else {
                 // delete
                 System.out.println("Deleting entry " + id);
                 if (OFFLINE) return;
                 if (JSONUtils.delete(domain + "time_entries/" + id + ".json?key=" + key) != 200) {
-                    throw new MyException("Deleting exception", "Can't delete entry", null);
+                    throw new IOException("Can't delete entry " + id);
                 }
             }
         }

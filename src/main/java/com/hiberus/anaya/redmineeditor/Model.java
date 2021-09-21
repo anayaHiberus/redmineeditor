@@ -143,8 +143,8 @@ public class Model {
         for (TimeEntry entry : entries) {
             try {
                 manager.uploadTimeEntry(entry);
-            } catch (MyException e) {
-                exception.merge(e);
+            } catch (IOException e) {
+                exception.addDetails(e);
                 ok = false;
             }
         }

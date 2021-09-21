@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.utils;
+package com.hiberus.anaya.redmineapi;
 
 import org.json.JSONObject;
 
@@ -26,43 +26,38 @@ public class JSONUtils {
         }
     }
 
-    public static int putToUrl(String url, JSONObject object) {
+    public static int putToUrl(String url, JSONObject object) throws IOException {
         return send(url, "PUT", object);
     }
 
-    public static int postToUrl(String url, JSONObject object) {
+    public static int postToUrl(String url, JSONObject object) throws IOException {
         return send(url, "POST", object);
     }
 
-    public static int delete(String url) {
+    public static int delete(String url) throws IOException {
         return send(url, "DELETE", null);
     }
 
     // ------------------------- utils -------------------------
 
-    private static int send(String url, String method, JSONObject body) {
-        try {
-            // init
-            URL _url = new URL(url);
-            HttpURLConnection http = (HttpURLConnection) _url.openConnection();
-            http.setRequestMethod(method);
-            if (body != null) {
-                http.setDoOutput(true);
-                http.setRequestProperty("Content-Type", "application/json");
-                http.getOutputStream().write(body.toString().getBytes(StandardCharsets.UTF_8));
-            }
-
-            // get
-            int responseCode = http.getResponseCode();
-            System.out.println(responseCode + ": " + http.getResponseMessage());
-
-            // end
-            http.disconnect();
-            return responseCode;
-        } catch (IOException e) {
-            e.printStackTrace();
+    private static int send(String url, String method, JSONObject body) throws IOException {
+        // init
+        URL _url = new URL(url);
+        HttpURLConnection http = (HttpURLConnection) _url.openConnection();
+        http.setRequestMethod(method);
+        if (body != null) {
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/json");
+            http.getOutputStream().write(body.toString().getBytes(StandardCharsets.UTF_8));
         }
-        return -1;
+
+        // get
+        int responseCode = http.getResponseCode();
+        System.out.println(responseCode + ": " + http.getResponseMessage());
+
+        // end
+        http.disconnect();
+        return responseCode;
     }
 
     private static String readAll(Reader rd) throws IOException {
