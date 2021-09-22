@@ -164,15 +164,6 @@ public class Model {
         addEntry(new TimeEntry(issue, date));
     }
 
-    // ------------------------- private -------------------------
-
-    public List<TimeEntry> _getEntriesForDate(LocalDate date) {
-        // todo replace with a map with date as key
-        return entries.stream()
-                .filter(entry -> entry.wasSpentOn(date))
-                .collect(Collectors.toList());
-    }
-
     public boolean hasChanges() {
         return entries.stream().anyMatch(TimeEntry::requiresUpload);
     }
@@ -180,12 +171,18 @@ public class Model {
     public double[] getSpentForMonth() {
         double[] spent = new double[month.lengthOfMonth()];
         for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-            // foreach day of the month
-            LocalDate date = month.atDay(day);
-
             // color the day
             spent[day - 1] = getSpent(month.atDay(day));
         }
         return spent;
+    }
+
+    // ------------------------- private -------------------------
+
+    private List<TimeEntry> _getEntriesForDate(LocalDate date) {
+        // todo replace with a map with date as key
+        return entries.stream()
+                .filter(entry -> entry.wasSpentOn(date))
+                .collect(Collectors.toList());
     }
 }

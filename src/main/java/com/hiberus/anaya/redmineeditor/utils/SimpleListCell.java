@@ -17,11 +17,12 @@ public abstract class SimpleListCell<T> extends ListCell<T> {
     /**
      * Creates a new cell from a fxml file
      *
-     * @param resource the fxml file to load
+     * @param filename the fxml file to load (from the module root)
      */
-    public SimpleListCell(String resource) {
+    public SimpleListCell(String filename) {
+        String file = "/" + getClass().getModule().getName().replace(".", "/") + "/" + filename;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(resource));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(file));
             loader.setController(this);
             loader.setRoot(this);
             loader.load();
