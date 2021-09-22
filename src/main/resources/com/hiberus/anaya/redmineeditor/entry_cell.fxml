@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.hiberus.anaya.redmineeditor.cells.EntryCell?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<fx:root type="ListCell" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+         type="com.hiberus.anaya.redmineeditor.cells.EntryCell">
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
             <children>
                 <HBox fx:id="translucent" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                    <Label fx:id="issue" text="Id" wrapText="true" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="issue" wrapText="true" HBox.hgrow="ALWAYS"/>
                     <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
                 </HBox>
-                <VBox alignment="CENTER_RIGHT" fillWidth="false" HBox.hgrow="NEVER">
+                <VBox fx:id="substractButtons" alignment="CENTER_RIGHT" fillWidth="false" HBox.hgrow="NEVER">
                     <children>
                         <Button mnemonicParsing="false" onAction="#changeHours" text="-1"/>
                         <Button mnemonicParsing="false" onAction="#changeHours" text="-0.25"/>
