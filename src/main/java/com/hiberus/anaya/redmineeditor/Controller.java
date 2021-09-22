@@ -60,7 +60,7 @@ public class Controller {
         }
 
         // clear
-        model.clear();
+        model.clearEntries();
 
         // load month
         loadMonth();
@@ -84,7 +84,7 @@ public class Controller {
                 error.showAndWait();
             } else {
                 // and reload in foreground
-                model.clear(); // clear first so that reload don't notify of unsaved changes
+                model.clearEntries(); // clear first so that reload don't notify of unsaved changes
                 reload();
             }
         });

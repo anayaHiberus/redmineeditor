@@ -31,7 +31,7 @@ public class RedmineManager {
     }
 
     /**
-     * Returns all the hours on a timeframe
+     * Returns all the entries on a timeframe
      *
      * @param from from this date (included)
      * @param to   to this date (included)

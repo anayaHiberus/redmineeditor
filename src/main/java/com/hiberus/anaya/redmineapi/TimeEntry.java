@@ -33,7 +33,7 @@ public class TimeEntry {
     /**
      * Creates a new time entry for an existing issue and date
      *
-     * @param issue    the issue this entry is spent on
+     * @param issue    the issue id this entry is spent on
      * @param spent_on the date this entry is spent on
      */
     public TimeEntry(int issue, LocalDate spent_on) {
@@ -43,38 +43,38 @@ public class TimeEntry {
     }
 
     /**
-     * Checks if this issue was spent on a specific date
+     * Checks if this entry was spent on a specific date
      *
      * @param date check spent with this date
-     * @return true if this issue was spent on that date
+     * @return true if this entry was spent on that date
      */
     public boolean wasSpentOn(LocalDate date) {
         return spent_on.equals(date);
     }
 
     /**
-     * @return the spent hours of this issue
+     * @return the spent hours of this entry
      */
     public double getHours() {
         return hours;
     }
 
     /**
-     * @return the comment of this issue
+     * @return the comment of this entry
      */
     public String getComment() {
         return comment;
     }
 
     /**
-     * @param comment new comment of this issue
+     * @param comment new comment of this entry
      */
     public void setComment(String comment) {
         this.comment = comment;
     }
 
     /**
-     * @param amount new hours to add to this issue (negative to subtract)
+     * @param amount new hours to add to this entry (negative to subtract)
      */
     public void changeHours(double amount) {
         double newHours = hours + amount;

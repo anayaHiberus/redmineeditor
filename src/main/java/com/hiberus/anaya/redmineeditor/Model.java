@@ -21,51 +21,62 @@ public class Model {
 
     // ------------------------- month -------------------------
 
-    /**
-     * Current month
-     */
-    private YearMonth month = YearMonth.now();
+    private YearMonth month = YearMonth.now(); // current month
 
+    /**
+     * @return the current displayed month
+     */
     public YearMonth getMonth() {
         return month;
     }
 
+    /**
+     * @param month new month to save
+     */
     public void setMonth(YearMonth month) {
         this.month = month;
     }
 
     // ------------------------- day -------------------------
 
-    /**
-     * Selected day. If 0 no day is displayed
-     */
-    private int day = LocalDate.now().getDayOfMonth();
+    private int day = LocalDate.now().getDayOfMonth(); // selected day, 0 for none
 
+    /**
+     * @return the selected day, or 0 if no day is selected
+     */
     public int getDay() {
         return day;
     }
 
+    /**
+     * @param day new selected day (if invalid won't be saved)
+     */
     public void setDay(int day) {
         if (day == 0 || month.isValidDay(day))
             this.day = day;
     }
 
+    /**
+     * @return the selected date (month+day) or null if no day is selected
+     */
     public LocalDate getDate() {
-        if (day == 0) return null;
-        else return month.atDay(day);
+        if (day != 0) return month.atDay(day);
+        else return null;
     }
 
     // ------------------------- entries -------------------------
 
-    private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY);
+    private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
 
-    private final List<TimeEntry> entries = new ArrayList<>(); // raw api entries
+    private final List<TimeEntry> entries = new ArrayList<>(); // time entries
 
-    private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded
+    private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again
 
     /**
      * Loads the current month (if it is already loaded this does nothing)
      * Long operation
+     *
+     * @throws MyException on error
      */
     public void loadMonth() throws MyException {
         // skip if already loaded
@@ -74,7 +85,7 @@ public class Model {
         try {
             // load from the internet
             manager.getTimeEntries(month.atDay(1), month.atEndOfMonth())
-                    .forEach(this::addEntry);
+                    .forEach(timeEntry -> entries.add(timeEntry));
         } catch (IOException e) {
             e.printStackTrace();
             throw new MyException("Network error", "Can't load content from Redmine. Try again later.", e);
@@ -96,14 +107,10 @@ public class Model {
         }
     }
 
-    private void addEntry(TimeEntry timeEntry) {
-        entries.add(timeEntry);
-    }
-
     /**
-     * Discards all data
+     * Discards all entries
      */
-    public void clear() {
+    public void clearEntries() {
         monthsLoaded.clear();
         entries.clear();
     }
@@ -118,25 +125,38 @@ public class Model {
         return _getEntriesForDate(date).stream().mapToDouble(TimeEntry::getHours).sum();
     }
 
+    /**
+     * Returns the entries that should be displayed on a specific date
+     *
+     * @param date date to check
+     * @return entries for that date
+     */
     public List<TimeEntry> getEntriesForDate(LocalDate date) {
         // prepare
         Set<Integer> issues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toSet());
-
         for (int days = 1; days <= 7; ++days) {
+            // add a new empty entry copied from previous week ones
             _getEntriesForDate(date.minusDays(days)).stream()
                     .filter(prevEntry -> prevEntry.getHours() != 0)
                     .filter(prevEntry -> !issues.contains(prevEntry.issue))
                     .forEach(prevEntry -> {
                         TimeEntry newEntry = new TimeEntry(prevEntry.issue, date);
                         newEntry.setComment(prevEntry.getComment());
-                        addEntry(newEntry);
+                        entries.add(newEntry);
                         issues.add(prevEntry.issue);
                     });
         }
 
+        // return
         return _getEntriesForDate(date);
     }
 
+    /**
+     * Uploads all modified entries
+     * Long operation
+     *
+     * @throws MyException on error
+     */
     public void uploadEntries() throws MyException {
         boolean ok = true;
         MyException exception = new MyException("Updating error", "An error ocurred while updating entries", null);
@@ -153,6 +173,9 @@ public class Model {
         }
     }
 
+    /**
+     * @return all distinct available issues
+     */
     public Set<Integer> getAllIssues() {
         return entries.stream()
                 .map(entries -> entries.issue)
@@ -160,18 +183,30 @@ public class Model {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Creates a new time entry
+     *
+     * @param date  for this date
+     * @param issue for this issue
+     */
     public void createTimeEntry(LocalDate date, int issue) {
-        addEntry(new TimeEntry(issue, date));
+        entries.add(new TimeEntry(issue, date));
     }
 
+    /**
+     * @return true iff there is at least something that was modified (and should be uploaded)
+     */
     public boolean hasChanges() {
         return entries.stream().anyMatch(TimeEntry::requiresUpload);
     }
 
+    /**
+     * @return the spent hours for each day of the current month
+     */
     public double[] getSpentForMonth() {
         double[] spent = new double[month.lengthOfMonth()];
         for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-            // color the day
+            // calculate and save spent hours for each day in the month
             spent[day - 1] = getSpent(month.atDay(day));
         }
         return spent;
@@ -180,6 +215,7 @@ public class Model {
     // ------------------------- private -------------------------
 
     private List<TimeEntry> _getEntriesForDate(LocalDate date) {
+        // return entries of a specific date
         // todo replace with a map with date as key
         return entries.stream()
                 .filter(entry -> entry.wasSpentOn(date))
