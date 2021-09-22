@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor;
 
+import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
@@ -69,6 +70,7 @@ public class Model {
     private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
 
     private final List<TimeEntry> entries = new ArrayList<>(); // time entries
+    private final List<Issue> issues = new ArrayList<>(); // issues
 
     private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again
 
@@ -84,8 +86,7 @@ public class Model {
 
         try {
             // load from the internet
-            manager.getTimeEntries(month.atDay(1), month.atEndOfMonth())
-                    .forEach(timeEntry -> entries.add(timeEntry));
+            entries.addAll(manager.getTimeEntries(month.atDay(1), month.atEndOfMonth(), issues));
         } catch (IOException e) {
             e.printStackTrace();
             throw new MyException("Network error", "Can't load content from Redmine. Try again later.", e);
@@ -113,6 +114,7 @@ public class Model {
     public void clearEntries() {
         monthsLoaded.clear();
         entries.clear();
+        issues.clear();
     }
 
     /**
@@ -133,17 +135,17 @@ public class Model {
      */
     public List<TimeEntry> getEntriesForDate(LocalDate date) {
         // prepare
-        Set<Integer> issues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toSet());
+        List<Issue> todayIssues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toList());
         for (int days = 1; days <= 7; ++days) {
             // add a new empty entry copied from previous week ones
             _getEntriesForDate(date.minusDays(days)).stream()
                     .filter(prevEntry -> prevEntry.getHours() != 0)
-                    .filter(prevEntry -> !issues.contains(prevEntry.issue))
+                    .filter(prevEntry -> !todayIssues.contains(prevEntry.issue))
                     .forEach(prevEntry -> {
                         TimeEntry newEntry = new TimeEntry(prevEntry.issue, date);
                         newEntry.setComment(prevEntry.getComment());
                         entries.add(newEntry);
-                        issues.add(prevEntry.issue);
+                        todayIssues.add(prevEntry.issue);
                     });
         }
 
@@ -176,11 +178,8 @@ public class Model {
     /**
      * @return all distinct available issues
      */
-    public Set<Integer> getAllIssues() {
-        return entries.stream()
-                .map(entries -> entries.issue)
-                .filter(issue -> issue != -1)
-                .collect(Collectors.toSet());
+    public List<Issue> getAllIssues() {
+        return issues;
     }
 
     /**
@@ -189,7 +188,7 @@ public class Model {
      * @param date  for this date
      * @param issue for this issue
      */
-    public void createTimeEntry(LocalDate date, int issue) {
+    public void createTimeEntry(LocalDate date, Issue issue) {
         entries.add(new TimeEntry(issue, date));
     }
 
@@ -219,6 +218,6 @@ public class Model {
         // todo replace with a map with date as key
         return entries.stream()
                 .filter(entry -> entry.wasSpentOn(date))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

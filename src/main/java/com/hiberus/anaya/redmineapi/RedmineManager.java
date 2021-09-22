@@ -6,7 +6,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Redmine API.
@@ -38,31 +40,23 @@ public class RedmineManager {
      * @return the list of entries from that data
      * @throws IOException if network failed
      */
-    public List<TimeEntry> getTimeEntries(LocalDate from, LocalDate to) throws IOException {
-        int offset = 0;
-        List<TimeEntry> allEntries = new ArrayList<>();
-        int total_count;
-        do {
-            // get page
-            JSONObject page = UrlJSON.get(domain + "time_entries.json?utf8=✓&"
-                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=" + "me" // you can only edit your own entries, so 'me' is the only useful value
-                    + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=" + from.toString() + "&v[spent_on][]=" + to.toString()
-                    + "&key=" + key
-                    + "&limit=100&offset=" + offset
-            );
+    public List<TimeEntry> getTimeEntries(LocalDate from, LocalDate to, List<Issue> loadedIssues) throws IOException {
+        List<JSONObject> time_entries = paginatedGet(
+                domain + "time_entries.json?utf8=✓&"
+                        + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=" + "me" // you can only edit your own entries, so 'me' is the only useful value
+                        + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=" + from.toString() + "&v[spent_on][]=" + to.toString()
+                        + "&key=" + key,
+                "time_entries");
 
-            // add page
-            JSONArray pageEntries = page.getJSONArray("time_entries");
-            for (int i = 0; i < pageEntries.length(); i++) {
-                allEntries.add(new TimeEntry(pageEntries.getJSONObject(i)));
-            }
-            offset = allEntries.size();
-
-            // continue next page if still not all
-            total_count = page.getInt("total_count");
-        } while (offset < total_count);
-
-        return allEntries;
+        // fetch missing issues
+        List<Integer> loadedIssuesIds = loadedIssues.stream().map(issue -> issue.id).toList();
+        loadedIssues.addAll(getIssues(time_entries.stream()
+                .map(TimeEntry::getIssueId)
+                .filter(o -> !loadedIssuesIds.contains(o))
+                .toList()
+        ));
+        return time_entries
+                .stream().map(rawEntry -> new TimeEntry(rawEntry, loadedIssues)).toList();
     }
 
     /**
@@ -107,5 +101,45 @@ public class RedmineManager {
                 }
             }
         }
+    }
+
+    public List<Issue> getIssues(List<Integer> ids) throws IOException {
+        if (ids.isEmpty()) return Collections.emptyList();
+
+        String idsString = ids.stream().map(id -> Integer.toString(id)).collect(Collectors.joining("%2C"));
+        return paginatedGet(
+                domain + "issues.json?utf8=✓&"
+                        + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=" + idsString
+                        + "&key=" + key,
+                "issues")
+                .stream().map(Issue::new).toList();
+
+    }
+
+    // ------------------------- private -------------------------
+
+    private List<JSONObject> paginatedGet(String fullUrl, String key) throws IOException {
+        // returns all entries from a paginated result
+        int offset = 0;
+        List<JSONObject> allObjects = new ArrayList<>();
+        int total_count;
+        do {
+            // get page
+            JSONObject page = UrlJSON.get(fullUrl
+                    + "&limit=100&offset=" + offset
+            );
+
+            // add page
+            JSONArray pageObjects = page.getJSONArray(key);
+            for (int i = 0; i < pageObjects.length(); i++) {
+                allObjects.add(pageObjects.getJSONObject(i));
+            }
+            offset = allObjects.size();
+
+            // continue next page if still not all
+            total_count = page.getInt("total_count");
+        } while (offset < total_count);
+
+        return allObjects;
     }
 }

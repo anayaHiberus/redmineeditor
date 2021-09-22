@@ -38,7 +38,7 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     public void update() {
         // sets the cell data
         TimeEntry entry = getItem();
-        issue.setText(Integer.toString(entry.issue));
+        issue.setText(entry.issue.toString());
         comment.setText(entry.getComment());
         updateHours(entry.getHours());
     }

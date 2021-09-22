@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.views;
 
+import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.cells.EntryCell;
 import javafx.collections.FXCollections;
@@ -14,12 +15,12 @@ import java.util.List;
 public class EntriesView extends InnerView {
 
     @FXML
-    private ChoiceBox<Integer> choice; // the issues choicebox // TODO: move to another view
+    private ChoiceBox<Issue> choice; // the issues choicebox // TODO: move to another view
     @FXML
     private ListView<TimeEntry> list; // list view for displayed entries
 
     private final ObservableList<TimeEntry> listItems = FXCollections.observableArrayList(); // items in listview
-    private final ObservableList<Integer> choiceItems = FXCollections.observableArrayList(); // items in choicebox
+    private final ObservableList<Issue> choiceItems = FXCollections.observableArrayList(); // items in choicebox
 
     @FXML
     private void initialize() {
@@ -30,7 +31,7 @@ public class EntriesView extends InnerView {
 
         choice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // when selected issue, add entry
-            Integer issue = choice.getValue();
+            Issue issue = choice.getValue();
             if (issue == null) return;
             controller.addEntryForCurrentDate(issue);
             choice.getSelectionModel().clearSelection(); // choice.setValue(null); // TODO: how to unselect??
@@ -59,7 +60,7 @@ public class EntriesView extends InnerView {
      *
      * @param issues issues to display
      */
-    public void setIssues(Collection<Integer> issues) {
+    public void setIssues(Collection<Issue> issues) {
         choiceItems.clear();
         choiceItems.addAll(issues);
     }

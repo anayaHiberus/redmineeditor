@@ -28,6 +28,7 @@ public class MyException extends Exception {
      * Displays an error dialog with this exception details
      */
     public void showAndWait() {
+        if (getCause() != null) getCause().printStackTrace();
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(title);
         alert.setContentText(getMessage() + "\n\n" + details);

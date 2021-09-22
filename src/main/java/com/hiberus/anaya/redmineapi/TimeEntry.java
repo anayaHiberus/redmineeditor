@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineapi;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,21 +14,25 @@ public class TimeEntry {
     /**
      * The issue id
      */
-    public final int issue;
+    public final Issue issue;
     private final LocalDate spent_on; // date it was spent
     private double hours = 0; // hours spent
     private String comment = ""; // comment
 
     private JSONObject original; // the original raw object, for diff purposes
 
-    TimeEntry(JSONObject entry) {
+    TimeEntry(JSONObject rawEntry, List<Issue> issues) {
         // creates a new entry from a json raw data
-        original = entry;
-        id = entry.getInt("id");
-        issue = entry.getJSONObject("issue").getInt("id");
-        spent_on = LocalDate.parse(entry.getString("spent_on"));
-        hours = entry.getDouble("hours");
-        comment = entry.optString("comments");
+        original = rawEntry;
+        id = rawEntry.getInt("id");
+        issue = issues.stream().filter(issue -> issue.id == getIssueId(rawEntry)).findFirst().orElseThrow();
+        spent_on = LocalDate.parse(rawEntry.getString("spent_on"));
+        hours = rawEntry.getDouble("hours");
+        comment = rawEntry.optString("comments");
+    }
+
+    static int getIssueId(JSONObject rawEntry) {
+        return rawEntry.getJSONObject("issue").getInt("id");
     }
 
     /**
@@ -36,7 +41,7 @@ public class TimeEntry {
      * @param issue    the issue id this entry is spent on
      * @param spent_on the date this entry is spent on
      */
-    public TimeEntry(int issue, LocalDate spent_on) {
+    public TimeEntry(Issue issue, LocalDate spent_on) {
         this.id = -1;
         this.issue = issue;
         this.spent_on = spent_on;
@@ -99,7 +104,7 @@ public class TimeEntry {
         }
         if (id == -1) {
             // without original, this data is considered new
-            changes.put("issue_id", issue);
+            changes.put("issue_id", issue.id);
             changes.put("spent_on", spent_on);
         }
 

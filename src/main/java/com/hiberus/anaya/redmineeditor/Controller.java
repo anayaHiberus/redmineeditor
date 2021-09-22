@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor;
 
+import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineeditor.views.CalendarView;
 import com.hiberus.anaya.redmineeditor.views.EntriesView;
 import com.hiberus.anaya.redmineeditor.views.ParentView;
@@ -121,14 +122,14 @@ public class Controller {
     /**
      * Add a new entry for the current date
      *
-     * @param issueId id of the issue the entry will be attached to
+     * @param issue id of the issue the entry will be attached to
      */
-    public void addEntryForCurrentDate(int issueId) {
+    public void addEntryForCurrentDate(Issue issue) {
         LocalDate date = model.getDate();
         assert date != null;
 
         // create and add issue
-        model.createTimeEntry(date, issueId);
+        model.createTimeEntry(date, issue);
 
         // update entries
         entriesView.replace(model.getEntriesForDate(date));
@@ -202,6 +203,7 @@ public class Controller {
         parentView.setLoading(true);
         calendarView.clearColors();
         summaryView.asLoading();
+        entriesView.clear();
 
         // container
         var ref = new Object() {
