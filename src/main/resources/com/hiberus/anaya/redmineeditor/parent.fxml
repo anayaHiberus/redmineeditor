@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ProgressIndicator?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <StackPane prefHeight="640.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.2"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.views.ParentView">
@@ -22,6 +21,12 @@
                     </padding>
                 </Separator>
                 <fx:include fx:id="entries" source="entries.fxml" VBox.vgrow="ALWAYS"/>
+                <Separator prefWidth="200.0">
+                    <padding>
+                        <Insets bottom="10.0" top="10.0"/>
+                    </padding>
+                </Separator>
+                <fx:include fx:id="insert" source="insert.fxml" VBox.vgrow="ALWAYS"/>
                 <Separator prefWidth="200.0">
                     <padding>
                         <Insets bottom="10.0" top="10.0"/>

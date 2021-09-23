@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.hiberus.anaya.redmineeditor.views.EntriesView">
-    <children>
-        <ListView fx:id="list" prefHeight="400.0" prefWidth="600.0">
-        </ListView>
-        <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
-            <children>
-                <Label text="Add"/>
-                <ChoiceBox fx:id="choice" prefWidth="150.0"/>
-            </children>
-        </HBox>
-    </children>
-</VBox>
+<ListView xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.hiberus.anaya.redmineeditor.views.EntriesView"
+          fx:id="list" prefHeight="400.0" prefWidth="600.0">
+</ListView>

@@ -19,9 +19,11 @@ public class ParentView {
     @FXML
     private SummaryView summaryController;
     @FXML
-    private ActionsView actionsController;
-    @FXML
     private EntriesView entriesController;
+    @FXML
+    private InsertView insertController;
+    @FXML
+    private ActionsView actionsController;
 
     // ------------------------- elements -------------------------
 
@@ -36,13 +38,14 @@ public class ParentView {
     @FXML
     private void initialize() {
         // this is the application controller
-        Controller controller = new Controller(calendarController, summaryController, entriesController, this);
+        Controller controller = new Controller(this, calendarController, summaryController, entriesController, insertController);
 
         // init subviews, like manual dependency injection
         calendarController.injectController(controller);
         summaryController.injectController(controller);
-        actionsController.injectController(controller);
         entriesController.injectController(controller);
+        insertController.injectController(controller);
+        actionsController.injectController(controller);
 
         // start
         controller.onStart();

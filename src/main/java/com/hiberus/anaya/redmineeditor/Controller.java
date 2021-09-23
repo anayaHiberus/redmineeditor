@@ -1,10 +1,7 @@
 package com.hiberus.anaya.redmineeditor;
 
 import com.hiberus.anaya.redmineapi.Issue;
-import com.hiberus.anaya.redmineeditor.views.CalendarView;
-import com.hiberus.anaya.redmineeditor.views.EntriesView;
-import com.hiberus.anaya.redmineeditor.views.ParentView;
-import com.hiberus.anaya.redmineeditor.views.SummaryView;
+import com.hiberus.anaya.redmineeditor.views.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -25,19 +22,21 @@ public class Controller {
 
     // ------------------------- views -------------------------
 
+    private final ParentView parentView;
     private final CalendarView calendarView;
     private final SummaryView summaryView;
     private final EntriesView entriesView;
-    private final ParentView parentView;
+    private final InsertView insertView;
 
     /**
      * Initializes the controller with all the views
      */
-    public Controller(CalendarView calendarView, SummaryView summaryView, EntriesView entriesView, ParentView parentView) {
+    public Controller(ParentView parentView, CalendarView calendarView, SummaryView summaryView, EntriesView entriesView, InsertView insertView) {
+        this.parentView = parentView;
         this.calendarView = calendarView;
         this.summaryView = summaryView;
         this.entriesView = entriesView;
-        this.parentView = parentView;
+        this.insertView = insertView;
     }
 
     // ------------------------- actions -------------------------
@@ -192,7 +191,7 @@ public class Controller {
                 // update all
                 calendarView.drawMonth(model.getMonth());
                 calendarView.colorDays(model.getMonth(), model.getSpentForMonth());
-                entriesView.setIssues(model.getAllIssues());
+                insertView.setIssues(model.getAllIssues());
                 showDay();
             }
         });
