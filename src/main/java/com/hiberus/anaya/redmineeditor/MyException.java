@@ -9,6 +9,13 @@ import java.util.StringJoiner;
  */
 public class MyException extends Exception {
 
+    /**
+     * A runnable that allows to throw MyException
+     */
+    interface Runnable {
+        void run() throws MyException;
+    }
+
     private boolean isWarning = false; // a warning still allows to
 
     private final String title; // the exception title

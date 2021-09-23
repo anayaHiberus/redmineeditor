@@ -8,8 +8,6 @@ import javafx.scene.control.ButtonType;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * The class between the views and the model
@@ -71,24 +69,13 @@ public class Controller {
      * Upload changes
      */
     public void upload() {
-        backgroundLoad(() -> {
-            try {
-                // upload changes in background
-                model.uploadEntries();
-                return null;
-            } catch (MyException e) {
-                return e; // TODO move to backgroundLoad logic
-            }
-        }, error -> {
-            if (error != null) {
-                // an error occurred
-                error.showAndWait();
-            } else {
-                // and reload in foreground
-                model.clearEntries(); // clear first so that reload don't notify of unsaved changes
-                reload();
-            }
-        });
+        backgroundLoad(
+                model::uploadEntries // upload changes in background
+                , () -> {
+                    // and reload in foreground
+                    model.clearEntries(); // clear first so that reload don't notify of unsaved changes
+                    reload();
+                });
     }
 
     /**
@@ -147,24 +134,11 @@ public class Controller {
 
         backgroundLoad(() -> {
             // add
-            try {
-                model.createTimeEntries(date, ids);
-                return null;
-            } catch (MyException e) {
-                e.printStackTrace();
-                return e;
-            }
-
-        }, error -> {
-            if (error != null) {
-                // on error, show dialog
-                error.showAndWait();
-            }
-            if (error == null || error.isWarning()) {
-                // update entries
-                entriesView.replace(model.getEntriesForDate(date));
-                insertView.setIssues(model.getAllIssues());
-            }
+            model.createTimeEntries(date, ids);
+        }, () -> {
+            // update entries
+            entriesView.replace(model.getEntriesForDate(date));
+            insertView.setIssues(model.getAllIssues());
         });
     }
 
@@ -211,29 +185,18 @@ public class Controller {
 
     private void loadMonth() {
         // load current month
-        backgroundLoad(() -> {
-            try {
-                // first load in background
-                model.loadMonth();
-                return null;
-            } catch (MyException e) {
-                return e;
-            }
-        }, (error) -> {
-            if (error != null) {
-                // on error, show dialog
-                error.showAndWait();
-            } else {
-                // update all
-                calendarView.drawMonth(model.getMonth());
-                calendarView.colorDays(model.getMonth(), model.getSpentForMonth());
-                insertView.setIssues(model.getAllIssues());
-                showDay();
-            }
-        });
+        backgroundLoad(
+                model::loadMonth // first load in background
+                , () -> {
+                    // update all in foreground
+                    calendarView.drawMonth(model.getMonth());
+                    calendarView.colorDays(model.getMonth(), model.getSpentForMonth());
+                    insertView.setIssues(model.getAllIssues());
+                    showDay();
+                });
     }
 
-    private <T> void backgroundLoad(Supplier<T> background, Consumer<T> foreground) {
+    private void backgroundLoad(MyException.Runnable background, MyException.Runnable foreground) {
         // set as loading
         parentView.setLoading(true);
 //        calendarView.clearColors();
@@ -242,24 +205,26 @@ public class Controller {
 
         // container
         var ref = new Object() {
-            T result = null; // transfer from background to foreground
             MyException error = null; // unexpected
         };
 
         new Thread(() -> {
             try {
                 // run in background
-                ref.result = background.get();
+                background.run();
+            } catch (MyException e) {
+                ref.error = e; // save directly
             } catch (Throwable e) {
                 // background error
-                e.printStackTrace();
                 ref.error = new MyException("Internal error", "Something unexpected happened in background", e);
             }
             Platform.runLater(() -> {
-                if (ref.error == null) {
+                if (ref.error == null || ref.error.isWarning()) {
                     try {
                         // run in foreground
-                        foreground.accept(ref.result);
+                        foreground.run();
+                    } catch (MyException e) {
+                        ref.error = e; // save directly
                     } catch (Throwable e) {
                         // foreground error
                         ref.error = new MyException("Internal error", "Something unexpected happened in foreground", e);

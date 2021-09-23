@@ -88,10 +88,8 @@ public class Model {
             // load from the internet
             entries.addAll(manager.getTimeEntries(month.atDay(1), month.atEndOfMonth(), issues));
         } catch (IOException e) {
-            e.printStackTrace();
             throw new MyException("Network error", "Can't load content from Redmine. Try again later.", e);
         } catch (JSONException e) {
-            e.printStackTrace();
             throw new MyException("Parsing error", "Unknown Redmine response. Try again later.", e);
         }
 
@@ -199,7 +197,7 @@ public class Model {
      * @param ids  each one with an id from this
      */
     public void createTimeEntries(LocalDate date, List<Integer> ids) throws MyException {
-        List<Integer> issuesToLoad = new ArrayList<>();
+        List<Integer> idsToLoad = new ArrayList<>();
 
         ids.forEach(id -> {
             Issue issue = getIssueFromId(id);
@@ -208,22 +206,28 @@ public class Model {
                 createTimeEntry(date, issue);
             } else {
                 // still not present, mark for load
-                issuesToLoad.add(id);
+                idsToLoad.add(id);
             }
         });
 
         try {
-            List<Issue> loadedIssues = manager.getIssues(issuesToLoad);
+            List<Issue> loadedIssues = manager.getIssues(idsToLoad);
             loadedIssues.forEach(issue -> {
                 // create and add issue
                 createTimeEntry(date, issue);
                 this.issues.add(issue);
             });
-            if (loadedIssues.size() != issuesToLoad.size()) {
-                throw new MyException("Warning", "Some issues were not found", null).asWarning();
+            // remove loaded
+            idsToLoad.removeAll(loadedIssues.stream().map(issue -> issue.id).toList());
+            if (idsToLoad.size() == 1) {
+                // missing single issue
+                throw new MyException("Unknown issue", "The issue #" + idsToLoad.get(0) + " was not found or couldn't be loaded", null).asWarning();
+            }
+            if (idsToLoad.size() >= 2) {
+                // missing multiple issues
+                throw new MyException("Unknown issues", "The issues " + idsToLoad.stream().map(issue -> "#" + issue).collect(Collectors.joining(", ")) + " were not found or couldn't be loaded", null).asWarning();
             }
         } catch (IOException e) {
-            e.printStackTrace();
             throw new MyException("Error loading issues", "Can't load issues", e);
         }
     }
