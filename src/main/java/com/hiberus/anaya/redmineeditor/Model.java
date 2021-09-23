@@ -211,7 +211,41 @@ public class Model {
         return spent;
     }
 
+    public void createTimeEntries(LocalDate date, List<Integer> ids) throws MyException {
+        List<Integer> issuesToLoad = new ArrayList<>();
+
+        ids.forEach(id -> {
+            Issue issue = getIssueFromId(id);
+            if (issue != null) {
+                // already present, add
+                createTimeEntry(date, issue);
+            } else {
+                // still not present, mark for load
+                issuesToLoad.add(id);
+            }
+        });
+
+        try {
+            List<Issue> loadedIssues = manager.getIssues(issuesToLoad);
+            loadedIssues.forEach(issue -> {
+                // create and add issue
+                createTimeEntry(date, issue);
+                this.issues.add(issue);
+            });
+            if (loadedIssues.size() != issuesToLoad.size()) {
+                throw new MyException("Warning", "Some issues were not found", null);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new MyException("Error loading issues", "Can't load issues", e);
+        }
+    }
+
     // ------------------------- private -------------------------
+
+    private Issue getIssueFromId(int id) {
+        return issues.stream().filter(issue -> issue.id == id).findAny().orElse(null);
+    }
 
     private List<TimeEntry> _getEntriesForDate(LocalDate date) {
         // return entries of a specific date

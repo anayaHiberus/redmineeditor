@@ -8,6 +8,9 @@ import java.util.StringJoiner;
  * A custom exception that allows displaying it as dialog
  */
 public class MyException extends Exception {
+
+    private boolean isWarning = false;
+
     private final String title; // the exception title
 
     private final StringJoiner details = new StringJoiner("\n"); // the exception details (different from the message)
@@ -22,6 +25,11 @@ public class MyException extends Exception {
     public MyException(String title, String message, Throwable cause) {
         super(message, cause);
         this.title = title;
+    }
+
+    public MyException asWarning() {
+        isWarning = true;
+        return this;
     }
 
     /**
@@ -42,5 +50,9 @@ public class MyException extends Exception {
      */
     public void addDetails(Exception other) {
         details.add(other.getMessage());
+    }
+
+    public boolean isWarning() {
+        return isWarning;
     }
 }

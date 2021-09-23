@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/11.0.2"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.hiberus.anaya.redmineeditor.views.InsertView">
+<HBox fx:id="parent" alignment="CENTER_LEFT" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/11.0.2"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.views.InsertView">
     <children>
-        <Label text="Add"/>
-        <ChoiceBox fx:id="choice" prefWidth="150.0"/>
+        <Label text="Add Entry for issue: "/>
+        <MenuButton fx:id="choice" mnemonicParsing="false" text="Choose existing..." HBox.hgrow="NEVER"/>
+        <TextField fx:id="paste" onKeyPressed="#onInputKey" promptText="Enter issue id or url (and press enter)"
+                   HBox.hgrow="ALWAYS"/>
     </children>
 </HBox>

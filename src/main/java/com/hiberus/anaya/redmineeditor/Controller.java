@@ -7,6 +7,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -134,6 +135,34 @@ public class Controller {
         entriesView.replace(model.getEntriesForDate(date));
     }
 
+    public void addEntriesForCurrentDate(List<Integer> ids) {
+        // notify
+        LocalDate date = model.getDate();
+        assert date != null;
+
+        backgroundLoad(() -> {
+            // add
+            try {
+                model.createTimeEntries(date, ids);
+                return null;
+            } catch (MyException e) {
+                e.printStackTrace();
+                return e;
+            }
+
+        }, error -> {
+            if (error != null) {
+                // on error, show dialog
+                error.showAndWait();
+            }
+            if (error == null || error.isWarning()) {
+                // update entries
+                entriesView.replace(model.getEntriesForDate(date));
+                insertView.setIssues(model.getAllIssues());
+            }
+        });
+    }
+
     // ------------------------- callables -------------------------
 
     /**
@@ -166,10 +195,12 @@ public class Controller {
             // unselect
             calendarView.unselect();
             entriesView.clear();
+            insertView.setEnabled(false);
         } else {
             // select
             calendarView.selectDay(model.getDay());
             entriesView.replace(model.getEntriesForDate(date));
+            insertView.setEnabled(true);
         }
     }
 
@@ -200,9 +231,9 @@ public class Controller {
     private <T> void backgroundLoad(Supplier<T> background, Consumer<T> foreground) {
         // set as loading
         parentView.setLoading(true);
-        calendarView.clearColors();
-        summaryView.asLoading();
-        entriesView.clear();
+//        calendarView.clearColors();
+//        summaryView.asLoading();
+//        entriesView.clear();
 
         // container
         var ref = new Object() {
@@ -251,5 +282,4 @@ public class Controller {
             calendarView.colorDay(date, spent);
         }
     }
-
 }
