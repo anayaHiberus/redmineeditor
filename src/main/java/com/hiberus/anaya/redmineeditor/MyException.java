@@ -9,7 +9,7 @@ import java.util.StringJoiner;
  */
 public class MyException extends Exception {
 
-    private boolean isWarning = false;
+    private boolean isWarning = false; // a warning still allows to
 
     private final String title; // the exception title
 
@@ -27,6 +27,11 @@ public class MyException extends Exception {
         this.title = title;
     }
 
+    /**
+     * Marks this exception as warning
+     *
+     * @return this (for chained calls)
+     */
     public MyException asWarning() {
         isWarning = true;
         return this;
@@ -37,7 +42,7 @@ public class MyException extends Exception {
      */
     public void showAndWait() {
         if (getCause() != null) getCause().printStackTrace();
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(isWarning ? Alert.AlertType.WARNING : Alert.AlertType.ERROR);
         alert.setHeaderText(title);
         alert.setContentText(getMessage() + "\n\n" + details);
         alert.showAndWait();
@@ -52,6 +57,9 @@ public class MyException extends Exception {
         details.add(other.getMessage());
     }
 
+    /**
+     * @return if this exception is a warning
+     */
     public boolean isWarning() {
         return isWarning;
     }

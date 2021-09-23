@@ -36,16 +36,20 @@ public class InsertView extends InnerView {
     @FXML
     private void onInputKey(KeyEvent event) {
         if (event.getCode() != KeyCode.ENTER) return;
+        // when pressing enter
 
+        // get and clear text
         String content = paste.getText();
         paste.clear();
 
+        // extract all sequential numbers
         Matcher m = Pattern.compile("\\d+").matcher(content);
         List<Integer> ids = new ArrayList<>();
         while (m.find()) {
             ids.add(Integer.parseInt(m.group(0)));
         }
 
+        // and add them
         controller.addEntriesForCurrentDate(ids);
     }
 

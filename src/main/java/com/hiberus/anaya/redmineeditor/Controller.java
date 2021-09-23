@@ -135,6 +135,11 @@ public class Controller {
         entriesView.replace(model.getEntriesForDate(date));
     }
 
+    /**
+     * Add new entries for the current date, one for each id (if valid)
+     *
+     * @param ids list of ids of the issues the entries will be attached to
+     */
     public void addEntriesForCurrentDate(List<Integer> ids) {
         // notify
         LocalDate date = model.getDate();

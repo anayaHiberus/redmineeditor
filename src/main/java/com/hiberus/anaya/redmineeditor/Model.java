@@ -193,24 +193,11 @@ public class Model {
     }
 
     /**
-     * @return true iff there is at least something that was modified (and should be uploaded)
+     * Creates multiple new time entries
+     *
+     * @param date for this date
+     * @param ids  each one with an id from this
      */
-    public boolean hasChanges() {
-        return entries.stream().anyMatch(TimeEntry::requiresUpload);
-    }
-
-    /**
-     * @return the spent hours for each day of the current month
-     */
-    public double[] getSpentForMonth() {
-        double[] spent = new double[month.lengthOfMonth()];
-        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-            // calculate and save spent hours for each day in the month
-            spent[day - 1] = getSpent(month.atDay(day));
-        }
-        return spent;
-    }
-
     public void createTimeEntries(LocalDate date, List<Integer> ids) throws MyException {
         List<Integer> issuesToLoad = new ArrayList<>();
 
@@ -233,7 +220,7 @@ public class Model {
                 this.issues.add(issue);
             });
             if (loadedIssues.size() != issuesToLoad.size()) {
-                throw new MyException("Warning", "Some issues were not found", null);
+                throw new MyException("Warning", "Some issues were not found", null).asWarning();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -241,9 +228,29 @@ public class Model {
         }
     }
 
+    /**
+     * @return true iff there is at least something that was modified (and should be uploaded)
+     */
+    public boolean hasChanges() {
+        return entries.stream().anyMatch(TimeEntry::requiresUpload);
+    }
+
+    /**
+     * @return the spent hours for each day of the current month
+     */
+    public double[] getSpentForMonth() {
+        double[] spent = new double[month.lengthOfMonth()];
+        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
+            // calculate and save spent hours for each day in the month
+            spent[day - 1] = getSpent(month.atDay(day));
+        }
+        return spent;
+    }
+
     // ------------------------- private -------------------------
 
     private Issue getIssueFromId(int id) {
+        // gets the issue with the given id, null if not present
         return issues.stream().filter(issue -> issue.id == id).findAny().orElse(null);
     }
 
