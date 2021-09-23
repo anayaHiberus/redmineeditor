@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.views;
 import com.hiberus.anaya.redmineapi.Issue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
@@ -26,7 +27,9 @@ public class InsertView extends InnerView {
     private MenuButton choice; // the issues choicebox
 
     @FXML
-    private TextField paste; // where to paste to create issues
+    private TextField input; // where to paste to create issues
+    @FXML
+    public Button add; // the add button
 
     @FXML
     private Node parent; // the parent element
@@ -35,12 +38,20 @@ public class InsertView extends InnerView {
 
     @FXML
     private void onInputKey(KeyEvent event) {
-        if (event.getCode() != KeyCode.ENTER) return;
-        // when pressing enter
+        // change add enabled state
+        add.setDisable(input.getText().isBlank());
+
+        // when pressing enter, add
+        if (event.getCode() == KeyCode.ENTER) onAdd();
+    }
+
+    @FXML
+    private void onAdd() {
+        // add the searchable entries
 
         // get and clear text
-        String content = paste.getText();
-        paste.clear();
+        String content = input.getText();
+        input.clear();
 
         // extract all sequential numbers
         Matcher m = Pattern.compile("\\d+").matcher(content);
@@ -67,6 +78,8 @@ public class InsertView extends InnerView {
             menuItem.setOnAction(event -> controller.addEntryForCurrentDate(issue));
             return menuItem;
         }).toList());
+        // disable if no entries
+        choice.setDisable(choice.getItems().isEmpty());
     }
 
     /**

@@ -9,7 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 
 /**
  * One of the entries in the entries list
@@ -18,9 +17,7 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
 
     // ------------------------- views -------------------------
     @FXML
-    private VBox substractButtons;
-    @FXML
-    private HBox translucent;
+    private HBox ignored;
     @FXML
     private Label issue;
     @FXML
@@ -74,9 +71,8 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     // ------------------------- private -------------------------
 
     private void updateHours(double amount) {
-        // set text and opacity
+        // set text and disable state
         hours.setText(Double.toString(amount));
-        translucent.setOpacity(amount > 0 ? 1.0 : 0.5);
-        substractButtons.setDisable(amount <= 0);
+        ignored.setDisable(amount <= 0);
     }
 }
