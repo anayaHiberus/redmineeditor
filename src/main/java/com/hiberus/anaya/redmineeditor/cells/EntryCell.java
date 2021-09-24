@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.cells;
 
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.Controller;
+import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import javafx.event.Event;
@@ -16,7 +16,7 @@ import javafx.scene.layout.HBox;
  */
 public class EntryCell extends SimpleListCell<TimeEntry> {
 
-    // ------------------------- views -------------------------
+    /* ------------------------- views ------------------------- */
     @FXML
     private HBox ignored;
     @FXML
@@ -26,19 +26,19 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     @FXML
     private Label hours;
 
-    // ------------------------- init -------------------------
-    private final Controller notifier; // to notify when the entry changes
+    /* ------------------------- init ------------------------- */
+    private final Model model; // to notify when the entry changes
 
     private EntryCell() {
         // to avoid error on fxml file
         super("");
-        notifier = null;
+        model = null;
     }
 
-    public EntryCell(Controller onChangeListener) {
+    public EntryCell(Model model) {
         // creates new cell
         super("entry_cell.fxml");
-        notifier = onChangeListener;
+        this.model = model;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         updateHours(entry.getHours());
     }
 
-    // ------------------------- actions -------------------------
+    /* ------------------------- actions ------------------------- */
 
     @FXML
     private void changedComment() {
@@ -66,10 +66,10 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
 
         // update views
         updateHours(entry.getHours());
-        notifier.onHourChanged();
+        model.notificator.fire(Model.Events.Hours); // TODO: maybe move this logic to model?
     }
 
-    // ------------------------- private -------------------------
+    /* ------------------------- private ------------------------- */
 
     private void updateHours(double amount) {
         // set text and disable state

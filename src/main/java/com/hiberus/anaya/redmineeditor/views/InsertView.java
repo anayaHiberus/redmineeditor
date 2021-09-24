@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.views;
 
-import com.hiberus.anaya.redmineapi.Issue;
+import com.hiberus.anaya.redmineeditor.Model;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -11,8 +11,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class InsertView extends InnerView {
 
-    // ------------------------- views -------------------------
+    /* ------------------------- views ------------------------- */
 
     @FXML
     private MenuButton choice; // the issues choicebox
@@ -34,11 +34,35 @@ public class InsertView extends InnerView {
     @FXML
     private Node parent; // the parent element
 
-    // ------------------------- reactions -------------------------
+    /* ------------------------- reactions ------------------------- */
+
+
+    @Override
+    void init() {
+        // when issues change, add them all
+        model.notificator.register(Set.of(Model.Events.Issues), () -> {
+            // add all issues
+            choice.getItems().setAll(model.getAllIssues().stream().map(issue -> {
+                // convert to an entry that will add the issue when clicked
+                MenuItem menuItem = new MenuItem(issue.toString());
+                menuItem.setOnAction(event -> model.createTimeEntry(issue));
+                return menuItem;
+            }).toList());
+
+            // disable if no issues
+            choice.setDisable(choice.getItems().isEmpty());
+        });
+
+        // when day change, enable/disable
+        model.notificator.register(Set.of(Model.Events.Day), () -> {
+            // disable if no date selected
+            parent.setDisable(model.getDate() == null);
+        });
+    }
 
     @FXML
     private void onInputKey(KeyEvent event) {
-        // change add enabled state
+        // enable add button if input is not blank
         add.setDisable(input.getText().isBlank());
 
         // when pressing enter, add
@@ -47,7 +71,7 @@ public class InsertView extends InnerView {
 
     @FXML
     private void onAdd() {
-        // add the searchable entries
+        // add the entered entries
 
         // get and clear text
         String content = input.getText();
@@ -61,31 +85,10 @@ public class InsertView extends InnerView {
         }
 
         // and add them
-        controller.addEntriesForCurrentDate(ids);
+        inBackground(() -> {
+            // add
+            model.createTimeEntries(ids);
+        });
     }
 
-    // ------------------------- actions -------------------------
-
-    /**
-     * Display issues
-     *
-     * @param issues issues to display
-     */
-    public void setIssues(Collection<Issue> issues) {
-        choice.getItems().setAll(issues.stream().map(issue -> {
-            // convert to an entry that will add the issue when clicked
-            MenuItem menuItem = new MenuItem(issue.toString());
-            menuItem.setOnAction(event -> controller.addEntryForCurrentDate(issue));
-            return menuItem;
-        }).toList());
-        // disable if no entries
-        choice.setDisable(choice.getItems().isEmpty());
-    }
-
-    /**
-     * @param enable new enabled state
-     */
-    public void setEnabled(boolean enable) {
-        parent.setDisable(!enable);
-    }
 }

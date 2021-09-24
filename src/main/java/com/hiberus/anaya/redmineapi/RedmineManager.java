@@ -35,8 +35,9 @@ public class RedmineManager {
     /**
      * Returns all the entries on a timeframe
      *
-     * @param from from this date (included)
-     * @param to   to this date (included)
+     * @param from         from this date (included)
+     * @param to           to this date (included)
+     * @param loadedIssues issues already loaded. New ones will be added here!!!
      * @return the list of entries from that data
      * @throws IOException if network failed
      */
@@ -116,7 +117,7 @@ public class RedmineManager {
 
     }
 
-    // ------------------------- private -------------------------
+    /* ------------------------- private ------------------------- */
 
     private List<JSONObject> paginatedGet(String fullUrl, String key) throws IOException {
         // returns all entries from a paginated result

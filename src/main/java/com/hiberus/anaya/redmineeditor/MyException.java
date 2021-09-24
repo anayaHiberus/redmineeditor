@@ -12,7 +12,7 @@ public class MyException extends Exception {
     /**
      * A runnable that allows to throw MyException
      */
-    interface Runnable {
+    public interface Runnable {
         void run() throws MyException;
     }
 

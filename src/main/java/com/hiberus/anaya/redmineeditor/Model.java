@@ -3,16 +3,13 @@ package com.hiberus.anaya.redmineeditor;
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
+import com.hiberus.anaya.redmineeditor.utils.Notifiers;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -20,9 +17,62 @@ import java.util.stream.Collectors;
  */
 public class Model {
 
-    // ------------------------- month -------------------------
+    /* ------------------------- notification service ------------------------- */
 
-    private YearMonth month = YearMonth.now(); // current month
+    public enum Events {
+        /**
+         * The loading state changed
+         */
+        Loading,
+        /**
+         * The displayed month changed
+         */
+        Month,
+        /**
+         * The displayed day changed
+         */
+        Day,
+        /**
+         * Entries for the displayed day changed (not its content)
+         */
+        Entries,
+        /**
+         * Hours from displayed day were changed
+         */
+        Hours,
+        /**
+         * List of issues changed
+         */
+        Issues,
+    }
+
+    /**
+     * The notificator service
+     */
+    public final Notifiers<Events> notificator = new Notifiers<>();
+
+    /* ------------------------- loading ------------------------- */
+
+    private boolean loading = false; // loading state
+
+    /**
+     * @param loading new loading state
+     */
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+        notificator.fire(Events.Loading);
+    }
+
+    /**
+     * @return the loading state
+     */
+    public boolean isLoading() {
+        return loading;
+    }
+
+    /* ------------------------- month ------------------------- */
+
+    private YearMonth month = null; // displayed month
 
     /**
      * @return the current displayed month
@@ -32,15 +82,18 @@ public class Model {
     }
 
     /**
+     * Changes the month
+     *
      * @param month new month to save
      */
     public void setMonth(YearMonth month) {
         this.month = month;
+        notificator.fire(Events.Month);
     }
 
-    // ------------------------- day -------------------------
+    /* ------------------------- day ------------------------- */
 
-    private int day = LocalDate.now().getDayOfMonth(); // selected day, 0 for none
+    private int day = 0; // selected day, 0 for none
 
     /**
      * @return the selected day, or 0 if no day is selected
@@ -53,8 +106,10 @@ public class Model {
      * @param day new selected day (if invalid won't be saved)
      */
     public void setDay(int day) {
-        if (day == 0 || month.isValidDay(day))
+        if (day == 0 || month.isValidDay(day)) {
             this.day = day;
+            notificator.fire(Events.Day);
+        }
     }
 
     /**
@@ -65,7 +120,7 @@ public class Model {
         else return null;
     }
 
-    // ------------------------- entries -------------------------
+    /* ------------------------- entries ------------------------- */
 
     private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
 
@@ -73,6 +128,13 @@ public class Model {
     private final List<Issue> issues = new ArrayList<>(); // issues
 
     private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again
+
+    /**
+     * @return true iff the current month is already loaded
+     */
+    public boolean isMonthLoaded() {
+        return monthsLoaded.contains(month);
+    }
 
     /**
      * Loads the current month (if it is already loaded this does nothing)
@@ -95,24 +157,20 @@ public class Model {
 
         // mark
         monthsLoaded.add(month);
-
-        // debug data (display loaded value)
-        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-            LocalDate date = month.atDay(day);
-            double expected = Schedule.getExpectedHours(date);
-            double spent = getSpent(date);
-
-            System.out.println(date + ": Expected " + expected + " obtained " + spent);
-        }
+        notificator.fire(Events.Entries);
+        notificator.fire(Events.Issues); // TODO: don't notify if no new entries are loaded
     }
 
     /**
-     * Discards all entries
+     * Discards all entries and issues
      */
-    public void clearEntries() {
+    public void clearAll() {
         monthsLoaded.clear();
         entries.clear();
+        notificator.fire(Events.Entries);
+
         issues.clear();
+        notificator.fire(Events.Issues);
     }
 
     /**
@@ -126,12 +184,14 @@ public class Model {
     }
 
     /**
-     * Returns the entries that should be displayed on a specific date
+     * Returns the entries that should be displayed on the selected day (empty if no day selected)
      *
-     * @param date date to check
-     * @return entries for that date
+     * @return entries for the current day
      */
-    public List<TimeEntry> getEntriesForDate(LocalDate date) {
+    public List<TimeEntry> getDayEntries() {
+        LocalDate date = getDate();
+        if (date == null) return Collections.emptyList();
+
         // prepare
         List<Issue> todayIssues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toList());
         for (int days = 1; days <= 7; ++days) {
@@ -159,10 +219,10 @@ public class Model {
      */
     public void uploadEntries() throws MyException {
         boolean ok = true;
-        MyException exception = new MyException("Updating error", "An error ocurred while updating entries", null);
+        MyException exception = new MyException("Updating error", "An error occurred while updating entries", null);
         for (TimeEntry entry : entries) {
             try {
-                manager.uploadTimeEntry(entry);
+                manager.uploadTimeEntry(entry); // TODO: move all this logic to manager
             } catch (IOException e) {
                 exception.addDetails(e);
                 ok = false;
@@ -181,29 +241,34 @@ public class Model {
     }
 
     /**
-     * Creates a new time entry
+     * Creates a new time entry for current day
      *
-     * @param date  for this date
      * @param issue for this issue
      */
-    public void createTimeEntry(LocalDate date, Issue issue) {
+    public void createTimeEntry(Issue issue) {
+        LocalDate date = getDate();
+        if (date == null) return;
+        // add
         entries.add(new TimeEntry(issue, date));
+        notificator.fire(Events.Entries);
     }
 
     /**
-     * Creates multiple new time entries
+     * Creates multiple new time entries for current date
      *
-     * @param date for this date
-     * @param ids  each one with an id from this
+     * @param ids each one with an id from this
      */
-    public void createTimeEntries(LocalDate date, List<Integer> ids) throws MyException {
+    public void createTimeEntries(List<Integer> ids) throws MyException {
+        if (getDate() == null) return;
+
         List<Integer> idsToLoad = new ArrayList<>();
 
+        // check all ids
         ids.forEach(id -> {
             Issue issue = getIssueFromId(id);
             if (issue != null) {
                 // already present, add
-                createTimeEntry(date, issue);
+                createTimeEntry(issue);
             } else {
                 // still not present, mark for load
                 idsToLoad.add(id);
@@ -214,8 +279,10 @@ public class Model {
             List<Issue> loadedIssues = manager.getIssues(idsToLoad);
             loadedIssues.forEach(issue -> {
                 // create and add issue
-                createTimeEntry(date, issue);
+                createTimeEntry(issue);
                 this.issues.add(issue);
+                notificator.fire(Events.Entries);
+                notificator.fire(Events.Issues);
             });
             // remove loaded
             idsToLoad.removeAll(loadedIssues.stream().map(issue -> issue.id).toList());
@@ -239,19 +306,7 @@ public class Model {
         return entries.stream().anyMatch(TimeEntry::requiresUpload);
     }
 
-    /**
-     * @return the spent hours for each day of the current month
-     */
-    public double[] getSpentForMonth() {
-        double[] spent = new double[month.lengthOfMonth()];
-        for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-            // calculate and save spent hours for each day in the month
-            spent[day - 1] = getSpent(month.atDay(day));
-        }
-        return spent;
-    }
-
-    // ------------------------- private -------------------------
+    /* ------------------------- private ------------------------- */
 
     private Issue getIssueFromId(int id) {
         // gets the issue with the given id, null if not present

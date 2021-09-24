@@ -63,7 +63,7 @@ public class UrlJSON {
         return send(url, "DELETE", null);
     }
 
-    // ------------------------- utils -------------------------
+    /* ------------------------- utils ------------------------- */
 
     private static int send(String url, String method, JSONObject body) throws IOException {
         // performs a send to an url
