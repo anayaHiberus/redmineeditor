@@ -15,16 +15,16 @@
                     <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
                     <VBox alignment="CENTER_RIGHT" fillWidth="false" HBox.hgrow="NEVER">
                         <children>
-                            <Button mnemonicParsing="false" onAction="#changeHours" text="-1"/>
-                            <Button mnemonicParsing="false" onAction="#changeHours" text="-0.25"/>
+                            <Button mnemonicParsing="false" onAction="#changeHours" text="-1h" userData="-1"/>
+                            <Button mnemonicParsing="false" onAction="#changeHours" text="-15m" userData="-0.25"/>
                         </children>
                     </VBox>
                 </HBox>
                 <Label fx:id="hours" text="hh"/>
                 <VBox alignment="CENTER_LEFT" fillWidth="false" HBox.hgrow="NEVER">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#changeHours" text="+1"/>
-                        <Button mnemonicParsing="false" onAction="#changeHours" text="+0.25"/>
+                        <Button mnemonicParsing="false" onAction="#changeHours" text="+1h" userData="1"/>
+                        <Button mnemonicParsing="false" onAction="#changeHours" text="+15m" userData="0.25"/>
                     </children>
                 </VBox>
             </children>

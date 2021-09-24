@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
+import static com.hiberus.anaya.redmineeditor.utils.TimeUtils.formatHours;
+
 /**
  * A simple label with info of the current selected day
  */
@@ -52,9 +54,9 @@ public class SummaryView extends InnerView {
         // display info
         summary.setText(
                 date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
-                        + " --- Hours: " + spent + "/" + expected
-                        + (spent < expected ? " --- Missing: " + (expected - spent)
-                        : spent > expected ? " --- Extra: " + (spent - expected)
+                        + " --- Time: " + formatHours(spent) + "/" + formatHours(expected)
+                        + (spent < expected ? " --- Missing: " + formatHours(expected - spent)
+                        : spent > expected ? " --- Extra: " + formatHours(spent - expected)
                         : spent == expected && expected != 0 ? " --- OK"
                         : "")
         );
