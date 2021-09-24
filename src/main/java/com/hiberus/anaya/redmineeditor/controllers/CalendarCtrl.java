@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * A calendar view with colored days
  */
-public class CalendarView extends InnerView {
+public class CalendarCtrl extends InnerCtrl {
 
     /* ------------------------- properties ------------------------- */
 

@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <StackPane prefHeight="640.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.2"
-           xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.views.ParentView">
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.controllers.ParentCtrl">
     <children>
         <VBox fx:id="parent" prefHeight="200.0" prefWidth="100.0">
             <children>

@@ -1,23 +1,25 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.MyException;
 import javafx.application.Platform;
 
 /**
- * Just an interface for inner views, so that they can be populated with the model from the parent (instead of using dependency injection)
+ * Just an interface for controllers, so that they can be populated with the model from the parent (instead of using dependency injection)
  */
-abstract class InnerView {
+abstract class InnerCtrl {
+
+    /* ------------------------- Model bean inyection ------------------------- */
 
     /**
-     * The global controller
+     * The controller model field
      */
     Model model;
 
     /**
-     * Initializes this inner view with the global controller
+     * Initializes this inner view with the global model
      *
-     * @param model global controller
+     * @param model global model
      */
     void injectModel(Model model) {
         this.model = model;

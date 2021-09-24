@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Model;
@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * A list of entries that you can edit
  */
-public class EntriesView extends InnerView {
+public class EntriesCtrl extends InnerCtrl {
 
     @FXML
     private ListView<TimeEntry> list; // list view for displayed entries

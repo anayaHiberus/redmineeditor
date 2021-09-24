@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import javafx.fxml.FXML;
@@ -13,22 +13,22 @@ import java.util.Set;
  * View for the parent app. Manages the loading indicator
  * [Also includes the subcontroller model injection]
  */
-public class ParentView extends InnerView {
+public class ParentCtrl extends InnerCtrl {
 
 
     /* ------------------------- subcontroller model injection ------------------------- */
     // TODO: replace with a bean or something
 
     @FXML
-    private CalendarView calendarController;
+    private CalendarCtrl calendarController;
     @FXML
-    private SummaryView summaryController;
+    private SummaryCtrl summaryController;
     @FXML
-    private EntriesView entriesController;
+    private EntriesCtrl entriesController;
     @FXML
-    private InsertView insertController;
+    private InsertCtrl insertController;
     @FXML
-    private ActionsView actionsController;
+    private ActionsCtrl actionsController;
 
     @FXML
     private void initialize() {

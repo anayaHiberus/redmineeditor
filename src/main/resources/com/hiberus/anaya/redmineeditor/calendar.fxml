@@ -6,7 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" fillWidth="false" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.hiberus.anaya.redmineeditor.views.CalendarView">
+      fx:controller="com.hiberus.anaya.redmineeditor.controllers.CalendarCtrl">
     <children>
         <VBox>
             <HBox>

@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import javafx.fxml.FXML;
@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 /**
  * Options for create (insert) a new entry
  */
-public class InsertView extends InnerView {
+public class InsertCtrl extends InnerCtrl {
 
     /* ------------------------- views ------------------------- */
 

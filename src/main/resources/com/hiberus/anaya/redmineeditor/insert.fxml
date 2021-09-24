@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <HBox fx:id="parent" alignment="CENTER_LEFT" VBox.vgrow="NEVER" xmlns="http://javafx.com/javafx/11.0.2"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.views.InsertView">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.controllers.InsertCtrl">
     <children>
         <Label text="New entry for issue: ">
             <HBox.margin>

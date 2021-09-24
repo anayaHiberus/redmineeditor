@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -7,7 +7,7 @@ import javafx.scene.control.ButtonType;
 /**
  * A list of action buttons
  */
-public class ActionsView extends InnerView {
+public class ActionsCtrl extends InnerCtrl {
 
 
     /* ------------------------- onActions ------------------------- */

@@ -3,6 +3,6 @@
 <?import javafx.scene.control.Label?>
 <Label xmlns="http://javafx.com/javafx"
        xmlns:fx="http://javafx.com/fxml"
-       fx:controller="com.hiberus.anaya.redmineeditor.views.SummaryView"
+       fx:controller="com.hiberus.anaya.redmineeditor.controllers.SummaryCtrl"
        fx:id="summary" alignment="CENTER" maxWidth="1.7976931348623157E308" text="...">
 </Label>

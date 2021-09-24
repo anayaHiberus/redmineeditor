@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.views;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
@@ -16,7 +16,7 @@ import static com.hiberus.anaya.redmineeditor.utils.TimeUtils.formatHours;
 /**
  * A simple label with info of the current selected day
  */
-public class SummaryView extends InnerView {
+public class SummaryCtrl extends InnerCtrl {
 
     /* ------------------------- views ------------------------- */
 
