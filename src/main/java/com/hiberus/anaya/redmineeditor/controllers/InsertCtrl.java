@@ -1,18 +1,14 @@
 package com.hiberus.anaya.redmineeditor.controllers;
 
+import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineeditor.Model;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,15 +35,29 @@ public class InsertCtrl extends InnerCtrl {
 
     @Override
     void init() {
-        // when issues change, add them all
+        // when issues change, add them all as menus
         model.notificator.register(Set.of(Model.Events.Issues), () -> {
-            // add all issues
-            choice.getItems().setAll(model.getAllIssues().stream().map(issue -> {
+            // clear existing
+            choice.getItems().clear();
+            Map<String, Menu> projects = new HashMap<>(); // cache for menu entries
+
+            // add each entry
+            for (Issue issue : model.getAllIssues()) {
                 // convert to an entry that will add the issue when clicked
-                MenuItem menuItem = new MenuItem(issue.toString());
+                MenuItem menuItem = new MenuItem(issue.toShortString());
                 menuItem.setOnAction(event -> model.createTimeEntry(issue));
-                return menuItem;
-            }).toList());
+
+                String project = issue.project;
+                if (!projects.containsKey(project)) {
+                    // create menu if not existing
+                    Menu newProject = new Menu(project);
+                    projects.put(project, newProject);
+                    choice.getItems().add(newProject);
+                }
+
+                // add to menu
+                projects.get(project).getItems().add(menuItem);
+            }
 
             // disable if no issues
             choice.setDisable(choice.getItems().isEmpty());

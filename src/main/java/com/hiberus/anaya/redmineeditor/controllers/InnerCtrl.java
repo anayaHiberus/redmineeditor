@@ -9,7 +9,7 @@ import javafx.application.Platform;
  */
 abstract class InnerCtrl {
 
-    /* ------------------------- Model bean inyection ------------------------- */
+    /* ------------------------- Model bean injection ------------------------- */
 
     /**
      * The controller model field

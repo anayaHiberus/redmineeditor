@@ -39,12 +39,15 @@ public class Notifiers<T extends Enum<T>> {
         firedEvents.add(event);
 
         // schedule for later (using JavaFX, but could be changed)
-        Platform.runLater(() -> listeners.forEach(pair -> {
-            if (intersects(firedEvents, pair.getKey())) {
-                // at least a registered event, run
-                pair.getValue().run();
-            }
-        }));
+        Platform.runLater(() -> {
+            listeners.forEach(pair -> {
+                if (intersects(firedEvents, pair.getKey())) {
+                    // at least a registered event, run
+                    pair.getValue().run();
+                }
+            });
+            firedEvents.clear();
+        });
     }
 
     private static <E> boolean intersects(Set<E> a, Set<E> b) {

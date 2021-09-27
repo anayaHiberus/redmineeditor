@@ -13,8 +13,12 @@ public final class Issue {
         this.project = rawIssue.getJSONObject("project").optString("name", "");
     }
 
+    public String toShortString() {
+        return "#" + id + ": " + description;
+    }
+
     @Override
     public String toString() {
-        return project + "\n#" + id + ": " + description;
+        return project + "\n" + toShortString();
     }
 }

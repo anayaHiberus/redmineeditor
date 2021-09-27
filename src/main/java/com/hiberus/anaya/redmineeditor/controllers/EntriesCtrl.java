@@ -30,7 +30,7 @@ public class EntriesCtrl extends InnerCtrl {
     @Override
     void init() {
         // on new entries, display them
-        model.notificator.register(Set.of(Model.Events.Entries), () -> {
+        model.notificator.register(Set.of(Model.Events.Entries, Model.Events.Day), () -> {
             // clear and replace
             listItems.setAll(model.getDayEntries());
         });
