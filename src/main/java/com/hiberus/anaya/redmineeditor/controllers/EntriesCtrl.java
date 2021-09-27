@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.controllers;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.cells.EntryCell;
+import com.hiberus.anaya.redmineeditor.utils.NoSelectionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -25,6 +26,8 @@ public class EntriesCtrl extends InnerCtrl {
         // init
         list.setItems(listItems);
         list.setCellFactory(param -> new EntryCell(model));
+
+        list.setSelectionModel(new NoSelectionModel<>());
     }
 
     @Override

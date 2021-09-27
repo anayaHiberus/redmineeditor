@@ -29,18 +29,11 @@ application {
 
 javafx {
     version = '16'
-    modules = ['javafx.controls', 'javafx.fxml']
+    modules = ['javafx.controls', 'javafx.web', 'javafx.fxml']
 }
 
 dependencies {
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-
     implementation "org.json:json:20210307"
     // implementation "com.taskadapter:redmine-java-api:4.0.0.rc4" // useless api, cant search using multiple filters
-}
-
-test {
-    useJUnitPlatform()
 }

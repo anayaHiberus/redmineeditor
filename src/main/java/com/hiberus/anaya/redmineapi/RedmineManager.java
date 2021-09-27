@@ -114,7 +114,16 @@ public class RedmineManager {
                         + "&key=" + key,
                 "issues")
                 .stream().map(Issue::new).toList();
+    }
 
+    /**
+     * Returns the url of an issue
+     *
+     * @param issue issue to check
+     * @return the url to see the issue details
+     */
+    public String getIssueUrl(Issue issue) {
+        return domain + "issues/" + issue.id;
     }
 
     /* ------------------------- private ------------------------- */

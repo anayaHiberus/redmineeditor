@@ -1,25 +1,33 @@
 package com.hiberus.anaya.redmineeditor.cells;
 
+import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.web.WebView;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * One of the entries in the entries list
  */
 public class EntryCell extends SimpleListCell<TimeEntry> {
 
+    private final String OPEN_BUTTON = "Open in Readmine";
     /* ------------------------- views ------------------------- */
     @FXML
-    private Parent parent;
+    private HBox substract;
     @FXML
     private Label issue;
     @FXML
@@ -70,36 +78,51 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         model.notificator.fire(Model.Events.Hours); // TODO: maybe move this logic to model?
     }
 
+    @FXML
+    private void showDetails() {
+        // TODO: improve
+        Issue issue = getItem().issue;
+
+        // build alert
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(issue.toShortString());
+        alert.setHeaderText(issue.toString());
+        if (!issue.description.isEmpty()) {
+            // html description
+            WebView webView = new WebView();
+            webView.getEngine().loadContent(issue.description);
+            alert.getDialogPane().setContent(webView);
+        } else {
+            // no description
+            alert.setContentText("no description");
+        }
+
+        // button
+        alert.getButtonTypes().add(new ButtonType(OPEN_BUTTON));
+        alert.showAndWait();
+
+        if (OPEN_BUTTON.equals(alert.getResult().getText())) {
+            // open in desktop
+            new Thread(() -> {
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    try {
+                        Desktop.getDesktop().browse(new URI(model.manager.getIssueUrl(issue)));
+                    } catch (IOException | URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
+
     /* ------------------------- private ------------------------- */
 
     private void updateHours(double amount) {
-        // set text and disable state
+        // set text
         hours.setText(TimeUtils.formatHours(amount));
-        setDisableNeeded(parent, amount <= 0);
-    }
-
-    private boolean setDisableNeeded(Node node, boolean state) {
-        // sets the state of the nodes, so that all except the '+' buttons (and its parents) are disabled
-        // this implements a tree-traversal algorithm, disabling all nodes except the required ones and its parents
-        // node is the node to traverse, state is the new state to set, the return value is true if it needs to be skipped
-
-        boolean skip = false;
-        if (node instanceof Parent) {
-            // run children first, if any needs to be skipped, skip this one too
-            skip = ((Parent) node).getChildrenUnmodifiable().stream()
-                    .map(child -> setDisableNeeded(child, state))
-                    .reduce(Boolean::logicalOr).orElse(false);
-        }
-
-        // skip the '+' buttons
-        if (node instanceof Button && ((Button) node).getText().contains("+")) {
-            skip = true;
-        }
-
-        // set the state of this node if not skipped
-        if (!skip) node.setDisable(state);
-
-        // return the skipped status to the caller so that parents are skipped too
-        return skip;
+        // disable substract buttons
+        substract.setDisable(amount <= 0);
+        // set transparent if not hours
+        setOpacity(amount <= 0 ? 0.5 : 1);
     }
 }

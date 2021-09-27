@@ -2,7 +2,9 @@ module com.hiberus.anaya.redmineeditor {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires javafx.web;
     requires org.json;
+    requires java.desktop;
     // requires redmine.java.api;
 
 

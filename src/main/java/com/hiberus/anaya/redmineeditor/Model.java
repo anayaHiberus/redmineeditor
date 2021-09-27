@@ -122,7 +122,7 @@ public class Model {
 
     /* ------------------------- entries ------------------------- */
 
-    private final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
+    public final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
 
     private final List<TimeEntry> entries = new ArrayList<>(); // time entries
     private final List<Issue> issues = new ArrayList<>(); // issues
