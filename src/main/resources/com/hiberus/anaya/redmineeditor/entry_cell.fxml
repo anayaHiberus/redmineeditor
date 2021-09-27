@@ -3,30 +3,36 @@
 <?import com.hiberus.anaya.redmineeditor.cells.EntryCell?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 <fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
          type="com.hiberus.anaya.redmineeditor.cells.EntryCell">
-    <!--<fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"-->
-    <!--         type="ListCell">-->
+    <!--<fx:root type="ListCell" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">-->
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
             <children>
-                <HBox fx:id="ignored" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <HBox fx:id="parent" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                     <Label fx:id="issue" wrapText="true" HBox.hgrow="ALWAYS"/>
                     <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
-                    <VBox alignment="CENTER_RIGHT" fillWidth="false" HBox.hgrow="NEVER">
-                        <children>
-                            <Button mnemonicParsing="false" onAction="#changeHours" text="-1h" userData="-1"/>
-                            <Button mnemonicParsing="false" onAction="#changeHours" text="-15m" userData="-0.25"/>
-                        </children>
+                    <VBox alignment="CENTER" fillWidth="false" HBox.hgrow="NEVER">
+                        <HBox alignment="BOTTOM_RIGHT">
+                            <Button mnemonicParsing="false" onAction="#changeHours" text="+" userData="1"/>
+                            <Button mnemonicParsing="false" onAction="#changeHours" text="+" userData="0.25">
+                                <font>
+                                    <Font size="10.0"/>
+                                </font>
+                            </Button>
+                        </HBox>
+                        <Label fx:id="hours" contentDisplay="RIGHT" text="hh"/>
+                        <HBox alignment="TOP_RIGHT">
+                            <Button mnemonicParsing="false" onAction="#changeHours" text="-" userData="-1"/>
+                            <Button mnemonicParsing="false" onAction="#changeHours" text="-" userData="-0.25">
+                                <font>
+                                    <Font size="10.0"/>
+                                </font>
+                            </Button>
+                        </HBox>
                     </VBox>
                 </HBox>
-                <Label fx:id="hours" text="hh"/>
-                <VBox alignment="CENTER_LEFT" fillWidth="false" HBox.hgrow="NEVER">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#changeHours" text="+1h" userData="1"/>
-                        <Button mnemonicParsing="false" onAction="#changeHours" text="+15m" userData="0.25"/>
-                    </children>
-                </VBox>
             </children>
         </HBox>
     </graphic>

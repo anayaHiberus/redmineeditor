@@ -82,10 +82,7 @@ public class TimeEntry {
      * @param amount new hours to add to this entry (negative to subtract)
      */
     public void changeHours(double amount) {
-        double newHours = hours + amount;
-        if (newHours >= 0) {
-            hours = newHours;
-        }
+        hours = Math.max(hours + amount, 0); // change, but keep positive
     }
 
     /**

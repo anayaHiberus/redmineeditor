@@ -6,10 +6,11 @@ import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 
 /**
  * One of the entries in the entries list
@@ -18,7 +19,7 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
 
     /* ------------------------- views ------------------------- */
     @FXML
-    private HBox ignored;
+    private Parent parent;
     @FXML
     private Label issue;
     @FXML
@@ -74,6 +75,31 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     private void updateHours(double amount) {
         // set text and disable state
         hours.setText(TimeUtils.formatHours(amount));
-        ignored.setDisable(amount <= 0);
+        setDisableNeeded(parent, amount <= 0);
+    }
+
+    private boolean setDisableNeeded(Node node, boolean state) {
+        // sets the state of the nodes, so that all except the '+' buttons (and its parents) are disabled
+        // this implements a tree-traversal algorithm, disabling all nodes except the required ones and its parents
+        // node is the node to traverse, state is the new state to set, the return value is true if it needs to be skipped
+
+        boolean skip = false;
+        if (node instanceof Parent) {
+            // run children first, if any needs to be skipped, skip this one too
+            skip = ((Parent) node).getChildrenUnmodifiable().stream()
+                    .map(child -> setDisableNeeded(child, state))
+                    .reduce(Boolean::logicalOr).orElse(false);
+        }
+
+        // skip the '+' buttons
+        if (node instanceof Button && ((Button) node).getText().contains("+")) {
+            skip = true;
+        }
+
+        // set the state of this node if not skipped
+        if (!skip) node.setDisable(state);
+
+        // return the skipped status to the caller so that parents are skipped too
+        return skip;
     }
 }
