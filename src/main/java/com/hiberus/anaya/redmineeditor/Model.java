@@ -168,6 +168,7 @@ public class Model {
         monthsLoaded.clear();
         entries.clear();
         notificator.fire(Events.Entries);
+        notificator.fire(Events.Month); // technically month doesn't change, but its data does, this forces a reload in calendar
 
         issues.clear();
         notificator.fire(Events.Issues);
