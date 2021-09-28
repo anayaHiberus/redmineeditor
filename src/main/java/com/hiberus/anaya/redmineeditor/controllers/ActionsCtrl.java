@@ -25,7 +25,8 @@ public class ActionsCtrl extends InnerCtrl {
         if (model.hasChanges()) {
             Alert alert = new Alert(Alert.AlertType.WARNING,
                     "There are unsaved changes, do you want to lose them and reload?",
-                    ButtonType.YES, ButtonType.CANCEL);
+                    ButtonType.YES, ButtonType.CANCEL
+            );
             alert.setHeaderText("Unsaved changes");
             alert.setTitle("Warning");
             alert.showAndWait();

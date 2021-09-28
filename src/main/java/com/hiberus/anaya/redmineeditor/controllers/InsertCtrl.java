@@ -21,12 +21,10 @@ public class InsertCtrl extends InnerCtrl {
 
     @FXML
     private MenuButton choice; // the issues choicebox
-
     @FXML
     private TextField input; // where to paste to create issues
     @FXML
     public Button add; // the add button
-
     @FXML
     private Node parent; // the parent element
 

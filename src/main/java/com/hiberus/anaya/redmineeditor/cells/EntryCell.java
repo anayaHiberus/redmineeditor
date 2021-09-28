@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
  */
 public class EntryCell extends SimpleListCell<TimeEntry> {
 
-    private final String OPEN_BUTTON = "Open in Readmine";
     /* ------------------------- views ------------------------- */
     @FXML
     private HBox substract;
@@ -98,7 +97,10 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         }
 
         // button
+        String OPEN_BUTTON = "Open in Readmine";
         alert.getButtonTypes().add(new ButtonType(OPEN_BUTTON));
+
+        // display
         alert.showAndWait();
 
         if (OPEN_BUTTON.equals(alert.getResult().getText())) {

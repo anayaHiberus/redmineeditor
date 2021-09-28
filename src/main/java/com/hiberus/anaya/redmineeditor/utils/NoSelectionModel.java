@@ -4,7 +4,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
-// https://stackoverflow.com/a/46186195
+/**
+ * Try to avoid selection in the custom listview
+ * From https://stackoverflow.com/a/46186195
+ * TODO: fix blue border on focus
+ *
+ * @param <T> Type of items
+ */
 public class NoSelectionModel<T> extends MultipleSelectionModel<T> {
 
     @Override
