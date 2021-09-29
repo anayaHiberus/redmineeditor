@@ -15,11 +15,15 @@ import java.util.stream.Collectors;
  * The 'official' one is not used because it doesn't allow searching with multiple filters
  */
 public class RedmineManager {
-    static private final boolean OFFLINE = false; // for debug purpose, set to true to disable changes
+
+    /* ------------------------- params ------------------------- */
+    static final boolean OFFLINE = false; // for debug purpose, set to true to disable changes
 
     // configurable
-    private final String domain; // the redmine domain
-    private final String key; // the api key
+    final String domain; // the redmine domain
+    final String key; // the api key
+
+    /* ------------------------- init ------------------------- */
 
     /**
      * Initializes a manager
@@ -31,6 +35,8 @@ public class RedmineManager {
         this.domain = domain;
         this.key = key;
     }
+
+    /* ------------------------- time entries ------------------------- */
 
     /**
      * Returns all the entries on a timeframe
@@ -57,53 +63,29 @@ public class RedmineManager {
                 .toList()
         ));
         return time_entries
-                .stream().map(rawEntry -> new TimeEntry(rawEntry, loadedIssues)).toList();
+                .stream().map(rawEntry -> new TimeEntry(rawEntry, loadedIssues, this)).toList();
     }
 
     /**
-     * Uploads an entry to redmine (unless not needed)
+     * Creates a new Time Entry associated with this manager
      *
-     * @param entry entry to upload
-     * @throws IOException on upload error
+     * @param issue    issue for the entry
+     * @param spent_on day this entry is spent on
+     * @return the created entry
      */
-    public void uploadTimeEntry(TimeEntry entry) throws IOException {
-        int id = entry.id;
-
-        // get changes
-        JSONObject changes = entry.getChanges();
-
-        // ignore unmodified
-        if (changes.isEmpty()) return;
-
-        if (id == -1) {
-            if (entry.getHours() > 0) {
-                // new entry with hours, create
-                System.out.println("Creating entry with data: " + changes);
-                if (OFFLINE) return;
-                if (UrlJSON.post(domain + "time_entries.json?key=" + key, new JSONObject().put("time_entry", changes)) != 201) {
-                    throw new IOException("Error when creating entry with data: " + changes);
-                }
-            }
-            //new entry without hours, ignore
-        } else {
-            if (entry.getHours() > 0) {
-                // existing entry with hours, update
-                System.out.println("Updating entry " + id + " with data: " + changes);
-                if (OFFLINE) return;
-                if (UrlJSON.put(domain + "time_entries/" + id + ".json?key=" + key, new JSONObject().put("time_entry", changes)) != 200) {
-                    throw new IOException("Error when updating entry " + id + " with data: " + changes);
-                }
-            } else {
-                // existing entry without hours, delete
-                System.out.println("Deleting entry " + id);
-                if (OFFLINE) return;
-                if (UrlJSON.delete(domain + "time_entries/" + id + ".json?key=" + key) != 200) {
-                    throw new IOException("Error when deleting entry " + id);
-                }
-            }
-        }
+    public TimeEntry newTimeEntry(Issue issue, LocalDate spent_on) {
+        return new TimeEntry(issue, spent_on, this);
     }
 
+    /* ------------------------- issues ------------------------- */
+
+    /**
+     * Returns the issues associated with the specified ids
+     *
+     * @param ids list of ids to retrieve
+     * @return the list of issues (may be less if some are not found!
+     * @throws IOException on network error
+     */
     public List<Issue> getIssues(List<Integer> ids) throws IOException {
         if (ids.isEmpty()) return Collections.emptyList();
 
@@ -113,17 +95,7 @@ public class RedmineManager {
                         + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=" + idsString
                         + "&key=" + key,
                 "issues")
-                .stream().map(Issue::new).toList();
-    }
-
-    /**
-     * Returns the url of an issue
-     *
-     * @param issue issue to check
-     * @return the url to see the issue details
-     */
-    public String getIssueUrl(Issue issue) {
-        return domain + "issues/" + issue.id;
+                .stream().map(rawIssue -> new Issue(rawIssue, this)).toList();
     }
 
     /* ------------------------- private ------------------------- */

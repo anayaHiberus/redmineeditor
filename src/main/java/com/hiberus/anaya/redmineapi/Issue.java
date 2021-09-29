@@ -6,6 +6,13 @@ import org.json.JSONObject;
  * A redmine issue
  */
 public final class Issue {
+
+    /* ------------------------- manager ------------------------- */
+
+    private final RedmineManager manager;
+
+    /* ------------------------- data ------------------------- */
+
     /**
      * The identifier
      */
@@ -23,13 +30,18 @@ public final class Issue {
      */
     public final String description;
 
-    Issue(JSONObject rawIssue) {
+    /* ------------------------- constructors ------------------------- */
+
+    Issue(JSONObject rawIssue, RedmineManager manager) {
         // parse from raw JSON
         id = rawIssue.getInt("id");
         project = rawIssue.getJSONObject("project").optString("name", "");
         subject = rawIssue.optString("subject", "");
         description = rawIssue.optString("description");
+        this.manager = manager;
     }
+
+    /* ------------------------- properties ------------------------- */
 
     /**
      * @return a short string describing this issue
@@ -46,5 +58,12 @@ public final class Issue {
     @Override
     public String toString() {
         return project + "\n" + toShortString();
+    }
+
+    /**
+     * @return the url to see this issue details
+     */
+    public String getUrl() {
+        return manager.domain + "issues/" + id;
     }
 }

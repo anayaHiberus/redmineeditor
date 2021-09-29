@@ -72,8 +72,8 @@ public class CalendarCtrl extends InnerCtrl {
             needsColoring = false;
         });
 
-        // when day changes, select it
-        model.notificator.register(Set.of(Model.Events.Day), () -> {
+        // when day changes (or month), set selection
+        model.notificator.register(Set.of(Model.Events.Day, Model.Events.Month), () -> {
             // unselect
             unselectDay();
 

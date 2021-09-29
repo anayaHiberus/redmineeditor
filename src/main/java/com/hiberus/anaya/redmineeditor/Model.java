@@ -201,7 +201,7 @@ public class Model {
                     .filter(prevEntry -> prevEntry.getHours() != 0)
                     .filter(prevEntry -> !todayIssues.contains(prevEntry.issue))
                     .forEach(prevEntry -> {
-                        TimeEntry newEntry = new TimeEntry(prevEntry.issue, date);
+                        TimeEntry newEntry = manager.newTimeEntry(prevEntry.issue, date);
                         newEntry.setComment(prevEntry.getComment());
                         entries.add(newEntry);
                         todayIssues.add(prevEntry.issue);
@@ -223,7 +223,7 @@ public class Model {
         MyException exception = new MyException("Updating error", "An error occurred while updating entries", null);
         for (TimeEntry entry : entries) {
             try {
-                manager.uploadTimeEntry(entry); // TODO: move all this logic to manager
+                entry.uploadTimeEntry(); // TODO: move all this logic to manager
             } catch (IOException e) {
                 exception.addDetails(e);
                 ok = false;
@@ -250,7 +250,7 @@ public class Model {
         LocalDate date = getDate();
         if (date == null) return;
         // add
-        entries.add(new TimeEntry(issue, date));
+        entries.add(manager.newTimeEntry(issue, date));
         notificator.fire(Events.Entries);
     }
 

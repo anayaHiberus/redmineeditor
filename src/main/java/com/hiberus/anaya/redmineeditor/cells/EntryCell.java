@@ -3,21 +3,15 @@ package com.hiberus.anaya.redmineeditor.cells;
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.utils.Desktop;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebView;
-
-import java.awt.*;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * One of the entries in the entries list
@@ -106,12 +100,13 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         if (OPEN_BUTTON.equals(alert.getResult().getText())) {
             // open in desktop
             new Thread(() -> {
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    try {
-                        Desktop.getDesktop().browse(new URI(model.manager.getIssueUrl(issue)));
-                    } catch (IOException | URISyntaxException e) {
-                        e.printStackTrace();
-                    }
+                boolean opened = Desktop.openInBrowser(issue.getUrl());
+                if (!opened) {
+                    Platform.runLater(() -> {
+                        Alert toast = new Alert(Alert.AlertType.ERROR);
+                        toast.setContentText("Couldn't open the browser");
+                        toast.showAndWait();
+                    });
                 }
             }).start();
         }
