@@ -3,6 +3,7 @@
 <!--<fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"-->
 <!--         type="com.hiberus.anaya.redmineeditor.cells.EntryCell">-->
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
@@ -10,9 +11,28 @@
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
             <Label fx:id="issue" onMouseClicked="#showDetails" wrapText="true" HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
-            <VBox alignment="CENTER" fillWidth="false" HBox.hgrow="NEVER">
-                <HBox alignment="BOTTOM_RIGHT">
+            <Separator layoutX="10.0" layoutY="10.0" orientation="VERTICAL">
+                <HBox.margin>
+                    <Insets bottom="10.0" top="10.0"/>
+                </HBox.margin>
+            </Separator>
+            <Label text="Estimated:"/>
+            <Label fx:id="estimated" layoutX="101.0" layoutY="38.0" text="hh"/>
+            <Separator layoutX="32.0" layoutY="10.0" orientation="VERTICAL">
+                <HBox.margin>
+                    <Insets bottom="10.0" top="10.0"/>
+                </HBox.margin>
+            </Separator>
+            <Label layoutX="38.0" layoutY="38.0" text="Realization:"/>
+            <Label fx:id="realization" layoutX="49.0" layoutY="38.0" text="\%"/>
+            <Separator layoutX="32.0" layoutY="10.0" orientation="VERTICAL">
+                <HBox.margin>
+                    <Insets bottom="10.0" top="10.0"/>
+                </HBox.margin>
+            </Separator>
+            <Label contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" text="Spent:"/>
+            <VBox alignment="CENTER" HBox.hgrow="NEVER">
+                <HBox alignment="BOTTOM_CENTER">
                     <Button mnemonicParsing="false" onAction="#changeHours" text="+" userData="1"/>
                     <Button mnemonicParsing="false" onAction="#changeHours" text="+" userData="0.25">
                         <font>
@@ -20,8 +40,8 @@
                         </font>
                     </Button>
                 </HBox>
-                <Label fx:id="hours" contentDisplay="RIGHT" text="hh"/>
-                <HBox fx:id="substract" alignment="TOP_RIGHT">
+                <Label fx:id="spent" contentDisplay="CENTER" text="hh"/>
+                <HBox fx:id="substract" alignment="TOP_CENTER">
                     <Button mnemonicParsing="false" onAction="#changeHours" text="-" userData="-1"/>
                     <Button mnemonicParsing="false" onAction="#changeHours" text="-" userData="-0.25">
                         <font>
@@ -30,6 +50,12 @@
                     </Button>
                 </HBox>
             </VBox>
+            <Separator orientation="VERTICAL">
+                <HBox.margin>
+                    <Insets bottom="10.0" top="10.0"/>
+                </HBox.margin>
+            </Separator>
+            <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
         </HBox>
     </graphic>
 </fx:root>

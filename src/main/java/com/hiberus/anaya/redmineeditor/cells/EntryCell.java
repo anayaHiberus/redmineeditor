@@ -26,7 +26,11 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     @FXML
     private TextField comment;
     @FXML
-    private Label hours;
+    private Label spent;
+    @FXML
+    private Label estimated;
+    @FXML
+    private Label realization;
 
     /* ------------------------- init ------------------------- */
     private final Model model; // to notify when the entry changes
@@ -49,7 +53,9 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         TimeEntry entry = getItem();
         issue.setText(entry.issue.toString());
         comment.setText(entry.getComment());
-        updateHours(entry.getHours());
+        estimated.setText(entry.issue.estimated_hours == -1 ? "none" : TimeUtils.formatHours(entry.issue.estimated_hours));
+        realization.setText(entry.issue.done_ratio + "%");
+        updateHours();
     }
 
     /* ------------------------- actions ------------------------- */
@@ -67,7 +73,7 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         entry.changeHours(Double.parseDouble(((Button) node.getTarget()).getUserData().toString())); // the button data is the amount
 
         // update views
-        updateHours(entry.getHours());
+        updateHours();
         model.notificator.fire(Model.Events.Hours); // TODO: maybe move this logic to model?
     }
 
@@ -114,9 +120,11 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
 
     /* ------------------------- private ------------------------- */
 
-    private void updateHours(double amount) {
+    private void updateHours() {
+        double amount = getItem().getHours();
+
         // set text
-        hours.setText(TimeUtils.formatHours(amount));
+        spent.setText(TimeUtils.formatHours(amount));
         // disable substract buttons
         substract.setDisable(amount <= 0);
         // set transparent if not hours

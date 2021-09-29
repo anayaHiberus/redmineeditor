@@ -29,16 +29,27 @@ public final class Issue {
      * The description, may probably be empty
      */
     public final String description;
+    /**
+     * Estimated hours
+     */
+    public final double estimated_hours;
+
+    /**
+     * Ratio of realization
+     */
+    public final int done_ratio;
 
     /* ------------------------- constructors ------------------------- */
 
     Issue(JSONObject rawIssue, RedmineManager manager) {
+        this.manager = manager;
         // parse from raw JSON
         id = rawIssue.getInt("id");
         project = rawIssue.getJSONObject("project").optString("name", "");
         subject = rawIssue.optString("subject", "");
         description = rawIssue.optString("description");
-        this.manager = manager;
+        estimated_hours = rawIssue.optDouble("estimated_hours", -1);
+        done_ratio = rawIssue.optInt("done_ratio", 0);
     }
 
     /* ------------------------- properties ------------------------- */
