@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
+    id 'org.beryx.jlink' version '2.24.1'
 }
 
 group 'com.hiberus.anaya'
@@ -17,6 +18,8 @@ ext {
 
 sourceCompatibility = '16'
 targetCompatibility = '16'
+
+mainClassName = "$moduleName/com.hiberus.anaya.redmineeditor.Main"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -36,4 +39,11 @@ dependencies {
 
     implementation "org.json:json:20210307"
     // implementation "com.taskadapter:redmine-java-api:4.0.0.rc4" // useless api, cant search using multiple filters
+}
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'RedmineEditor'
+    }
 }
