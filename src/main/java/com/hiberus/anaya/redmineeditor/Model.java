@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * The data of the app
  */
 public class Model {
+    private final int PREV_DAYS = 7;
 
     /* ------------------------- notification service ------------------------- */
 
@@ -148,7 +149,17 @@ public class Model {
 
         try {
             // load from the internet
-            entries.addAll(manager.getTimeEntries(month.atDay(1), month.atEndOfMonth(), issues));
+            LocalDate from = month.atDay(1);
+            if (!monthsLoaded.contains(month.minusMonths(1))) {
+                // load previous days if previous month was not loaded
+                from = from.minusDays(PREV_DAYS);
+            }
+            LocalDate to = month.atEndOfMonth();
+            if (monthsLoaded.contains(month.plusMonths(1))) {
+                // don't load last days if next month was loaded
+                to = to.minusDays(PREV_DAYS);
+            }
+            entries.addAll(manager.getTimeEntries(from, to, issues));
         } catch (IOException e) {
             throw new MyException("Network error", "Can't load content from Redmine. Try again later.", e);
         } catch (JSONException e) {
@@ -195,7 +206,7 @@ public class Model {
 
         // prepare
         List<Issue> todayIssues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toList());
-        for (int days = 1; days <= 7; ++days) {
+        for (int days = 1; days <= PREV_DAYS; ++days) {
             // add a new empty entry copied from previous week ones
             _getEntriesForDate(date.minusDays(days)).stream()
                     .filter(prevEntry -> prevEntry.getHours() != 0)
