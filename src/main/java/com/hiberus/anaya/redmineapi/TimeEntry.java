@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,11 +62,22 @@ public class TimeEntry {
      * Checks if this entry was spent on a specific date
      *
      * @param date check spent with this date
-     * @return true if this entry was spent on that date
+     * @return true iff this entry was spent on that date
      */
     public boolean wasSpentOn(LocalDate date) {
         return spent_on.equals(date);
     }
+
+    /**
+     * Checks if this entry was spent on a specific month
+     *
+     * @param month check spent with this month
+     * @return true iff this entry was spent on that month
+     */
+    public boolean wasSpentOn(YearMonth month) {
+        return YearMonth.from(spent_on).equals(month);
+    }
+
 
     /**
      * @return the spent hours of this entry

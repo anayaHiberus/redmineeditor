@@ -4,6 +4,8 @@ import javafx.scene.paint.Color;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.YearMonth;
+import java.util.stream.IntStream;
 
 /**
  * Logic regarding computed hours
@@ -29,6 +31,22 @@ public class Schedule {
             // normal schedule
             return new double[]{-1, 8.5, 8.5, 8.5, 8.5, 7, 0, 0}[weekday];
         }
+    }
+
+    /**
+     * Calculates the hours you were supposed to spend on a month
+     *
+     * @param month which month to check
+     * @return the hours you need to spend that month
+     */
+    public static double getExpectedHours(YearMonth month) {
+        return IntStream
+                // for each day of the month
+                .rangeClosed(1, month.lengthOfMonth())
+                // get the expected hours that day
+                .mapToDouble(day -> getExpectedHours(month.atDay(day)))
+                // and sum
+                .sum();
     }
 
     /**

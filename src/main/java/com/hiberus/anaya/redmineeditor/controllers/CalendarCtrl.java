@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
+import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -54,6 +55,7 @@ public class CalendarCtrl extends InnerCtrl {
         // on new month, draw it and prepare to draw colors
         model.notificator.register(Set.of(Model.Events.Month), () -> {
             drawGrid();
+            updateLabel();
             needsColoring = true;
         });
 
@@ -69,6 +71,7 @@ public class CalendarCtrl extends InnerCtrl {
         model.notificator.register(Set.of(Model.Events.Month, Model.Events.Loading), () -> {
             if (model.isLoading() || !needsColoring) return;
             colorDays();
+            updateLabel();
             needsColoring = false;
         });
 
@@ -125,22 +128,37 @@ public class CalendarCtrl extends InnerCtrl {
         JavaFXUtils.setBackgroundColor(days[day - 1], Schedule.getColor(Schedule.getExpectedHours(date), model.getSpent(date), date));
     }
 
+    private void updateLabel() {
+        // month info
+        String label = model.getMonth().format(new DateTimeFormatterBuilder()
+                .appendText(ChronoField.MONTH_OF_YEAR)
+                .appendLiteral(", ")
+                .appendText(ChronoField.YEAR)
+                .toFormatter());
+
+        if (!model.isLoading()) {
+            // spent/expected
+            double spent = model.getSpent(model.getMonth());
+            double expected = Schedule.getExpectedHours(model.getMonth());
+            label += " (" + TimeUtils.formatHours(spent) + "/" + TimeUtils.formatHours(expected) + ")";
+            JavaFXUtils.setBackgroundColor(calendarLabel, Schedule.getColor(expected, spent, model.getMonth().atEndOfMonth()));
+        } else {
+            // still not loaded, clear
+            JavaFXUtils.setBackgroundColor(calendarLabel, null);
+        }
+
+        // set
+        calendarLabel.setText(label);
+    }
+
     private void drawGrid() {
         // clear
         calendar.getChildren().removeAll(days);
         Arrays.fill(days, null);
         unselectDay();
 
-        YearMonth month = model.getMonth();
-
-        // draw label
-        calendarLabel.setText(month.format(new DateTimeFormatterBuilder()
-                .appendText(ChronoField.MONTH_OF_YEAR)
-                .appendLiteral(", ")
-                .appendText(ChronoField.YEAR)
-                .toFormatter()));
-
         // draw month
+        YearMonth month = model.getMonth();
         int padding = month.atDay(1).getDayOfWeek().getValue() - 1; // number of days between monday and 1
         int numberOfDays = month.lengthOfMonth(); // days in month
         for (int day = 1; day <= numberOfDays; day++) {

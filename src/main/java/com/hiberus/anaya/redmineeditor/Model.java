@@ -196,6 +196,16 @@ public class Model {
     }
 
     /**
+     * Calculates the hours spent in a month
+     *
+     * @param month month to check
+     * @return hours spent that month
+     */
+    public double getSpent(YearMonth month) {
+        return _getEntriesForMonth(month).stream().mapToDouble(TimeEntry::getHours).sum();
+    }
+
+    /**
      * Returns the entries that should be displayed on the selected day (empty if no day selected)
      *
      * @return entries for the current day
@@ -330,6 +340,13 @@ public class Model {
         // todo replace with a map with date as key
         return entries.stream()
                 .filter(entry -> entry.wasSpentOn(date))
+                .toList();
+    }
+
+    private List<TimeEntry> _getEntriesForMonth(YearMonth month) {
+        // todo replace with a map with month as key
+        return entries.stream()
+                .filter(entry -> entry.wasSpentOn(month))
                 .toList();
     }
 }

@@ -11,18 +11,8 @@
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
             <Label fx:id="issue" onMouseClicked="#showDetails" wrapText="true" HBox.hgrow="ALWAYS"/>
-            <Separator layoutX="10.0" layoutY="10.0" orientation="VERTICAL">
-                <HBox.margin>
-                    <Insets bottom="10.0" top="10.0"/>
-                </HBox.margin>
-            </Separator>
             <Label text="Estimated:"/>
             <Label fx:id="estimated" layoutX="101.0" layoutY="38.0" text="hh"/>
-            <Separator layoutX="32.0" layoutY="10.0" orientation="VERTICAL">
-                <HBox.margin>
-                    <Insets bottom="10.0" top="10.0"/>
-                </HBox.margin>
-            </Separator>
             <Label layoutX="38.0" layoutY="38.0" text="Realization:"/>
             <Label fx:id="realization" layoutX="49.0" layoutY="38.0" text="\%"/>
             <Separator layoutX="32.0" layoutY="10.0" orientation="VERTICAL">
@@ -50,11 +40,6 @@
                     </Button>
                 </HBox>
             </VBox>
-            <Separator orientation="VERTICAL">
-                <HBox.margin>
-                    <Insets bottom="10.0" top="10.0"/>
-                </HBox.margin>
-            </Separator>
             <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
         </HBox>
     </graphic>
