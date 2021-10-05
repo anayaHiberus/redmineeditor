@@ -13,6 +13,4 @@ module com.hiberus.anaya.redmineeditor {
     exports com.hiberus.anaya.redmineeditor.controllers;
     exports com.hiberus.anaya.redmineeditor.utils;
     opens com.hiberus.anaya.redmineeditor.controllers to javafx.fxml;
-    opens com.hiberus.anaya.redmineeditor.cells to javafx.fxml;
-    exports com.hiberus.anaya.redmineeditor.cells;
 }

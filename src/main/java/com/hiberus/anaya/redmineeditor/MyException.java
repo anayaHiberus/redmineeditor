@@ -64,6 +64,10 @@ public class MyException extends Exception {
         details.add(other.getMessage());
     }
 
+    public boolean hasDetails() {
+        return details.length() > 0;
+    }
+
     /**
      * @return if this exception is a warning
      */

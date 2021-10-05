@@ -1,8 +1,9 @@
-package com.hiberus.anaya.redmineeditor.cells;
+package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.MyException;
 import com.hiberus.anaya.redmineeditor.utils.Desktop;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
@@ -13,10 +14,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebView;
 
+import java.io.IOException;
+
 /**
  * One of the entries in the entries list
  */
-public class EntryCell extends SimpleListCell<TimeEntry> {
+public class EntryCtrl extends SimpleListCell<TimeEntry> {
 
     /* ------------------------- views ------------------------- */
     @FXML
@@ -28,23 +31,36 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
     @FXML
     private Label spent;
     @FXML
+    private Button get_total;
+    @FXML
+    private Label total;
+    @FXML
     private Label estimated;
     @FXML
     private Label realization;
 
     /* ------------------------- init ------------------------- */
-    private final Model model; // to notify when the entry changes
+    private final InnerCtrl cellCtrl; // to notify when the entry changes
 
-    private EntryCell() {
+    private EntryCtrl() {
         // to avoid error on fxml file
         super("");
-        model = null;
+        cellCtrl = null;
     }
 
-    public EntryCell(Model model) {
+    public EntryCtrl(Model model) {
         // creates new cell
         super("entry_cell.fxml");
-        this.model = model;
+        cellCtrl = new InnerCtrl() {
+            @Override
+            void init() {
+            }
+        };
+        cellCtrl.injectModel(model);
+
+        // other properties
+        get_total.managedProperty().bind(get_total.visibleProperty());
+        total.managedProperty().bind(total.visibleProperty());
     }
 
     @Override
@@ -53,7 +69,16 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
         TimeEntry entry = getItem();
         issue.setText(entry.issue.toString());
         comment.setText(entry.getComment());
-        estimated.setText(entry.issue.estimated_hours == -1 ? "none" : TimeUtils.formatHours(entry.issue.estimated_hours));
+
+        double spent_hours = entry.issue.spent_hours;
+        get_total.setVisible(spent_hours == -2);
+        total.setVisible(spent_hours != -2);
+        total.setText(spent_hours < 0 ? "none" : TimeUtils.formatHours(spent_hours));
+        double estimated_hours = entry.issue.estimated_hours;
+        estimated.setText(estimated_hours == -2 ? "?" : estimated_hours == -1 ? "none" : TimeUtils.formatHours(estimated_hours));
+        if (spent_hours >= 0 && estimated_hours > 0) {
+            estimated.setText(estimated.getText() + " | " + (int) (spent_hours / estimated_hours * 100) + "%");
+        }
         realization.setText(entry.issue.done_ratio + "%");
         updateHours();
     }
@@ -74,7 +99,18 @@ public class EntryCell extends SimpleListCell<TimeEntry> {
 
         // update views
         updateHours();
-        model.notificator.fire(Model.Events.Hours); // TODO: maybe move this logic to model?
+        cellCtrl.model.notificator.fire(Model.Events.Hours); // TODO: maybe move this logic to model?
+    }
+
+    @FXML
+    private void getTotal() {
+        cellCtrl.inBackground(() -> {
+            try {
+                getItem().issue.fill();
+            } catch (IOException e) {
+                throw new MyException("Network error", "Unable to fetch the issue details", e);
+            }
+        }, () -> cellCtrl.model.notificator.fire(Model.Events.Hours));
     }
 
     @FXML

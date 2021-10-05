@@ -106,11 +106,17 @@ public class Model {
     /**
      * @param day new selected day (if invalid won't be saved)
      */
-    public void setDay(int day) {
-        if (day == 0 || month.isValidDay(day)) {
+    public void setDay(int day) throws MyException {
+        if (month.isValidDay(day)) {
             this.day = day;
+            prepareDay();
             notificator.fire(Events.Day);
         }
+    }
+
+    public void unsetDay() {
+        this.day = 0;
+        notificator.fire(Events.Day);
     }
 
     /**
@@ -166,6 +172,9 @@ public class Model {
             throw new MyException("Parsing error", "Unknown Redmine response. Try again later.", e);
         }
 
+        // prepare
+        prepareDay();
+
         // mark
         monthsLoaded.add(month);
         notificator.fire(Events.Entries);
@@ -205,19 +214,14 @@ public class Model {
         return _getEntriesForMonth(month).stream().mapToDouble(TimeEntry::getHours).sum();
     }
 
-    /**
-     * Returns the entries that should be displayed on the selected day (empty if no day selected)
-     *
-     * @return entries for the current day
-     */
-    public List<TimeEntry> getDayEntries() {
+    private void prepareDay() throws MyException {
         LocalDate date = getDate();
-        if (date == null) return Collections.emptyList();
+        if (date == null) return;
 
-        // prepare
         List<Issue> todayIssues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toList());
+
+        // add a new empty entry copied from previous week ones
         for (int days = 1; days <= PREV_DAYS; ++days) {
-            // add a new empty entry copied from previous week ones
             _getEntriesForDate(date.minusDays(days)).stream()
                     .filter(prevEntry -> prevEntry.getHours() != 0)
                     .filter(prevEntry -> !todayIssues.contains(prevEntry.issue))
@@ -229,6 +233,28 @@ public class Model {
                     });
         }
 
+        // fill issues for the days
+        MyException exception = new MyException("Issue exception", "Can't load issues data", null);
+        for (Issue todayIssue : todayIssues) {
+            try {
+                todayIssue.fill();
+            } catch (IOException e) {
+                exception.addDetails(e);
+            }
+        }
+        if (exception.hasDetails()) {
+            throw exception;
+        }
+    }
+
+    /**
+     * Returns the entries that should be displayed on the selected day (empty if no day selected)
+     *
+     * @return entries for the current day
+     */
+    public List<TimeEntry> getDayEntries() {
+        LocalDate date = getDate();
+        if (date == null) return Collections.emptyList();
         // return
         return _getEntriesForDate(date);
     }
@@ -240,17 +266,15 @@ public class Model {
      * @throws MyException on error
      */
     public void uploadEntries() throws MyException {
-        boolean ok = true;
         MyException exception = new MyException("Updating error", "An error occurred while updating entries", null);
         for (TimeEntry entry : entries) {
             try {
                 entry.uploadTimeEntry(); // TODO: move all this logic to manager
             } catch (IOException e) {
                 exception.addDetails(e);
-                ok = false;
             }
         }
-        if (!ok) {
+        if (exception.hasDetails()) {
             throw exception;
         }
     }

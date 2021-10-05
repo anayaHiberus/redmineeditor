@@ -59,6 +59,7 @@ public class RedmineManager {
         List<Integer> loadedIssuesIds = loadedIssues.stream().map(issue -> issue.id).toList();
         loadedIssues.addAll(getIssues(time_entries.stream()
                 .map(TimeEntry::getIssueId)
+                .distinct()
                 .filter(o -> !loadedIssuesIds.contains(o))
                 .toList()
         ));

@@ -2,7 +2,6 @@ package com.hiberus.anaya.redmineeditor.controllers;
 
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Model;
-import com.hiberus.anaya.redmineeditor.cells.EntryCell;
 import com.hiberus.anaya.redmineeditor.utils.NoSelectionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,7 +24,7 @@ public class EntriesCtrl extends InnerCtrl {
     private void initialize() {
         // init
         list.setItems(listItems);
-        list.setCellFactory(param -> new EntryCell(model));
+        list.setCellFactory(param -> new EntryCtrl(model));
 
         list.setSelectionModel(new NoSelectionModel<>());
     }
@@ -33,7 +32,7 @@ public class EntriesCtrl extends InnerCtrl {
     @Override
     void init() {
         // on new entries, display them
-        model.notificator.register(Set.of(Model.Events.Entries, Model.Events.Day), () -> {
+        model.notificator.register(Set.of(Model.Events.Entries, Model.Events.Day, Model.Events.Hours), () -> {
             // clear and replace
             listItems.setAll(model.getDayEntries());
         });

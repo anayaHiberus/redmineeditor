@@ -109,7 +109,7 @@ public class CalendarCtrl extends InnerCtrl {
         // change month by offset
         model.setMonth(model.getMonth().plusMonths(offset));
         // unselect the day
-        model.setDay(0);
+        model.unsetDay();
         // and load if necessary
         if (!model.isMonthLoaded()) inBackground(model::loadMonth);
     }
@@ -176,8 +176,9 @@ public class CalendarCtrl extends InnerCtrl {
             Label centeredLabel = JavaFXUtils.getCenteredLabel(Integer.toString(day));
             days[day - 1] = centeredLabel;
             int finalDay = day;
-            centeredLabel.setOnMouseClicked(event -> model.setDay(finalDay));
+            centeredLabel.setOnMouseClicked(event -> inBackground(() -> model.setDay(finalDay), () -> model.notificator.fire(Model.Events.Day))); // notify HACK, needs big refactoring
             calendar.add(centeredLabel, index % 7, column);
+            assert false;
         }
         // remove extra rows
         while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 2) {

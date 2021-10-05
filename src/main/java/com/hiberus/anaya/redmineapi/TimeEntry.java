@@ -104,7 +104,10 @@ public class TimeEntry {
      * @param amount new hours to add to this entry (negative to subtract)
      */
     public void changeHours(double amount) {
-        hours = Math.max(hours + amount, 0); // change, but keep positive
+        amount = Math.max(hours + amount, 0) - hours; // don't subtract what can't be substracted
+        hours += amount;
+        assert issue.spent_hours >= 0;
+        issue.spent_hours += amount;
     }
 
     /* ------------------------- uploading ------------------------- */

@@ -2,6 +2,8 @@ package com.hiberus.anaya.redmineapi;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 /**
  * A redmine issue
  */
@@ -39,6 +41,8 @@ public final class Issue {
      */
     public final int done_ratio;
 
+    public double spent_hours;
+
     /* ------------------------- constructors ------------------------- */
 
     Issue(JSONObject rawIssue, RedmineManager manager) {
@@ -50,9 +54,16 @@ public final class Issue {
         description = rawIssue.optString("description");
         estimated_hours = rawIssue.optDouble("estimated_hours", -1);
         done_ratio = rawIssue.optInt("done_ratio", 0);
+        spent_hours = rawIssue.optDouble("spent_hours", -2);
     }
 
     /* ------------------------- properties ------------------------- */
+
+    public void fill() throws IOException {
+        if (spent_hours == -2) {
+            spent_hours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key).getJSONObject("issue").optDouble("spent_hours", -1);
+        }
+    }
 
     /**
      * @return a short string describing this issue

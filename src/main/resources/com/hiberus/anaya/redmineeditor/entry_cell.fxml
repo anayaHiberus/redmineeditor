@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--<fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"-->
-<!--         type="com.hiberus.anaya.redmineeditor.cells.EntryCell">-->
+<!--         type="com.hiberus.anaya.redmineeditor.controllers.EntryCtrl">-->
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -10,8 +10,11 @@
 <fx:root type="ListCell" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
     <graphic>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
-            <Label fx:id="issue" onMouseClicked="#showDetails" wrapText="true" HBox.hgrow="ALWAYS"/>
-            <Label text="Estimated:"/>
+            <Label fx:id="issue" onMouseClicked="#showDetails" text="#" wrapText="true" HBox.hgrow="ALWAYS"/>
+            <Label text="Total:"/>
+            <Button fx:id="get_total" mnemonicParsing="false" onAction="#getTotal" text="*"/>
+            <Label fx:id="total" layoutX="32.0" layoutY="38.0" text="hh"/>
+            <Label layoutX="10.0" layoutY="38.0" text="Estimated:"/>
             <Label fx:id="estimated" layoutX="101.0" layoutY="38.0" text="hh"/>
             <Label layoutX="38.0" layoutY="38.0" text="Realization:"/>
             <Label fx:id="realization" layoutX="49.0" layoutY="38.0" text="\%"/>

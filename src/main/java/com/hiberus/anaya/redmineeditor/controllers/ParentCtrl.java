@@ -68,8 +68,10 @@ public class ParentCtrl extends InnerCtrl {
 
         // start by loading current day and month
         model.setMonth(YearMonth.now());
-        model.setDay(LocalDate.now().getDayOfMonth());
-        inBackground(model::loadMonth);
+        inBackground(() -> {
+            model.setDay(LocalDate.now().getDayOfMonth());
+            model.loadMonth();
+        });
     }
 
 }
