@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.HBox?>
 <HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.hiberus.anaya.redmineeditor.controllers.ActionsCtrl">
+      fx:controller="com.hiberus.anaya.redmineeditor.components.ActionsComponent">
     <children>
         <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#reload" text="Reload"
                 HBox.hgrow="ALWAYS"/>

@@ -1,6 +1,7 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.MyException;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
@@ -19,10 +20,12 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 
+import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.*;
+
 /**
  * A calendar view with colored days
  */
-public class CalendarCtrl extends InnerCtrl {
+public class CalendarComponent extends BaseComponent {
 
     /* ------------------------- properties ------------------------- */
 
@@ -53,30 +56,31 @@ public class CalendarCtrl extends InnerCtrl {
     @Override
     void init() {
         // on new month, draw it and prepare to draw colors
-        model.notificator.register(Set.of(Model.Events.Month), () -> {
-            drawGrid();
-            updateLabel();
+
+        controller.register(Set.of(Month), model -> {
+            drawGrid(model);
+            updateLabel(model);
             needsColoring = true;
         });
 
         // when hours change, recolor today
-        model.notificator.register(Set.of(Model.Events.Hours), () -> {
+        controller.register(Set.of(Hours), model -> {
             // when hours change (and a recoloring is not pending), recolor day
             if (needsColoring) return;
             int day = model.getDay();
-            if (day != 0) colorDay(day);
+            if (day != 0) colorDay(day, model);
         });
 
         // when finished loading, color days
-        model.notificator.register(Set.of(Model.Events.Month, Model.Events.Loading), () -> {
+        controller.register(Set.of(Month, Loading), model -> {
             if (model.isLoading() || !needsColoring) return;
-            colorDays();
-            updateLabel();
+            colorDays(model);
+            updateLabel(model);
             needsColoring = false;
         });
 
         // when day changes (or month), set selection
-        model.notificator.register(Set.of(Model.Events.Day, Model.Events.Month), () -> {
+        controller.register(Set.of(Model.ModelEditor.Events.Day, Model.ModelEditor.Events.Month), model -> {
             // unselect
             unselectDay();
 
@@ -94,41 +98,42 @@ public class CalendarCtrl extends InnerCtrl {
     @FXML
     private void onNextMonth() {
         // next month
-        loadMonth(1);
+        controller.runBackground(model -> loadMonth(1, model), null);
     }
 
     @FXML
     private void onPreviousMonth() {
         // previous month
-        loadMonth(-1);
+        controller.runBackground(model -> loadMonth(-1, model), null);
     }
 
     /* ------------------------- effects ------------------------- */
 
-    private void loadMonth(int offset) {
+    private void loadMonth(int offset, Model.ModelEditor editor) throws MyException {
         // change month by offset
-        model.setMonth(model.getMonth().plusMonths(offset));
+        editor.setMonth(editor.getModel().getMonth().plusMonths(offset));
         // unselect the day
-        model.unsetDay();
+        editor.unsetDay();
+        controller.fireChanges(editor);
         // and load if necessary
-        if (!model.isMonthLoaded()) inBackground(model::loadMonth);
+        if (!editor.getModel().isMonthLoaded()) editor.loadMonth();
     }
 
-    private void colorDays() {
+    private void colorDays(Model model) {
         // color all days of current month
         YearMonth month = model.getMonth();
         for (int day = 1; day <= month.lengthOfMonth(); ++day) {
-            colorDay(day);
+            colorDay(day, model);
         }
     }
 
-    private void colorDay(int day) {
+    private void colorDay(int day, Model model) {
         // color a single day of current month
         LocalDate date = model.getMonth().atDay(day);
         JavaFXUtils.setBackgroundColor(days[day - 1], Schedule.getColor(Schedule.getExpectedHours(date), model.getSpent(date), date));
     }
 
-    private void updateLabel() {
+    private void updateLabel(Model model) {
         // month info
         String label = model.getMonth().format(new DateTimeFormatterBuilder()
                 .appendText(ChronoField.MONTH_OF_YEAR)
@@ -151,7 +156,7 @@ public class CalendarCtrl extends InnerCtrl {
         calendarLabel.setText(label);
     }
 
-    private void drawGrid() {
+    private void drawGrid(Model model) {
         // clear
         calendar.getChildren().removeAll(days);
         Arrays.fill(days, null);
@@ -176,7 +181,7 @@ public class CalendarCtrl extends InnerCtrl {
             Label centeredLabel = JavaFXUtils.getCenteredLabel(Integer.toString(day));
             days[day - 1] = centeredLabel;
             int finalDay = day;
-            centeredLabel.setOnMouseClicked(event -> inBackground(() -> model.setDay(finalDay), () -> model.notificator.fire(Model.Events.Day))); // notify HACK, needs big refactoring
+            centeredLabel.setOnMouseClicked(event -> selectDay(finalDay));
             calendar.add(centeredLabel, index % 7, column);
             assert false;
         }
@@ -184,6 +189,11 @@ public class CalendarCtrl extends InnerCtrl {
         while (calendar.getRowCount() > (numberOfDays + padding - 1) / 7 + 2) {
             calendar.getRowConstraints().remove(calendar.getRowCount() - 1);
         }
+    }
+
+    private void selectDay(int day) {
+        // select a specific day
+        controller.runBackground(model -> model.setDay(day), null);
     }
 
     private void unselectDay() {

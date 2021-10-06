@@ -3,5 +3,5 @@
 
 <?import javafx.scene.control.ListView?>
 <ListView fx:id="list" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="com.hiberus.anaya.redmineeditor.controllers.EntriesCtrl">
+          fx:controller="com.hiberus.anaya.redmineeditor.components.EntriesComponent">
 </ListView>

@@ -1,8 +1,8 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.Controller;
 import com.hiberus.anaya.redmineeditor.MyException;
 import com.hiberus.anaya.redmineeditor.utils.Desktop;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
@@ -15,11 +15,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.web.WebView;
 
 import java.io.IOException;
+import java.util.Set;
+
+import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.Hours;
 
 /**
  * One of the entries in the entries list
  */
-public class EntryCtrl extends SimpleListCell<TimeEntry> {
+public class EntryComponent extends SimpleListCell<TimeEntry> {
 
     /* ------------------------- views ------------------------- */
     @FXML
@@ -40,23 +43,18 @@ public class EntryCtrl extends SimpleListCell<TimeEntry> {
     private Label realization;
 
     /* ------------------------- init ------------------------- */
-    private final InnerCtrl cellCtrl; // to notify when the entry changes
+    private final Controller controller;
 
-    private EntryCtrl() {
+    private EntryComponent() {
         // to avoid error on fxml file
         super("");
-        cellCtrl = null;
+        controller = null;
     }
 
-    public EntryCtrl(Model model) {
+    public EntryComponent(Controller controller) {
         // creates new cell
         super("entry_cell.fxml");
-        cellCtrl = new InnerCtrl() {
-            @Override
-            void init() {
-            }
-        };
-        cellCtrl.injectModel(model);
+        this.controller = controller;
 
         // other properties
         get_total.managedProperty().bind(get_total.visibleProperty());
@@ -99,18 +97,19 @@ public class EntryCtrl extends SimpleListCell<TimeEntry> {
 
         // update views
         updateHours();
-        cellCtrl.model.notificator.fire(Model.Events.Hours); // TODO: maybe move this logic to model?
+        controller.fireChanges(Set.of(Hours));
     }
 
     @FXML
     private void getTotal() {
-        cellCtrl.inBackground(() -> {
+        controller.runBackground(model -> {
             try {
                 getItem().issue.fill();
+                model.changes.add(Hours);
             } catch (IOException e) {
                 throw new MyException("Network error", "Unable to fetch the issue details", e);
             }
-        }, () -> cellCtrl.model.notificator.fire(Model.Events.Hours));
+        }, null);
     }
 
     @FXML

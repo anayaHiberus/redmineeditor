@@ -1,7 +1,6 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.NoSelectionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,10 +9,12 @@ import javafx.scene.control.ListView;
 
 import java.util.Set;
 
+import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.*;
+
 /**
  * A list of entries that you can edit
  */
-public class EntriesCtrl extends InnerCtrl {
+public class EntriesComponent extends BaseComponent {
 
     @FXML
     private ListView<TimeEntry> list; // list view for displayed entries
@@ -24,7 +25,7 @@ public class EntriesCtrl extends InnerCtrl {
     private void initialize() {
         // init
         list.setItems(listItems);
-        list.setCellFactory(param -> new EntryCtrl(model));
+        list.setCellFactory(param -> new EntryComponent(controller));
 
         list.setSelectionModel(new NoSelectionModel<>());
     }
@@ -32,7 +33,7 @@ public class EntriesCtrl extends InnerCtrl {
     @Override
     void init() {
         // on new entries, display them
-        model.notificator.register(Set.of(Model.Events.Entries, Model.Events.Day, Model.Events.Hours), () -> {
+        controller.register(Set.of(Entries, Day, Hours), model -> {
             // clear and replace
             listItems.setAll(model.getDayEntries());
         });

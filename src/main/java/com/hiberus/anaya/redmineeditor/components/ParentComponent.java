@@ -1,5 +1,6 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.components;
 
+import com.hiberus.anaya.redmineeditor.Controller;
 import com.hiberus.anaya.redmineeditor.Model;
 import javafx.fxml.FXML;
 import javafx.scene.control.ProgressIndicator;
@@ -13,34 +14,33 @@ import java.util.Set;
  * View for the parent app. Manages the loading indicator
  * [Also includes the subcontroller model injection]
  */
-public class ParentCtrl extends InnerCtrl {
+public class ParentComponent extends BaseComponent {
 
 
     /* ------------------------- subcontroller model injection ------------------------- */
     // TODO: replace with a bean or something
 
     @FXML
-    private CalendarCtrl calendarController;
+    private CalendarComponent calendarController;
     @FXML
-    private SummaryCtrl summaryController;
+    private SummaryComponent summaryController;
     @FXML
-    private EntriesCtrl entriesController;
+    private EntriesComponent entriesController;
     @FXML
-    private InsertCtrl insertController;
+    private InsertComponent insertController;
     @FXML
-    private ActionsCtrl actionsController;
+    private ActionsComponent actionsController;
 
     @FXML
     private void initialize() {
         // init subcontrollers, like manual dependency injection
-        Model model = new Model();
-        calendarController.injectModel(model);
-        summaryController.injectModel(model);
-        entriesController.injectModel(model);
-        insertController.injectModel(model);
-        actionsController.injectModel(model);
-        this.injectModel(model); // must be last!
-
+        Controller controller = new Controller();
+        calendarController.injectController(controller);
+        summaryController.injectController(controller);
+        entriesController.injectController(controller);
+        insertController.injectController(controller);
+        actionsController.injectController(controller);
+        this.injectController(controller); // must be last!
     }
 
     /* ****************************************************** */
@@ -60,18 +60,19 @@ public class ParentCtrl extends InnerCtrl {
     @Override
     void init() {
         // When loading, the indicator is shown and the whole app is disabled.
-        model.notificator.register(Set.of(Model.Events.Loading), () -> {
+        controller.register(Set.of(Model.ModelEditor.Events.Loading), model -> {
             progress.setVisible(model.isLoading());
             parent.setDisable(model.isLoading());
         });
 
 
         // start by loading current day and month
-        model.setMonth(YearMonth.now());
-        inBackground(() -> {
+        controller.runBackground(model -> {
+            model.setMonth(YearMonth.now());
             model.setDay(LocalDate.now().getDayOfMonth());
+            controller.fireChanges(model);
             model.loadMonth();
-        });
+        }, null);
     }
 
 }

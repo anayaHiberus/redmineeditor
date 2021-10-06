@@ -1,6 +1,5 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.components;
 
-import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
@@ -11,12 +10,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Set;
 
+import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.*;
 import static com.hiberus.anaya.redmineeditor.utils.TimeUtils.formatHours;
 
 /**
  * A simple label with info of the current selected day
  */
-public class SummaryCtrl extends InnerCtrl {
+public class SummaryComponent extends BaseComponent {
 
     /* ------------------------- views ------------------------- */
 
@@ -29,7 +29,7 @@ public class SummaryCtrl extends InnerCtrl {
     @Override
     void init() {
         // when month, day, hours or the loading state changes, update
-        model.notificator.register(Set.of(Model.Events.Month, Model.Events.Day, Model.Events.Hours, Model.Events.Loading), () -> {
+        controller.register(Set.of(Month, Day, Hours, Loading), model -> {
             if (model.isLoading()) {
                 // while loading, notify user
                 summary.setText("Loading...");

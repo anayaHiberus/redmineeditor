@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controllers;
+package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineeditor.Model;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 /**
  * Options for create (insert) a new entry
  */
-public class InsertCtrl extends InnerCtrl {
+public class InsertComponent extends BaseComponent {
 
     /* ------------------------- views ------------------------- */
 
@@ -34,7 +34,7 @@ public class InsertCtrl extends InnerCtrl {
     @Override
     void init() {
         // when issues change, add them all as menus
-        model.notificator.register(Set.of(Model.Events.Issues), () -> {
+        controller.register(Set.of(Model.ModelEditor.Events.Issues), model -> {
             // clear existing
             choice.getItems().clear();
             Map<String, Menu> projects = new HashMap<>(); // cache for menu entries
@@ -43,7 +43,7 @@ public class InsertCtrl extends InnerCtrl {
             for (Issue issue : model.getAllIssues()) {
                 // convert to an entry that will add the issue when clicked
                 MenuItem menuItem = new MenuItem(issue.toShortString());
-                menuItem.setOnAction(event -> model.createTimeEntry(issue));
+                menuItem.setOnAction(event -> createEntry(issue));
 
                 String project = issue.project;
                 if (!projects.containsKey(project)) {
@@ -62,10 +62,14 @@ public class InsertCtrl extends InnerCtrl {
         });
 
         // when day change, enable/disable
-        model.notificator.register(Set.of(Model.Events.Day), () -> {
+        controller.register(Set.of(Model.ModelEditor.Events.Day), model -> {
             // disable if no date selected
             parent.setDisable(model.getDate() == null);
         });
+    }
+
+    private void createEntry(Issue issue) {
+        controller.runBackground(model -> model.createTimeEntry(issue), null);
     }
 
     @FXML
@@ -93,10 +97,10 @@ public class InsertCtrl extends InnerCtrl {
         }
 
         // and add them
-        inBackground(() -> {
+        controller.runBackground(model -> {
             // add
             model.createTimeEntries(ids);
-        });
+        }, null);
     }
 
 }
