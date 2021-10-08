@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components;
 
-import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
+import com.hiberus.anaya.redmineeditor.utils.FXUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -55,7 +55,7 @@ public class SummaryComponent extends BaseComponent {
                 );
 
                 // and change color
-                JavaFXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, date));
+                FXUtils.setBackgroundColor(summary, Schedule.getColor(expected, spent, date));
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor;
 
+import com.hiberus.anaya.redmineeditor.utils.FXUtils;
 import javafx.application.Platform;
 import javafx.util.Pair;
 
@@ -39,8 +40,8 @@ public class Controller {
     /**
      * Run something in background, and then something in foreground. Updates the loading status
      *
-     * @param background to run in background
-     * @param foreground to run in foreground after the background thread finishes without errors
+     * @param background to run in background while the loading indicator is shown
+     * @param later      to run in foreground after the background thread finishes (with or without errors)
      */
     public void runBackground(ReadWrite background, Runnable later) {
         // set as loading
@@ -76,22 +77,25 @@ public class Controller {
     }
 
     /**
-     * Fires an event
+     * Fires changes made to the model
      *
-     * @param event         event to fire
-     * @param editableModel
+     * @param editableModel model to check changes from
      */
     public void fireChanges(Model.ModelEditor editableModel) {
         fireChanges(editableModel.changes);
         editableModel.changes.clear();
     }
 
-
+    /**
+     * Fires specific events
+     *
+     * @param events events to fire
+     */
     public void fireChanges(Set<Model.ModelEditor.Events> events) {
         listeners.forEach(pair -> {
             if (intersects(events, pair.getKey())) {
-                // at least a registered event, run
-                Platform.runLater(() -> pair.getValue().run(model));
+                // at least a registered event, run in foreground
+                FXUtils.runInForeground(() -> pair.getValue().run(model));
             }
         });
     }

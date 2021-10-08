@@ -294,7 +294,7 @@ public class Model {
             MyException exception = new MyException("Issue exception", "Can't load issues data", null);
             for (Issue todayIssue : todayIssues) {
                 try {
-                    todayIssue.fill();
+                    todayIssue.loadUninitialized();
                 } catch (IOException e) {
                     exception.addDetails(e);
                 }

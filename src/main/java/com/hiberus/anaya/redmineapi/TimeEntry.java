@@ -51,7 +51,7 @@ public class TimeEntry {
     TimeEntry(Issue issue, LocalDate spent_on, RedmineManager manager) {
         // Creates a new time entry for an existing issue and date
         this.manager = manager;
-        this.id = -1;
+        this.id = RedmineManager.NONE;
         this.issue = issue;
         this.spent_on = spent_on;
     }
@@ -106,8 +106,8 @@ public class TimeEntry {
     public void changeHours(double amount) {
         amount = Math.max(hours + amount, 0) - hours; // don't subtract what can't be substracted
         hours += amount;
-        assert issue.spent_hours >= 0;
-        issue.spent_hours += amount;
+        assert issue.getSpentHours() >= 0;
+        issue.addSpentHours(amount);
     }
 
     /* ------------------------- uploading ------------------------- */
@@ -126,7 +126,7 @@ public class TimeEntry {
             // changed comment
             changes.put("comments", comment);
         }
-        if (id == -1) {
+        if (id == RedmineManager.NONE) {
             // without original, this data is considered new
             changes.put("issue_id", issue.id);
             changes.put("spent_on", spent_on);
@@ -143,7 +143,7 @@ public class TimeEntry {
         return !(
                 getChanges().isEmpty() // no changes, no upload
                         ||
-                        this.id == -1 && getHours() <= 0 // no useful changes, no upload
+                        this.id == RedmineManager.NONE && getHours() <= 0 // no useful changes, no upload
         );
     }
 
@@ -161,7 +161,7 @@ public class TimeEntry {
         // ignore unmodified
         if (changes.isEmpty()) return;
 
-        if (id == -1) {
+        if (id == RedmineManager.NONE) {
             if (getHours() > 0) {
                 // new entry with hours, create
                 System.out.println("Creating entry with data: " + changes);

@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineeditor.Model;
 import com.hiberus.anaya.redmineeditor.MyException;
-import com.hiberus.anaya.redmineeditor.utils.JavaFXUtils;
+import com.hiberus.anaya.redmineeditor.utils.FXUtils;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
 import javafx.fxml.FXML;
@@ -47,7 +47,7 @@ public class CalendarComponent extends BaseComponent {
         // create the header
         for (DayOfWeek field : DayOfWeek.values()) {
             // append each day
-            calendar.add(JavaFXUtils.getCenteredLabel(
+            calendar.add(FXUtils.getCenteredLabel(
                     field.getDisplayName(TextStyle.SHORT, Locale.getDefault())
             ), field.getValue() - 1, 0);
         }
@@ -130,7 +130,7 @@ public class CalendarComponent extends BaseComponent {
     private void colorDay(int day, Model model) {
         // color a single day of current month
         LocalDate date = model.getMonth().atDay(day);
-        JavaFXUtils.setBackgroundColor(days[day - 1], Schedule.getColor(Schedule.getExpectedHours(date), model.getSpent(date), date));
+        FXUtils.setBackgroundColor(days[day - 1], Schedule.getColor(Schedule.getExpectedHours(date), model.getSpent(date), date));
     }
 
     private void updateLabel(Model model) {
@@ -146,10 +146,10 @@ public class CalendarComponent extends BaseComponent {
             double spent = model.getSpent(model.getMonth());
             double expected = Schedule.getExpectedHours(model.getMonth());
             label += " (" + TimeUtils.formatHours(spent) + "/" + TimeUtils.formatHours(expected) + ")";
-            JavaFXUtils.setBackgroundColor(calendarLabel, Schedule.getColor(expected, spent, model.getMonth().atEndOfMonth()));
+            FXUtils.setBackgroundColor(calendarLabel, Schedule.getColor(expected, spent, model.getMonth().atEndOfMonth()));
         } else {
             // still not loaded, clear
-            JavaFXUtils.setBackgroundColor(calendarLabel, null);
+            FXUtils.setBackgroundColor(calendarLabel, null);
         }
 
         // set
@@ -178,7 +178,7 @@ public class CalendarComponent extends BaseComponent {
             }
 
             // add and save label
-            Label centeredLabel = JavaFXUtils.getCenteredLabel(Integer.toString(day));
+            Label centeredLabel = FXUtils.getCenteredLabel(Integer.toString(day));
             days[day - 1] = centeredLabel;
             int finalDay = day;
             centeredLabel.setOnMouseClicked(event -> selectDay(finalDay));

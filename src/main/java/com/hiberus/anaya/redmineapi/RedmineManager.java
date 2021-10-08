@@ -16,6 +16,15 @@ import java.util.stream.Collectors;
  */
 public class RedmineManager {
 
+    /**
+     * Unset int property
+     */
+    public static final int NONE = -1;
+    /**
+     * Not initialized int property
+     */
+    public static final int UNINITIALIZED = -2;
+
     /* ------------------------- params ------------------------- */
     static final boolean OFFLINE = false; // for debug purpose, set to true to disable changes
 

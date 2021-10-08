@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineapi.Issue;
+import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.Controller;
 import com.hiberus.anaya.redmineeditor.MyException;
@@ -68,12 +69,12 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
         issue.setText(entry.issue.toString());
         comment.setText(entry.getComment());
 
-        double spent_hours = entry.issue.spent_hours;
-        get_total.setVisible(spent_hours == -2);
-        total.setVisible(spent_hours != -2);
+        double spent_hours = entry.issue.getSpentHours();
+        get_total.setVisible(spent_hours == RedmineManager.UNINITIALIZED);
+        total.setVisible(spent_hours != RedmineManager.UNINITIALIZED);
         total.setText(spent_hours < 0 ? "none" : TimeUtils.formatHours(spent_hours));
         double estimated_hours = entry.issue.estimated_hours;
-        estimated.setText(estimated_hours == -2 ? "?" : estimated_hours == -1 ? "none" : TimeUtils.formatHours(estimated_hours));
+        estimated.setText(estimated_hours == RedmineManager.UNINITIALIZED ? "?" : estimated_hours == RedmineManager.NONE ? "none" : TimeUtils.formatHours(estimated_hours));
         if (spent_hours >= 0 && estimated_hours > 0) {
             estimated.setText(estimated.getText() + " | " + (int) (spent_hours / estimated_hours * 100) + "%");
         }
@@ -97,6 +98,8 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
 
         // update views
         updateHours();
+
+        // and notify
         controller.fireChanges(Set.of(Hours));
     }
 
@@ -104,7 +107,7 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
     private void getTotal() {
         controller.runBackground(model -> {
             try {
-                getItem().issue.fill();
+                getItem().issue.loadUninitialized();
                 model.changes.add(Hours);
             } catch (IOException e) {
                 throw new MyException("Network error", "Unable to fetch the issue details", e);

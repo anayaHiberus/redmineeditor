@@ -41,7 +41,7 @@ public final class Issue {
      */
     public final int done_ratio;
 
-    public double spent_hours;
+    private double spentHours; // total hours, uninitialized
 
     /* ------------------------- constructors ------------------------- */
 
@@ -52,17 +52,43 @@ public final class Issue {
         project = rawIssue.getJSONObject("project").optString("name", "");
         subject = rawIssue.optString("subject", "");
         description = rawIssue.optString("description");
-        estimated_hours = rawIssue.optDouble("estimated_hours", -1);
+        estimated_hours = rawIssue.optDouble("estimated_hours", RedmineManager.NONE);
         done_ratio = rawIssue.optInt("done_ratio", 0);
-        spent_hours = rawIssue.optDouble("spent_hours", -2);
+        spentHours = rawIssue.optDouble("spent_hours", RedmineManager.UNINITIALIZED);
     }
 
     /* ------------------------- properties ------------------------- */
 
-    public void fill() throws IOException {
-        if (spent_hours == -2) {
-            spent_hours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key).getJSONObject("issue").optDouble("spent_hours", -1);
+    /**
+     * Loads uninitialized entries (nothing if already initialized)
+     * Long operation
+     *
+     * @throws IOException on network error
+     */
+    public void loadUninitialized() throws IOException {
+        if (spentHours == RedmineManager.UNINITIALIZED) {
+            spentHours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key)
+                    .getJSONObject("issue").optDouble("spent_hours", RedmineManager.NONE);
         }
+    }
+
+    /**
+     * Get total hours spent on this issue.
+     * Can be not initialized
+     */
+    public double getSpentHours() {
+        return spentHours;
+    }
+
+    /**
+     * Changes the total hours spent on this issue
+     *
+     * @param amount number oh hours (negative to substract)
+     */
+    public void addSpentHours(double amount) {
+        assert spentHours >= 0;
+        spentHours += amount;
+        assert spentHours >= 0;
     }
 
     /**
