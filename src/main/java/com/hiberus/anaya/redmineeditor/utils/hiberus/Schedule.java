@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
@@ -22,7 +24,8 @@ public class Schedule {
         Month month = day.getMonth();
         int weekday = day.getDayOfWeek().getValue(); // 1 = monday, 7 = sunday
 
-        // TODO: add special days like holidays
+        // special days
+        if (SPECIAL.containsKey(day)) return SPECIAL.get(day);
 
         if (month == Month.JULY || month == Month.AUGUST) {
             // summer schedule
@@ -59,9 +62,11 @@ public class Schedule {
      */
     static public Color getColor(double expected, double spent, LocalDate day) {
         if (expected != 0 && expected == spent) {
+            // something to spend, and correctly spent, GOOD!
             return Color.LIGHTGREEN;
         } else if (expected == 0 && spent == 0) {
-            // nothing to spend and nothing spent -> ignore
+            // nothing to spend and nothing spent, HOLIDAY!
+            return Color.LIGHTGREY;
         } else if (spent > expected) {
             // spent greater than expected, ERROR!
             return Color.RED;
@@ -71,11 +76,27 @@ public class Schedule {
         } else if (day.isBefore(LocalDate.now())) {
             // past day and not all, ERROR!
             return Color.RED;
+        } else {
+            // future day, NOTHING YET!
+            return null; // null = no color
         }
-        // future day -> ignore
+    }
 
-        // ignored, null (no color)
-        return null;
+
+    /* ------------------------- Special days ------------------------- */
+    private static final Map<LocalDate, Double> SPECIAL = new HashMap<>();
+
+    private static void special(int year, int month, int day, double hours) {
+        // syntactic sugar for initialization below
+        SPECIAL.put(LocalDate.of(year, month, day), hours);
+    }
+
+    static {
+        //Pilares
+        special(2021, 10, 11, 7.33);
+        special(2021, 10, 12, 0);
+        special(2021, 10, 13, 7.33);
+        special(2021, 10, 14, 7.33);
     }
 
 }
