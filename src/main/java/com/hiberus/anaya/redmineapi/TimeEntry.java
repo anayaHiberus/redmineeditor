@@ -15,7 +15,7 @@ public class TimeEntry {
 
     /* ------------------------- manager ------------------------- */
 
-    private final RedmineManager manager;
+    private final RedmineManager manager; // an entry is associated to a manager
 
     static int getIssueId(JSONObject rawEntry) {
         // returns the id from a rawEntry

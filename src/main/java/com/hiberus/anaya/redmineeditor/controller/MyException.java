@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor;
+package com.hiberus.anaya.redmineeditor.controller;
 
 import javafx.scene.control.Alert;
 

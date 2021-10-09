@@ -9,7 +9,7 @@ import javafx.scene.control.ListView;
 
 import java.util.Set;
 
-import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.*;
+import static com.hiberus.anaya.redmineeditor.model.ChangeEvents.*;
 
 /**
  * A list of entries that you can edit

@@ -11,7 +11,7 @@ public final class Issue {
 
     /* ------------------------- manager ------------------------- */
 
-    private final RedmineManager manager;
+    private final RedmineManager manager; // an issue is associated to a manager
 
     /* ------------------------- data ------------------------- */
 
@@ -60,12 +60,12 @@ public final class Issue {
     /* ------------------------- properties ------------------------- */
 
     /**
-     * Loads uninitialized entries (nothing if already initialized)
+     * Loads spent hours (nothing if already initialized)
      * Long operation
      *
      * @throws IOException on network error
      */
-    public void loadUninitialized() throws IOException {
+    public void loadSpent() throws IOException {
         if (spentHours == RedmineManager.UNINITIALIZED) {
             spentHours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key)
                     .getJSONObject("issue").optDouble("spent_hours", RedmineManager.NONE);

@@ -3,8 +3,8 @@ package com.hiberus.anaya.redmineeditor.components;
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
-import com.hiberus.anaya.redmineeditor.Controller;
-import com.hiberus.anaya.redmineeditor.MyException;
+import com.hiberus.anaya.redmineeditor.controller.Controller;
+import com.hiberus.anaya.redmineeditor.controller.MyException;
 import com.hiberus.anaya.redmineeditor.utils.Desktop;
 import com.hiberus.anaya.redmineeditor.utils.SimpleListCell;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
@@ -18,7 +18,7 @@ import javafx.scene.web.WebView;
 import java.io.IOException;
 import java.util.Set;
 
-import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.Hours;
+import static com.hiberus.anaya.redmineeditor.model.ChangeEvents.Hours;
 
 /**
  * One of the entries in the entries list
@@ -92,6 +92,8 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
 
     @FXML
     private void changeHours(Event node) {
+        // increase or decrease this entry hours
+
         // update entry
         TimeEntry entry = getItem();
         entry.changeHours(Double.parseDouble(((Button) node.getTarget()).getUserData().toString())); // the button data is the amount
@@ -105,14 +107,15 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
 
     @FXML
     private void getTotal() {
+        // load spent hours
         controller.runBackground(model -> {
             try {
-                getItem().issue.loadUninitialized();
-                model.changes.add(Hours);
+                getItem().issue.loadSpent();
+                model.registerExternalChange(Hours);
             } catch (IOException e) {
                 throw new MyException("Network error", "Unable to fetch the issue details", e);
             }
-        }, null);
+        });
     }
 
     @FXML
@@ -159,6 +162,7 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
     /* ------------------------- private ------------------------- */
 
     private void updateHours() {
+        // update entry hours
         double amount = getItem().getHours();
 
         // set text

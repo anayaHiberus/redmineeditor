@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components;
 
-import com.hiberus.anaya.redmineeditor.Controller;
-import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.controller.Controller;
+import com.hiberus.anaya.redmineeditor.model.ChangeEvents;
 import javafx.fxml.FXML;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
@@ -12,12 +12,13 @@ import java.util.Set;
 
 /**
  * View for the parent app. Manages the loading indicator
- * [Also includes the subcontroller model injection]
+ * [Also includes the components injection]
  */
 public class ParentComponent extends BaseComponent {
 
 
-    /* ------------------------- subcontroller model injection ------------------------- */
+    /* ------------------------- component injection ------------------------- */
+    // javaFX calls them controllers, but they are components!
     // TODO: replace with a bean or something
 
     @FXML
@@ -33,7 +34,7 @@ public class ParentComponent extends BaseComponent {
 
     @FXML
     private void initialize() {
-        // init subcontrollers, like manual dependency injection
+        // init components, like manual dependency injection
         Controller controller = new Controller();
         calendarController.injectController(controller);
         summaryController.injectController(controller);
@@ -60,7 +61,7 @@ public class ParentComponent extends BaseComponent {
     @Override
     void init() {
         // When loading, the indicator is shown and the whole app is disabled.
-        controller.register(Set.of(Model.ModelEditor.Events.Loading), model -> {
+        controller.register(Set.of(ChangeEvents.Loading), model -> {
             progress.setVisible(model.isLoading());
             parent.setDisable(model.isLoading());
         });
@@ -70,9 +71,9 @@ public class ParentComponent extends BaseComponent {
         controller.runBackground(model -> {
             model.setMonth(YearMonth.now());
             model.setDay(LocalDate.now().getDayOfMonth());
-            controller.fireChanges(model);
+            controller.fireChanges();
             model.loadMonth();
-        }, null);
+        });
     }
 
 }

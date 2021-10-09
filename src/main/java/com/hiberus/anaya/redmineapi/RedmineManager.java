@@ -26,7 +26,7 @@ public class RedmineManager {
     public static final int UNINITIALIZED = -2;
 
     /* ------------------------- params ------------------------- */
-    static final boolean OFFLINE = false; // for debug purpose, set to true to disable changes
+    static final boolean OFFLINE = false; // for debug purposes, set to true to disable online PUT/POST petitions
 
     // configurable
     final String domain; // the redmine domain

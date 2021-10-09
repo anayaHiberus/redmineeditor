@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components;
 
-import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.model.Model;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -20,7 +20,7 @@ public class ActionsComponent extends BaseComponent {
 
     @FXML
     private void reload() {
-        // press the refresh button to reload the data
+        // press the refresh button to reload the data, asks if there are changes
 
         // if there are changes, ask first
         controller.runForeground(model -> {
@@ -43,22 +43,26 @@ public class ActionsComponent extends BaseComponent {
     }
 
     private void forceReload() {
+        // reloads the data without any check
         controller.runBackground(editableModel -> {
             // clear data
             editableModel.clearAll();
-            controller.fireChanges(editableModel);
+            // notify so that the ui is updated at this step
+            controller.fireChanges();
             // load month
             editableModel.loadMonth();
-        }, null);
+        });
     }
 
     @FXML
     private void upload() {
         controller.runBackground(
                 // press the save button to upload data
-                Model.ModelEditor::uploadEntries,
-                // then reload
-                this::forceReload
+                Model.Editor::uploadEntries,
+                // then reload if everything was ok
+                ok -> {
+                    if (ok) forceReload();
+                }
         );
     }
 }

@@ -1,7 +1,8 @@
 package com.hiberus.anaya.redmineeditor.components;
 
-import com.hiberus.anaya.redmineeditor.Model;
-import com.hiberus.anaya.redmineeditor.MyException;
+import com.hiberus.anaya.redmineeditor.controller.MyException;
+import com.hiberus.anaya.redmineeditor.model.ChangeEvents;
+import com.hiberus.anaya.redmineeditor.model.Model;
 import com.hiberus.anaya.redmineeditor.utils.FXUtils;
 import com.hiberus.anaya.redmineeditor.utils.TimeUtils;
 import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule;
@@ -20,7 +21,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 
-import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.*;
+import static com.hiberus.anaya.redmineeditor.model.ChangeEvents.*;
 
 /**
  * A calendar view with colored days
@@ -73,6 +74,7 @@ public class CalendarComponent extends BaseComponent {
 
         // when finished loading, color days
         controller.register(Set.of(Month, Loading), model -> {
+            // don't color if still loading or a recoloring is not pending
             if (model.isLoading() || !needsColoring) return;
             colorDays(model);
             updateLabel(model);
@@ -80,7 +82,7 @@ public class CalendarComponent extends BaseComponent {
         });
 
         // when day changes (or month), set selection
-        controller.register(Set.of(Model.ModelEditor.Events.Day, Model.ModelEditor.Events.Month), model -> {
+        controller.register(Set.of(ChangeEvents.Day, ChangeEvents.Month), model -> {
             // unselect
             unselectDay();
 
@@ -98,25 +100,25 @@ public class CalendarComponent extends BaseComponent {
     @FXML
     private void onNextMonth() {
         // next month
-        controller.runBackground(model -> loadMonth(1, model), null);
+        controller.runBackground(model -> loadMonth(1, model));
     }
 
     @FXML
     private void onPreviousMonth() {
         // previous month
-        controller.runBackground(model -> loadMonth(-1, model), null);
+        controller.runBackground(model -> loadMonth(-1, model));
     }
 
     /* ------------------------- effects ------------------------- */
 
-    private void loadMonth(int offset, Model.ModelEditor editor) throws MyException {
+    private void loadMonth(int offset, Model.Editor editor) throws MyException {
         // change month by offset
-        editor.setMonth(editor.getModel().getMonth().plusMonths(offset));
+        editor.setMonth(editor.getMonth().plusMonths(offset));
         // unselect the day
         editor.unsetDay();
-        controller.fireChanges(editor);
+        controller.fireChanges();
         // and load if necessary
-        if (!editor.getModel().isMonthLoaded()) editor.loadMonth();
+        if (!editor.isMonthLoaded()) editor.loadMonth();
     }
 
     private void colorDays(Model model) {
@@ -193,7 +195,7 @@ public class CalendarComponent extends BaseComponent {
 
     private void selectDay(int day) {
         // select a specific day
-        controller.runBackground(model -> model.setDay(day), null);
+        controller.runBackground(model -> model.setDay(day));
     }
 
     private void unselectDay() {

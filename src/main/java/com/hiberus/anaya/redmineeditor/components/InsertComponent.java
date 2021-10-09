@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineapi.Issue;
-import com.hiberus.anaya.redmineeditor.Model;
+import com.hiberus.anaya.redmineeditor.model.ChangeEvents;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -34,7 +34,7 @@ public class InsertComponent extends BaseComponent {
     @Override
     void init() {
         // when issues change, add them all as menus
-        controller.register(Set.of(Model.ModelEditor.Events.Issues), model -> {
+        controller.register(Set.of(ChangeEvents.Issues), model -> {
             // clear existing
             choice.getItems().clear();
             Map<String, Menu> projects = new HashMap<>(); // cache for menu entries
@@ -62,14 +62,15 @@ public class InsertComponent extends BaseComponent {
         });
 
         // when day change, enable/disable
-        controller.register(Set.of(Model.ModelEditor.Events.Day), model -> {
+        controller.register(Set.of(ChangeEvents.Day), model -> {
             // disable if no date selected
             parent.setDisable(model.getDate() == null);
         });
     }
 
     private void createEntry(Issue issue) {
-        controller.runBackground(model -> model.createTimeEntry(issue), null);
+        // create a new entry for an issue
+        controller.runBackground(model -> model.createTimeEntry(issue));
     }
 
     @FXML
@@ -98,9 +99,8 @@ public class InsertComponent extends BaseComponent {
 
         // and add them
         controller.runBackground(model -> {
-            // add
             model.createTimeEntries(ids);
-        }, null);
+        });
     }
 
 }

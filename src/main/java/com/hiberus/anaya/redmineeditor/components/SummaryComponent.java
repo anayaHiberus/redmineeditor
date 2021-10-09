@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Set;
 
-import static com.hiberus.anaya.redmineeditor.Model.ModelEditor.Events.*;
+import static com.hiberus.anaya.redmineeditor.model.ChangeEvents.*;
 import static com.hiberus.anaya.redmineeditor.utils.TimeUtils.formatHours;
 
 /**

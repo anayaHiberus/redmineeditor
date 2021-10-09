@@ -1,13 +1,13 @@
 package com.hiberus.anaya.redmineeditor.components;
 
-import com.hiberus.anaya.redmineeditor.Controller;
+import com.hiberus.anaya.redmineeditor.controller.Controller;
 
 /**
- * Just an interface for controllers, so that they can be populated with the model from the parent (instead of using dependency injection)
+ * Just an interface for components, so that they can be populated with the controller from the parent (instead of using dependency injection)
  */
 abstract class BaseComponent {
 
-    /* ------------------------- Model bean injection ------------------------- */
+    /* ------------------------- bean injection ------------------------- */
 
     /**
      * The controller field
@@ -15,9 +15,9 @@ abstract class BaseComponent {
     Controller controller;
 
     /**
-     * Initializes this inner view with the global model
+     * Initializes this component with the global controller
      *
-     * @param model global model
+     * @param controller global controller
      */
     void injectController(Controller controller) {
         this.controller = controller;
@@ -25,7 +25,7 @@ abstract class BaseComponent {
     }
 
     /**
-     * Initialization to do when the model is populated
+     * Initialization to do when the controller is populated
      */
     abstract void init();
 

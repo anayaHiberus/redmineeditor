@@ -1,8 +1,10 @@
-package com.hiberus.anaya.redmineeditor;
+package com.hiberus.anaya.redmineeditor.model;
 
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
+import com.hiberus.anaya.redmineeditor.controller.MyException;
+import com.hiberus.anaya.redmineeditor.controller.Settings;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -14,22 +16,22 @@ import java.util.stream.Collectors;
 /**
  * The data of the app
  */
-public class Model {
-    private static final int PREV_DAYS = 7;
+public abstract class Model {
+    static final int PREV_DAYS = 7;
 
     /* ------------------------- data ------------------------- */
 
-    private boolean loading = false; // loading state
-    private YearMonth month = null; // displayed month
-    private int day = 0; // selected day, 0 for none
+    boolean loading = false; // loading state
+    YearMonth month = null; // displayed month
+    int day = 0; // selected day, 0 for none
 
 
     public final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
-    private final List<TimeEntry> entries = new ArrayList<>(); // time entries
-    private final List<Issue> issues = new ArrayList<>(); // issues
-    private final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again
+    final List<TimeEntry> entries = new ArrayList<>(); // time entries
+    final List<Issue> issues = new ArrayList<>(); // issues
+    final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again
 
-    /* ------------------------- getters ------------------------- */
+    /* ------------------------- public getters ------------------------- */
 
     /**
      * @return the loading state
@@ -66,7 +68,6 @@ public class Model {
     public boolean isMonthLoaded() {
         return monthsLoaded.contains(month);
     }
-
 
     /**
      * Calculates the hours spent in a day
@@ -114,12 +115,14 @@ public class Model {
         return entries.stream().anyMatch(TimeEntry::requiresUpload);
     }
 
-    private Issue getIssueFromId(int id) {
+    /* ------------------------- private getters ------------------------- */
+
+    Issue getIssueFromId(int id) {
         // gets the issue with the given id, null if not present
         return issues.stream().filter(issue -> issue.id == id).findAny().orElse(null);
     }
 
-    private List<TimeEntry> _getEntriesForDate(LocalDate date) {
+    List<TimeEntry> _getEntriesForDate(LocalDate date) {
         // return entries of a specific date
         // todo replace with a map with date as key
         return entries.stream()
@@ -134,62 +137,41 @@ public class Model {
                 .toList();
     }
 
-    public ModelEditor edit() {
-        return this.new ModelEditor();
-    }
+    public static class Editor extends Model {
 
-    public class ModelEditor {
+        /* ------------------------- changes ------------------------- */
 
-        public Model getModel() {
-            return Model.this;
-        }
+        private final Set<ChangeEvents> changes = new HashSet<>(); // list of changes
 
-        /* ------------------------- notification service ------------------------- */
-
-        public enum Events {
-            /**
-             * The loading state changed
-             */
-            Loading,
-            /**
-             * The displayed month changed
-             */
-            Month,
-            /**
-             * The displayed day changed
-             */
-            Day,
-            /**
-             * Entries for the displayed day changed (not its content)
-             */
-            Entries,
-            /**
-             * Hours from displayed day were changed
-             */
-            Hours,
-            /**
-             * List of issues changed
-             */
-            Issues,
+        /**
+         * @return changes made to this model since last call (or initialization)
+         */
+        public Set<ChangeEvents> getChanges() {
+            Set<ChangeEvents> copy = Set.copyOf(changes);
+            changes.clear();
+            return copy;
         }
 
         /**
-         * The notificator service
+         * Registers an external change.
+         * TODO: somehow remove this
+         *
+         * @param event event to register
          */
-        public final Set<Events> changes = new HashSet<>();
+        public void registerExternalChange(ChangeEvents event) {
+            changes.add(event);
+        }
 
 
-        /* ------------------------- setters ------------------------- */
-
+        /* ------------------------- public setters ------------------------- */
 
         /**
          * @param loading new loading state
          */
         public void setLoading(boolean loading) {
-            Model.this.loading = loading;
-            changes.add(Events.Loading);
+            this.loading = loading;
+            changes.add(ChangeEvents.Loading);
         }
-
 
         /**
          * Changes the month
@@ -197,27 +179,28 @@ public class Model {
          * @param month new month to save
          */
         public void setMonth(YearMonth month) {
-            Model.this.month = month;
-            changes.add(Events.Month);
+            this.month = month;
+            changes.add(ChangeEvents.Month);
         }
-
 
         /**
          * @param day new selected day (if invalid won't be saved)
          */
         public void setDay(int day) throws MyException {
-            if (Model.this.month.isValidDay(day)) {
-                Model.this.day = day;
+            if (month.isValidDay(day)) {
+                this.day = day;
                 prepareDay();
-                changes.add(Events.Day);
+                changes.add(ChangeEvents.Day);
             }
         }
 
+        /**
+         * Unsets the day
+         */
         public void unsetDay() {
-            Model.this.day = 0;
-            changes.add(Events.Day);
+            day = 0;
+            changes.add(ChangeEvents.Day);
         }
-
 
         /**
          * Loads the current month (if it is already loaded this does nothing)
@@ -227,21 +210,21 @@ public class Model {
          */
         public void loadMonth() throws MyException {
             // skip if already loaded
-            if (Model.this.monthsLoaded.contains(Model.this.month)) return;
+            if (monthsLoaded.contains(month)) return;
 
             try {
                 // load from the internet
-                LocalDate from = Model.this.month.atDay(1);
-                if (!Model.this.monthsLoaded.contains(Model.this.month.minusMonths(1))) {
+                LocalDate from = month.atDay(1);
+                if (!monthsLoaded.contains(month.minusMonths(1))) {
                     // load previous days if previous month was not loaded
                     from = from.minusDays(PREV_DAYS);
                 }
-                LocalDate to = Model.this.month.atEndOfMonth();
-                if (Model.this.monthsLoaded.contains(Model.this.month.plusMonths(1))) {
+                LocalDate to = month.atEndOfMonth();
+                if (monthsLoaded.contains(month.plusMonths(1))) {
                     // don't load last days if next month was loaded
                     to = to.minusDays(PREV_DAYS);
                 }
-                Model.this.entries.addAll(Model.this.manager.getTimeEntries(from, to, Model.this.issues));
+                entries.addAll(manager.getTimeEntries(from, to, issues));
             } catch (IOException e) {
                 throw new MyException("Network error", "Can't load content from Redmine. Try again later.", e);
             } catch (JSONException e) {
@@ -252,58 +235,23 @@ public class Model {
             prepareDay();
 
             // mark
-            Model.this.monthsLoaded.add(Model.this.month);
-            changes.add(Events.Entries);
-            changes.add(Events.Issues); // TODO: don't notify if no new entries are loaded
+            monthsLoaded.add(month);
+            changes.add(ChangeEvents.Entries);
+            changes.add(ChangeEvents.Issues); // TODO: don't notify if no new entries are loaded
         }
 
         /**
          * Discards all entries and issues
          */
         public void clearAll() {
-            Model.this.monthsLoaded.clear();
-            Model.this.entries.clear();
-            changes.add(Events.Entries);
-            changes.add(Events.Month); // technically month doesn't change, but its data does, this forces a reload in calendar
+            monthsLoaded.clear();
+            entries.clear();
+            changes.add(ChangeEvents.Entries);
+            changes.add(ChangeEvents.Month); // technically month doesn't change, but its data does, this forces a reload in calendar
 
-            Model.this.issues.clear();
-            changes.add(Events.Issues);
+            issues.clear();
+            changes.add(ChangeEvents.Issues);
         }
-
-
-        private void prepareDay() throws MyException {
-            LocalDate date = Model.this.getDate();
-            if (date == null) return;
-
-            List<Issue> todayIssues = Model.this._getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toList());
-
-            // add a new empty entry copied from previous week ones
-            for (int days = 1; days <= PREV_DAYS; ++days) {
-                Model.this._getEntriesForDate(date.minusDays(days)).stream()
-                        .filter(prevEntry -> prevEntry.getHours() != 0)
-                        .filter(prevEntry -> !todayIssues.contains(prevEntry.issue))
-                        .forEach(prevEntry -> {
-                            TimeEntry newEntry = Model.this.manager.newTimeEntry(prevEntry.issue, date);
-                            newEntry.setComment(prevEntry.getComment());
-                            Model.this.entries.add(newEntry);
-                            todayIssues.add(prevEntry.issue);
-                        });
-            }
-
-            // fill issues for the days
-            MyException exception = new MyException("Issue exception", "Can't load issues data", null);
-            for (Issue todayIssue : todayIssues) {
-                try {
-                    todayIssue.loadUninitialized();
-                } catch (IOException e) {
-                    exception.addDetails(e);
-                }
-            }
-            if (exception.hasDetails()) {
-                throw exception;
-            }
-        }
-
 
         /**
          * Uploads all modified entries
@@ -313,7 +261,7 @@ public class Model {
          */
         public void uploadEntries() throws MyException {
             MyException exception = new MyException("Updating error", "An error occurred while updating entries", null);
-            for (TimeEntry entry : Model.this.entries) {
+            for (TimeEntry entry : entries) {
                 try {
                     entry.uploadTimeEntry(); // TODO: move all this logic to manager
                 } catch (IOException e) {
@@ -325,18 +273,17 @@ public class Model {
             }
         }
 
-
         /**
          * Creates a new time entry for current day
          *
          * @param issue for this issue
          */
         public void createTimeEntry(Issue issue) {
-            LocalDate date = Model.this.getDate();
+            LocalDate date = getDate();
             if (date == null) return;
             // add
-            Model.this.entries.add(Model.this.manager.newTimeEntry(issue, date));
-            changes.add(Events.Entries);
+            entries.add(manager.newTimeEntry(issue, date));
+            changes.add(ChangeEvents.Entries);
         }
 
         /**
@@ -345,13 +292,13 @@ public class Model {
          * @param ids each one with an id from this
          */
         public void createTimeEntries(List<Integer> ids) throws MyException {
-            if (Model.this.getDate() == null) return;
+            if (getDate() == null) return;
 
             List<Integer> idsToLoad = new ArrayList<>();
 
             // check all ids
             ids.forEach(id -> {
-                Issue issue = Model.this.getIssueFromId(id);
+                Issue issue = getIssueFromId(id);
                 if (issue != null) {
                     // already present, add
                     createTimeEntry(issue);
@@ -362,13 +309,13 @@ public class Model {
             });
 
             try {
-                List<Issue> loadedIssues = Model.this.manager.getIssues(idsToLoad);
+                List<Issue> loadedIssues = manager.getIssues(idsToLoad);
                 loadedIssues.forEach(issue -> {
                     // create and add issue
                     createTimeEntry(issue);
-                    Model.this.issues.add(issue);
-                    changes.add(Events.Entries);
-                    changes.add(Events.Issues);
+                    issues.add(issue);
+                    changes.add(ChangeEvents.Entries);
+                    changes.add(ChangeEvents.Issues);
                 });
                 // remove loaded
                 idsToLoad.removeAll(loadedIssues.stream().map(issue -> issue.id).toList());
@@ -384,7 +331,50 @@ public class Model {
                 throw new MyException("Error loading issues", "Can't load issues", e);
             }
         }
-    }
 
+        /* ------------------------- private setters ------------------------- */
+
+        private void prepareDay() throws MyException {
+            // prepares the current day
+
+            // do nothing if no selected day
+            LocalDate date = getDate();
+            if (date == null) return;
+
+            // get all unique issues for today
+            Set<Issue> todayIssues = _getEntriesForDate(date).stream().map(entry -> entry.issue).collect(Collectors.toSet());
+
+            // add a new empty entry copied from previous week ones
+            for (int days = 1; days <= PREV_DAYS; ++days) {
+                // for each previous day
+                _getEntriesForDate(date.minusDays(days)).stream()
+                        // wich was used
+                        .filter(prevEntry -> prevEntry.getHours() != 0)
+                        // and still not in today
+                        .filter(prevEntry -> !todayIssues.contains(prevEntry.issue))
+                        // do
+                        .forEach(prevEntry -> {
+                            // create new entry
+                            TimeEntry newEntry = manager.newTimeEntry(prevEntry.issue, date);
+                            newEntry.setComment(prevEntry.getComment());
+                            entries.add(newEntry);
+                            todayIssues.add(prevEntry.issue);
+                        });
+            }
+
+            // fill issues for the days
+            MyException exception = new MyException("Issue exception", "Can't load issues data", null);
+            for (Issue todayIssue : todayIssues) {
+                try {
+                    todayIssue.loadSpent();
+                } catch (IOException e) {
+                    exception.addDetails(e);
+                }
+            }
+            if (exception.hasDetails()) {
+                throw exception;
+            }
+        }
+    }
 
 }
