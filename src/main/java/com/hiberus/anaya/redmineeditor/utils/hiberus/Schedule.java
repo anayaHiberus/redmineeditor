@@ -91,12 +91,29 @@ public class Schedule {
         SPECIAL.put(LocalDate.of(year, month, day), hours);
     }
 
+    private static void special(int year, int month, int day) {
+        // syntactic sugar for initialization below (0 hours)
+        SPECIAL.put(LocalDate.of(year, month, day), (double) 0);
+    }
+
     static {
-        //Pilares
+        // 2021
+        // https://sommos.online/hiberus/calendario-laboral/calendario_hiberus_2021_zaragoza.pdf
+
+        // Pilares
         special(2021, 10, 11, 7.33);
-        special(2021, 10, 12, 0);
+        special(2021, 10, 12);
         special(2021, 10, 13, 7.33);
         special(2021, 10, 14, 7.33);
+
+        // Todos los santos
+        special(2021, 11, 1);
+
+        // Constitución
+        special(2021, 12, 6);
+
+        // Concepción
+        special(2021, 12, 8);
     }
 
 }
