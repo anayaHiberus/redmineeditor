@@ -66,20 +66,42 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
     public void update() {
         // sets the cell data
         TimeEntry entry = getItem();
-        issue.setText(entry.issue.toString());
+        Issue issue = entry.issue;
+
+        // issue
+        double issue_spent = issue.getSpent();
+        double issue_estimated = issue.getEstimated();
+
+        // text
+        this.issue.setText(issue.toString());
+        // estimated
+        estimated.setText(
+                issue_estimated == RedmineManager.UNINITIALIZED ? "?"
+                        : issue_estimated == RedmineManager.NONE ? "none"
+                        : TimeUtils.formatHours(issue_estimated)
+        );
+        // spent
+        get_total.setVisible(issue_spent == RedmineManager.UNINITIALIZED);
+        total.setVisible(issue_spent != RedmineManager.UNINITIALIZED);
+        total.setText(issue_spent < 0 ? "none" : TimeUtils.formatHours(issue_spent));
+        if (issue_spent >= 0 && issue_estimated > 0) {
+            total.setText(total.getText() + " | " + (int) (issue_spent / issue_estimated * 100) + "%");
+        }
+        // realization
+        realization.setText(issue.getRealization() + "%");
+
+        // entry
+        double spent = getItem().getSpent();
+
+        // spent
+        this.spent.setText(TimeUtils.formatHours(spent));
+        substract.setDisable(spent <= 0);
+
+        // comment
         comment.setText(entry.getComment());
 
-        double spent_hours = entry.issue.getSpentHours();
-        get_total.setVisible(spent_hours == RedmineManager.UNINITIALIZED);
-        total.setVisible(spent_hours != RedmineManager.UNINITIALIZED);
-        total.setText(spent_hours < 0 ? "none" : TimeUtils.formatHours(spent_hours));
-        double estimated_hours = entry.issue.estimated_hours;
-        estimated.setText(estimated_hours == RedmineManager.UNINITIALIZED ? "?" : estimated_hours == RedmineManager.NONE ? "none" : TimeUtils.formatHours(estimated_hours));
-        if (spent_hours >= 0 && estimated_hours > 0) {
-            estimated.setText(estimated.getText() + " | " + (int) (spent_hours / estimated_hours * 100) + "%");
-        }
-        realization.setText(entry.issue.done_ratio + "%");
-        updateHours();
+        // general
+        this.setOpacity(spent <= 0 ? 0.5 : 1);
     }
 
     /* ------------------------- actions ------------------------- */
@@ -91,15 +113,43 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
     }
 
     @FXML
-    private void changeHours(Event node) {
+    private void changeSpent(Event node) {
         // increase or decrease this entry hours
 
         // update entry
         TimeEntry entry = getItem();
-        entry.changeHours(Double.parseDouble(((Button) node.getTarget()).getUserData().toString())); // the button data is the amount
+        entry.addSpent(Double.parseDouble(((Button) node.getTarget()).getUserData().toString())); // the button data is the amount
 
-        // update views
-        updateHours();
+        // and notify
+        controller.fireChanges(Set.of(Hours));
+    }
+
+    @FXML
+    private void changeEstimated(Event node) {
+        // increase or decrease the issue estimated hours
+
+        // update issue entry
+        Issue issue = getItem().issue;
+        issue.addEstimated(Double.parseDouble(((Button) node.getTarget()).getUserData().toString())); // the button data is the amount
+
+        // and notify
+        controller.fireChanges(Set.of(Hours));
+    }
+
+    @FXML
+    private void changeRealization(Event node) {
+        // increase, decrease or sync the issue realization percentage
+        String data = ((Button) node.getTarget()).getUserData().toString();
+
+        // update issue entry
+        Issue issue = getItem().issue;
+        if (">".equals(data)) {
+            // sync button
+            issue.syncRealization();
+        } else {
+            // offset button
+            issue.addRealization(Integer.parseInt(data)); // the button data is the amount
+        }
 
         // and notify
         controller.fireChanges(Set.of(Hours));
@@ -110,7 +160,7 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
         // load spent hours
         controller.runBackground(model -> {
             try {
-                getItem().issue.loadSpent();
+                getItem().issue.downloadSpent();
                 model.registerExternalChange(Hours);
             } catch (IOException e) {
                 throw new MyException("Network error", "Unable to fetch the issue details", e);
@@ -138,7 +188,7 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
         }
 
         // button
-        String OPEN_BUTTON = "Open in Readmine";
+        String OPEN_BUTTON = "Open in Redmine";
         alert.getButtonTypes().add(new ButtonType(OPEN_BUTTON));
 
         // display
@@ -159,17 +209,4 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
         }
     }
 
-    /* ------------------------- private ------------------------- */
-
-    private void updateHours() {
-        // update entry hours
-        double amount = getItem().getHours();
-
-        // set text
-        spent.setText(TimeUtils.formatHours(amount));
-        // disable substract buttons
-        substract.setDisable(amount <= 0);
-        // set transparent if not hours
-        setOpacity(amount <= 0 ? 0.5 : 1);
-    }
 }

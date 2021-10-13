@@ -31,23 +31,20 @@ public final class Issue {
      * The description, may probably be empty
      */
     public final String description;
-    /**
-     * Estimated hours
-     */
-    public final double estimated_hours;
 
-    /**
-     * Ratio of realization
-     */
-    public final int done_ratio;
-
+    private double estimated_hours; // estimated hours
+    private int done_ratio; // realization percentage
     private double spentHours; // total hours, uninitialized
+
+    private JSONObject original; // the original raw object, for diff purposes
 
     /* ------------------------- constructors ------------------------- */
 
     Issue(JSONObject rawIssue, RedmineManager manager) {
+        // parse issue from raw json data
         this.manager = manager;
-        // parse from raw JSON
+        original = rawIssue;
+
         id = rawIssue.getInt("id");
         project = rawIssue.getJSONObject("project").optString("name", "");
         subject = rawIssue.optString("subject", "");
@@ -57,38 +54,35 @@ public final class Issue {
         spentHours = rawIssue.optDouble("spent_hours", RedmineManager.UNINITIALIZED);
     }
 
-    /* ------------------------- properties ------------------------- */
-
-    /**
-     * Loads spent hours (nothing if already initialized)
-     * Long operation
-     *
-     * @throws IOException on network error
-     */
-    public void loadSpent() throws IOException {
-        if (spentHours == RedmineManager.UNINITIALIZED) {
-            spentHours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key)
-                    .getJSONObject("issue").optDouble("spent_hours", RedmineManager.NONE);
-        }
-    }
+    /* ------------------------- properties getters ------------------------- */
 
     /**
      * Get total hours spent on this issue.
      * Can be not initialized
      */
-    public double getSpentHours() {
+    public double getSpent() {
         return spentHours;
     }
 
     /**
-     * Changes the total hours spent on this issue
-     *
-     * @param amount number oh hours (negative to substract)
+     * Estimated hours
      */
-    public void addSpentHours(double amount) {
-        assert spentHours >= 0;
-        spentHours += amount;
-        assert spentHours >= 0;
+    public double getEstimated() {
+        return estimated_hours;
+    }
+
+    /**
+     * Ratio of realization
+     */
+    public int getRealization() {
+        return done_ratio;
+    }
+
+    /**
+     * @return the url to see this issue details
+     */
+    public String getUrl() {
+        return manager.domain + "issues/" + id;
     }
 
     /**
@@ -108,10 +102,96 @@ public final class Issue {
         return project + "\n" + toShortString();
     }
 
+    /* ------------------------- properties setters ------------------------- */
+
     /**
-     * @return the url to see this issue details
+     * Changes the total hours spent on this issue
+     *
+     * @param amount number oh hours (negative to substract)
      */
-    public String getUrl() {
-        return manager.domain + "issues/" + id;
+    public void addSpent(double amount) {
+        assert spentHours >= 0;
+        spentHours += amount;
+        assert spentHours >= 0;
+    }
+
+    public void addEstimated(double amount) {
+        amount = Math.max(estimated_hours + amount, 0) - estimated_hours; // don't subtract what can't be substracted
+        estimated_hours += amount;
+    }
+
+    public void addRealization(int amount) {
+        amount = Math.max(done_ratio + amount, 0) - done_ratio; // don't subtract what can't be substracted
+        done_ratio += amount;
+    }
+
+    public void syncRealization() {
+        done_ratio = (int) (spentHours / estimated_hours * 100);
+    }
+
+    /* ------------------------- downloading ------------------------- */
+
+    /**
+     * Loads spent hours (nothing if already initialized)
+     * Long operation
+     *
+     * @throws IOException on network error
+     */
+    public void downloadSpent() throws IOException {
+        if (spentHours == RedmineManager.UNINITIALIZED) {
+            spentHours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key)
+                    .getJSONObject("issue").optDouble("spent_hours", RedmineManager.NONE);
+        }
+    }
+
+    /* ------------------------- uploading ------------------------- */
+
+    /**
+     * @return a list of changes made to this issue, as an object (empty means no changes)
+     */
+    public JSONObject getChanges() {
+        JSONObject changes = new JSONObject();
+
+        // TODO: use a JSON as container so this can be a simple foreach diff
+        if (original == null || estimated_hours != original.optDouble("estimated_hours", RedmineManager.NONE)) {
+            // changed hours
+            changes.put("estimated_hours", estimated_hours);
+        }
+        if (original == null || done_ratio != original.getDouble("done_ratio")) {
+            // changed comment
+            changes.put("done_ratio", done_ratio);
+        }
+
+        // return changes (empty for nothing)
+        return changes;
+    }
+
+    /**
+     * @return true if this entry requires upload, false otherwise
+     */
+    public boolean requiresUpload() {
+        return !(
+                getChanges().isEmpty() // no changes, no upload
+        );
+    }
+
+    /**
+     * Uploads an entry to redmine (unless not needed)
+     *
+     * @throws IOException on upload error
+     */
+    public void uploadTimeEntry() throws IOException {
+        // get changes
+        JSONObject changes = getChanges();
+
+        // ignore unmodified
+        if (changes.isEmpty()) return;
+
+        // update
+        System.out.println("Updating issue " + id + " with data: " + changes);
+        if (RedmineManager.OFFLINE) return;
+        if (UrlJSON.put(manager.domain + "issues/" + id + ".json?key=" + manager.key, new JSONObject().put("issue", changes)) != 200) {
+            throw new IOException("Error when updating issue " + id + " with data: " + changes);
+        }
     }
 }

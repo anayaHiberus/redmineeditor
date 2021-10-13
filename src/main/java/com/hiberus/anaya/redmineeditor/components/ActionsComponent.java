@@ -58,7 +58,7 @@ public class ActionsComponent extends BaseComponent {
     private void upload() {
         controller.runBackground(
                 // press the save button to upload data
-                Model.Editor::uploadEntries,
+                Model.Editor::uploadAll,
                 // then reload if everything was ok
                 ok -> {
                     if (ok) forceReload();

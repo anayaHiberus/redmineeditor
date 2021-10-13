@@ -76,7 +76,7 @@ public abstract class Model {
      * @return hours spent that day
      */
     public double getSpent(LocalDate date) {
-        return _getEntriesForDate(date).stream().mapToDouble(TimeEntry::getHours).sum();
+        return _getEntriesForDate(date).stream().mapToDouble(TimeEntry::getSpent).sum();
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class Model {
      * @return hours spent that month
      */
     public double getSpent(YearMonth month) {
-        return _getEntriesForMonth(month).stream().mapToDouble(TimeEntry::getHours).sum();
+        return _getEntriesForMonth(month).stream().mapToDouble(TimeEntry::getSpent).sum();
     }
 
     /**
@@ -112,7 +112,8 @@ public abstract class Model {
      * @return true iff there is at least something that was modified (and should be uploaded)
      */
     public boolean hasChanges() {
-        return entries.stream().anyMatch(TimeEntry::requiresUpload);
+        return entries.stream().anyMatch(TimeEntry::requiresUpload)
+                || issues.stream().anyMatch(Issue::requiresUpload);
     }
 
     /* ------------------------- private getters ------------------------- */
@@ -254,16 +255,23 @@ public abstract class Model {
         }
 
         /**
-         * Uploads all modified entries
+         * Uploads all modified data
          * Long operation
          *
          * @throws MyException on error
          */
-        public void uploadEntries() throws MyException {
-            MyException exception = new MyException("Updating error", "An error occurred while updating entries", null);
+        public void uploadAll() throws MyException {
+            MyException exception = new MyException("Updating error", "An error occurred while updating data", null);
             for (TimeEntry entry : entries) {
                 try {
                     entry.uploadTimeEntry(); // TODO: move all this logic to manager
+                } catch (IOException e) {
+                    exception.addDetails(e);
+                }
+            }
+            for (Issue issue : issues) {
+                try {
+                    issue.uploadTimeEntry(); // TODO: move all this logic to manager
                 } catch (IOException e) {
                     exception.addDetails(e);
                 }
@@ -349,7 +357,7 @@ public abstract class Model {
                 // for each previous day
                 _getEntriesForDate(date.minusDays(days)).stream()
                         // wich was used
-                        .filter(prevEntry -> prevEntry.getHours() != 0)
+                        .filter(prevEntry -> prevEntry.getSpent() != 0)
                         // and still not in today
                         .filter(prevEntry -> !todayIssues.contains(prevEntry.issue))
                         // do
@@ -366,7 +374,7 @@ public abstract class Model {
             MyException exception = new MyException("Issue exception", "Can't load issues data", null);
             for (Issue todayIssue : todayIssues) {
                 try {
-                    todayIssue.loadSpent();
+                    todayIssue.downloadSpent();
                 } catch (IOException e) {
                     exception.addDetails(e);
                 }

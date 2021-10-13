@@ -96,7 +96,7 @@ public class Schedule {
         SPECIAL.put(LocalDate.of(year, month, day), (double) 0);
     }
 
-    static {
+    static { // TODO: load from file:///home/anaya/abel/personal/proyectos/redmine/SpecialDays.csv
         // 2021
         // https://sommos.online/hiberus/calendario-laboral/calendario_hiberus_2021_zaragoza.pdf
 

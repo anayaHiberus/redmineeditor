@@ -30,7 +30,7 @@ public class TimeEntry {
      */
     public final Issue issue;
     private final LocalDate spent_on; // date it was spent
-    private double hours = 0; // hours spent
+    private double spent = 0; // hours spent
     private String comment = ""; // comment
 
     private JSONObject original; // the original raw object, for diff purposes
@@ -41,10 +41,11 @@ public class TimeEntry {
         // creates a new entry from a json raw data
         this.manager = manager;
         original = rawEntry;
+
         id = rawEntry.getInt("id");
         issue = issues.stream().filter(issue -> issue.id == getIssueId(rawEntry)).findFirst().orElseThrow();
         spent_on = LocalDate.parse(rawEntry.getString("spent_on"));
-        hours = rawEntry.getDouble("hours");
+        spent = rawEntry.getDouble("hours");
         comment = rawEntry.optString("comments");
     }
 
@@ -56,7 +57,7 @@ public class TimeEntry {
         this.spent_on = spent_on;
     }
 
-    /* ------------------------- properties ------------------------- */
+    /* ------------------------- properties getters ------------------------- */
 
     /**
      * Checks if this entry was spent on a specific date
@@ -82,8 +83,8 @@ public class TimeEntry {
     /**
      * @return the spent hours of this entry
      */
-    public double getHours() {
-        return hours;
+    public double getSpent() {
+        return spent;
     }
 
     /**
@@ -92,6 +93,8 @@ public class TimeEntry {
     public String getComment() {
         return comment;
     }
+
+    /* ------------------------- properties setters ------------------------- */
 
     /**
      * @param comment new comment of this entry
@@ -103,11 +106,11 @@ public class TimeEntry {
     /**
      * @param amount new hours to add to this entry (negative to subtract)
      */
-    public void changeHours(double amount) {
-        amount = Math.max(hours + amount, 0) - hours; // don't subtract what can't be substracted
-        hours += amount;
-        assert issue.getSpentHours() >= 0;
-        issue.addSpentHours(amount);
+    public void addSpent(double amount) {
+        amount = Math.max(spent + amount, 0) - spent; // don't subtract what can't be substracted
+        spent += amount;
+        issue.addSpent(amount);
+        assert issue.getSpent() >= 0;
     }
 
     /* ------------------------- uploading ------------------------- */
@@ -118,9 +121,9 @@ public class TimeEntry {
     public JSONObject getChanges() {
         JSONObject changes = new JSONObject();
 
-        if (original == null || hours != original.getDouble("hours")) {
+        if (original == null || spent != original.getDouble("hours")) {
             // changed hours
-            changes.put("hours", hours);
+            changes.put("hours", spent);
         }
         if (original == null || !Objects.equals(comment, original.optString("comments"))) {
             // changed comment
@@ -143,7 +146,7 @@ public class TimeEntry {
         return !(
                 getChanges().isEmpty() // no changes, no upload
                         ||
-                        this.id == RedmineManager.NONE && getHours() <= 0 // no useful changes, no upload
+                        (this.id == RedmineManager.NONE && getSpent() <= 0) // no useful changes, no upload
         );
     }
 
@@ -153,8 +156,6 @@ public class TimeEntry {
      * @throws IOException on upload error
      */
     public void uploadTimeEntry() throws IOException {
-        int id = this.id;
-
         // get changes
         JSONObject changes = getChanges();
 
@@ -162,7 +163,7 @@ public class TimeEntry {
         if (changes.isEmpty()) return;
 
         if (id == RedmineManager.NONE) {
-            if (getHours() > 0) {
+            if (getSpent() > 0) {
                 // new entry with hours, create
                 System.out.println("Creating entry with data: " + changes);
                 if (RedmineManager.OFFLINE) return;
@@ -172,7 +173,7 @@ public class TimeEntry {
             }
             //new entry without hours, ignore
         } else {
-            if (getHours() > 0) {
+            if (getSpent() > 0) {
                 // existing entry with hours, update
                 System.out.println("Updating entry " + id + " with data: " + changes);
                 if (RedmineManager.OFFLINE) return;
