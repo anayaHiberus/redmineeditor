@@ -5,6 +5,7 @@ module com.hiberus.anaya.redmineeditor {
     requires javafx.web;
     requires org.json;
     requires java.desktop;
+    requires kotlin.stdlib;
     // requires redmine.java.api;
 
 
