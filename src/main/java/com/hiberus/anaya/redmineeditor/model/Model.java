@@ -26,7 +26,7 @@ public abstract class Model {
     int day = 0; // selected day, 0 for none
 
 
-    public final RedmineManager manager = new RedmineManager(Settings.URL, Settings.KEY); // the manager for online operations
+    public final RedmineManager manager = new RedmineManager(Settings.get(Settings.ENTRY.URL), Settings.get(Settings.ENTRY.KEY)); // the manager for online operations
     final List<TimeEntry> entries = new ArrayList<>(); // time entries
     final List<Issue> issues = new ArrayList<>(); // issues
     final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again

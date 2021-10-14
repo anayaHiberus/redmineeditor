@@ -95,7 +95,7 @@ public class Schedule {
 
     static {
         // Load special days from hardcoded file
-        String filename = "/home/anaya/abel/personal/proyectos/redmine/SpecialDays.csv";
+        String filename = "/home/anaya/abel/personal/proyectos/redmine/special_days.conf";
 
         try (Stream<String> lines = Files.lines(Paths.get(filename))) {
             lines
