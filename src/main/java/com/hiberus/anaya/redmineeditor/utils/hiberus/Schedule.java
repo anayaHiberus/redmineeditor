@@ -2,12 +2,19 @@ package com.hiberus.anaya.redmineeditor.utils.hiberus;
 
 import javafx.scene.paint.Color;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Logic regarding computed hours
@@ -86,34 +93,45 @@ public class Schedule {
     /* ------------------------- Special days ------------------------- */
     private static final Map<LocalDate, Double> SPECIAL = new HashMap<>();
 
-    private static void special(int year, int month, int day, double hours) {
-        // syntactic sugar for initialization below
-        SPECIAL.put(LocalDate.of(year, month, day), hours);
-    }
+    static {
+        // Load special days from hardcoded file
+        String filename = "/home/anaya/abel/personal/proyectos/redmine/SpecialDays.csv";
 
-    private static void special(int year, int month, int day) {
-        // syntactic sugar for initialization below (0 hours)
-        SPECIAL.put(LocalDate.of(year, month, day), (double) 0);
-    }
+        try (Stream<String> lines = Files.lines(Paths.get(filename))) {
+            lines
+                    .map(line -> line.replaceAll("#.*", "")) // remove comments
+                    .filter(s -> !s.isBlank()) // skip empty
+                    .forEach(line -> {
+                        // parse data
+                        List<String> data = Arrays.stream(line.split(",")).map(String::strip).collect(Collectors.toList());
+                        if (data.size() < 3) {
+                            // not enough
+                            System.err.println("[ERROR] Not enough data in " + filename + "> " + line);
+                        } else if (data.size() == 3) {
+                            // year, month and day. 0 hours
+                            SPECIAL.put(LocalDate.of(
+                                    Integer.parseInt(data.get(0)),
+                                    Integer.parseInt(data.get(1)),
+                                    Integer.parseInt(data.get(2))
+                            ), (double) 0);
+                        } else {
+                            // year, month, day and hours
+                            SPECIAL.put(LocalDate.of(
+                                    Integer.parseInt(data.get(0)),
+                                    Integer.parseInt(data.get(1)),
+                                    Integer.parseInt(data.get(2))
+                            ), Double.parseDouble(data.get(3)));
 
-    static { // TODO: load from file:///home/anaya/abel/personal/proyectos/redmine/SpecialDays.csv
-        // 2021
-        // https://sommos.online/hiberus/calendario-laboral/calendario_hiberus_2021_zaragoza.pdf
-
-        // Pilares
-        special(2021, 10, 11, 7.33);
-        special(2021, 10, 12);
-        special(2021, 10, 13, 7.33);
-        special(2021, 10, 14, 7.33);
-
-        // Todos los santos
-        special(2021, 11, 1);
-
-        // Constitución
-        special(2021, 12, 6);
-
-        // Concepción
-        special(2021, 12, 8);
+                            if (data.size() > 4) {
+                                // and other??
+                                System.out.println("[Warning] more than necessary data in " + filename + "> " + line);
+                            }
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Special days file error!");
+        }
     }
 
 }

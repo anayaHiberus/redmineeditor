@@ -36,7 +36,7 @@ public final class Issue {
     private int done_ratio; // realization percentage
     private double spentHours; // total hours, uninitialized
 
-    private JSONObject original; // the original raw object, for diff purposes
+    private final JSONObject original; // the original raw object, for diff purposes
 
     /* ------------------------- constructors ------------------------- */
 
