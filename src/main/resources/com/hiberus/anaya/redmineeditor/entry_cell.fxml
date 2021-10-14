@@ -29,7 +29,7 @@
                         </children>
                     </HBox>
                     <Label fx:id="estimated" contentDisplay="CENTER" text="hh"/>
-                    <HBox fx:id="substract1" alignment="TOP_CENTER">
+                    <HBox fx:id="estimated_sub" alignment="TOP_CENTER">
                         <children>
                             <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
                             <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-0.25">
@@ -52,7 +52,8 @@
                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                 </padding>
             </Label>
-            <Button layoutX="107.0" layoutY="33.0" mnemonicParsing="false" onAction="#changeRealization" text="&gt;"
+            <Button fx:id="sync_realization" layoutX="107.0" layoutY="33.0" mnemonicParsing="false"
+                    onAction="#changeRealization" text=">"
                     userData=">"/>
             <Label layoutX="38.0" layoutY="38.0" text="Realization:">
                 <padding>
@@ -61,7 +62,7 @@
             </Label>
             <VBox alignment="CENTER" layoutX="108.0" layoutY="10.0">
                 <children>
-                    <HBox alignment="BOTTOM_CENTER">
+                    <HBox fx:id="realization_add" alignment="BOTTOM_CENTER">
                         <children>
                             <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="10"/>
                             <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="1">
@@ -72,7 +73,7 @@
                         </children>
                     </HBox>
                     <Label fx:id="realization" contentDisplay="CENTER" text="\%"/>
-                    <HBox fx:id="substract11" alignment="TOP_CENTER">
+                    <HBox fx:id="realization_sub" alignment="TOP_CENTER">
                         <children>
                             <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-10"/>
                             <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-1">
@@ -100,7 +101,7 @@
                     </Button>
                 </HBox>
                 <Label fx:id="spent" contentDisplay="CENTER" text="hh"/>
-                <HBox fx:id="substract" alignment="TOP_CENTER">
+                <HBox fx:id="spent_sub" alignment="TOP_CENTER">
                     <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1"/>
                     <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-0.25">
                         <font>

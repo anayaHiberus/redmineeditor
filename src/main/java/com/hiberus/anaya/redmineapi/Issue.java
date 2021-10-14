@@ -116,17 +116,32 @@ public final class Issue {
     }
 
     public void addEstimated(double amount) {
-        amount = Math.max(estimated_hours + amount, 0) - estimated_hours; // don't subtract what can't be substracted
+        // still uninitialized, cancel
+        if (estimated_hours == RedmineManager.UNINITIALIZED) return;
+
+        if (estimated_hours == 0 && amount < 0) {
+            // no hours and want to subtract, disable
+            estimated_hours = RedmineManager.NONE;
+            return;
+        }
+        if (estimated_hours == RedmineManager.NONE) {
+            // disabled and want to change, set to 0 if it wants to add, keep if not
+            if (amount > 0) estimated_hours = 0;
+            return;
+        }
+
+        // else, change
+        amount = Math.max(estimated_hours + amount, 0) - estimated_hours; // don't subtract what can't be subtracted
         estimated_hours += amount;
     }
 
     public void addRealization(int amount) {
-        amount = Math.max(done_ratio + amount, 0) - done_ratio; // don't subtract what can't be substracted
+        amount = clamp(0, done_ratio + amount, 100) - done_ratio; // don't subtract what can't be subtracted, and don't add what can be added
         done_ratio += amount;
     }
 
     public void syncRealization() {
-        done_ratio = (int) (spentHours / estimated_hours * 100);
+        done_ratio = clamp(0, (int) (spentHours / estimated_hours * 100), 100);
     }
 
     /* ------------------------- downloading ------------------------- */
@@ -155,7 +170,7 @@ public final class Issue {
         // TODO: use a JSON as container so this can be a simple foreach diff
         if (original == null || estimated_hours != original.optDouble("estimated_hours", RedmineManager.NONE)) {
             // changed hours
-            changes.put("estimated_hours", estimated_hours);
+            changes.put("estimated_hours", estimated_hours == RedmineManager.NONE ? "" : estimated_hours);
         }
         if (original == null || done_ratio != original.getDouble("done_ratio")) {
             // changed comment
@@ -193,5 +208,11 @@ public final class Issue {
         if (UrlJSON.put(manager.domain + "issues/" + id + ".json?key=" + manager.key, new JSONObject().put("issue", changes)) != 200) {
             throw new IOException("Error when updating issue " + id + " with data: " + changes);
         }
+    }
+
+    /* ------------------------- utils ------------------------- */
+
+    private static int clamp(int min, int value, int max) {
+        return Math.min(Math.max(value, min), max);
     }
 }

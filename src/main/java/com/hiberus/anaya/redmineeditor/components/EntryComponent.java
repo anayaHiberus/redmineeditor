@@ -27,7 +27,7 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
 
     /* ------------------------- views ------------------------- */
     @FXML
-    private HBox substract;
+    private HBox spent_sub;
     @FXML
     private Label issue;
     @FXML
@@ -37,11 +37,19 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
     @FXML
     private Button get_total;
     @FXML
+    private Button sync_realization;
+    @FXML
     private Label total;
     @FXML
     private Label estimated;
     @FXML
+    private HBox estimated_sub;
+    @FXML
     private Label realization;
+    @FXML
+    private HBox realization_sub;
+    @FXML
+    private HBox realization_add;
 
     /* ------------------------- init ------------------------- */
     private final Controller controller;
@@ -57,9 +65,10 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
         super("entry_cell.fxml");
         this.controller = controller;
 
-        // other properties
+        // remove when invisible
         get_total.managedProperty().bind(get_total.visibleProperty());
         total.managedProperty().bind(total.visibleProperty());
+        sync_realization.managedProperty().bind(sync_realization.visibleProperty());
     }
 
     @Override
@@ -68,34 +77,48 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
         TimeEntry entry = getItem();
         Issue issue = entry.issue;
 
-        // issue
+        // --- issue ---
         double issue_spent = issue.getSpent();
         double issue_estimated = issue.getEstimated();
 
         // text
         this.issue.setText(issue.toString());
+
         // estimated
         estimated.setText(
                 issue_estimated == RedmineManager.UNINITIALIZED ? "?"
                         : issue_estimated == RedmineManager.NONE ? "none"
                         : TimeUtils.formatHours(issue_estimated)
         );
+        estimated_sub.setDisable(issue_estimated < 0);
+
         // spent
         get_total.setVisible(issue_spent == RedmineManager.UNINITIALIZED);
         total.setVisible(issue_spent != RedmineManager.UNINITIALIZED);
         total.setText(issue_spent < 0 ? "none" : TimeUtils.formatHours(issue_spent));
-        if (issue_spent >= 0 && issue_estimated > 0) {
-            total.setText(total.getText() + " | " + (int) (issue_spent / issue_estimated * 100) + "%");
-        }
-        // realization
-        realization.setText(issue.getRealization() + "%");
 
-        // entry
+        // sync spent-realization
+        if (issue_spent >= 0 && issue_estimated > 0) {
+            // show and allow sync
+            total.setText(total.getText() + " | " + (int) (issue_spent / issue_estimated * 100) + "%");
+            sync_realization.setVisible(true);
+        } else {
+            // disable sync
+            sync_realization.setVisible(false);
+        }
+
+        // realization
+        int realization = issue.getRealization();
+        this.realization.setText(realization + "%");
+        realization_add.setDisable(realization >= 100);
+        realization_sub.setDisable(realization <= 0);
+
+        // --- entry ---
         double spent = getItem().getSpent();
 
         // spent
         this.spent.setText(TimeUtils.formatHours(spent));
-        substract.setDisable(spent <= 0);
+        spent_sub.setDisable(spent <= 0);
 
         // comment
         comment.setText(entry.getComment());
