@@ -117,7 +117,7 @@ public class RedmineManager {
         int total_count;
         do {
             // get page
-            JSONObject page = UrlJSON.get(fullUrl
+            JSONObject page = UrlJSONKt.get(fullUrl
                     + "&limit=100&offset=" + offset
             );
 

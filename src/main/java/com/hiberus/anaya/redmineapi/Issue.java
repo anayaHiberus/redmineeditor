@@ -154,7 +154,7 @@ public final class Issue {
      */
     public void downloadSpent() throws IOException {
         if (spentHours == RedmineManager.UNINITIALIZED) {
-            spentHours = UrlJSON.get(manager.domain + "issues/" + id + ".json?key=" + manager.key)
+            spentHours = UrlJSONKt.get(manager.domain + "issues/" + id + ".json?key=" + manager.key)
                     .getJSONObject("issue").optDouble("spent_hours", RedmineManager.NONE);
         }
     }
@@ -205,7 +205,7 @@ public final class Issue {
         // update
         System.out.println("Updating issue " + id + " with data: " + changes);
         if (RedmineManager.OFFLINE) return;
-        if (UrlJSON.put(manager.domain + "issues/" + id + ".json?key=" + manager.key, new JSONObject().put("issue", changes)) != 200) {
+        if (UrlJSONKt.put(manager.domain + "issues/" + id + ".json?key=" + manager.key, new JSONObject().put("issue", changes)) != 200) {
             throw new IOException("Error when updating issue " + id + " with data: " + changes);
         }
     }

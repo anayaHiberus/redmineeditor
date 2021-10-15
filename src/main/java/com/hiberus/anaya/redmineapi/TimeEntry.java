@@ -167,7 +167,7 @@ public class TimeEntry {
                 // new entry with hours, create
                 System.out.println("Creating entry with data: " + changes);
                 if (RedmineManager.OFFLINE) return;
-                if (UrlJSON.post(manager.domain + "time_entries.json?key=" + manager.key, new JSONObject().put("time_entry", changes)) != 201) {
+                if (UrlJSONKt.post(manager.domain + "time_entries.json?key=" + manager.key, new JSONObject().put("time_entry", changes)) != 201) {
                     throw new IOException("Error when creating entry with data: " + changes);
                 }
             }
@@ -177,14 +177,14 @@ public class TimeEntry {
                 // existing entry with hours, update
                 System.out.println("Updating entry " + id + " with data: " + changes);
                 if (RedmineManager.OFFLINE) return;
-                if (UrlJSON.put(manager.domain + "time_entries/" + id + ".json?key=" + manager.key, new JSONObject().put("time_entry", changes)) != 200) {
+                if (UrlJSONKt.put(manager.domain + "time_entries/" + id + ".json?key=" + manager.key, new JSONObject().put("time_entry", changes)) != 200) {
                     throw new IOException("Error when updating entry " + id + " with data: " + changes);
                 }
             } else {
                 // existing entry without hours, delete
                 System.out.println("Deleting entry " + id);
                 if (RedmineManager.OFFLINE) return;
-                if (UrlJSON.delete(manager.domain + "time_entries/" + id + ".json?key=" + manager.key) != 200) {
+                if (UrlJSONKt.delete(manager.domain + "time_entries/" + id + ".json?key=" + manager.key) != 200) {
                     throw new IOException("Error when deleting entry " + id);
                 }
             }
