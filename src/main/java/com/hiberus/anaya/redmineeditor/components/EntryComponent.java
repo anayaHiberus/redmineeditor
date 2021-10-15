@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components;
 
 import com.hiberus.anaya.redmineapi.Issue;
-import com.hiberus.anaya.redmineapi.RedmineManager;
+import com.hiberus.anaya.redmineapi.RedmineManagerKt;
 import com.hiberus.anaya.redmineapi.TimeEntry;
 import com.hiberus.anaya.redmineeditor.controller.Controller;
 import com.hiberus.anaya.redmineeditor.controller.MyException;
@@ -86,15 +86,15 @@ public class EntryComponent extends SimpleListCell<TimeEntry> {
 
         // estimated
         estimated.setText(
-                issue_estimated == RedmineManager.UNINITIALIZED ? "?"
-                        : issue_estimated == RedmineManager.NONE ? "none"
+                issue_estimated == RedmineManagerKt.UNINITIALIZED ? "?"
+                        : issue_estimated == RedmineManagerKt.NONE ? "none"
                         : TimeUtils.formatHours(issue_estimated)
         );
         estimated_sub.setDisable(issue_estimated < 0);
 
         // spent
-        get_total.setVisible(issue_spent == RedmineManager.UNINITIALIZED);
-        total.setVisible(issue_spent != RedmineManager.UNINITIALIZED);
+        get_total.setVisible(issue_spent == RedmineManagerKt.UNINITIALIZED);
+        total.setVisible(issue_spent != RedmineManagerKt.UNINITIALIZED);
         total.setText(issue_spent < 0 ? "none" : TimeUtils.formatHours(issue_spent));
 
         // sync spent-realization

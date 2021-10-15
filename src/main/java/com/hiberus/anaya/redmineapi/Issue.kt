@@ -64,9 +64,9 @@ class Issue(
         project = rawIssue.getJSONObject("project").optString("name", "")
         subject = rawIssue.optString("subject", "")
         description = rawIssue.optString("description")
-        estimated = rawIssue.optDouble("estimated_hours", RedmineManager.NONE.toDouble())
+        estimated = rawIssue.optDouble("estimated_hours", NONE.toDouble())
         realization = rawIssue.optInt("done_ratio", 0)
-        spent = rawIssue.optDouble("spent_hours", RedmineManager.UNINITIALIZED.toDouble())
+        spent = rawIssue.optDouble("spent_hours", UNINITIALIZED.toDouble())
     }
 
     /* ------------------------- properties ------------------------- */
@@ -110,11 +110,11 @@ class Issue(
     fun addEstimated(amount: Double) {
         estimated = when {
             // still uninitialized, cancel
-            estimated == RedmineManager.UNINITIALIZED.toDouble() -> return
+            estimated == UNINITIALIZED.toDouble() -> return
             // no hours and want to subtract, disable
-            estimated == 0.0 && amount < 0 -> RedmineManager.NONE.toDouble()
+            estimated == 0.0 && amount < 0 -> NONE.toDouble()
             // disabled and want to change, set to 0 if it wants to add, keep if not
-            estimated == RedmineManager.NONE.toDouble() -> if (amount > 0) 0.0 else return
+            estimated == NONE.toDouble() -> if (amount > 0) 0.0 else return
             // else change, but don't subtract what can't be subtracted
             else -> (estimated + amount).coerceAtLeast(0.0)
         }
@@ -146,9 +146,9 @@ class Issue(
      */
     @Throws(IOException::class)
     fun downloadSpent() {
-        if (spent == RedmineManager.UNINITIALIZED.toDouble()) {
+        if (spent == UNINITIALIZED.toDouble()) {
             spent = get("${manager.domain}issues/$id.json?key=${manager.key}")
-                .getJSONObject("issue").optDouble("spent_hours", RedmineManager.NONE.toDouble())
+                .getJSONObject("issue").optDouble("spent_hours", NONE.toDouble())
         }
     }
 
@@ -160,9 +160,9 @@ class Issue(
     private val changes
         get() = JSONObject().apply {
             // TODO: use a JSON as container so this can be a simple foreach diff
-            if (original?.optDouble("estimated_hours", RedmineManager.NONE.toDouble()) != estimated) {
+            if (original?.optDouble("estimated_hours", NONE.toDouble()) != estimated) {
                 // changed hours
-                put("estimated_hours", estimated.takeIf { it != RedmineManager.NONE.toDouble() } ?: "")
+                put("estimated_hours", estimated.takeIf { it != NONE.toDouble() } ?: "")
             }
             if (original?.optInt("done_ratio", 0) != realization) {
                 // changed ratio
@@ -187,7 +187,7 @@ class Issue(
 
             // update
             println("Updating issue $id with data: $changes")
-            if (RedmineManager.OFFLINE) return
+            if (OFFLINE) return
             if (put("${manager.domain}issues/$id.json?key=${manager.key}", JSONObject().put("issue", changes)) != 200) {
                 throw IOException("Error when updating issue $id with data: $changes")
             }

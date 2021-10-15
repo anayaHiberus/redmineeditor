@@ -57,7 +57,7 @@ class TimeEntry {
     internal constructor(issue: Issue, spent_on: LocalDate, manager: RedmineManager) {
         // Creates a new time entry for an existing issue and date
         this.manager = manager
-        id = RedmineManager.NONE
+        id = NONE
         this.issue = issue
         this.spent_on = spent_on
     }
@@ -105,7 +105,7 @@ class TimeEntry {
                 // changed comment
                 put("comments", comment)
             }
-            if (id == RedmineManager.NONE) {
+            if (id == NONE) {
                 // without original, this data is considered new
                 put("issue_id", issue.id)
                 put("spent_on", spent_on)
@@ -118,7 +118,7 @@ class TimeEntry {
     fun requiresUpload() = !(
             changes.isEmpty // no changes, no upload
                     ||
-                    (id == RedmineManager.NONE && spent <= 0) // no useful changes, no upload
+                    (id == NONE && spent <= 0) // no useful changes, no upload
             )
 
     /**
@@ -131,11 +131,11 @@ class TimeEntry {
         changes.let { // get changes
             if (it.isEmpty) return // ignore unmodified
 
-            if (id == RedmineManager.NONE) {
+            if (id == NONE) {
                 if (spent > 0) {
                     // new entry with hours, create
                     println("Creating entry with data: $it")
-                    if (RedmineManager.OFFLINE) return
+                    if (OFFLINE) return
                     if (post("${manager.domain}time_entries.json?key=${manager.key}", JSONObject().put("time_entry", it)) != 201) {
                         throw IOException("Error when creating entry with data: $it")
                     }
@@ -145,14 +145,14 @@ class TimeEntry {
                 if (spent > 0) {
                     // existing entry with hours, update
                     println("Updating entry $id with data: $it")
-                    if (RedmineManager.OFFLINE) return
+                    if (OFFLINE) return
                     if (put("${manager.domain}time_entries/$id.json?key=${manager.key}", JSONObject().put("time_entry", it)) != 200) {
                         throw IOException("Error when updating entry $id with data: $it")
                     }
                 } else {
                     // existing entry without hours, delete
                     println("Deleting entry $id")
-                    if (RedmineManager.OFFLINE) return
+                    if (OFFLINE) return
                     if (delete("${manager.domain}time_entries/$id.json?key=${manager.key}") != 200) {
                         throw IOException("Error when deleting entry $id")
                     }
