@@ -3,8 +3,9 @@ package com.hiberus.anaya.redmineeditor.model;
 import com.hiberus.anaya.redmineapi.Issue;
 import com.hiberus.anaya.redmineapi.RedmineManager;
 import com.hiberus.anaya.redmineapi.TimeEntry;
+import com.hiberus.anaya.redmineeditor.controller.ENTRY;
 import com.hiberus.anaya.redmineeditor.controller.MyException;
-import com.hiberus.anaya.redmineeditor.controller.Settings;
+import com.hiberus.anaya.redmineeditor.controller.SettingsKt;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public abstract class Model {
     int day = 0; // selected day, 0 for none
 
 
-    public final RedmineManager manager = new RedmineManager(Settings.get(Settings.ENTRY.URL), Settings.get(Settings.ENTRY.KEY)); // the manager for online operations
+    public final RedmineManager manager = new RedmineManager(SettingsKt.get(ENTRY.URL), SettingsKt.get(ENTRY.KEY)); // the manager for online operations
     final List<TimeEntry> entries = new ArrayList<>(); // time entries
     final List<Issue> issues = new ArrayList<>(); // issues
     final Set<YearMonth> monthsLoaded = new HashSet<>(); // months that are already loaded and don't need to be again
