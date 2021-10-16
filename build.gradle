@@ -37,7 +37,6 @@ javafx {
 }
 
 dependencies {
-
     implementation "org.json:json:20210307"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     // implementation "com.taskadapter:redmine-java-api:4.0.0.rc4" // useless api, cant search using multiple filters
@@ -51,11 +50,11 @@ jlink {
 }
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "16"
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "16"
     }
 }
