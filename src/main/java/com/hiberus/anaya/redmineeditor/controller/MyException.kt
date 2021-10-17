@@ -36,7 +36,7 @@ class MyException(
      *
      * @param other another exception to add
      */
-    fun addDetails(other: Exception) = details.add(other.message).run { }
+    fun addDetails(other: MyException) = details.add(other.message).run { }
 
     /* ------------------------- properties ------------------------- */
 

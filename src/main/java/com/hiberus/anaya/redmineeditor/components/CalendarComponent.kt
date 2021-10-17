@@ -108,10 +108,10 @@ internal class CalendarComponent : BaseComponent() {
         // change month by offset
         month = month.plusMonths(offset.toLong())
         // unselect the day
-        unsetDay()
-        controller.fireChanges()
-        // and load if necessary
-        if (!isMonthLoaded) loadMonth()
+        day = null
+        controller.fireChanges() // notify now to display month in UI
+        // and load month
+        loadMonth()
     }
 
     /**

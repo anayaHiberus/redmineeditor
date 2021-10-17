@@ -89,11 +89,12 @@ class Controller {
      * @param events events to fire, those from the model by default
      */
     @JvmOverloads
-    fun fireChanges(events: Set<ChangeEvents> = model.changes) =
+    fun fireChanges(events: Set<ChangeEvents> = model.getChanges()) =
         listeners.forEach { (lEvents, listener) ->
             // if at least a registered event, run in foreground
             if (events intersects lEvents) runInForeground { listener(model) }
         }
+            .also { println("Changes: $events") } // debug
 
 }
 
