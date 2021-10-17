@@ -1,15 +1,13 @@
 package com.hiberus.anaya.redmineeditor.components
 
-import com.hiberus.anaya.redmineapi.NONE
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineapi.UNINITIALIZED
+import com.hiberus.anaya.redmineapi.dNONE
+import com.hiberus.anaya.redmineapi.dUNINITIALIZED
 import com.hiberus.anaya.redmineeditor.controller.Controller
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.Desktop.openInBrowser
-import com.hiberus.anaya.redmineeditor.utils.SimpleListCell
-import com.hiberus.anaya.redmineeditor.utils.TimeUtils.formatHours
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.event.Event
 import javafx.fxml.FXML
@@ -18,6 +16,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.web.WebView
 import java.io.IOException
+import java.net.URI
 import kotlin.concurrent.thread
 
 /**
@@ -76,9 +75,9 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         this.controller = controller
 
         // remove when invisible
-        get_total.removeWhenInvisible()
-        total.removeWhenInvisible()
-        sync_realization.removeWhenInvisible()
+        get_total.syncInvisible()
+        total.syncInvisible()
+        sync_realization.syncInvisible()
     }
 
     public override fun update() {
@@ -95,16 +94,16 @@ class EntryComponent : SimpleListCell<TimeEntry> {
 
         // estimated
         estimated.text = when (issue_estimated) {
-            UNINITIALIZED.toDouble() -> "?"
-            NONE.toDouble() -> "none"
-            else -> formatHours(issue_estimated)
+            dUNINITIALIZED -> "?"
+            dNONE -> "none"
+            else -> issue_estimated.formatHours()
         }
         estimated_sub.isDisable = issue_estimated < 0
 
         // spent
-        get_total.isVisible = issue_spent == UNINITIALIZED.toDouble()
-        total.isVisible = issue_spent != UNINITIALIZED.toDouble()
-        total.text = if (issue_spent < 0) "none" else formatHours(issue_spent)
+        get_total.isVisible = issue_spent == dUNINITIALIZED
+        total.isVisible = issue_spent != dUNINITIALIZED
+        total.text = if (issue_spent < 0) "none" else issue_spent.formatHours()
 
         // sync spent-realization
         if (issue_spent >= 0 && issue_estimated > 0) {
@@ -126,7 +125,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         val spent = entry.spent
 
         // spent
-        this.spent.text = formatHours(spent)
+        this.spent.text = spent.formatHours()
         spent_sub.isDisable = spent <= 0
 
         // comment
@@ -206,8 +205,9 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         // TODO: improve
         val issue = item?.issue ?: return
 
+
         // build alert
-        Alert(Alert.AlertType.INFORMATION).run {
+        val result = Alert(Alert.AlertType.INFORMATION).apply {
             title = issue.toShortString()
             headerText = issue.toString()
             if (issue.description.isNotEmpty()) {
@@ -219,22 +219,19 @@ class EntryComponent : SimpleListCell<TimeEntry> {
             }
 
             // button
-            val OPEN_BUTTON = "Open in Redmine"
-            buttonTypes.add(ButtonType(OPEN_BUTTON))
+            buttonTypes += ButtonType(OPEN_BUTTON)
 
-            // display
-            showAndWait()
+        }.showAndWait() // display
 
-            if (OPEN_BUTTON == result.text) {
-                // open in desktop
-                thread {
-                    if (!openInBrowser(issue.url)) {
-                        Platform.runLater {
-                            Alert(Alert.AlertType.ERROR).run {
-                                contentText = "Couldn't open the browser"
-                                showAndWait()
-                            }
-                        }
+        if (result?.takeIf { it.isPresent }?.get()?.text == OPEN_BUTTON) {
+            // if open pressed, open in desktop
+            thread {
+                URI(issue.url).openInBrowser().ifNotOK {
+                    // on error, display alert
+                    Platform.runLater {
+                        Alert(Alert.AlertType.ERROR).apply {
+                            contentText = "Couldn't open the browser"
+                        }.showAndWait()
                     }
                 }
             }
@@ -246,12 +243,13 @@ class EntryComponent : SimpleListCell<TimeEntry> {
 /* ------------------------- utils ------------------------- */
 
 /**
+ * Button string to open in redmine
+ */
+const val OPEN_BUTTON = "Open in Redmine"
+
+/**
  * Get the userdata of the target node
  */
 private val Event.targetData: String
     get() = (target as Node).userData.toString()
 
-/**
- * Removes the node when invisible (otherwise it's just invisible)
- */
-private fun Node.removeWhenInvisible() = managedProperty().bind(visibleProperty())

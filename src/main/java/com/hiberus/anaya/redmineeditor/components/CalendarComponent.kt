@@ -3,11 +3,11 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.FXUtils.getCenteredLabel
-import com.hiberus.anaya.redmineeditor.utils.FXUtils.setBackgroundColor
-import com.hiberus.anaya.redmineeditor.utils.TimeUtils.formatHours
-import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule.getColor
-import com.hiberus.anaya.redmineeditor.utils.hiberus.Schedule.getExpectedHours
+import com.hiberus.anaya.redmineeditor.utils.CenteredLabel
+import com.hiberus.anaya.redmineeditor.utils.backgroundColor
+import com.hiberus.anaya.redmineeditor.utils.formatHours
+import com.hiberus.anaya.redmineeditor.utils.hiberus.expectedHours
+import com.hiberus.anaya.redmineeditor.utils.hiberus.getColor
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.control.Label
@@ -45,28 +45,28 @@ internal class CalendarComponent : BaseComponent() {
         DayOfWeek.values().forEach { field ->
             // append each day
             calendar.add(
-                getCenteredLabel(
+                CenteredLabel(
                     field.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                 ), field.value - 1, 0
             )
         }
 
-    public override fun init() {
+    override fun init() {
         // on new month, draw it and prepare to draw colors
-        controller.register(setOf(ChangeEvents.Month)) { model: Model ->
+        controller.onChanges(setOf(ChangeEvents.Month)) { model: Model ->
             drawGrid(model)
             updateLabel(model)
             needsColoring = true
         }
 
         // when hours change, recolor today
-        controller.register(setOf(ChangeEvents.Hours)) { model: Model ->
+        controller.onChanges(setOf(ChangeEvents.Hours)) { model: Model ->
             // when hours change (and a recoloring is not pending), recolor day
             if (!needsColoring) model.day.takeIf { it != 0 }?.let { colorDay(it, model) }
         }
 
         // when finished loading, color days
-        controller.register(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
+        controller.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
             // if it's not loading, and a recoloring is not pending, color days
             if (!model.isLoading && needsColoring) {
                 colorDays(model)
@@ -76,7 +76,7 @@ internal class CalendarComponent : BaseComponent() {
         }
 
         // when day changes (or month), set selection
-        controller.register(setOf(ChangeEvents.Day, ChangeEvents.Month)) { model: Model ->
+        controller.onChanges(setOf(ChangeEvents.Day, ChangeEvents.Month)) { model: Model ->
             // unselect
             unselectDay()
             // select new (if there is a selection)
@@ -127,7 +127,7 @@ internal class CalendarComponent : BaseComponent() {
      */
     private fun colorDay(day: Int, model: Model) =
         model.month.atDay(day).let { date ->
-            days[day - 1]?.let { setBackgroundColor(it, getColor(getExpectedHours(date), model.getSpent(date), date)) }
+            days[day - 1]?.let { it.backgroundColor = getColor(date.expectedHours, model.getSpent(date), date) }
         }
 
     private fun updateLabel(model: Model) {
@@ -142,12 +142,12 @@ internal class CalendarComponent : BaseComponent() {
         if (!model.isLoading) {
             // spent/expected
             val spent = model.getSpent(model.month)
-            val expected = getExpectedHours(model.month)
-            label += " (${formatHours(spent)}/${formatHours(expected)})"
-            setBackgroundColor(calendarLabel, getColor(expected, spent, model.month.atEndOfMonth()))
+            val expected = model.month.expectedHours
+            label += " (${spent.formatHours()}/${expected.formatHours()})"
+            calendarLabel.backgroundColor = getColor(expected, spent, model.month.atEndOfMonth())
         } else {
             // still not loaded, clear
-            setBackgroundColor(calendarLabel, null)
+            calendarLabel.backgroundColor = null
         }
 
         // set
@@ -170,13 +170,11 @@ internal class CalendarComponent : BaseComponent() {
             val column = index / 7 + 1
             if (column >= calendar.rowCount) {
                 // add missing row if needed
-                calendar.rowConstraints.add(
-                    RowConstraints().apply { vgrow = Priority.SOMETIMES }
-                )
+                calendar.rowConstraints += RowConstraints().apply { vgrow = Priority.SOMETIMES }
             }
 
             // add and save label
-            calendar.add(getCenteredLabel(day.toString()).apply {
+            calendar.add(CenteredLabel(day.toString()).apply {
                 onMouseClicked = EventHandler { selectDay(day) }
                 days[day - 1] = this
             }, index % 7, column)

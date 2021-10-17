@@ -8,7 +8,7 @@ import java.io.IOException
  */
 class Issue(
     rawIssue: JSONObject,
-    private val manager: RedmineManager // an issue is associated to a manager
+    private val manager: RedmineManager, // an issue is associated to a manager
 ) {
 
     /* ------------------------- data ------------------------- */
@@ -16,66 +16,67 @@ class Issue(
     /**
      * The identifier
      */
-    @JvmField
     val id: Int
 
     /**
      * The name of its project
      */
-    @JvmField
     val project: String
 
-    private val subject: String // The subject (title)
+    /**
+     * The subject (title)
+     */
+    private val subject: String
 
     /**
      * The description, may probably be empty
      */
-    @JvmField
     val description: String
 
     /**
      * Estimated hours
      */
-    var estimated: Double // estimated hours
+    var estimated: Double
         private set
 
     /**
-     * Ratio of realization
+     * Ratio of realization (percentage)
      */
-    var realization: Int // realization percentage
+    var realization: Int
         private set
 
     /**
      * Total hours spent on this issue.
-     * Can be not initialized
+     * Can be uninitialized
      */
-    var spent: Double // total hours, uninitialized
+    var spent: Double
         private set
 
-    private val original: JSONObject? // the original raw object, for diff purposes
-
+    /**
+     * the original raw object, if any, for diff purposes
+     */
+    private val original: JSONObject?
 
     /* ------------------------- constructors ------------------------- */
 
     init {
-        // parse issue from raw json data
         original = rawIssue
+        // parse issue from raw json data
         id = rawIssue.getInt("id")
         project = rawIssue.getJSONObject("project").optString("name", "")
         subject = rawIssue.optString("subject", "")
         description = rawIssue.optString("description")
-        estimated = rawIssue.optDouble("estimated_hours", NONE.toDouble())
+        estimated = rawIssue.optDouble("estimated_hours", dNONE)
         realization = rawIssue.optInt("done_ratio", 0)
-        spent = rawIssue.optDouble("spent_hours", UNINITIALIZED.toDouble())
+        spent = rawIssue.optDouble("spent_hours", dUNINITIALIZED)
     }
 
     /* ------------------------- properties ------------------------- */
 
     /**
-     * @return the url to see this issue details
+     * the url to see this issue details
      */
-    val url
-        get() = "${manager.domain}issues/$id"
+    val url get() = "${manager.domain}issues/$id"
 
     /**
      * @return a short string describing this issue
@@ -84,7 +85,7 @@ class Issue(
     fun toShortString() = "#$id: $subject"
 
     /**
-     * @return a fairly long string describing this issue
+     * @return a multiline string describing this issue
      * @see .toShortString
      */
     override fun toString() = "$project\n${toShortString()}"
@@ -97,9 +98,9 @@ class Issue(
      * @param amount number of hours (negative to subtract)
      */
     fun addSpent(amount: Double) {
-        assert(spent >= 0)
+        assert(spent.isSet) // assert initialized
         spent += amount
-        assert(spent >= 0)
+        assert(spent >= 0) // assert non-negative
     }
 
     /**
@@ -110,11 +111,11 @@ class Issue(
     fun addEstimated(amount: Double) {
         estimated = when {
             // still uninitialized, cancel
-            estimated == UNINITIALIZED.toDouble() -> return
+            estimated == dUNINITIALIZED -> return
             // no hours and want to subtract, disable
-            estimated == 0.0 && amount < 0 -> NONE.toDouble()
+            estimated == 0.0 && amount < 0 -> dNONE
             // disabled and want to change, set to 0 if it wants to add, keep if not
-            estimated == NONE.toDouble() -> if (amount > 0) 0.0 else return
+            estimated == dNONE -> if (amount > 0) 0.0 else return
             // else change, but don't subtract what can't be subtracted
             else -> (estimated + amount).coerceAtLeast(0.0)
         }
@@ -146,11 +147,14 @@ class Issue(
      */
     @Throws(IOException::class)
     fun downloadSpent() {
-        if (spent == UNINITIALIZED.toDouble()) {
-            spent = get("${manager.domain}issues/$id.json?key=${manager.key}")
-                .getJSONObject("issue").optDouble("spent_hours", NONE.toDouble())
-        }
+        if (spent != dUNINITIALIZED) return // skip initialized
+
+        // load
+        spent = manager.buildUrl("issues/$id").getJSON()
+            .getJSONObject("issue")
+            .optDouble("spent_hours", dNONE)
     }
+
 
     /* ------------------------- uploading ------------------------- */
 
@@ -160,20 +164,20 @@ class Issue(
     private val changes
         get() = JSONObject().apply {
             // TODO: use a JSON as container so this can be a simple foreach diff
-            if (original?.optDouble("estimated_hours", NONE.toDouble()) != estimated) {
+            if (estimated != original?.optDouble("estimated_hours", dNONE)) {
                 // changed hours
-                put("estimated_hours", estimated.takeIf { it != NONE.toDouble() } ?: "")
+                put("estimated_hours", estimated.takeIf { it != dNONE } ?: "")
             }
-            if (original?.optInt("done_ratio", 0) != realization) {
+            if (realization != original?.optInt("done_ratio", 0)) {
                 // changed ratio
                 put("done_ratio", realization)
             }
         }
 
     /**
-     * @return true if this entry requires upload, false otherwise
+     * iff this entry requires upload, false otherwise
      */
-    fun requiresUpload(): Boolean = !changes.isEmpty // no changes, no upload
+    val requiresUpload get() = !changes.isEmpty
 
     /**
      * Uploads an entry to redmine (unless not needed)
@@ -181,16 +185,16 @@ class Issue(
      * @throws IOException on upload error
      */
     @Throws(IOException::class)
-    fun uploadTimeEntry() =
-        changes.let {
-            if (it.isEmpty) return // ignore unmodified
+    fun uploadTimeEntry() = changes.run {
+        if (isEmpty) return // ignore unmodified
 
-            // update
-            println("Updating issue $id with data: $changes")
-            if (OFFLINE) return
-            if (put("${manager.domain}issues/$id.json?key=${manager.key}", JSONObject().put("issue", changes)) != 200) {
-                throw IOException("Error when updating issue $id with data: $changes")
-            }
-        }
+        // update
+        println("Updating issue $id with data: $changes")
+        if (OFFLINE) return
+        JSONObject().put("issue", changes)
+            .putTo(manager.buildUrl("issues/$id"))
+            .ifNot(200) { throw IOException("Error when updating issue $id with data: $changes") }
+
+    }
 
 }

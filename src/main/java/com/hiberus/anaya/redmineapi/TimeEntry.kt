@@ -16,37 +16,44 @@ class TimeEntry {
 
     /* ------------------------- data ------------------------- */
 
-    val id: Int // the entry id in the database
+    /**
+     * the entry id in the database
+     */
+    val id: Int
 
     /**
      * the issue id
      */
-    @JvmField
     val issue: Issue
 
-    private val spent_on: LocalDate // date it was spent
+    /**
+     * date it was spent
+     */
+    private val spent_on: LocalDate
 
     /**
      * the spent hours of this entry
      */
-    var spent = 0.0 // hours spent
+    var spent: Double
         private set
 
     /**
      * the comment of this entry
      */
-    var comment = "" // comment
+    var comment: String
 
-
-    private var original: JSONObject? = null // the original raw object, for diff purposes. Null if there is no original
+    /**
+     * the original raw object, for diff purposes. Null if there is no original
+     */
+    private var original: JSONObject? = null
 
 
     /* ------------------------- constructors ------------------------- */
 
     internal constructor(rawEntry: JSONObject, issues: List<Issue>, manager: RedmineManager) {
-        // creates a new entry from a json raw data
         this.manager = manager
         original = rawEntry
+        // creates a new entry from a json raw data
         id = rawEntry.getInt("id")
         issue = issues.first { issue: Issue -> issue.id == getIssueId(rawEntry) }
         spent_on = LocalDate.parse(rawEntry.getString("spent_on"))
@@ -55,11 +62,13 @@ class TimeEntry {
     }
 
     internal constructor(issue: Issue, spent_on: LocalDate, manager: RedmineManager) {
-        // Creates a new time entry for an existing issue and date
         this.manager = manager
-        id = NONE
+        // Creates a new time entry for an existing issue and date
+        id = iNONE
         this.issue = issue
         this.spent_on = spent_on
+        spent = 0.0
+        comment = ""
     }
 
     /* ------------------------- checks ------------------------- */
@@ -85,10 +94,12 @@ class TimeEntry {
     /**
      * @param amount new hours to add to this entry (negative to subtract)
      */
-    fun addSpent(amount: Double) = ((spent + amount).coerceAtLeast(0.0) - spent).let {   // don't subtract what can't be substracted
-        spent += it
-        issue.addSpent(it)
-    }
+    fun addSpent(amount: Double) =
+        // don't subtract what can't be subtracted
+        ((spent + amount).coerceAtLeast(0.0) - spent).let {
+            spent += it
+            issue.addSpent(it)
+        }
 
     /* ------------------------- uploading ------------------------- */
 
@@ -105,7 +116,7 @@ class TimeEntry {
                 // changed comment
                 put("comments", comment)
             }
-            if (id == NONE) {
+            if (id == iNONE) {
                 // without original, this data is considered new
                 put("issue_id", issue.id)
                 put("spent_on", spent_on)
@@ -118,7 +129,7 @@ class TimeEntry {
     fun requiresUpload() = !(
             changes.isEmpty // no changes, no upload
                     ||
-                    (id == NONE && spent <= 0) // no useful changes, no upload
+                    (id == iNONE && spent <= 0) // no useful changes, no upload
             )
 
     /**
@@ -127,38 +138,50 @@ class TimeEntry {
      * @throws IOException on upload error
      */
     @Throws(IOException::class)
-    fun uploadTimeEntry() =
-        changes.let { // get changes
-            if (it.isEmpty) return // ignore unmodified
-
-            if (id == NONE) {
-                if (spent > 0) {
+    fun uploadTimeEntry() {
+        changes.takeUnless { it.isEmpty }?.also { // if there are changes
+            when {
+                id == iNONE && spent > 0 -> {
                     // new entry with hours, create
                     println("Creating entry with data: $it")
                     if (OFFLINE) return
-                    if (post("${manager.domain}time_entries.json?key=${manager.key}", JSONObject().put("time_entry", it)) != 201) {
-                        throw IOException("Error when creating entry with data: $it")
-                    }
+                    JSONObject().put("time_entry", it)
+                        .postTo(manager.buildUrl("time_entries"))
+                        .ifNot(201) {
+                            throw IOException("Error when creating entry with data: $it")
+                        }
                 }
-                //new entry without hours, ignore
-            } else {
-                if (spent > 0) {
+
+                // new entry without hours, ignore
+                id == iNONE && spent <= 0 -> Unit
+
+                id >= 0 && spent > 0 -> {
                     // existing entry with hours, update
                     println("Updating entry $id with data: $it")
                     if (OFFLINE) return
-                    if (put("${manager.domain}time_entries/$id.json?key=${manager.key}", JSONObject().put("time_entry", it)) != 200) {
-                        throw IOException("Error when updating entry $id with data: $it")
-                    }
-                } else {
+                    JSONObject().put("time_entry", it)
+                        .putTo(manager.buildUrl("time_entries/$id"))
+                        .ifNot(200) {
+                            throw IOException("Error when updating entry $id with data: $it")
+                        }
+                }
+
+                id >= 0 && spent <= 0 -> {
                     // existing entry without hours, delete
                     println("Deleting entry $id")
                     if (OFFLINE) return
-                    if (delete("${manager.domain}time_entries/$id.json?key=${manager.key}") != 200) {
-                        throw IOException("Error when deleting entry $id")
-                    }
+                    manager.buildUrl("time_entries/$id")
+                        .delete()
+                        .ifNot(200) {
+                            throw IOException("Error when deleting entry $id")
+                        }
                 }
+
+                // should never happen, but if it does, do nothing
+                else -> Unit
             }
         }
+    }
 }
 
 /* ------------------------- util ------------------------- */

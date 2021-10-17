@@ -63,9 +63,9 @@ internal class ParentComponent : BaseComponent() {
 
     /* ------------------------- init ------------------------- */
 
-    public override fun init() {
+    override fun init() {
         // When loading, the indicator is shown and the whole app is disabled.
-        controller.register(setOf(ChangeEvents.Loading)) {
+        controller.onChanges(setOf(ChangeEvents.Loading)) {
             progress.isVisible = it.isLoading
             parent.isDisable = it.isLoading
         }

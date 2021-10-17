@@ -9,48 +9,43 @@ import java.nio.charset.StandardCharsets
 /* ------------------------- Utilities for urls with JSON ------------------------- */
 
 /**
- * Reads JSON data from an url
- * From https://stackoverflow.com/a/4308662
+ * Reads JSON data from this url
  *
- * @param url url to load
  * @return the json data returned
  * @throws IOException on network errors
  */
 @Throws(IOException::class)
-fun get(url: String): JSONObject =
-    URL(url).openStream().use { JSONObject(it.bufferedReader().readText()) }
+fun URL.getJSON(): JSONObject =
+    openStream().use { JSONObject(it.bufferedReader().readText()) }
 
 /**
- * Performs a POST to an url with JSON data
+ * POSTs this JSON data to that url
  *
  * @param url    url to post to
- * @param data the json data to post
  * @return the response status code
  * @throws IOException on network errors
  */
 @Throws(IOException::class)
-fun post(url: String, data: JSONObject?): Int = send(url, "POST", data)
+fun JSONObject.postTo(url: URL) = url.send("POST", this)
 
 /**
- * Performs a PUT to an url with JSON data
+ * PUTs this JSON data to an url
  *
  * @param url    url to put to
- * @param data the json data to put
  * @return the response status code
  * @throws IOException on network errors
  */
 @Throws(IOException::class)
-fun put(url: String, data: JSONObject?): Int = send(url, "PUT", data)
+fun JSONObject.putTo(url: URL) = url.send("PUT", this)
 
 /**
- * Performs a DELETE to an url
+ * Performs a DELETE to this url
  *
- * @param url url to delete
  * @return the response status code
  * @throws IOException on network errors
  */
 @Throws(IOException::class)
-fun delete(url: String): Int = send(url, "DELETE", null)
+fun URL.delete(): Int = send("DELETE", null)
 
 /* ------------------------- private ------------------------- */
 
@@ -58,8 +53,8 @@ fun delete(url: String): Int = send(url, "DELETE", null)
  * performs a 'send' to an url
  */
 @Throws(IOException::class)
-private fun send(url: String, method: String, body: JSONObject?): Int =
-    (URL(url).openConnection() as HttpURLConnection).run {
+private fun URL.send(method: String, body: JSONObject?) =
+    (openConnection() as HttpURLConnection).run {
         // prepare connection
         requestMethod = method
         body?.let {
@@ -81,3 +76,9 @@ private fun send(url: String, method: String, body: JSONObject?): Int =
         // return responseCode
         responseCode
     }
+
+/* ------------------------- utils ------------------------- */
+
+fun <T> T.ifNot(compareTo: T, execute: () -> Unit) {
+    if (this != compareTo) execute()
+}

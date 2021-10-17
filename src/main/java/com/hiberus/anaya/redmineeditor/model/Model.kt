@@ -3,9 +3,9 @@ package com.hiberus.anaya.redmineeditor.model
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.RedmineManager
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.controller.ENTRY
 import com.hiberus.anaya.redmineeditor.controller.MyException
-import com.hiberus.anaya.redmineeditor.controller.get
+import com.hiberus.anaya.redmineeditor.controller.SETTING
+import com.hiberus.anaya.redmineeditor.controller.value
 import org.json.JSONException
 import java.io.IOException
 import java.time.LocalDate
@@ -43,7 +43,7 @@ abstract class Model {
     /**
      * the manager for online operations
      */
-    val manager = RedmineManager(get(ENTRY.URL), get(ENTRY.KEY))
+    val manager = RedmineManager(SETTING.URL.value, SETTING.KEY.value)
 
     /**
      * time entries
@@ -109,7 +109,7 @@ abstract class Model {
      * iff there is at least something that was modified (and should be uploaded)
      */
     fun hasChanges() =
-        entries.any { it.requiresUpload() } || issues.any { it.requiresUpload() }
+        entries.any { it.requiresUpload() } || issues.any { it.requiresUpload }
 
     /* ------------------------- private getters ------------------------- */
 
@@ -164,13 +164,13 @@ abstract class Model {
         override var isLoading: Boolean = true
             set(value) {
                 field = value
-                changes.add(ChangeEvents.Loading)
+                changes += ChangeEvents.Loading
             }
 
         override var month: YearMonth = YearMonth.now()
             set(value) {
                 field = value
-                changes.add(ChangeEvents.Month)
+                changes += ChangeEvents.Month
             }
 
         override var day: Int? = null
@@ -178,7 +178,7 @@ abstract class Model {
             set(value) {
                 field = value?.takeIf { month.isValidDay(it) }
                 prepareDay() // prepare day
-                changes.add(ChangeEvents.Day) // notify
+                changes += ChangeEvents.Day // notify
             }
 
         /**
@@ -194,13 +194,19 @@ abstract class Model {
 
             try {
                 // load from the internet all entries in month
-                entries.addAll(manager.getTimeEntries(
+                entries += manager.getTimeEntries(
                     month.atDay(1)
-                        .ifThen(month.minusMonths(1) !in monthsLoaded) { minusDays(PREV_DAYS.toLong()) }, // load previous days if previous month was not loaded
+                        .ifCheck(month.minusMonths(1) !in monthsLoaded) {
+                            // load previous days if previous month was not loaded
+                            minusDays(PREV_DAYS.toLong())
+                        },
                     month.atEndOfMonth()
-                        .ifThen(month.plusMonths(1) in monthsLoaded) { minusDays(PREV_DAYS.toLong()) }, // don't load last days if next month was loaded
+                        .ifCheck(month.plusMonths(1) in monthsLoaded) {
+                            // don't load last days if next month was loaded
+                            minusDays(PREV_DAYS.toLong())
+                        },
                     issues
-                ))
+                )
             } catch (e: IOException) {
                 throw MyException("Network error", "Can't load content from Redmine. Try again later.", e)
             } catch (e: JSONException) {
@@ -237,7 +243,7 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun uploadAll() {
-            MyException("Updating error", "An error occurred while updating data", null).run {
+            MyException("Updating error", "An error occurred while updating data").run {
                 // upload entries
                 entries.forEach { entry ->
                     // TODO: move all this logic to manager
@@ -280,14 +286,14 @@ abstract class Model {
         fun createTimeEntries(ids: List<Int>) {
             date ?: return // skip now if there is no date
 
-            val idsToLoad = ids.filter { id ->
-                // keep nonexistent ids
-                // if it exists, create new entry
-                getIssueFromId(id)?.also { createTimeEntry(it) } != null
+            val pendingIds = ids.filter { id ->
+                // if issue exists, create new entry directly
+                // if not, keep for later loading
+                getIssueFromId(id)?.also { createTimeEntry(it) } == null
             }.toMutableList()
 
             try {
-                manager.getIssues(idsToLoad)
+                manager.getIssues(pendingIds)
                     // create and add issues
                     .onEach { issue: Issue ->
                         createTimeEntry(issue)
@@ -296,13 +302,15 @@ abstract class Model {
                         changes += ChangeEvents.Issues
                     }
                     // remove from loaded
-                    .map { it.id }.let { idsToLoad -= it }
+                    .map { it.id }.let { pendingIds -= it }
 
-                when (idsToLoad.size) {
+                when {
                     // missing single issue
-                    1 -> throw MyException("Unknown issue", "The issue #${idsToLoad[0]} was not found or couldn't be loaded", null).asWarning()
+                    pendingIds.size == 1 ->
+                        throw MyException("Unknown issue", "The issue #${pendingIds[0]} was not found or couldn't be loaded", warning = true)
                     // missing multiple issues
-                    2 -> throw MyException("Unknown issues", "The issues ${idsToLoad.joinToString(", ") { "#$it" }} were not found or couldn't be loaded", null).asWarning()
+                    pendingIds.size >= 2 ->
+                        throw MyException("Unknown issues", "The issues ${pendingIds.joinToString(", ") { "#$it" }} were not found or couldn't be loaded", warning = true)
                 }
             } catch (e: IOException) {
                 throw MyException("Error loading issues", "Can't load issues", e)
@@ -317,7 +325,6 @@ abstract class Model {
         @Throws(MyException::class)
         private fun prepareDay() = date?.let { date ->
 
-            // prepare issues for today
             val todayIssues =
                 // for all entries in previous days (sorted by date)
                 (0L..PREV_DAYS).flatMap { _getEntriesForDate(date.minusDays(it)) }
@@ -326,13 +333,14 @@ abstract class Model {
                     // and create copies for today if not already
                     .onEach {
                         if (!it.wasSpentOn(date))
-                            entries += manager.newTimeEntry(it.issue, date).apply { comment = it.comment }
+                            entries += manager.newTimeEntry(it.issue, date)
+                                .apply { comment = it.comment }
                     }
-                    // get issues
+                    // keep issues
                     .map { it.issue }
 
             // fill issues for today
-            MyException("Issue exception", "Can't load issues data", null).run {
+            MyException("Issue exception", "Can't load issues data").run {
                 todayIssues.forEach {
                     try {
                         it.downloadSpent()
@@ -350,6 +358,6 @@ abstract class Model {
 /**
  * If check is true, apply then
  */
-private fun <T> T.ifThen(check: Boolean, then: T.() -> T) = if (check) then() else this
+private fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() else this
 
 

@@ -1,6 +1,8 @@
 package com.hiberus.anaya.redmineeditor.controller
 
 import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType.ERROR
+import javafx.scene.control.Alert.AlertType.WARNING
 import java.util.*
 
 /**
@@ -8,28 +10,21 @@ import java.util.*
  *
  * @param title   with this title
  * @param message and this message
- * @param cause   and this cause
+ * @param cause   and optionally this cause
+ * @param warning and optionally marked as warning
  */
 class MyException(
     private val title: String,
-    message: String?,
-    cause: Throwable?,
+    message: String,
+    cause: Throwable? = null,
+    private var warning: Boolean = false,
 ) : Exception(message, cause) {
 
     /* ------------------------- more data ------------------------- */
 
-    private var isWarning = false // is this exception is a warning
-
     private val details = StringJoiner("\n") // the exception details (different from the message)
 
     /* ------------------------- modifiers ------------------------- */
-
-    /**
-     * Marks this exception as warning
-     *
-     * @return this (for chained calls)
-     */
-    fun asWarning(): MyException = this.apply { isWarning = true }
 
     /**
      * Adds a detail whose message will be shown as a detail
@@ -49,13 +44,14 @@ class MyException(
      * Displays an error dialog with this exception details
      */
     fun showAndWait() {
-        print(cause)
+        print(cause) // TODO: add in the alert as scrollable text or something
 
-        Alert(if (isWarning) Alert.AlertType.WARNING else Alert.AlertType.ERROR).apply {
+        Alert(if (warning) WARNING else ERROR).apply {
             headerText = title
             contentText = "$message\n\n$details"
-            showAndWait()
-        }
+        }.showAndWait()
     }
 
 }
+
+

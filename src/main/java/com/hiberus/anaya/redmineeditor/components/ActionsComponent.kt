@@ -10,7 +10,7 @@ import javafx.scene.control.ButtonType
  */
 internal class ActionsComponent : BaseComponent() {
 
-    public override fun init() = Unit // nothing to initialize
+    override fun init() = Unit // nothing to initialize
 
     /* ------------------------- buttons ------------------------- */
 

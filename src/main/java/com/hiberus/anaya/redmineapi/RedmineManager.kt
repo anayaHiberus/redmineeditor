@@ -3,17 +3,35 @@ package com.hiberus.anaya.redmineapi
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.net.URL
 import java.time.LocalDate
+
+/* ------------------------- defaults ------------------------- */
 
 /**
  * Unset int property
  */
-const val NONE = -1
+const val iNONE = -1
 
 /**
- * Not initialized int property
+ * Check if the value is set (not NONE)
  */
-const val UNINITIALIZED = -2
+val Int.isSet get() = this >= 0
+
+/**
+ * Unset double property
+ */
+const val dNONE = -1.0
+
+/**
+ * Not initialized double property
+ */
+const val dUNINITIALIZED = -2.0
+
+/**
+ * Check if the value is set (not NONE nor UNINITIALIZED)
+ */
+val Double.isSet get() = this >= 0.0
 
 /**
  * for debug purposes, set to true to disable online PUT/POST petitions
@@ -25,17 +43,17 @@ const val OFFLINE = false
 /**
  * Redmine API.
  * The 'official' one is not used because it doesn't allow searching with multiple filters
+ * @param domain the redmine domain
+ * @param key the redmine api key
  */
 class RedmineManager(
-    /**
-     * the redmine domain
-     */
     val domain: String,
-    /**
-     *  the redmine api key
-     */
-    val key: String
+    val key: String,
 ) {
+
+    /* ------------------------- properties ------------------------- */
+
+    fun buildUrl(path: String) = URL("$domain$path.json?key=$key")
 
     /* ------------------------- time entries ------------------------- */
 
@@ -76,16 +94,24 @@ class RedmineManager(
      * Returns the issues associated with the specified ids
      *
      * @param ids list of ids to retrieve
-     * @return the list of issues (may be less if some are not found!)
+     * @return the list of issues (maybe less if some are not found!)
      * @throws IOException on network error
      */
     @Throws(IOException::class)
-    fun getIssues(ids: List<Int>) = (
-            "${domain}issues.json?utf8=✓&"
-                    + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=${ids.ifEmpty { return emptyList<Issue>() }.joinToString("%2C")}" // inline return...Kotlin's magic
-                    + "&key=$key"
-            ).paginatedGet("issues")
-        .map { Issue(it, this) }
+    fun getIssues(ids: List<Int>) = ids
+        // return empty if no issues
+        .ifEmpty { return emptyList<Issue>() }
+        .run {
+            // build url
+            ("${domain}issues.json?utf8=✓"
+                    + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=${joinToString("%2C")}"
+                    + "&key=$key")
+                // get
+                .paginatedGet("issues")
+                // create issues
+                .map { Issue(it, this@RedmineManager) }
+        }
+
 
 }
 
@@ -97,15 +123,26 @@ class RedmineManager(
 @Throws(IOException::class)
 private fun String.paginatedGet(key: String): List<JSONObject> =
     ArrayList<JSONObject>().apply {
-        do { //nothing yet
-        } while (
-            get("${this@paginatedGet}&limit=100&offset=$size") // get page
-                .also { addAll(it.getJSONArray(key).mapAsObjects()) } // add to returned value
-                .getInt("total_count") > size // continue to next page if still not all
-        )
+        doWhile {
+            // get page
+            URL("${this@paginatedGet}&limit=100&offset=$size").getJSON()
+                // add to returned list
+                .also { addAll(it.getJSONArray(key).mapAsObjects()) }
+                // continue to next page if still not all
+                .getInt("total_count") > size
+        }
     }
 
 /**
  * Map a JSONArray as a list of JSONObject
  */
 private fun JSONArray.mapAsObjects(): List<JSONObject> = List(length()) { i -> getJSONObject(i) }
+
+/**
+ * Run while it returns false (compact while)
+ */
+private fun doWhile(thing: () -> Boolean) {
+    while (thing()) {
+        // nothing
+    }
+}

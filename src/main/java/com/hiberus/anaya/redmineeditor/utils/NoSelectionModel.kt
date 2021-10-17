@@ -23,8 +23,8 @@ class NoSelectionModel<T> : MultipleSelectionModel<T>() {
     override fun select(obj: T) {}
     override fun clearSelection(index: Int) {}
     override fun clearSelection() {}
-    override fun isSelected(index: Int): Boolean = false
-    override fun isEmpty(): Boolean = true
+    override fun isSelected(index: Int) = false
+    override fun isEmpty() = true
     override fun selectPrevious() {}
     override fun selectNext() {}
 }

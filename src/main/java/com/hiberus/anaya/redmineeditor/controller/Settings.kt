@@ -1,12 +1,11 @@
 package com.hiberus.anaya.redmineeditor.controller
 
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.io.File
 
 /**
  * Global settings
  */
-enum class ENTRY {
+enum class SETTING {
     /**
      * Redmine url
      */
@@ -19,38 +18,39 @@ enum class ENTRY {
 }
 
 /**
- * Returns the setting entry
- *
- * @param entry entry to return
- * @return that entry value
+ * this setting entry value
  */
-fun get(entry: ENTRY): String = data[entry.name]
-// TODO: better defaults
-    ?: "".also { System.err.println("No configuration with entry ${entry.name} is present.") }
+val SETTING.value
+    // extract from data
+    get() = DATA.getOrElse(name) {
+        // or return default otherwise
+        System.err.println("No configuration with entry $name is present.")
+        "" // TODO: better defaults
+    }
 
-/* ------------------------- load on init ------------------------- */
+/* ------------------------- private ------------------------- */
 
-// Load settings from hardcoded file
+// hardcoded file to load settings from
 private const val filename = "/home/anaya/abel/personal/proyectos/redmine/settings.conf"
 
-private val data = runCatching {
-    Files.lines(Paths.get(filename)).use { lines ->
+// loaded settings data
+private val DATA = runCatching {
+    File(filename).readLines().asSequence()
         // remove comments
-        lines.map { line -> line.replace("#.*".toRegex(), "") }
-            // skip empty
-            .filter { it.isNotBlank() }
-            // split by sign
-            .map { it.split("=") }
-            // remove invalid
-            .filter {
-                when (it.size) {
-                    2 -> true
-                    else -> false.apply { System.err.println("Invalid entry in settings: ${it.joinToString("=")}") }
-                }
+        .map { it.replace("#.*".toRegex(), "") }
+        // skip empty
+        .filter { it.isNotBlank() }
+        // split by sign
+        .map { it.split("=", limit = 2).map { it.trim() } to it }
+        // build valid to map
+        .mapNotNull { (data, line) ->
+            if (data.size == 2) data[0] to data[1] // ok
+            else {
+                // invalid
+                System.err.println("Invalid entry in settings, missing equal sign: $line")
+                null
             }
-            // save to map
-            .map { it[0] to it[1] }.toList().toMap()
-    }
+        }.toMap()
 }.onFailure {
     print(it)
     System.err.println("Settings file error!")

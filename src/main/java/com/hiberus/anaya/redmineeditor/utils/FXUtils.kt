@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.utils
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
@@ -10,63 +11,57 @@ import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
 import java.util.concurrent.CountDownLatch
+import kotlin.DeprecationLevel.ERROR
 
 /**
- * Utilities to use JavaFX even better
+ * The background color of this region (null for no color)
+ * Setter only (https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0)
  */
-object FXUtils {
-
-    /**
-     * Sets the background color of a region
-     *
-     * @param node  region to change
-     * @param color color to set
-     */
-    @JvmStatic
-    fun setBackgroundColor(node: Region, color: Color?) {
-        node.background = color?.let { Background(BackgroundFill(it, CornerRadii(5.0), Insets(1.0))) }
+var Region.backgroundColor: Color?
+    @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException()
+    set(value) {
+        // create a background with that color and rounded borders
+        background = value?.let { Background(BackgroundFill(it, CornerRadii(5.0), Insets(1.0))) }
     }
 
-    /**
-     * Creates a new Label that will have its content centered
-     *
-     * @param text initial label text
-     * @return the created centered label
-     */
-    @JvmStatic
-    fun getCenteredLabel(text: String): Label =
-        Label(text).apply {
-            maxWidth = Double.MAX_VALUE
-            alignment = Pos.CENTER
-        }
-
-    /**
-     * Runs something in UI thread, then continues.
-     * If this is called from the UI thread, it is run directly
-     * If this is called from a background thread, it is scheduled to run in UI thread (using [Platform.runLater]) and waits until it finishes
-     *
-     * @param run code to run in foreground before this function ends
-     */
-    @JvmStatic
-    fun runInForeground(run: Runnable) =
-        if (Platform.isFxApplicationThread()) {
-            // already in foreground, run directly
-            run.run()
-        } else {
-            // in background, schedule and wait
-            val latch = CountDownLatch(1)
-            Platform.runLater {
-                try {
-                    run.run()
-                } finally {
-                    // finished
-                    latch.countDown()
-                }
-            }
-            // wait until it finishes
-            try {
-                latch.await()
-            } catch (ignored: InterruptedException) {
-            }
-        }
+/**
+ * Creates a new Label that will have its content centered
+ *
+ * @param text initial label text
+ * @return the created centered label
+ */
+fun CenteredLabel(text: String) = Label(text).apply {
+    maxWidth = Double.MAX_VALUE
+    alignment = Pos.CENTER
 }
+
+/**
+ * Makes the node gone (no space) when invisible, otherwise it's just invisible
+ */
+fun Node.syncInvisible() = managedProperty().bind(visibleProperty())
+
+/**
+ * Runs something in UI thread, then continues.
+ * If this is called from the UI thread, it is run directly
+ * If this is called from a background thread, it is scheduled to run in UI thread (using [Platform.runLater]) and waits until it finishes
+ *
+ * @param function code to run in foreground before this function ends
+ */
+fun runInForeground(function: () -> Unit) =
+    if (Platform.isFxApplicationThread()) {
+        // already in foreground, run directly
+        function()
+    } else {
+        // in background, schedule and wait
+        val latch = CountDownLatch(1)
+        Platform.runLater {
+            try {
+                function()
+            } finally {
+                // finished
+                latch.countDown()
+            }
+        }
+        // wait until it finishes
+        latch.await()
+    }

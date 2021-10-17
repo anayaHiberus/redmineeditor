@@ -31,9 +31,9 @@ internal class EntriesComponent : BaseComponent() {
         }
     }
 
-    public override fun init() {
+    override fun init() {
         // on new entries, display them
-        controller.register(
+        controller.onChanges(
             setOf(ChangeEvents.Entries, ChangeEvents.Day, ChangeEvents.Hours)
         ) { model: Model ->
             // clear and replace

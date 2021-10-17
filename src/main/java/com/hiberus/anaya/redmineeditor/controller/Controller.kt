@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.controller
 
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.FXUtils.runInForeground
+import com.hiberus.anaya.redmineeditor.utils.runInForeground
 import javafx.application.Platform
 import kotlin.concurrent.thread
 
@@ -13,9 +13,15 @@ class Controller {
 
     /* ------------------------- data ------------------------- */
 
-    private val model = Model.Editor() // the model used
+    /**
+     * the model used
+     */
+    private val model = Model.Editor()
 
-    private val listeners: MutableList<Pair<Set<ChangeEvents>, (Model) -> Unit>> = mutableListOf() // saved list of listeners and its data
+    /**
+     * saved list of listeners and its data
+     */
+    private val listeners = mutableListOf<Pair<Set<ChangeEvents>, (Model) -> Unit>>()
 
     /* ------------------------- methods ------------------------- */
 
@@ -26,8 +32,8 @@ class Controller {
      * @param events   list of events to react to
      * @param listener listener
      */
-    fun register(events: Set<ChangeEvents>, listener: (Model) -> Unit) =
-        listeners.add(events to listener).run { }
+    fun onChanges(events: Set<ChangeEvents>, listener: (Model) -> Unit) =
+        listeners.add(events to listener)
 
     /**
      * Run something in foreground.
@@ -88,13 +94,11 @@ class Controller {
      *
      * @param events events to fire, those from the model by default
      */
-    @JvmOverloads
     fun fireChanges(events: Set<ChangeEvents> = model.getChanges()) =
         listeners.forEach { (lEvents, listener) ->
             // if at least a registered event, run in foreground
             if (events intersects lEvents) runInForeground { listener(model) }
-        }
-            .also { println("Changes: $events") } // debug
+        }.also { println("Changes: $events") } // debug
 
 }
 

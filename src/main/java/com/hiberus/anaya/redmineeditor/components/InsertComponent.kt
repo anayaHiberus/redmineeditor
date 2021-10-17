@@ -6,8 +6,6 @@ import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.*
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
 
 /**
  * Options for create (insert) a new entry
@@ -29,9 +27,12 @@ internal class InsertComponent : BaseComponent() {
 
     /* ------------------------- reactions ------------------------- */
 
-    public override fun init() {
+    override fun init() {
+        // enable add button if input is not blank
+        add.disableProperty().bind(input.textProperty().isEmpty) // TODO: Investigate this
+
         // when issues change, add them all as menus
-        controller.register(setOf(ChangeEvents.Issues)) { model: Model ->
+        controller.onChanges(setOf(ChangeEvents.Issues)) { model: Model ->
 
             // clear existing
             choice.items.clear()
@@ -59,19 +60,10 @@ internal class InsertComponent : BaseComponent() {
         }
 
         // when day change, enable/disable
-        controller.register(setOf(ChangeEvents.Day)) { model: Model ->
+        controller.onChanges(setOf(ChangeEvents.Day)) { model: Model ->
             // disable if no date selected
             parent.isDisable = model.date == null
         }
-    }
-
-    @FXML
-    private fun onInputKey(event: KeyEvent) {
-        // enable add button if input is not blank
-        add.isDisable = input.text.isBlank()
-
-        // when pressing enter, add
-        if (event.code == KeyCode.ENTER) onAdd()
     }
 
     /**
@@ -83,7 +75,7 @@ internal class InsertComponent : BaseComponent() {
         val content = input.text
         input.clear()
 
-        controller.runBackground { model: Model.Editor ->
+        controller.runBackground { model ->
             // create issues
             model.createTimeEntries(
                 // with all sequential numbers
