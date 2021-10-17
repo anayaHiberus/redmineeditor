@@ -219,11 +219,11 @@ class EntryComponent : SimpleListCell<TimeEntry> {
             }
 
             // button
-            buttonTypes += ButtonType(OPEN_BUTTON)
+            buttonTypes += OPEN_BUTTON
 
         }.showAndWait() // display
 
-        if (result?.takeIf { it.isPresent }?.get()?.text == OPEN_BUTTON) {
+        if (result.resultButton == OPEN_BUTTON) {
             // if open pressed, open in desktop
             thread {
                 URI(issue.url).openInBrowser().ifNotOK {
@@ -243,9 +243,9 @@ class EntryComponent : SimpleListCell<TimeEntry> {
 /* ------------------------- utils ------------------------- */
 
 /**
- * Button string to open in redmine
+ * Button to open in redmine
  */
-const val OPEN_BUTTON = "Open in Redmine"
+val OPEN_BUTTON = ButtonType("Open in Redmine")
 
 /**
  * Get the userdata of the target node

@@ -3,9 +3,7 @@ package com.hiberus.anaya.redmineeditor.model
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.RedmineManager
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.controller.MyException
-import com.hiberus.anaya.redmineeditor.controller.SETTING
-import com.hiberus.anaya.redmineeditor.controller.value
+import com.hiberus.anaya.redmineeditor.controller.*
 import org.json.JSONException
 import java.io.IOException
 import java.time.LocalDate
@@ -63,16 +61,10 @@ abstract class Model {
     /* ------------------------- compound data ------------------------- */
 
     /**
-     * the current date [month]+[day] (null if there is no current day)
+     * the current date: [month]+[day] (null if there is no current day)
      */
     val date
         get() = day?.let { month.atDay(it) }
-
-    /**
-     * iff the current month is already loaded
-     */
-    val isMonthLoaded
-        get() = month in monthsLoaded
 
     /**
      * Calculates the hours spent in a date
@@ -95,7 +87,7 @@ abstract class Model {
     /**
      * the entries that should be displayed on the current day (empty if no current day)
      */
-    val dayEntries: List<TimeEntry>
+    val dayEntries
         get() =
             date?.let { _getEntriesForDate(it) } ?: emptyList()
 
@@ -108,22 +100,22 @@ abstract class Model {
     /**
      * iff there is at least something that was modified (and should be uploaded)
      */
-    fun hasChanges() =
-        entries.any { it.requiresUpload() } || issues.any { it.requiresUpload }
+    val hasChanges
+        get() = entries.any { it.requiresUpload } || issues.any { it.requiresUpload }
 
     /* ------------------------- private getters ------------------------- */
 
     /**
      * gets the loaded issue with the given id, null if not present
      */
-    fun getIssueFromId(id: Int) =
+    internal fun _getIssueFromId(id: Int) =
         issues.firstOrNull { it.id == id }
 
     /**
      * return entries of a specific date
      * TODO replace with a map with date as key
      */
-    fun _getEntriesForDate(date: LocalDate) =
+    internal fun _getEntriesForDate(date: LocalDate) =
         entries.filter { it.wasSpentOn(date) }
 
     /**
@@ -243,28 +235,13 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun uploadAll() {
-            MyException("Updating error", "An error occurred while updating data").run {
-                // upload entries
-                entries.forEach { entry ->
-                    // TODO: move all this logic to manager
-                    try {
-                        entry.uploadTimeEntry()
-                    } catch (e: MyException) {
-                        addDetails(e)
-                    }
-                }
-                // upload issues
-                issues.forEach { issue ->
-                    // TODO: move all this logic to manager
-                    try {
-                        issue.uploadTimeEntry()
-                    } catch (e: MyException) {
-                        addDetails(e)
-                    }
-                }
-                // throw on error
-                if (hasDetails()) throw this
-            }
+            // TODO: move all this logic to manager
+            (entries.runEachCatching { it.upload() }
+                    + issues.runEachCatching { it.upload() })
+                .convert {
+                    // on upload error
+                    MyException("Updating error", "An error occurred while updating data")
+                }?.let { throw it }
         }
 
         /**
@@ -272,10 +249,11 @@ abstract class Model {
          *
          * @param issue for this issue
          */
-        fun createTimeEntry(issue: Issue) {
-            entries += manager.newTimeEntry(issue, this.date ?: return)
-            changes += ChangeEvents.Entries
-        }
+        fun createTimeEntry(issue: Issue) =
+            date?.let {
+                entries += manager.newTimeEntry(issue, it)
+                changes += ChangeEvents.Entries
+            } != null
 
         /**
          * Creates multiple new time entries for current date (does nothing if there is no current day)
@@ -283,22 +261,21 @@ abstract class Model {
          * @param ids each one with an id from this
          */
         @Throws(MyException::class)
-        fun createTimeEntries(ids: List<Int>) {
+        fun createTimeEntries(ids: Sequence<Int>) {
             date ?: return // skip now if there is no date
 
             val pendingIds = ids.filter { id ->
                 // if issue exists, create new entry directly
                 // if not, keep for later loading
-                getIssueFromId(id)?.also { createTimeEntry(it) } == null
+                _getIssueFromId(id)?.also { createTimeEntry(it) } == null
             }.toMutableList()
 
             try {
                 manager.getIssues(pendingIds)
                     // create and add issues
-                    .onEach { issue: Issue ->
-                        createTimeEntry(issue)
-                        issues += issue
-                        changes += ChangeEvents.Entries
+                    .onEach {
+                        createTimeEntry(it)
+                        issues += it
                         changes += ChangeEvents.Issues
                     }
                     // remove from loaded
@@ -325,31 +302,24 @@ abstract class Model {
         @Throws(MyException::class)
         private fun prepareDay() = date?.let { date ->
 
-            val todayIssues =
-                // for all entries in previous days (sorted by date)
-                (0L..PREV_DAYS).flatMap { _getEntriesForDate(date.minusDays(it)) }
-                    // keep one for each issue
-                    .distinctBy { it.issue }
-                    // and create copies for today if not already
-                    .onEach {
-                        if (!it.wasSpentOn(date))
-                            entries += manager.newTimeEntry(it.issue, date)
-                                .apply { comment = it.comment }
-                    }
-                    // keep issues
-                    .map { it.issue }
-
-            // fill issues for today
-            MyException("Issue exception", "Can't load issues data").run {
-                todayIssues.forEach {
-                    try {
-                        it.downloadSpent()
-                    } catch (e: MyException) {
-                        addDetails(e)
-                    }
+            // for all entries in previous days (sorted by date)
+            (0L..PREV_DAYS).flatMap { _getEntriesForDate(date.minusDays(it)) }
+                // keep one for each issue
+                .distinctBy { it.issue }
+                // and create copies for today if not already
+                .onEach {
+                    if (!it.wasSpentOn(date))
+                        entries += manager.newTimeEntry(it.issue, date)
+                            .apply { comment = it.comment }
                 }
-                if (hasDetails()) throw this
-            }
+                // keep issues
+                .map { it.issue }
+                // fill them
+                .runEachCatching { it.downloadSpent() }
+                .convert {
+                    // background error
+                    MyException("Issue exception", "Can't load issues data")
+                }?.let { throw it }
         }
     }
 

@@ -124,13 +124,11 @@ class TimeEntry {
         }
 
     /**
-     * @return true if this entry requires upload, false otherwise
+     * iff this entry requires upload, false otherwise
      */
-    fun requiresUpload() = !(
-            changes.isEmpty // no changes, no upload
-                    ||
-                    (id == iNONE && spent <= 0) // no useful changes, no upload
-            )
+    val requiresUpload
+        get() = !(changes.isEmpty // no changes, no upload
+                || (id == iNONE && spent <= 0)) // no useful changes, no upload
 
     /**
      * Uploads an entry to redmine (unless not needed)
@@ -138,7 +136,7 @@ class TimeEntry {
      * @throws IOException on upload error
      */
     @Throws(IOException::class)
-    fun uploadTimeEntry() {
+    fun upload() {
         changes.takeUnless { it.isEmpty }?.also { // if there are changes
             when {
                 id == iNONE && spent > 0 -> {

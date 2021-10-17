@@ -121,7 +121,7 @@ class RedmineManager(
  * returns all entries from a paginated result
  */
 @Throws(IOException::class)
-private fun String.paginatedGet(key: String): List<JSONObject> =
+private fun String.paginatedGet(key: String) =
     ArrayList<JSONObject>().apply {
         doWhile {
             // get page
@@ -136,7 +136,7 @@ private fun String.paginatedGet(key: String): List<JSONObject> =
 /**
  * Map a JSONArray as a list of JSONObject
  */
-private fun JSONArray.mapAsObjects(): List<JSONObject> = List(length()) { i -> getJSONObject(i) }
+private fun JSONArray.mapAsObjects() = List(length()) { i -> getJSONObject(i) }
 
 /**
  * Run while it returns false (compact while)

@@ -65,21 +65,19 @@ class Controller {
         fireChanges()
 
         thread {
-            val error = try {
+            val error = runCatching {
                 // run in background
                 background(model)
-                null
-            } catch (e: MyException) {
-                e // save directly
-            } catch (e: Throwable) {
+            }.exceptionOrNull()?.convert {
                 // background error
-                MyException("Internal error", "Something unexpected happened in background", e)
+                MyException("Internal error", "Something unexpected happened in background")
             }
 
             // unset as loading
             model.isLoading = false
             fireChanges()
 
+            // then in foreground
             Platform.runLater {
                 // show error
                 error?.showAndWait()

@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
-import java.awt.Desktop
+import java.awt.Desktop.*
 import java.net.URI
 
 /**
@@ -8,12 +8,12 @@ import java.net.URI
  * @return true if it was opened, false on error
  */
 fun URI.openInBrowser(): Boolean =
-    if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+    if (!isDesktopSupported() || !getDesktop().isSupported(Action.BROWSE)) {
         // not supported
         false
     } else try {
         // supported, open
-        Desktop.getDesktop().browse(this)
+        getDesktop().browse(this)
         true
     } catch (e: Exception) {
         // exception

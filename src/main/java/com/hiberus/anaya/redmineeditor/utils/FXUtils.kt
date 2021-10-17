@@ -4,12 +4,14 @@ import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import kotlin.DeprecationLevel.ERROR
 
@@ -65,3 +67,9 @@ fun runInForeground(function: () -> Unit) =
         // wait until it finishes
         latch.await()
     }
+
+/**
+ * The result button, null if not present
+ */
+val Optional<ButtonType>.resultButton
+    get() = this.takeIf { it.isPresent }?.get()

@@ -26,9 +26,20 @@ internal class CalendarComponent : BaseComponent() {
 
     /* ------------------------- properties ------------------------- */
 
-    private val days = arrayOfNulls<Label>(31) // for coloring days
-    private var selected = -1 // the selected day index
-    private var needsColoring = false // to draw colors after month loads
+    /**
+     * the currently displayed labels
+     */
+    private val days = arrayOfNulls<Label>(31)
+
+    /**
+     * the selected day index from [days]
+     */
+    private var selected = -1
+
+    /**
+     * to draw colors after month loads
+     */
+    private var needsColoring = false
 
     /* ------------------------- views ------------------------- */
 
@@ -42,13 +53,11 @@ internal class CalendarComponent : BaseComponent() {
 
     @FXML
     private fun initialize() = // create the header
-        DayOfWeek.values().forEach { field ->
+        DayOfWeek.values().forEach {
             // append each day
-            calendar.add(
-                CenteredLabel(
-                    field.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-                ), field.value - 1, 0
-            )
+            calendar.add(CenteredLabel(
+                it.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+            ), it.value - 1, 0)
         }
 
     override fun init() {
@@ -62,7 +71,7 @@ internal class CalendarComponent : BaseComponent() {
         // when hours change, recolor today
         controller.onChanges(setOf(ChangeEvents.Hours)) { model: Model ->
             // when hours change (and a recoloring is not pending), recolor day
-            if (!needsColoring) model.day.takeIf { it != 0 }?.let { colorDay(it, model) }
+            if (!needsColoring) model.day?.let { colorDay(it, model) }
         }
 
         // when finished loading, color days
@@ -71,8 +80,8 @@ internal class CalendarComponent : BaseComponent() {
             if (!model.isLoading && needsColoring) {
                 colorDays(model)
                 updateLabel(model)
-                needsColoring = false
             }
+            needsColoring = false
         }
 
         // when day changes (or month), set selection
@@ -80,7 +89,7 @@ internal class CalendarComponent : BaseComponent() {
             // unselect
             unselectDay()
             // select new (if there is a selection)
-            model.day.takeIf { it != 0 }?.let {
+            model.day?.let {
                 selected = it - 1
                 days[selected]?.border = Border(BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii(5.0), BorderWidths(1.0)))
             }
@@ -118,16 +127,17 @@ internal class CalendarComponent : BaseComponent() {
      * color all days of current month
      */
     private fun colorDays(model: Model) =
-        (1..model.month.lengthOfMonth()).forEach { day ->
-            colorDay(day, model)
-        }
+        (1..model.month.lengthOfMonth())
+            .forEach { colorDay(it, model) }
 
     /**
      * color a single day of current month
      */
     private fun colorDay(day: Int, model: Model) =
         model.month.atDay(day).let { date ->
-            days[day - 1]?.let { it.backgroundColor = getColor(date.expectedHours, model.getSpent(date), date) }
+            days[day - 1]?.let {
+                it.backgroundColor = getColor(date.expectedHours, model.getSpent(date), date)
+            }
         }
 
     private fun updateLabel(model: Model) {
@@ -157,7 +167,7 @@ internal class CalendarComponent : BaseComponent() {
     private fun drawGrid(model: Model) {
         // clear
         calendar.children.removeAll(days)
-        Arrays.fill(days, null)
+        days.fill(null)
         unselectDay()
 
         // draw month
@@ -170,7 +180,9 @@ internal class CalendarComponent : BaseComponent() {
             val column = index / 7 + 1
             if (column >= calendar.rowCount) {
                 // add missing row if needed
-                calendar.rowConstraints += RowConstraints().apply { vgrow = Priority.SOMETIMES }
+                calendar.rowConstraints += RowConstraints().apply {
+                    vgrow = Priority.SOMETIMES
+                }
             }
 
             // add and save label

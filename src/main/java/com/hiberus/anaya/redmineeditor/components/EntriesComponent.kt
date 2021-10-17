@@ -19,15 +19,23 @@ internal class EntriesComponent : BaseComponent() {
     @FXML
     lateinit var list: ListView<TimeEntry> // list view for displayed entries
 
-    private val listItems = FXCollections.observableArrayList<TimeEntry>() // items in listview
+    /* ------------------------- data ------------------------- */
+
+    /**
+     * items in listview
+     */
+    private val listItems = FXCollections.observableArrayList<TimeEntry>()
 
     @FXML
     private fun initialize() {
         // javafx init
         list.apply {
-            items = listItems // set items
-            cellFactory = Callback { EntryComponent(controller) } // each entry is an entryComponent
-            selectionModel = NoSelectionModel() // disable selection
+            // set items
+            items = listItems
+            // each entry is an entryComponent
+            cellFactory = Callback { EntryComponent(controller) }
+            // disable selection
+            selectionModel = NoSelectionModel()
         }
     }
 

@@ -30,10 +30,14 @@ val SETTING.value
 
 /* ------------------------- private ------------------------- */
 
-// hardcoded file to load settings from
+/**
+ * hardcoded file to load settings from
+ */
 private const val filename = "/home/anaya/abel/personal/proyectos/redmine/settings.conf"
 
-// loaded settings data
+/**
+ * loaded settings data
+ */
 private val DATA = runCatching {
     File(filename).readLines().asSequence()
         // remove comments

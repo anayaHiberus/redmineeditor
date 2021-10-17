@@ -37,8 +37,10 @@ internal class InsertComponent : BaseComponent() {
             // clear existing
             choice.items.clear()
 
-            // add issues, grouped by project
-            model.allIssues.groupBy { it.project }
+            // add issues,
+            choice.items += model.allIssues
+                // group by project
+                .groupBy { it.project }
                 .map { (project, issues) ->
                     // create a menu for the project
                     Menu(project).apply {
@@ -47,13 +49,13 @@ internal class InsertComponent : BaseComponent() {
                             // create a menu item for each issue
                             MenuItem(issue.toShortString()).apply {
                                 onAction = EventHandler {
-                                    // when selected, create a new entry for an issue
+                                    // when selected, create a new entry for the issue
                                     controller.runBackground { it.createTimeEntry(issue) }
                                 }
                             }
                         }
                     }
-                }.toCollection(choice.items)
+                }
 
             // disable if no issues
             choice.isDisable = choice.items.isEmpty()
@@ -70,18 +72,15 @@ internal class InsertComponent : BaseComponent() {
      * Add the input entries
      */
     @FXML
-    private fun onAdd() {
-        // get and clear text
-        val content = input.text
-        input.clear()
-
-        controller.runBackground { model ->
-            // create issues
-            model.createTimeEntries(
-                // with all sequential numbers
-                Regex("\\d+").findAll(content).map { it.value.toInt() }.toList()
-            )
-        }
+    private fun onAdd() = controller.runBackground { model ->
+        // create issues
+        model.createTimeEntries(
+            // with all sequential numbers
+            Regex("\\d+").findAll(
+                // get and clear text
+                input.text.also { input.clear() }
+            ).map { it.value.toInt() }
+        )
     }
 
 }

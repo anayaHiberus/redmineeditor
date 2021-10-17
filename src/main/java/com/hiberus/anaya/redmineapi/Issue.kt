@@ -185,7 +185,7 @@ class Issue(
      * @throws IOException on upload error
      */
     @Throws(IOException::class)
-    fun uploadTimeEntry() = changes.run {
+    fun upload() = changes.run {
         if (isEmpty) return // ignore unmodified
 
         // update

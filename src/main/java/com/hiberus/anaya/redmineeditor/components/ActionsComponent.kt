@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.utils.resultButton
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
@@ -19,22 +20,20 @@ internal class ActionsComponent : BaseComponent() {
      */
     @FXML
     private fun reload() = controller.runForeground { model: Model ->
-        if (model.hasChanges()) {
+        if (model.hasChanges) {
             // if there are changes, ask first
-            Alert(
+            val result = Alert(
                 Alert.AlertType.WARNING,
                 "There are unsaved changes, do you want to lose them and reload?",
                 ButtonType.YES, ButtonType.CANCEL
-            ).run {
+            ).apply {
                 title = "Warning"
                 headerText = "Unsaved changes"
 
-                // display
-                showAndWait()
+            }.showAndWait() // display
 
-                // stop if the user didn't accept
-                if (result != ButtonType.YES) return@runForeground
-            }
+            // stop if the user didn't accept
+            if (result.resultButton != ButtonType.YES) return@runForeground
         }
 
         // either no changes, or the user did want to lose them
