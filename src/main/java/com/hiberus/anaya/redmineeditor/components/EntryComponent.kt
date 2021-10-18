@@ -28,10 +28,16 @@ class EntryComponent : SimpleListCell<TimeEntry> {
     /* ------------------------- views ------------------------- */
 
     @FXML
+    lateinit var issue: HBox
+
+    @FXML
+    lateinit var entry: HBox
+
+    @FXML
     lateinit var spent_sub: HBox
 
     @FXML
-    lateinit var issue: Label
+    lateinit var label: Label
 
     @FXML
     lateinit var comment: TextField
@@ -91,7 +97,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         val issue_estimated = issue.estimated
 
         // text
-        this.issue.text = issue.toString()
+        this.label.text = issue.toString()
 
         // estimated
         estimated.text = when (issue_estimated) {
@@ -134,7 +140,16 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         comment.text = entry.comment
 
         // general
-        this.opacity = if (spent <= 0) 0.5 else 1.0 // TODO: change different opacity of modified issues
+        this.entry.opacity = when {
+            entry.requiresUpload -> 1.0 // need to upload
+            spent > 0 -> 1.0 // used today
+            else -> 0.5 // other
+        }
+        this.issue.opacity = when {
+            issue.requiresUpload -> 1.0 // need to upload
+            spent > 0 -> 0.75 // used today
+            else -> 0.5 // other
+        }
     }
 
     /* ------------------------- actions ------------------------- */

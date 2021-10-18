@@ -9,108 +9,122 @@
 <?import javafx.scene.text.*?>
 <fx:root type="ListCell" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
     <graphic>
-        <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
-            <Label fx:id="issue" onMouseClicked="#showDetails" text="#" wrapText="true" HBox.hgrow="ALWAYS"/>
-            <Label layoutX="10.0" layoutY="38.0" text="Estimated:">
-                <padding>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                </padding>
-            </Label>
-            <VBox alignment="CENTER" layoutX="188.0" layoutY="10.0">
+        <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
+            <HBox fx:id="issue" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
+                  HBox.hgrow="ALWAYS">
                 <children>
-                    <HBox alignment="BOTTOM_CENTER">
+                    <Label fx:id="label" maxWidth="1.7976931348623157E308" onMouseClicked="#showDetails"
+                           prefWidth="50.0" text="#" wrapText="true" HBox.hgrow="ALWAYS"/>
+                    <Label text="Estimated:" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </padding>
+                    </Label>
+                    <VBox alignment="CENTER">
                         <children>
-                            <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="1"/>
-                            <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="0.25">
-                                <font>
-                                    <Font size="10.0"/>
-                                </font>
-                            </Button>
+                            <HBox alignment="BOTTOM_CENTER">
+                                <children>
+                                    <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="1"/>
+                                    <Button mnemonicParsing="false" onAction="#changeEstimated" text="+"
+                                            userData="0.25">
+                                        <font>
+                                            <Font size="10.0"/>
+                                        </font>
+                                    </Button>
+                                </children>
+                            </HBox>
+                            <Label fx:id="estimated" contentDisplay="CENTER" text="hh"/>
+                            <HBox fx:id="estimated_sub" alignment="TOP_CENTER">
+                                <children>
+                                    <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
+                                    <Button mnemonicParsing="false" onAction="#changeEstimated" text="-"
+                                            userData="-0.25">
+                                        <font>
+                                            <Font size="10.0"/>
+                                        </font>
+                                    </Button>
+                                </children>
+                            </HBox>
                         </children>
-                    </HBox>
-                    <Label fx:id="estimated" contentDisplay="CENTER" text="hh"/>
-                    <HBox fx:id="estimated_sub" alignment="TOP_CENTER">
+                    </VBox>
+                    <Label text="Total:" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </padding>
+                    </Label>
+                    <Button fx:id="get_total" mnemonicParsing="false" onAction="#getTotal" text="*"/>
+                    <Label fx:id="total" text="hh | %">
+                        <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </padding>
+                    </Label>
+                    <Button fx:id="sync_realization" mnemonicParsing="false" onAction="#changeRealization" text="&gt;"
+                            userData="&gt;"/>
+                    <Label text="Realization:" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </padding>
+                    </Label>
+                    <VBox alignment="CENTER">
                         <children>
-                            <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
-                            <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-0.25">
-                                <font>
-                                    <Font size="10.0"/>
-                                </font>
-                            </Button>
+                            <HBox fx:id="realization_add" alignment="BOTTOM_CENTER">
+                                <children>
+                                    <Button mnemonicParsing="false" onAction="#changeRealization" text="+"
+                                            userData="10"/>
+                                    <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="1">
+                                        <font>
+                                            <Font size="10.0"/>
+                                        </font>
+                                    </Button>
+                                </children>
+                            </HBox>
+                            <Label fx:id="realization" contentDisplay="CENTER" text="\%"/>
+                            <HBox fx:id="realization_sub" alignment="TOP_CENTER">
+                                <children>
+                                    <Button mnemonicParsing="false" onAction="#changeRealization" text="-"
+                                            userData="-10"/>
+                                    <Button mnemonicParsing="false" onAction="#changeRealization" text="-"
+                                            userData="-1">
+                                        <font>
+                                            <Font size="10.0"/>
+                                        </font>
+                                    </Button>
+                                </children>
+                            </HBox>
                         </children>
-                    </HBox>
+                    </VBox>
                 </children>
-            </VBox>
-            <Label text="Total:">
-                <padding>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                </padding>
-            </Label>
-            <Button fx:id="get_total" mnemonicParsing="false" onAction="#getTotal" text="*"/>
-            <Label fx:id="total" layoutX="32.0" layoutY="38.0" text="hh | %">
-                <padding>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                </padding>
-            </Label>
-            <Button fx:id="sync_realization" layoutX="107.0" layoutY="33.0" mnemonicParsing="false"
-                    onAction="#changeRealization" text=">"
-                    userData=">"/>
-            <Label layoutX="38.0" layoutY="38.0" text="Realization:">
-                <padding>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                </padding>
-            </Label>
-            <VBox alignment="CENTER" layoutX="108.0" layoutY="10.0">
-                <children>
-                    <HBox fx:id="realization_add" alignment="BOTTOM_CENTER">
-                        <children>
-                            <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="10"/>
-                            <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="1">
-                                <font>
-                                    <Font size="10.0"/>
-                                </font>
-                            </Button>
-                        </children>
-                    </HBox>
-                    <Label fx:id="realization" contentDisplay="CENTER" text="\%"/>
-                    <HBox fx:id="realization_sub" alignment="TOP_CENTER">
-                        <children>
-                            <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-10"/>
-                            <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-1">
-                                <font>
-                                    <Font size="10.0"/>
-                                </font>
-                            </Button>
-                        </children>
-                    </HBox>
-                </children>
-            </VBox>
+            </HBox>
             <Separator layoutX="32.0" layoutY="10.0" orientation="VERTICAL">
                 <HBox.margin>
                     <Insets bottom="10.0" top="10.0"/>
                 </HBox.margin>
             </Separator>
-            <Label contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" text="Spent: "/>
-            <VBox alignment="CENTER" HBox.hgrow="NEVER">
-                <HBox alignment="BOTTOM_CENTER">
-                    <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="1"/>
-                    <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="0.25">
-                        <font>
-                            <Font size="10.0"/>
-                        </font>
-                    </Button>
-                </HBox>
-                <Label fx:id="spent" contentDisplay="CENTER" text="hh"/>
-                <HBox fx:id="spent_sub" alignment="TOP_CENTER">
-                    <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1"/>
-                    <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-0.25">
-                        <font>
-                            <Font size="10.0"/>
-                        </font>
-                    </Button>
-                </HBox>
-            </VBox>
-            <TextField fx:id="comment" onKeyTyped="#changedComment" HBox.hgrow="ALWAYS"/>
+            <HBox fx:id="entry" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
+                  HBox.hgrow="ALWAYS">
+                <Label contentDisplay="RIGHT" text="Spent: " HBox.hgrow="ALWAYS"/>
+                <VBox alignment="CENTER">
+                    <HBox alignment="BOTTOM_CENTER">
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="1"/>
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="0.25">
+                            <font>
+                                <Font size="10.0"/>
+                            </font>
+                        </Button>
+                    </HBox>
+                    <Label fx:id="spent" contentDisplay="CENTER" text="hh"/>
+                    <HBox fx:id="spent_sub" alignment="TOP_CENTER">
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1"/>
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-0.25">
+                            <font>
+                                <Font size="10.0"/>
+                            </font>
+                        </Button>
+                    </HBox>
+                </VBox>
+                <TextField fx:id="comment" maxWidth="1.7976931348623157E308" onKeyTyped="#changedComment"
+                           prefWidth="50.0" HBox.hgrow="ALWAYS"/>
+            </HBox>
         </HBox>
     </graphic>
 </fx:root>
