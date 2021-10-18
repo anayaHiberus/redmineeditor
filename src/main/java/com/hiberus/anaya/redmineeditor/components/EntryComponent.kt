@@ -28,46 +28,46 @@ class EntryComponent : SimpleListCell<TimeEntry> {
     /* ------------------------- views ------------------------- */
 
     @FXML
-    lateinit var issue: HBox
+    lateinit var box_issue: HBox
 
     @FXML
-    lateinit var entry: HBox
+    lateinit var txt_details: Label
 
     @FXML
-    lateinit var spent_sub: HBox
+    lateinit var txt_estimated: Label
 
     @FXML
-    lateinit var label: Label
+    lateinit var sub_estimated: HBox
 
     @FXML
-    lateinit var comment: TextField
+    lateinit var btn_total: Button
 
     @FXML
-    lateinit var spent: Label
+    lateinit var txt_total: Label
 
     @FXML
-    lateinit var get_total: Button
+    lateinit var btn_sync: Button
 
     @FXML
-    lateinit var sync_realization: Button
+    lateinit var txt_realization: Label
 
     @FXML
-    lateinit var total: Label
+    lateinit var add_realization: HBox
 
     @FXML
-    lateinit var estimated: Label
+    lateinit var sub_realization: HBox
 
     @FXML
-    lateinit var estimated_sub: HBox
+    lateinit var box_entry: HBox
 
     @FXML
-    lateinit var realization: Label
+    lateinit var txt_spent: Label
 
     @FXML
-    lateinit var realization_sub: HBox
+    lateinit var sub_spent: HBox
 
     @FXML
-    lateinit var realization_add: HBox
+    lateinit var edTxt_comment: TextField
 
     /* ------------------------- init ------------------------- */
 
@@ -82,74 +82,76 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         this.controller = controller
 
         // remove when invisible
-        get_total.syncInvisible()
-        total.syncInvisible()
-        sync_realization.syncInvisible()
+        btn_total.syncInvisible()
+        txt_total.syncInvisible()
+        btn_sync.syncInvisible()
     }
 
     public override fun update() {
         // sets the cell data
-        val entry = item ?: return
-        val issue = entry.issue
 
         // --- issue ---
-        val issue_spent = issue.spent
-        val issue_estimated = issue.estimated
+        item?.issue?.apply {
 
-        // text
-        this.label.text = issue.toString()
+            // text
+            txt_details.text = toString()
 
-        // estimated
-        estimated.text = when (issue_estimated) {
-            dUNINITIALIZED -> "?"
-            dNONE -> "none"
-            else -> issue_estimated.formatHours()
-        }
-        estimated_sub.isDisable = issue_estimated < 0
+            // estimated
+            txt_estimated.text = when (estimated) {
+                dUNINITIALIZED -> "?"
+                dNONE -> "none"
+                else -> estimated.formatHours()
+            }
+            sub_estimated.isDisable = estimated < 0
 
-        // spent
-        get_total.isVisible = issue_spent == dUNINITIALIZED
-        total.isVisible = issue_spent != dUNINITIALIZED
-        total.text = if (issue_spent.isSet) issue_spent.formatHours() else "none"
+            // spent
+            btn_total.isVisible = spent == dUNINITIALIZED
+            txt_total.isVisible = spent != dUNINITIALIZED
+            txt_total.text = if (spent.isSet) spent.formatHours() else "none"
 
-        // sync spent-realization
-        if (issue_spent >= 0 && issue_estimated > 0) {
-            // show and allow sync
-            total.text = "${total.text} | ${(issue_spent / issue_estimated * 100).toInt()}%"
-            sync_realization.isVisible = true
-        } else {
-            // disable sync
-            sync_realization.isVisible = false
-        }
+            // sync spent-realization
+            if (spent >= 0 && estimated > 0) {
+                // show and allow sync
+                txt_total.text += " | ${(spent / estimated * 100).toInt()}%"
+                btn_sync.isVisible = true
+            } else {
+                // disable sync
+                btn_sync.isVisible = false
+            }
 
-        // realization
-        issue.realization.let {
-            realization.text = "$it%"
-            realization_add.isDisable = it >= 100
-            realization_sub.isDisable = it <= 0
+            // realization
+            txt_realization.text = "$realization%"
+            add_realization.isDisable = realization >= 100
+            sub_realization.isDisable = realization <= 0
+
+            // container
+            box_issue.opacity = when {
+                requiresUpload -> 1.0 // need to upload
+                item?.run { spent > 0 } == true -> 0.75 // entry used today
+                else -> 0.5 // other
+            }
+
         }
 
         // --- entry ---
-        val spent = entry.spent
+        item?.apply {
 
-        // spent
-        this.spent.text = spent.formatHours()
-        spent_sub.isDisable = spent <= 0
+            // spent
+            txt_spent.text = spent.formatHours()
+            sub_spent.isDisable = spent <= 0
 
-        // comment
-        comment.text = entry.comment
+            // comment
+            edTxt_comment.text = comment
 
-        // general
-        this.entry.opacity = when {
-            entry.requiresUpload -> 1.0 // need to upload
-            spent > 0 -> 1.0 // used today
-            else -> 0.5 // other
+            // container
+            box_entry.opacity = when {
+                requiresUpload -> 1.0 // need to upload
+                spent > 0 -> 1.0 // used today
+                else -> 0.5 // other
+            }
+
         }
-        this.issue.opacity = when {
-            issue.requiresUpload -> 1.0 // need to upload
-            spent > 0 -> 0.75 // used today
-            else -> 0.5 // other
-        }
+
     }
 
     /* ------------------------- actions ------------------------- */
@@ -157,7 +159,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
     @FXML
     private fun changedComment() {
         // update comment
-        item?.comment = comment.text
+        item?.comment = edTxt_comment.text
         // no need to notify
     }
 
@@ -206,7 +208,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
      * load spent hours
      */
     @FXML
-    private fun getTotal() = controller.runBackground { model: Model.Editor ->
+    private fun loadTotal() = controller.runBackground { model: Model.Editor ->
         item?.issue?.run {
             try {
                 downloadSpent()
