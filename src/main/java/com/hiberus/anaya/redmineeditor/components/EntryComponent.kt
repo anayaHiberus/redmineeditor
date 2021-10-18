@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineapi.dNONE
 import com.hiberus.anaya.redmineapi.dUNINITIALIZED
+import com.hiberus.anaya.redmineapi.isSet
 import com.hiberus.anaya.redmineeditor.controller.Controller
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
@@ -103,7 +104,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         // spent
         get_total.isVisible = issue_spent == dUNINITIALIZED
         total.isVisible = issue_spent != dUNINITIALIZED
-        total.text = if (issue_spent < 0) "none" else issue_spent.formatHours()
+        total.text = if (issue_spent.isSet) issue_spent.formatHours() else "none"
 
         // sync spent-realization
         if (issue_spent >= 0 && issue_estimated > 0) {
@@ -116,10 +117,11 @@ class EntryComponent : SimpleListCell<TimeEntry> {
         }
 
         // realization
-        val realization = issue.realization
-        this.realization.text = "$realization%"
-        realization_add.isDisable = realization >= 100
-        realization_sub.isDisable = realization <= 0
+        issue.realization.let {
+            realization.text = "$it%"
+            realization_add.isDisable = it >= 100
+            realization_sub.isDisable = it <= 0
+        }
 
         // --- entry ---
         val spent = entry.spent

@@ -39,21 +39,21 @@ internal class InsertComponent : BaseComponent() {
 
             // add issues,
             choice.items += model.allIssues
-                // group by project
-                .groupBy { it.project }
+                .map { issue ->
+                    // create a menu item for each issue
+                    MenuItem(issue.toShortString()).apply {
+                        onAction = EventHandler {
+                            // when selected, create a new entry for the issue
+                            controller.runBackground { it.createTimeEntry(issue) }
+                        }
+                    } to issue.project
+                    // group by project
+                }.groupBy { it.second }
                 .map { (project, issues) ->
                     // create a menu for the project
                     Menu(project).apply {
                         // and add their issues
-                        items += issues.map { issue ->
-                            // create a menu item for each issue
-                            MenuItem(issue.toShortString()).apply {
-                                onAction = EventHandler {
-                                    // when selected, create a new entry for the issue
-                                    controller.runBackground { it.createTimeEntry(issue) }
-                                }
-                            }
-                        }
+                        items += issues.map { it.first }
                     }
                 }
 

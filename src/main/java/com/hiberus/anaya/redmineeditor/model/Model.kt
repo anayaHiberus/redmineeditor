@@ -68,6 +68,7 @@ abstract class Model {
 
     /**
      * Calculates the hours spent in a date
+     * TODO: return NONE (-1) if not loaded
      *
      * @param date date to check
      * @return hours spent that date

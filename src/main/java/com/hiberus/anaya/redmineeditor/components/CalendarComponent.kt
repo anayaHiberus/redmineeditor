@@ -76,12 +76,14 @@ internal class CalendarComponent : BaseComponent() {
 
         // when finished loading, color days
         controller.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
-            // if it's not loading, and a recoloring is not pending, color days
-            if (!model.isLoading && needsColoring) {
-                colorDays(model)
-                updateLabel(model)
+            // if it's not loading, and a recoloring is pending, color days
+            if (!model.isLoading) {
+                if (needsColoring) {
+                    colorDays(model)
+                    updateLabel(model)
+                }
+                needsColoring = false
             }
-            needsColoring = false
         }
 
         // when day changes (or month), set selection
@@ -142,13 +144,13 @@ internal class CalendarComponent : BaseComponent() {
 
     private fun updateLabel(model: Model) {
         // month info
-        var label = model.month.format(
-            DateTimeFormatterBuilder()
-                .appendText(ChronoField.MONTH_OF_YEAR)
-                .appendLiteral(", ")
-                .appendText(ChronoField.YEAR)
-                .toFormatter()
-        )
+        var label = DateTimeFormatterBuilder()
+            .appendText(ChronoField.MONTH_OF_YEAR)
+            .appendLiteral(", ")
+            .appendText(ChronoField.YEAR)
+            .toFormatter()
+            .format(model.month)
+
         if (!model.isLoading) {
             // spent/expected
             val spent = model.getSpent(model.month)
@@ -178,11 +180,9 @@ internal class CalendarComponent : BaseComponent() {
             // foreach day in month
             val index = day + padding - 1
             val column = index / 7 + 1
-            if (column >= calendar.rowCount) {
-                // add missing row if needed
-                calendar.rowConstraints += RowConstraints().apply {
-                    vgrow = Priority.SOMETIMES
-                }
+            // add missing row if needed
+            if (column >= calendar.rowCount) calendar.rowConstraints += RowConstraints().apply {
+                vgrow = Priority.SOMETIMES
             }
 
             // add and save label
