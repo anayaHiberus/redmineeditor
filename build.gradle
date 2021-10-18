@@ -51,6 +51,10 @@ jlink {
     launcher {
         name = 'RedmineEditor'
     }
+    mergedModule {
+        additive = true
+        forceMerge "kotlin" // https://issueexplorer.com/issue/beryx/badass-jlink-plugin/165
+    }
 }
 compileKotlin {
     kotlinOptions {

@@ -1,4 +1,3 @@
-@SuppressWarnings("Java9RedundantRequiresStatement")
 module com.hiberus.anaya.redmineeditor {
     requires javafx.controls;
     requires javafx.fxml;
@@ -7,7 +6,6 @@ module com.hiberus.anaya.redmineeditor {
     requires org.json;
     requires java.desktop;
     requires kotlin.stdlib;
-    requires kotlin.stdlib.jdk7;
     // requires redmine.java.api;
 
 
