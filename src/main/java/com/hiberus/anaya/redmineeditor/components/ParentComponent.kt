@@ -10,7 +10,7 @@ import java.time.YearMonth
 
 /**
  * View for the parent app. Manages the loading indicator
- * [Also includes the components injection]
+ * [Also includes the components bean injection]
  */
 internal class ParentComponent : BaseComponent() {
 

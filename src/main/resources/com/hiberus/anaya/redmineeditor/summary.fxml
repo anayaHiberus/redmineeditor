@@ -6,14 +6,12 @@
 <?import javafx.scene.layout.HBox?>
 <HBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.hiberus.anaya.redmineeditor.components.SummaryComponent">
-   <children>
-      <Label fx:id="summary" alignment="CENTER" maxWidth="1.7976931348623157E308" text="...">
-         <HBox.margin>
+    <Label fx:id="summary" alignment="CENTER" maxWidth="1.7976931348623157E308" text="...">
+        <HBox.margin>
             <Insets/>
-         </HBox.margin>
-         <padding>
+        </HBox.margin>
+        <padding>
             <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
-         </padding>
-      </Label>
-   </children>
+        </padding>
+    </Label>
 </HBox>

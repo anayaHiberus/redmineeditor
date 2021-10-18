@@ -14,7 +14,7 @@ internal class InsertComponent : BaseComponent() {
 
     /* ------------------------- views ------------------------- */
     @FXML
-    lateinit var choice: MenuButton // the issues choicebox
+    lateinit var choice: MenuButton // the issues choice box
 
     @FXML
     lateinit var input: TextField // where to paste to create issues

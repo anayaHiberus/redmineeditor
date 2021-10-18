@@ -45,7 +45,7 @@ private val DATA = runCatching {
         // skip empty
         .filter { it.isNotBlank() }
         // split by sign
-        .map { it.split("=", limit = 2).map { it.trim() } to it }
+        .map { line -> line.split("=", limit = 2).map { it.trim() } to line }
         // build valid to map
         .mapNotNull { (data, line) ->
             if (data.size == 2) data[0] to data[1] // ok

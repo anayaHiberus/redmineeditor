@@ -64,7 +64,7 @@ private val SPECIAL = runCatching {
         // skip empty
         .filter { it.isNotBlank() }
         // split by comma
-        .map { it.split(",").map { it.trim() } to it }
+        .map { line -> line.split(",").map { it.trim() } to line }
         // build valid to map
         .mapNotNull { (data, line) ->
             when {

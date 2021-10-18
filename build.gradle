@@ -1,3 +1,6 @@
+//file:noinspection GroovyAssignabilityCheck
+//file:noinspection GroovyUnusedAssignment
+//file:noinspection GrUnresolvedAccess
 plugins {
     id 'java'
     id 'application'
@@ -36,10 +39,11 @@ javafx {
     modules = ['javafx.controls', 'javafx.web', 'javafx.fxml']
 }
 
+//noinspection SpellCheckingInspection
 dependencies {
     implementation "org.json:json:20210307"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    // implementation "com.taskadapter:redmine-java-api:4.0.0.rc4" // useless api, cant search using multiple filters
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC'
+    // implementation 'com.taskadapter:redmine-java-api:4.0.0.rc4' // useless api, cant search using multiple filters
 }
 
 jlink {

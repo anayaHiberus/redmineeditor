@@ -4,7 +4,7 @@ import kotlin.math.roundToInt
 
 /**
  * Converts this hours amount into a string in the format (-)Xh Xm Xs
- * 0h, 1h, 1h 15m, 30m, 40s, 1h 60s, 10h 30m, etc
+ * "0h", "1h", "1h" "15m", "30m", "40s", "1h" "60s", "10h" "30m", etc
  *
  * @return this number of hours formatted as string as described above
  */

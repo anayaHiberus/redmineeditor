@@ -222,7 +222,7 @@ abstract class Model {
             monthsLoaded.clear()
             entries.clear()
             changes += ChangeEvents.Entries
-            changes += ChangeEvents.Month // technically month doesn't change, but its data does, this forces a reload in calendar
+            changes += ChangeEvents.Month // technically month doesn't change, but its data does, this forces a reloading in calendar
 
             issues.clear()
             changes += ChangeEvents.Issues

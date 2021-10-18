@@ -16,7 +16,7 @@ const val iNONE = -1
 /**
  * Check if the value is set (not NONE)
  */
-val Int.isSet get() = this >= 0
+//val Int.isSet get() = this >= 0
 
 /**
  * Unset double property
@@ -48,7 +48,7 @@ const val OFFLINE = false
  */
 class RedmineManager(
     val domain: String,
-    val key: String,
+    private val key: String,
 ) {
 
     /* ------------------------- properties ------------------------- */

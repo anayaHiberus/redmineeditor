@@ -23,6 +23,7 @@ import kotlin.concurrent.thread
 /**
  * One of the entries in the entries list
  */
+@Suppress("unused")
 class EntryComponent : SimpleListCell<TimeEntry> {
 
     /* ------------------------- views ------------------------- */

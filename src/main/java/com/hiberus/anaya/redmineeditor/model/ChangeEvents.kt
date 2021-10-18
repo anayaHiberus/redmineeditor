@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.model
 
 /**
- * Events corresponding to changes in the model
+ * Events corresponding to 'changes in the model'
  */
 enum class ChangeEvents {
 

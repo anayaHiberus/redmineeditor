@@ -1,3 +1,4 @@
+@SuppressWarnings("Java9RedundantRequiresStatement")
 module com.hiberus.anaya.redmineeditor {
     requires javafx.controls;
     requires javafx.fxml;
