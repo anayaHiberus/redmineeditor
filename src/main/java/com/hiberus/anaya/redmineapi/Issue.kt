@@ -53,6 +53,11 @@ class Issue(
         private set
 
     /**
+     * Id of the assigned user
+     */
+    val assigned_to: Int?
+
+    /**
      * the original raw object, if any, for diff purposes
      */
     private val original: JSONObject?
@@ -63,12 +68,13 @@ class Issue(
         original = rawIssue
         // parse issue from raw json data
         id = rawIssue.getInt("id")
-        project = rawIssue.getJSONObject("project").optString("name", "")
+        project = rawIssue.getJSONObject("project").optString("name")
         subject = rawIssue.optString("subject", "")
         description = rawIssue.optString("description")
         estimated = rawIssue.optDouble("estimated_hours", dNONE)
         realization = rawIssue.optInt("done_ratio", 0)
         spent = rawIssue.optDouble("spent_hours", dUNINITIALIZED)
+        assigned_to = rawIssue.optJSONObject("assigned_to")?.getInt("id")
     }
 
     /* ------------------------- properties ------------------------- */
@@ -88,7 +94,7 @@ class Issue(
      * @return a multiline string describing this issue
      * @see .toShortString
      */
-    override fun toString() = "$project\n${toShortString()}"
+    override fun toString() = "$project\n${toShortString()}" + (manager.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
 
     /* ------------------------- modifiers ------------------------- */
 

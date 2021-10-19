@@ -53,12 +53,20 @@ class RedmineManager(
 
     /* ------------------------- properties ------------------------- */
 
+    /**
+     * Build a redmine json api url for a given path (including key)
+     */
     fun buildUrl(path: String) = URL("$domain$path.json?key=$key")
+
+    /**
+     * Id of the user (null if uninitialized)
+     */
+    var userId: Int? = null
 
     /* ------------------------- time entries ------------------------- */
 
     /**
-     * Returns all the entries on a timeframe
+     * Returns all the entries on a timeframe for the current user
      *
      * @param from         from this date (included)
      * @param to           to this date (included)
@@ -69,14 +77,16 @@ class RedmineManager(
     @Throws(IOException::class)
     fun getTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: MutableList<Issue>) = (
             "${domain}time_entries.json?utf8=✓&"
-                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=${"me"}" // you can only edit your own entries, so 'me' is the only useful value
+                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=me"
                     + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=$from&v[spent_on][]=$to"
                     + "&key=$key"
             ).paginatedGet("time_entries")
         .apply {
             // fetch missing issues, and add them to loadedIssues
             val loadedIssuesIds = loadedIssues.map { it.id }.distinct() // as variable to avoid calculating each iteration...does kotlin simplify this?
-            getIssues(this.map { getIssueId(it) }.distinct().filter { it !in loadedIssuesIds }).toCollection(loadedIssues)
+            loadedIssues += getIssues(this.map { getIssueId(it) }.distinct().filter { it !in loadedIssuesIds })
+            // also initialize user id if not still
+            if (userId == null && isNotEmpty()) userId = first().getJSONObject("user").getInt("id")
         }.map { TimeEntry(it, loadedIssues, this) }
 
     /**
