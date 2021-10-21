@@ -9,10 +9,20 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
 
+/* ------------------------- settings ------------------------- */
+// TODO: move to settings file
+
+/**
+ * set to true to autodownload today issues
+ */
+const val AUTO_DOWNLOAD = true
+
 /**
  * Number of days for 'past' computations
  */
 const val PREV_DAYS = 7
+
+/* ------------------------- model ------------------------- */
 
 /**
  * The data of the app
@@ -51,12 +61,17 @@ abstract class Model {
     /**
      * Loaded issues
      */
-    val issues = mutableListOf<Issue>()
+    val issues = mutableSetOf<Issue>()
 
     /**
      * months that are already loaded and don't need to be again
      */
     val monthsLoaded = mutableSetOf<YearMonth>()
+
+    /**
+     * if assigned issues are already loaded
+     */
+    var assignedLoaded = false
 
     /* ------------------------- compound data ------------------------- */
 
@@ -93,10 +108,10 @@ abstract class Model {
             date?.let { _getEntriesForDate(it) } ?: emptyList()
 
     /**
-     * all distinct available issues
+     * all distinct available issues (readonly)
      */
     val allIssues
-        get() = issues.toList()
+        get() = issues.toSet()
 
     /**
      * iff there is at least something that was modified (and should be uploaded)
@@ -200,19 +215,19 @@ abstract class Model {
                         },
                     issues
                 )
+                monthsLoaded += month
             } catch (e: IOException) {
                 throw MyException("Network error", "Can't load content from Redmine. Try again later.", e)
             } catch (e: JSONException) {
                 throw MyException("Parsing error", "Unknown Redmine response. Try again later.", e)
             }
 
-            // prepare
+            // prepare day
             prepareDay()
 
             // mark
-            monthsLoaded += month
             changes += ChangeEvents.Entries
-            changes += ChangeEvents.Issues // TODO: don't notify if no new entries are loaded
+            changes += ChangeEvents.Issues // TODO: don't notify if no new issues are loaded
         }
 
         /**
@@ -221,6 +236,7 @@ abstract class Model {
         fun clearAll() {
             monthsLoaded.clear()
             entries.clear()
+            assignedLoaded = false
             changes += ChangeEvents.Entries
             changes += ChangeEvents.Month // technically month doesn't change, but its data does, this forces a reloading in calendar
 
@@ -301,26 +317,54 @@ abstract class Model {
          * prepares the current day
          */
         @Throws(MyException::class)
-        private fun prepareDay() = date?.let { date ->
+        private fun prepareDay() {
+            date?.also { date ->
 
-            // for all entries in previous days (sorted by date)
-            (0L..PREV_DAYS).flatMap { _getEntriesForDate(date.minusDays(it)) }
-                // keep one for each issue
-                .distinctBy { it.issue }
-                // and create copies for today if not already
-                .onEach {
-                    if (!it.wasSpentOn(date))
-                        entries += manager.newTimeEntry(it.issue, date)
+                // skip if not loaded yet
+                if (date.yearMonth !in monthsLoaded) return
+
+                // add copy of past issues from previous days
+                // for all entries in previous days (sorted by date)
+                entries += (0L..PREV_DAYS).flatMap { _getEntriesForDate(date.minusDays(it)) }
+                    // keep one for each issue
+                    .distinctBy { it.issue }
+                    // then remove those from today
+                    .filterNot { it.wasSpentOn(date) }
+                    // and create entry
+                    .map {
+                        manager.newTimeEntry(it.issue, date)
                             .apply { comment = it.comment }
+                    }
+
+                // download assignedIssues if not already
+                if (!assignedLoaded) {
+                    val issuesIds = issues.map { it.id }
+                    issues += manager.getAssignedIssues().filterNot { it.id in issuesIds }
+                    assignedLoaded = true
                 }
-                // keep issues
-                .map { it.issue }
-                // fill them
-                .runEachCatching { it.downloadSpent() }
-                .convert {
-                    // background error
-                    MyException("Issue exception", "Can't load issues data")
-                }?.let { throw it }
+
+                // add missing assigned issues for today
+                // temp variable
+                val currentIssues = _getEntriesForDate(date).map { it.issue }.distinct()
+                // get issues assigned to us
+                entries += issues.filter { it.assigned_to == (manager.userId ?: return) }
+                    // not in today
+                    .filterNot { it in currentIssues }
+                    // and create empty entries
+                    .map { manager.newTimeEntry(it, date) }
+
+                // download all issues of today if configured
+                if (AUTO_DOWNLOAD) {
+                    // load all issues of today
+                    _getEntriesForDate(date).map { it.issue }.distinct()
+                        // and fill them
+                        .runEachCatching { it.downloadSpent() }
+                        .convert {
+                            // background error
+                            MyException("Issue exception", "Can't load issues data")
+                        }?.let { throw it }
+                }
+            }
         }
     }
 
@@ -332,3 +376,7 @@ abstract class Model {
 private fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() else this
 
 
+/**
+ * YearMoth of a full date
+ */
+private val LocalDate.yearMonth get() = YearMonth.from(this)

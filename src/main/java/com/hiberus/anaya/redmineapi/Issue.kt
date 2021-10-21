@@ -88,13 +88,13 @@ class Issue(
      * @return a short string describing this issue
      * @see .toString
      */
-    fun toShortString() = "#$id: $subject"
+    fun toShortString() = "#$id: $subject${manager.userId?.takeIf { it == assigned_to }?.let { " [you]" } ?: ""}"
 
     /**
      * @return a multiline string describing this issue
      * @see .toShortString
      */
-    override fun toString() = "$project\n${toShortString()}" + (manager.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
+    override fun toString() = "$project\n#$id: $subject" + (manager.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
 
     /* ------------------------- modifiers ------------------------- */
 

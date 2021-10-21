@@ -50,7 +50,7 @@ class TimeEntry {
 
     /* ------------------------- constructors ------------------------- */
 
-    internal constructor(rawEntry: JSONObject, issues: List<Issue>, manager: RedmineManager) {
+    internal constructor(rawEntry: JSONObject, issues: Iterable<Issue>, manager: RedmineManager) {
         this.manager = manager
         original = rawEntry
         // creates a new entry from a json raw data

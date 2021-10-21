@@ -75,7 +75,7 @@ class RedmineManager(
      * @throws IOException if network failed
      */
     @Throws(IOException::class)
-    fun getTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: MutableList<Issue>) = (
+    fun getTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: MutableSet<Issue>) = (
             "${domain}time_entries.json?utf8=✓&"
                     + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=me"
                     + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=$from&v[spent_on][]=$to"
@@ -83,7 +83,7 @@ class RedmineManager(
             ).paginatedGet("time_entries")
         .apply {
             // fetch missing issues, and add them to loadedIssues
-            val loadedIssuesIds = loadedIssues.map { it.id }.distinct() // as variable to avoid calculating each iteration...does kotlin simplify this?
+            val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
             loadedIssues += getIssues(this.map { getIssueId(it) }.distinct().filter { it !in loadedIssuesIds })
             // also initialize user id if not still
             if (userId == null && isNotEmpty()) userId = first().getJSONObject("user").getInt("id")
@@ -122,6 +122,21 @@ class RedmineManager(
                 .map { Issue(it, this@RedmineManager) }
         }
 
+    /**
+     * Return assigned issues
+     */
+    @Throws(IOException::class)
+    fun getAssignedIssues() = (
+            "${domain}issues.json?utf8=✓"
+                    + "&f[]=assigned_to_id&op[assigned_to_id]=%3D&v[assigned_to_id][]=me"
+                    + "&f[]=updated_on&op[updated_on]=>t-&v[updated_on][]=31"
+                    + "&key=$key"
+            ).paginatedGet("issues")
+        .apply {
+            // also initialize user id if not still
+            if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
+        }
+        .map { Issue(it, this) }
 
 }
 
