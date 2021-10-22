@@ -53,12 +53,8 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 
 /* ------------------------- Special days ------------------------- */
 
-// Load special days from hardcoded file
-// TODO: generify this
-const val filename = "/home/anaya/abel/personal/proyectos/redmine/special_days.conf"
-
 private val SPECIAL = runCatching {
-    File(filename).readLines().asSequence()
+    File("../conf/special_days.conf").readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
         // skip empty
@@ -89,6 +85,6 @@ private val SPECIAL = runCatching {
             }
         }.toMap()
 }.onFailure {
-    print(it)
+    println(it)
     System.err.println("Special days file error!")
 }.getOrElse { emptyMap() }

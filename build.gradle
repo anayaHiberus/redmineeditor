@@ -66,3 +66,11 @@ compileTestKotlin {
         jvmTarget = "16"
     }
 }
+
+task copyConf {
+    copy {
+        from '../conf/'
+        into "build/image/conf/"
+    }
+}
+copyConf.mustRunAfter "jlink"

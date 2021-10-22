@@ -1,8 +1,10 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.Controller
+import com.hiberus.anaya.redmineeditor.controller.settingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import javafx.fxml.FXML
+import javafx.scene.control.Alert
 import javafx.scene.control.ProgressIndicator
 import javafx.scene.layout.VBox
 import java.time.LocalDate
@@ -71,12 +73,20 @@ internal class ParentComponent : BaseComponent() {
         }
 
 
-        // start by loading current day and month
-        controller.runBackground {
+        // start the app
+        controller.runBackground({
+            // load current day and month
             it.month = YearMonth.now()
             it.day = LocalDate.now().dayOfMonth
             controller.fireChanges() // notify now to display month while loading
             it.loadMonth()
-        }
+        }, {
+            if (!settingsLoaded) {
+                // invalid configuration, error
+                Alert(Alert.AlertType.ERROR).apply {
+                    contentText = "No valid configuration found"
+                }.showAndWait()
+            }
+        })
     }
 }

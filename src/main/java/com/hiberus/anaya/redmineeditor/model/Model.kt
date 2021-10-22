@@ -51,27 +51,27 @@ abstract class Model {
     /**
      * the manager for online operations
      */
-    val manager = RedmineManager(SETTING.URL.value, SETTING.KEY.value)
+    protected val manager = RedmineManager(SETTING.URL.value, SETTING.KEY.value)
 
     /**
      * time entries
      */
-    val entries = mutableListOf<TimeEntry>()
+    protected val entries = mutableListOf<TimeEntry>()
 
     /**
      * Loaded issues
      */
-    val issues = mutableSetOf<Issue>()
+    protected val issues = mutableSetOf<Issue>()
 
     /**
      * months that are already loaded and don't need to be again
      */
-    val monthsLoaded = mutableSetOf<YearMonth>()
+    protected val monthsLoaded = mutableSetOf<YearMonth>()
 
     /**
      * if assigned issues are already loaded
      */
-    var assignedLoaded = false
+    protected var assignedLoaded = false
 
     /* ------------------------- compound data ------------------------- */
 
@@ -80,6 +80,11 @@ abstract class Model {
      */
     val date
         get() = day?.let { month.atDay(it) }
+
+    /**
+     * true iff the current month was loaded (and data is valid)
+     */
+    val monthLoaded get() = month in monthsLoaded
 
     /**
      * Calculates the hours spent in a date
@@ -197,8 +202,8 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun loadMonth() {
-            // skip if already loaded
-            if (month in monthsLoaded) return
+            // skip if already loaded or invalid settings
+            if (month in monthsLoaded || !settingsLoaded) return
 
             try {
                 // load from the internet all entries in month

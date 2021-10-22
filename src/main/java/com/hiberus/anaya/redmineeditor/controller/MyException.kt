@@ -27,9 +27,16 @@ class MyException(
     /* ------------------------- modifiers ------------------------- */
 
     /**
-     * Adds a detail whose message will be shown as a detail
+     * Adds an exception whose message will be shown as a detail
      *
      * @param other another exception to add
+     */
+    fun addDetail(other: Throwable) = details.add(other.message).run {}
+
+    /**
+     * Adds exceptions whose message will be shown as a detail
+     *
+     * @param other other exceptions to add
      */
     fun addDetails(other: Iterable<Throwable>) = other.forEach { details.add(it.message) }
 
@@ -39,7 +46,7 @@ class MyException(
      * Displays an error dialog with this exception details
      */
     fun showAndWait() {
-        print(cause) // TODO: add in the alert as scrollable text or something
+        println(cause) // TODO: add in the alert as scrollable text or something
 
         Alert(if (warning) WARNING else ERROR).apply {
             headerText = title
@@ -56,7 +63,7 @@ fun Throwable.convert(generator: () -> MyException) = when (this) {
     // if already a MyException, return it
     is MyException -> this
     // otherwise, convert
-    else -> generator().also { it.initCause(this) }
+    else -> generator().also { it.addDetail(this) }
 }
 
 /**

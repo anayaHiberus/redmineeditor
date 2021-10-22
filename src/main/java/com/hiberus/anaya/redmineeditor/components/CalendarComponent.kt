@@ -76,8 +76,8 @@ internal class CalendarComponent : BaseComponent() {
 
         // when finished loading, color days
         controller.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
-            // if it's not loading, and a recoloring is pending, color days
-            if (!model.isLoading) {
+            // if it's not loading, a recoloring is pending, and data is loaded: color days
+            if (!model.isLoading && model.monthLoaded) {
                 if (needsColoring) {
                     colorDays(model)
                     updateLabel(model)
