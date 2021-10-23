@@ -142,7 +142,7 @@ class TimeEntry {
                 id == iNONE && spent > 0 -> {
                     // new entry with hours, create
                     println("Creating entry with data: $it")
-                    if (OFFLINE) return
+                    if (manager.read_only) return
                     JSONObject().put("time_entry", it)
                         .postTo(manager.buildUrl("time_entries"))
                         .ifNot(201) {
@@ -156,7 +156,7 @@ class TimeEntry {
                 id >= 0 && spent > 0 -> {
                     // existing entry with hours, update
                     println("Updating entry $id with data: $it")
-                    if (OFFLINE) return
+                    if (manager.read_only) return
                     JSONObject().put("time_entry", it)
                         .putTo(manager.buildUrl("time_entries/$id"))
                         .ifNot(200) {
@@ -167,7 +167,7 @@ class TimeEntry {
                 id >= 0 && spent <= 0 -> {
                     // existing entry without hours, delete
                     println("Deleting entry $id")
-                    if (OFFLINE) return
+                    if (manager.read_only) return
                     manager.buildUrl("time_entries/$id")
                         .delete()
                         .ifNot(200) {

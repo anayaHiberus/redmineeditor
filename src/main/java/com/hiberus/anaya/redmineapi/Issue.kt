@@ -196,7 +196,7 @@ class Issue(
 
         // update
         println("Updating issue $id with data: $changes")
-        if (OFFLINE) return
+        if (manager.read_only) return
         JSONObject().put("issue", changes)
             .putTo(manager.buildUrl("issues/$id"))
             .ifNot(200) { throw IOException("Error when updating issue $id with data: $changes") }

@@ -33,11 +33,6 @@ const val dUNINITIALIZED = -2.0
  */
 val Double.isSet get() = this >= 0.0
 
-/**
- * for debug purposes, set to true to disable online PUT/POST petitions
- */
-const val OFFLINE = false
-
 /* ------------------------- class ------------------------- */
 
 /**
@@ -45,10 +40,12 @@ const val OFFLINE = false
  * The 'official' one is not used because it doesn't allow searching with multiple filters
  * @param domain the redmine domain
  * @param key the redmine api key
+ * @param read_only if true, put/post petitions will be skipped (but still logged)
  */
 class RedmineManager(
     val domain: String,
     private val key: String,
+    val read_only: Boolean = false,
 ) {
 
     /* ------------------------- properties ------------------------- */

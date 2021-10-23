@@ -15,13 +15,18 @@ enum class SETTING {
     /**
      * Redmine key
      */
-    KEY
+    KEY,
+
+    /**
+     * Disable PUT/POST
+     */
+    READ_ONLY,
 }
 
 /**
  * this setting entry value
  */
-val SETTING.value
+val SETTING.value: String
     // extract from data
     get() = DATA.getProperty(name, "") // TODO: better defaults
 

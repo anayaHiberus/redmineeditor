@@ -2,10 +2,11 @@
 # key=value
 # Empty lines are ignored, anything after a '#' is ignored too
 
-# Required entries:
 # URL= Redmine site (url)
+URL=
+
 # KEY= redmine api key (alfanumeric string)
-
-URL=https://redmine.hiberus.com/redmine/
-
 KEY=
+
+# READ_ONLY= set to true to skip PUT/POST petitions (they will be logged)
+READ_ONLY=

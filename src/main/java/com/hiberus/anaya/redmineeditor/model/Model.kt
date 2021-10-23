@@ -51,7 +51,7 @@ abstract class Model {
     /**
      * the manager for online operations
      */
-    protected val manager = RedmineManager(SETTING.URL.value, SETTING.KEY.value)
+    protected val manager = RedmineManager(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
 
     /**
      * time entries
