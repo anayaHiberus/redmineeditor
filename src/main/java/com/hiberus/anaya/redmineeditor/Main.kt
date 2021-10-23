@@ -16,7 +16,7 @@ class Main : Application() {
     @Throws(IOException::class)
     override fun start(stage: Stage) = stage.run {
         // load and show
-        title = "Redmine editor"
+        title = "Redmine editor, by Abel Naya"
         scene = Scene(FXMLLoader(this@Main.javaClass.getResource("parent.fxml")).load())
         show()
     }

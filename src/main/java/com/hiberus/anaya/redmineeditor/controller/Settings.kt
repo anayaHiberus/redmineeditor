@@ -6,21 +6,26 @@ import java.util.*
 /**
  * Global settings
  */
-enum class SETTING {
+enum class SETTING(val default: String) {
     /**
      * Redmine url
      */
-    URL,
+    URL(""),
 
     /**
      * Redmine key
      */
-    KEY,
+    KEY(""),
 
     /**
      * Disable PUT/POST
      */
-    READ_ONLY,
+    READ_ONLY("false"),
+
+    /**
+     * Automatically load total hours
+     */
+    AUTO_LOAD_TOTAL_HOURS("true")
 }
 
 /**
@@ -28,7 +33,7 @@ enum class SETTING {
  */
 val SETTING.value: String
     // extract from data
-    get() = DATA.getProperty(name, "") // TODO: better defaults
+    get() = DATA.getProperty(name, default)
 
 /**
  * true iff the settings were loaded

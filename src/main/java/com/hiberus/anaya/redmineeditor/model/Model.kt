@@ -359,7 +359,7 @@ abstract class Model {
                     .map { manager.newTimeEntry(it, date) }
 
                 // download all issues of today if configured
-                if (AUTO_DOWNLOAD) {
+                if (SETTING.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()) {
                     // load all issues of today
                     _getEntriesForDate(date).map { it.issue }.distinct()
                         // and fill them

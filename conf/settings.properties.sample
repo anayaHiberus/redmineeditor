@@ -1,12 +1,11 @@
-# Format:
-# key=value
-# Empty lines are ignored, anything after a '#' is ignored too
-
-# URL= Redmine site (url)
+# URL: Redmine site (url) [required]
 URL=
 
-# KEY= redmine api key (alfanumeric string)
+# KEY: redmine api key (alfanumeric string) [required]
 KEY=
 
-# READ_ONLY= set to true to skip PUT/POST petitions (they will be logged)
-READ_ONLY=
+# READ_ONLY: set to true to skip PUT/POST petitions (they will still be logged), false by default
+# READ_ONLY = false
+
+# AUTO_LOAD_TOTAL_HOURS: set to false to manually load total hours (faster startup time), true by default
+# AUTO_LOAD_TOTAL_HOURS = true
