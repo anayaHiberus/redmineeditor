@@ -10,17 +10,16 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 /* ------------------------- settings ------------------------- */
-// TODO: move to settings file
 
 /**
  * set to true to autodownload today issues
  */
-const val AUTO_DOWNLOAD = true
+private val autoLoadTotalHours get() = SETTING.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
 
 /**
  * Number of days for 'past' computations
  */
-const val PREV_DAYS = 7
+private val prevDays get() = runCatching { SETTING.PREV_DAYS.value.toLong().coerceIn(0, 28) }.getOrDefault(0)
 
 /* ------------------------- model ------------------------- */
 
@@ -211,12 +210,12 @@ abstract class Model {
                     month.atDay(1)
                         .ifCheck(month.minusMonths(1) !in monthsLoaded) {
                             // load previous days if previous month was not loaded
-                            minusDays(PREV_DAYS.toLong())
+                            minusDays(prevDays)
                         },
                     month.atEndOfMonth()
                         .ifCheck(month.plusMonths(1) in monthsLoaded) {
                             // don't load last days if next month was loaded
-                            minusDays(PREV_DAYS.toLong())
+                            minusDays(prevDays)
                         },
                     issues
                 )
@@ -330,7 +329,7 @@ abstract class Model {
 
                 // add copy of past issues from previous days
                 // for all entries in previous days (sorted by date)
-                entries += (0L..PREV_DAYS).flatMap { _getEntriesForDate(date.minusDays(it)) }
+                entries += (0L..prevDays).flatMap { _getEntriesForDate(date.minusDays(it)) }
                     // keep one for each issue
                     .distinctBy { it.issue }
                     // then remove those from today
@@ -359,7 +358,7 @@ abstract class Model {
                     .map { manager.newTimeEntry(it, date) }
 
                 // download all issues of today if configured
-                if (SETTING.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()) {
+                if (autoLoadTotalHours) {
                     // load all issues of today
                     _getEntriesForDate(date).map { it.issue }.distinct()
                         // and fill them

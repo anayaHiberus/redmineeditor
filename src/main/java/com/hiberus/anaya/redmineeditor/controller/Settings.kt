@@ -25,7 +25,12 @@ enum class SETTING(val default: String) {
     /**
      * Automatically load total hours
      */
-    AUTO_LOAD_TOTAL_HOURS("true")
+    AUTO_LOAD_TOTAL_HOURS("true"),
+
+    /**
+     * Number of days for 'past' computations
+     */
+    PREV_DAYS("7")
 }
 
 /**
