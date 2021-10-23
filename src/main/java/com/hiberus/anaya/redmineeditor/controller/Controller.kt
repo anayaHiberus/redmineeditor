@@ -64,7 +64,7 @@ class Controller {
         model.isLoading = true
         fireChanges()
 
-        thread {
+        thread(isDaemon = true) {
             val error = runCatching {
                 // run in background
                 background(model)

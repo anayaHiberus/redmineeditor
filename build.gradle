@@ -67,10 +67,10 @@ compileTestKotlin {
     }
 }
 
-task copyConf {
-    copy {
-        from '../conf/'
-        into "build/image/conf/"
-    }
+task copyConf(type: Copy) {
+    println("Copying Configuration files")
+    from(layout.buildDirectory.dir("../conf"))
+    include("**/*.*")
+    into(layout.buildDirectory.dir("image/conf/"))
 }
-copyConf.mustRunAfter "jlink"
+tasks.named("jlink") { finalizedBy("copyConf") }

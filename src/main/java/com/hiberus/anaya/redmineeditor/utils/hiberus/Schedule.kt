@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils.hiberus
 
+import com.hiberus.anaya.redmineeditor.utils.findFile
 import javafx.scene.paint.Color
-import java.io.File
 import java.time.LocalDate
 import java.time.Month
 import java.time.YearMonth
@@ -54,7 +54,7 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 /* ------------------------- Special days ------------------------- */
 
 private val SPECIAL = runCatching {
-    File("../conf/special_days.conf").readLines().asSequence()
+    findFile("conf/special_days.conf").readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
         // skip empty

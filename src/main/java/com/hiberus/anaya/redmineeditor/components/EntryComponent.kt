@@ -245,7 +245,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
 
         if (result.resultButton == OPEN_BUTTON) {
             // if open pressed, open in desktop
-            thread {
+            thread(isDaemon = true) {
                 URI(issue.url).openInBrowser().ifNotOK {
                     // on error, display alert
                     Platform.runLater {

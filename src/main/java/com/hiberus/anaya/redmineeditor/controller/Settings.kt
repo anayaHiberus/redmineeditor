@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.controller
 
-import java.io.File
+import com.hiberus.anaya.redmineeditor.utils.findFile
 import java.util.*
 
 /**
@@ -38,7 +38,7 @@ var settingsLoaded = false
  */
 private val DATA = Properties().apply {
     runCatching {
-        File("../conf/settings.properties").inputStream().use {
+        findFile("conf/settings.properties").inputStream().use {
             load(it)
             settingsLoaded = true
         }
