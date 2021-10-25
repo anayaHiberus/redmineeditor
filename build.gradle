@@ -55,6 +55,12 @@ jlink {
         additive = true
         forceMerge "kotlin" // https://issueexplorer.com/issue/beryx/badass-jlink-plugin/165
     }
+    targetPlatform("personal") {/* Default settings */ } // https://badass-jlink-plugin.beryx.org/releases/latest/
+    targetPlatform("linux") {/* Default settings */ }
+    targetPlatform("windows") {
+        jdkHome = "${buildDir}/../../win-sdk/jdk-16.0.2.7"
+        addExtraModulePath("${buildDir}/../../win-sdk/javafx-jmods-16")
+    }
 }
 compileKotlin {
     kotlinOptions {
@@ -68,13 +74,25 @@ compileTestKotlin {
 }
 
 task copyConf(type: Copy) {
-    // copy configuration folder
+    // copy configuration folder, hardcoded things
     println("Copying Configuration files")
-    from(layout.buildDirectory.dir("../conf"))
+
+    into("${buildDir}/image")
     include("**/*.*")
-    into(layout.buildDirectory.dir("image/conf/"))
+
+    into("RedmineEditor-personal/conf") {
+        from("${buildDir}/../conf")
+    }
+    into("RedmineEditor-linux/conf") {
+        from("${buildDir}/../conf")
+        exclude("**/settings.properties")
+    }
+    into("RedmineEditor-windows/conf") {
+        from("${buildDir}/../conf")
+        exclude("**/settings.properties")
+    }
 }
 
 // https://handstandsam.com/2021/06/07/run-custom-gradle-task-after-build/
 tasks.named("jlink") { finalizedBy("copyConf") }
-tasks.named("jlinkZip") {dependsOn("copyConf") }
+tasks.named("jlinkZip") { dependsOn("copyConf") }
