@@ -82,14 +82,17 @@ task copyConf(type: Copy) {
 
     into("RedmineEditor-personal/conf") {
         from("${buildDir}/../conf")
+        exclude("**/settings.properties.sample")
     }
     into("RedmineEditor-linux/conf") {
         from("${buildDir}/../conf")
         exclude("**/settings.properties")
+        rename("settings.properties.sample", "settings.properties")
     }
     into("RedmineEditor-windows/conf") {
         from("${buildDir}/../conf")
         exclude("**/settings.properties")
+        rename("settings.properties.sample", "settings.properties")
     }
 }
 
