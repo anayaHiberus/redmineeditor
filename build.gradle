@@ -68,9 +68,13 @@ compileTestKotlin {
 }
 
 task copyConf(type: Copy) {
+    // copy configuration folder
     println("Copying Configuration files")
     from(layout.buildDirectory.dir("../conf"))
     include("**/*.*")
     into(layout.buildDirectory.dir("image/conf/"))
 }
+
+// https://handstandsam.com/2021/06/07/run-custom-gradle-task-after-build/
 tasks.named("jlink") { finalizedBy("copyConf") }
+tasks.named("jlinkZip") {dependsOn("copyConf") }

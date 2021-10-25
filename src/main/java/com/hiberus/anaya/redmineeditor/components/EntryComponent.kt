@@ -240,6 +240,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
 
             // button
             buttonTypes += OPEN_BUTTON
+            buttonTypes += ButtonType.CLOSE // to allow closing by pressing the 'x' button
 
         }.showAndWait() // display
 
