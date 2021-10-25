@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
+import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import javafx.event.EventHandler
@@ -10,7 +11,7 @@ import javafx.scene.control.*
 /**
  * Options for create (insert) a new entry
  */
-internal class InsertComponent : BaseComponent() {
+internal class InsertComponent {
 
     /* ------------------------- views ------------------------- */
     @FXML
@@ -27,12 +28,13 @@ internal class InsertComponent : BaseComponent() {
 
     /* ------------------------- reactions ------------------------- */
 
-    override fun init() {
+    @FXML
+    fun initialize() {
         // enable add button if input is not blank
         add.disableProperty().bind(input.textProperty().isEmpty) // TODO: Investigate this
 
         // when issues change, add them all as menus
-        controller.onChanges(setOf(ChangeEvents.Issues)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.Issues)) { model: Model ->
 
             // clear existing
             choice.items.clear()
@@ -44,7 +46,7 @@ internal class InsertComponent : BaseComponent() {
                     MenuItem(issue.toShortString()).apply {
                         onAction = EventHandler {
                             // when selected, create a new entry for the issue
-                            controller.runBackground { it.createTimeEntry(issue) }
+                            AppController.runBackground { it.createTimeEntry(issue) }
                         }
                     } to issue.project
                     // group by project
@@ -62,7 +64,7 @@ internal class InsertComponent : BaseComponent() {
         }
 
         // when day change, enable/disable
-        controller.onChanges(setOf(ChangeEvents.Day)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.Day)) { model: Model ->
             // disable if no date selected
             parent.isDisable = model.date == null
         }
@@ -72,7 +74,7 @@ internal class InsertComponent : BaseComponent() {
      * Add the input entries
      */
     @FXML
-    private fun onAdd() = controller.runBackground { model ->
+    private fun onAdd() = AppController.runBackground { model ->
         // create issues
         model.createTimeEntries(
             // with all sequential numbers

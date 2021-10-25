@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
+import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
@@ -22,7 +23,7 @@ import java.util.*
 /**
  * A calendar view with colored days
  */
-internal class CalendarComponent : BaseComponent() {
+internal class CalendarComponent {
 
     /* ------------------------- properties ------------------------- */
 
@@ -52,7 +53,8 @@ internal class CalendarComponent : BaseComponent() {
     /* ------------------------- init ------------------------- */
 
     @FXML
-    private fun initialize() = // create the header
+    private fun initialize() {
+        // create the header
         DayOfWeek.values().forEach {
             // append each day
             calendar.add(CenteredLabel(
@@ -60,22 +62,21 @@ internal class CalendarComponent : BaseComponent() {
             ), it.value - 1, 0)
         }
 
-    override fun init() {
         // on new month, draw it and prepare to draw colors
-        controller.onChanges(setOf(ChangeEvents.Month)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.Month)) { model: Model ->
             drawGrid(model)
             updateLabel(model)
             needsColoring = true
         }
 
         // when hours change, recolor today
-        controller.onChanges(setOf(ChangeEvents.Hours)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.Hours)) { model: Model ->
             // when hours change (and a recoloring is not pending), recolor day
             if (!needsColoring) model.day?.let { colorDay(it, model) }
         }
 
         // when finished loading, color days
-        controller.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
             // if it's not loading, a recoloring is pending, and data is loaded: color days
             if (!model.isLoading && model.monthLoaded) {
                 if (needsColoring) {
@@ -87,7 +88,7 @@ internal class CalendarComponent : BaseComponent() {
         }
 
         // when day changes (or month), set selection
-        controller.onChanges(setOf(ChangeEvents.Day, ChangeEvents.Month)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.Day, ChangeEvents.Month)) { model: Model ->
             // unselect
             unselectDay()
             // select new (if there is a selection)
@@ -101,13 +102,13 @@ internal class CalendarComponent : BaseComponent() {
     /* ------------------------- actions ------------------------- */
 
     @FXML
-    private fun onNextMonth() = controller.runBackground { model: Model.Editor ->
+    private fun onNextMonth() = AppController.runBackground { model: Model.Editor ->
         // next month
         loadMonth(1, model)
     }
 
     @FXML
-    private fun onPreviousMonth() = controller.runBackground { model: Model.Editor ->
+    private fun onPreviousMonth() = AppController.runBackground { model: Model.Editor ->
         // previous month
         loadMonth(-1, model)
     }
@@ -120,7 +121,7 @@ internal class CalendarComponent : BaseComponent() {
         month = month.plusMonths(offset.toLong())
         // unselect the day
         day = null
-        controller.fireChanges() // notify now to display month in UI
+        AppController.fireChanges() // notify now to display month in UI
         // and load month
         loadMonth()
     }
@@ -202,7 +203,7 @@ internal class CalendarComponent : BaseComponent() {
     /**
      * select a specific day
      */
-    private fun selectDay(day: Int) = controller.runBackground { model: Model.Editor ->
+    private fun selectDay(day: Int) = AppController.runBackground { model: Model.Editor ->
         model.day = day
     }
 

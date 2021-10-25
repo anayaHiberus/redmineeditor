@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
+import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.settingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
@@ -16,7 +17,7 @@ import java.time.format.FormatStyle
 /**
  * A simple label with info of the current selected day
  */
-internal class SummaryComponent : BaseComponent() {
+internal class SummaryComponent {
 
     /* ------------------------- views ------------------------- */
 
@@ -25,8 +26,9 @@ internal class SummaryComponent : BaseComponent() {
 
     /* ------------------------- actions ------------------------- */
 
-    override fun init() {
-        controller.onChanges(
+    @FXML
+    fun initialize() {
+        AppController.onChanges(
             // when month, day, hours or the loading state changes, update
             setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.Hours, ChangeEvents.Loading)
         ) { model: Model ->

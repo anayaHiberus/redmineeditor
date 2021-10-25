@@ -93,10 +93,15 @@ class Controller {
      * @param events events to fire, those from the model by default
      */
     fun fireChanges(events: Set<ChangeEvents> = model.getChanges()) =
-        listeners.forEach { (lEvents, listener) ->
-            // if at least a registered event, run in foreground
-            if (events intersects lEvents) runInForeground { listener(model) }
-        }.also { println("Changes: $events") } // debug
+        listeners.also { println("Changes: $events") } // debug
+            // get those who need to be modified
+            .filter { (lEvents, _) -> lEvents intersects events }
+            // and notify them all in foreground
+            .let {
+                runInForeground {
+                    it.forEach { (_, listener) -> listener(model) }
+                }
+            }
 
 }
 

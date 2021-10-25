@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
-import com.hiberus.anaya.redmineeditor.controller.Controller
+import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.settingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import javafx.fxml.FXML
@@ -11,49 +11,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 /**
- * View for the parent app. Manages the loading indicator
- * [Also includes the components bean injection]
+ * Component for the parent app. Manages the loading indicator
  */
-internal class ParentComponent : BaseComponent() {
-
-    /* ------------------------- component injection ------------------------- */
-
-    // javaFX calls them controllers, but they are components!
-    // TODO: replace with a bean or something
-
-    @FXML
-    lateinit var calendarController: CalendarComponent
-
-    @FXML
-    lateinit var summaryController: SummaryComponent
-
-    @FXML
-    lateinit var entriesController: EntriesComponent
-
-    @FXML
-    lateinit var insertController: InsertComponent
-
-    @FXML
-    lateinit var actionsController: ActionsComponent
-
-    @FXML
-    private fun initialize() {
-        // init components, like manual dependency injection
-        Controller().let {
-            calendarController.injectController(it)
-            summaryController.injectController(it)
-            entriesController.injectController(it)
-            insertController.injectController(it)
-            actionsController.injectController(it)
-            this.injectController(it) // must be last!
-        }
-    }
-
-
-    /* ****************************************************** */
-    /* ****************************************************** */
-    /* ****************************************************** */
-
+internal class ParentComponent {
 
     /* ------------------------- elements ------------------------- */
 
@@ -65,20 +25,21 @@ internal class ParentComponent : BaseComponent() {
 
     /* ------------------------- init ------------------------- */
 
-    override fun init() {
+    @FXML
+    fun initialize() {
         // When loading, the indicator is shown and the whole app is disabled.
-        controller.onChanges(setOf(ChangeEvents.Loading)) {
+        AppController.onChanges(setOf(ChangeEvents.Loading)) {
             progress.isVisible = it.isLoading
             parent.isDisable = it.isLoading
         }
 
 
         // start the app
-        controller.runBackground({
+        AppController.runBackground({
             // load current day and month
             it.month = YearMonth.now()
             it.day = LocalDate.now().dayOfMonth
-            controller.fireChanges() // notify now to display month while loading
+            AppController.fireChanges() // notify now to display month while loading
             it.loadMonth()
         }, {
             if (!settingsLoaded) {

@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
+import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.NoSelectionModel
@@ -12,7 +13,7 @@ import javafx.util.Callback
 /**
  * A list of entries that you can edit
  */
-internal class EntriesComponent : BaseComponent() {
+internal class EntriesComponent {
 
     /* ------------------------- views ------------------------- */
 
@@ -28,20 +29,18 @@ internal class EntriesComponent : BaseComponent() {
 
     @FXML
     private fun initialize() {
-        // javafx init
+        // initialize list
         list.apply {
             // set items
             items = listItems
             // each entry is an entryComponent
-            cellFactory = Callback { EntryComponent(controller) }
+            cellFactory = Callback { EntryComponent() }
             // disable selection
             selectionModel = NoSelectionModel()
         }
-    }
 
-    override fun init() {
         // on new entries, display them
-        controller.onChanges(
+        AppController.onChanges(
             setOf(ChangeEvents.Entries, ChangeEvents.Day, ChangeEvents.Hours)
         ) { model: Model ->
             // clear and replace

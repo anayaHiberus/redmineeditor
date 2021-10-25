@@ -4,7 +4,7 @@ import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineapi.dNONE
 import com.hiberus.anaya.redmineapi.dUNINITIALIZED
 import com.hiberus.anaya.redmineapi.isSet
-import com.hiberus.anaya.redmineeditor.controller.Controller
+import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
@@ -24,7 +24,7 @@ import kotlin.concurrent.thread
  * One of the entries in the entries list
  */
 @Suppress("unused")
-class EntryComponent : SimpleListCell<TimeEntry> {
+class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
 
     /* ------------------------- views ------------------------- */
 
@@ -72,16 +72,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
 
     /* ------------------------- init ------------------------- */
 
-    private val controller: Controller
-
-    private constructor() : this(Controller()) // to avoid error on fxml file
-
-    /**
-     * creates new cell
-     */
-    constructor(controller: Controller) : super("entry_cell.fxml") {
-        this.controller = controller
-
+    init {
         // remove when invisible
         btn_total.syncInvisible()
         txt_total.syncInvisible()
@@ -173,7 +164,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
             // update entry
             addSpent(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            controller.fireChanges(setOf(ChangeEvents.Hours))
+            AppController.fireChanges(setOf(ChangeEvents.Hours))
         }
 
 
@@ -186,7 +177,7 @@ class EntryComponent : SimpleListCell<TimeEntry> {
             // update issue entry
             addEstimated(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            controller.fireChanges(setOf(ChangeEvents.Hours))
+            AppController.fireChanges(setOf(ChangeEvents.Hours))
         }
 
     /**
@@ -202,14 +193,14 @@ class EntryComponent : SimpleListCell<TimeEntry> {
                 else -> addRealization(data.toInt()) // the button data is the amount
             }
             // and notify
-            controller.fireChanges(setOf(ChangeEvents.Hours))
+            AppController.fireChanges(setOf(ChangeEvents.Hours))
         }
 
     /**
      * load spent hours
      */
     @FXML
-    private fun loadTotal() = controller.runBackground { model: Model.Editor ->
+    private fun loadTotal() = AppController.runBackground { model: Model.Editor ->
         item?.issue?.run {
             try {
                 downloadSpent()
