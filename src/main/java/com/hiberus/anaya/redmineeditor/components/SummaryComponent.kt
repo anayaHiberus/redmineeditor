@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.controller.settingsLoaded
+import com.hiberus.anaya.redmineeditor.controller.SettingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.backgroundColor
@@ -36,7 +36,7 @@ internal class SummaryComponent {
                 // while loading, notify user
                 summary.text = "Loading..."
                 summary.background = null
-            } else if (!settingsLoaded) {
+            } else if (!SettingsLoaded) {
                 // on settings error, notify too
                 summary.text = "Can't load settings"
                 summary.background = null

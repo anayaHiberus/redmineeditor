@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.controller.settingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.utils.getModuleResource
 import javafx.fxml.FXML
@@ -10,8 +9,6 @@ import javafx.scene.control.Label
 import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.VBox
-import java.time.LocalDate
-import java.time.YearMonth
 
 /**
  * Component for the parent app. Manages the loading indicator
@@ -36,22 +33,7 @@ internal class ParentComponent {
             parent.isDisable = it.isLoading
         }
 
-
-        // start the app
-        AppController.runBackground({
-            // load current day and month
-            it.month = YearMonth.now()
-            it.day = LocalDate.now().dayOfMonth
-            AppController.fireChanges() // notify now to display month while loading
-            it.loadMonth()
-        }, {
-            if (!settingsLoaded) {
-                // invalid configuration, error
-                Alert(Alert.AlertType.ERROR).apply {
-                    contentText = "No valid configuration found"
-                }.showAndWait()
-            }
-        })
+        AppController.fireChanges(setOf(ChangeEvents.Start))
     }
 
     /* ------------------------- readme ------------------------- */

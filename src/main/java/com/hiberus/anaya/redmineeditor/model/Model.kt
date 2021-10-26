@@ -202,7 +202,7 @@ abstract class Model {
         @Throws(MyException::class)
         fun loadMonth() {
             // skip if already loaded or invalid settings
-            if (month in monthsLoaded || !settingsLoaded) return
+            if (month in monthsLoaded || !SettingsLoaded) return
 
             try {
                 // load from the internet all entries in month

@@ -16,9 +16,7 @@ abstract class SimpleListCell<T>(filename: String) : ListCell<T>() {
 
     init {
         // initialize ListCell by loading the fxml file
-        FXMLLoader(javaClass.getResource(
-            "/${javaClass.modulePath}/$filename"
-        )).apply {
+        FXMLLoader(javaClass.getModuleResource(filename)).apply {
             setController(this@SimpleListCell)
             setRoot(this@SimpleListCell)
             load()
@@ -44,11 +42,3 @@ abstract class SimpleListCell<T>(filename: String) : ListCell<T>() {
     protected abstract fun update()
 
 }
-
-/* ------------------------- utils ------------------------- */
-
-/**
- * The module of the class, as path
- */
-private val Class<*>.modulePath
-    get() = module.name.replace(".", "/")

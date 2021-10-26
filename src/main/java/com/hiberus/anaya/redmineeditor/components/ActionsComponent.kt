@@ -1,16 +1,32 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
+import com.hiberus.anaya.redmineeditor.controller.LoadSettings
+import com.hiberus.anaya.redmineeditor.controller.SettingsLoaded
+import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import com.hiberus.anaya.redmineeditor.utils.resultButton
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
+import java.time.LocalDate
+import java.time.YearMonth
 
 /**
  * A list of action buttons
  */
 internal class ActionsComponent {
+
+    /* ------------------------- init ------------------------- */
+
+    @FXML
+    fun initialize() {
+        AppController.onChanges(setOf(ChangeEvents.Start)) {
+            // start the app
+            forceReload(true)
+        }
+    }
 
     /* ------------------------- buttons ------------------------- */
 
@@ -53,15 +69,35 @@ internal class ActionsComponent {
     /**
      * reloads the data (loses changes, if existing)
      */
-    private fun forceReload() = AppController.runBackground { model ->
-        // clear data
-        model.clearAll()
+    private fun forceReload(initialize: Boolean = false) = AppController.runBackground({
 
-        // notify so that the ui is updated at this step
+        if (initialize) {
+            // load current day and month
+            it.month = YearMonth.now()
+            it.day = LocalDate.now().dayOfMonth
+        } else {
+            // reload files (even though manager is not reloaded)
+            LoadSettings()
+            LoadSpecialDays()
+
+            // clear data
+            it.clearAll()
+        }
+
+        // notify so that the ui is updated at this step and the month is displayed
         AppController.fireChanges()
 
         // load month
-        model.loadMonth()
+        it.loadMonth()
+
+    }) {
+        // after loading
+        if (!SettingsLoaded) {
+            // invalid configuration, error
+            Alert(Alert.AlertType.ERROR).apply {
+                contentText = "No valid configuration found"
+            }.showAndWait()
+        }
     }
 
 }

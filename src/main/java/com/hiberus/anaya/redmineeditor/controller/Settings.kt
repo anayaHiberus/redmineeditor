@@ -43,22 +43,28 @@ val SETTING.value: String
 /**
  * true iff the settings were loaded
  */
-var settingsLoaded = false
+var SettingsLoaded = false
     private set
+
+/**
+ * Loads the settings from the properties file
+ */
+fun LoadSettings() =
+    runCatching {
+        SettingsLoaded = false
+        findFile("conf/settings.properties").inputStream().use {
+            DATA.load(it)
+            SettingsLoaded = true
+        }
+    }.onFailure {
+        println(it)
+        System.err.println("Settings file error!")
+    }.isSuccess
+
 
 /* ------------------------- private ------------------------- */
 
 /**
  * loaded settings data
  */
-private val DATA = Properties().apply {
-    runCatching {
-        findFile("conf/settings.properties").inputStream().use {
-            load(it)
-            settingsLoaded = true
-        }
-    }.onFailure {
-        println(it)
-        System.err.println("Settings file error!")
-    }
-}
+private val DATA = Properties()

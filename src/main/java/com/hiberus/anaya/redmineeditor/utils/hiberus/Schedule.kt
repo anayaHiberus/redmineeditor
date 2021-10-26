@@ -53,7 +53,13 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 
 /* ------------------------- Special days ------------------------- */
 
-private val SPECIAL = runCatching {
+private val SPECIAL = mutableMapOf<LocalDate, Double>()
+
+/**
+ * Load special days from the configuration file
+ */
+fun LoadSpecialDays() = runCatching {
+    SPECIAL.clear()
     findFile("conf/special_days.conf").readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
@@ -84,7 +90,9 @@ private val SPECIAL = runCatching {
                 }
             }
         }.toMap()
+        // and save
+        .let { SPECIAL.putAll(it) }
 }.onFailure {
     println(it)
     System.err.println("Special days file error!")
-}.getOrElse { emptyMap() }
+}.isSuccess
