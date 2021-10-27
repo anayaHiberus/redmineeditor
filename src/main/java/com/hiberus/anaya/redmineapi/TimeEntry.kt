@@ -17,9 +17,9 @@ class TimeEntry {
     /* ------------------------- data ------------------------- */
 
     /**
-     * the entry id in the database
+     * the entry id in the database, null if this is a new entry without an associated id
      */
-    val id: Int
+    val id: Int?
 
     /**
      * the issue id
@@ -70,7 +70,7 @@ class TimeEntry {
      */
     internal constructor(issue: Issue, spent_on: LocalDate, manager: Connector) {
         this.connector = manager
-        id = iNONE
+        id = null
         this.issue = issue
         this.spent_on = spent_on
         spent = 0.0
@@ -122,7 +122,7 @@ class TimeEntry {
                 // changed comment
                 put("comments", comment)
             }
-            if (id == iNONE) {
+            id ?: run {
                 // without original, this data is considered new
                 put("issue_id", issue.id)
                 put("spent_on", spent_on)
@@ -134,7 +134,7 @@ class TimeEntry {
      */
     val requiresUpload
         get() = !(changes.isEmpty // no changes, no upload
-                || (id == iNONE && spent <= 0)) // no useful changes, no upload
+                || (id == null && spent <= 0)) // no useful changes, no upload
 
     /**
      * Uploads an entry to redmine (unless not needed)
@@ -145,7 +145,7 @@ class TimeEntry {
     fun upload() {
         changes.takeUnless { it.isEmpty }?.also { // if there are changes
             when {
-                id == iNONE && spent > 0 -> {
+                id == null && spent > 0 -> {
                     // new entry with hours, create
                     println("Creating entry with data: $it")
                     if (connector.read_only) return
@@ -157,9 +157,9 @@ class TimeEntry {
                 }
 
                 // new entry without hours, ignore
-                id == iNONE && spent <= 0 -> Unit
+                id == null && spent <= 0 -> Unit
 
-                id >= 0 && spent > 0 -> {
+                id != null && spent > 0 -> {
                     // existing entry with hours, update
                     println("Updating entry $id with data: $it")
                     if (connector.read_only) return
@@ -170,7 +170,7 @@ class TimeEntry {
                         }
                 }
 
-                id >= 0 && spent <= 0 -> {
+                id != null && spent <= 0 -> {
                     // existing entry without hours, delete
                     println("Deleting entry $id")
                     if (connector.read_only) return

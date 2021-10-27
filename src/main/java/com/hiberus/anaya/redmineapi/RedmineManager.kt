@@ -18,6 +18,7 @@ class RedmineManager {
      * @param key the redmine api key
      * @param read_only if true, put/post petitions will be skipped (but still logged)
      */
+    @Suppress("ConvertSecondaryConstructorToPrimary")
     constructor(domain: String, key: String, read_only: Boolean = false) {
         this.connector = Connector(domain, key, read_only)
     }
@@ -152,9 +153,8 @@ private fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() e
 
 /**
  * Runs [function] on each element, returns a list of all the exceptions thrown
- * (this is public because others use it)
  */
-fun <T> Iterable<T>.runEachCatching(function: (T) -> Unit) =
+private fun <T> Iterable<T>.runEachCatching(function: (T) -> Unit) =
     mapNotNull {
         runCatching {
             function(it)

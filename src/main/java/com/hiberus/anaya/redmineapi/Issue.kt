@@ -72,6 +72,7 @@ class Issue {
     /* ------------------------- constructors ------------------------- */
 
     // an issue is associated to a manager
+    @Suppress("ConvertSecondaryConstructorToPrimary")
     internal constructor(rawIssue: JSONObject, manager: Connector) {
         this.connector = manager
         original = rawIssue

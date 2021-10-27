@@ -47,7 +47,7 @@ class MyException(
      * Displays an error dialog with this exception details
      */
     fun showAndWait() {
-        println(cause) // TODO: add in the alert as scrollable text or something
+        cause?.let { println("MyException cause: $it") } // TODO: add in the alert as scrollable text or something
 
         Alert(if (warning) WARNING else ERROR).apply {
             headerText = title

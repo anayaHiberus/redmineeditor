@@ -2,7 +2,6 @@ package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.RedmineManager
-import com.hiberus.anaya.redmineapi.runEachCatching
 import com.hiberus.anaya.redmineeditor.controller.*
 import org.json.JSONException
 import java.io.IOException
@@ -10,6 +9,11 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 /* ------------------------- settings ------------------------- */
+
+/**
+ * set to true to auto-download today issues
+ */
+private val autoLoadTotalHours get() = SETTING.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
 
 /**
  * Number of days for 'past' computations
@@ -209,8 +213,16 @@ abstract class Model {
          * @param issue for this issue
          */
         fun createTimeEntry(issue: Issue) =
-            date?.let {
-                manager.createTimeEntry(issue, it)
+            date?.let { date ->
+                manager.createTimeEntry(issue, date).also {
+                    // autoload if required, ignore errors
+                    if (autoLoadTotalHours) {
+                        runCatching { it.issue.downloadSpent() }.onFailure {
+                            // warning
+                            System.err.println("Error when loading spent, ignoring: $it")
+                        }
+                    }
+                }
                 changes += ChangeEvents.Entries
             } != null
 
@@ -285,15 +297,14 @@ abstract class Model {
                     .map { manager.createTimeEntry(it, date) }
 
                 // download all issues of today if configured
-                if (SETTING.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()) {
+                if (autoLoadTotalHours) {
                     // load all issues of today
-                    getEntriesForDate(date).map { it.issue }.distinct()
-                        // and fill them
-                        .runEachCatching { it.downloadSpent() }
-                        .convert {
-                            // background error
-                            MyException("Issue exception", "Can't load issues data")
-                        }?.let { throw it }
+                    getEntriesForDate(date).map { it.issue }.distinct().forEach {
+                        runCatching { it.downloadSpent() }.onFailure {
+                            // warning
+                            System.err.println("Error when loading spent, ignoring: $it")
+                        }
+                    }
                 }
             }
         }
