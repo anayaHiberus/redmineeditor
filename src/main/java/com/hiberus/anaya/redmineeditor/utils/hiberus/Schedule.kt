@@ -42,7 +42,7 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     // nothing to spend and nothing spent, HOLIDAY!
     expected == 0.0 && spent == 0.0 -> Color.LIGHTGREY
     // spent greater than expected, ERROR!
-    spent > expected -> Color.RED
+    spent > expected -> Color.INDIANRED
     // today, but still not all, WARNING!
     day == LocalDate.now() -> Color.ORANGE
     // past day and not all, ERROR!

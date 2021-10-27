@@ -54,6 +54,12 @@ class Issue {
         private set
 
     /**
+     * [spent]/[estimated]
+     * null if invalid
+     */
+    val spent_realization get() = spent.takeIf { it.isSet && it >= 0 && estimated > 0 }?.let { (it / estimated * 100).toInt() }
+
+    /**
      * Id of the assigned user
      */
     val assigned_to: Int?
@@ -139,10 +145,10 @@ class Issue {
     }
 
     /**
-     * Sets the realization to the spent/estimated percentage
+     * Sets the realization to the spent/estimated percentage, if loaded
      */
     fun syncRealization() {
-        realization = (spent / estimated * 100).toInt().coerceIn(0, 100)
+        realization = spent_realization?.coerceIn(0, 100) ?: return
     }
 
     /* ------------------------- downloading ------------------------- */

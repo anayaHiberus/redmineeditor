@@ -20,8 +20,10 @@ Entries:
 - For each entry the following information is displayed:
     - Issue information: project, label and assignation. Press it to display the issue description and/or open it on the external browser.
     - Issue estimated hours: editable.
-    - Issue total spent hours: sum of all spent hours in all entries of the issue, and percentage total/estimated (unless invalid). You need to press the '*' button to load them unless automatic (see configuration)
-    - Issue realization hours: editable. You can also press the '>' button to set it to total/estimated value.
+    - Issue total spent hours: sum of all spent hours in all entries of the issue, and percentage total/estimated (unless invalid or not loaded). Colored red when more than 100%
+    - '*' button: press to load total spent hours (if not automatic, see configuration). Hidden once loaded.
+    - '>' button: set the realization hours to the total/estimated calculation. (hidden when not loaded)
+    - Issue realization hours: editable. Colored orange if less than total/estimated calculation.
     - Entry spent hours: editable.
     - Entry comment: editable.
 

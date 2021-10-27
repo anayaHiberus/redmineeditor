@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <!--<fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"-->
 <!--         type="com.hiberus.anaya.redmineeditor.components.EntryComponent">-->
 <!--suppress XmlHighlighting -->
+
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -23,8 +23,7 @@
                 <VBox alignment="CENTER">
                     <HBox alignment="BOTTOM_CENTER">
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="1"/>
-                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="+"
-                                userData="0.25">
+                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="0.25">
                             <font>
                                 <Font size="10.0"/>
                             </font>
@@ -33,8 +32,7 @@
                     <Label fx:id="txt_estimated" contentDisplay="CENTER" text="hh"/>
                     <HBox fx:id="sub_estimated" alignment="TOP_CENTER">
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
-                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="-"
-                                userData="-0.25">
+                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-0.25">
                             <font>
                                 <Font size="10.0"/>
                             </font>
@@ -61,20 +59,21 @@
                 </Label>
                 <VBox alignment="CENTER">
                     <HBox fx:id="add_realization" alignment="BOTTOM_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeRealization" text="+"
-                                userData="10"/>
+                        <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="10"/>
                         <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="1">
                             <font>
                                 <Font size="10.0"/>
                             </font>
                         </Button>
                     </HBox>
-                    <Label fx:id="txt_realization" contentDisplay="CENTER" text="\%"/>
+                    <Label fx:id="txt_realization" contentDisplay="CENTER" text="\%">
+                        <padding>
+                            <Insets left="5.0" right="5.0"/>
+                        </padding>
+                    </Label>
                     <HBox fx:id="sub_realization" alignment="TOP_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeRealization" text="-"
-                                userData="-10"/>
-                        <Button mnemonicParsing="false" onAction="#changeRealization" text="-"
-                                userData="-1">
+                        <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-10"/>
+                        <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-1">
                             <font>
                                 <Font size="10.0"/>
                             </font>

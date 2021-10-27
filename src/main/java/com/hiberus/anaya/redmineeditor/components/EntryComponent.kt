@@ -15,6 +15,7 @@ import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
+import javafx.scene.paint.Color
 import javafx.scene.web.WebView
 import java.io.IOException
 import java.net.URI
@@ -102,17 +103,20 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             txt_total.text = if (spent.isSet) spent.formatHours() else "none"
 
             // sync spent-realization
-            if (spent >= 0 && estimated > 0) {
+            spent_realization?.let {
                 // show and allow sync
-                txt_total.text += " | ${(spent / estimated * 100).toInt()}%"
+                txt_total.text += " | $it%"
+                txt_total.backgroundColor = if (it > 100) Color.INDIANRED else null
                 btn_sync.isVisible = true
-            } else {
+            } ?: run {
                 // disable sync
+                txt_total.backgroundColor = null
                 btn_sync.isVisible = false
             }
 
             // realization
             txt_realization.text = "$realization%"
+            txt_realization.backgroundColor = spent_realization?.let { if (it > realization) Color.ORANGE else null }
             add_realization.isDisable = realization >= 100
             sub_realization.isDisable = realization <= 0
 

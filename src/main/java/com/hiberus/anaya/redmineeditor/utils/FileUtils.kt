@@ -16,4 +16,4 @@ fun findFile(path: String) =
 /**
  * Returns the file corresponding to this path only if it exists (logs it too)
  */
-private val Path.file get() = this.toFile().also { println(it.absolutePath) }.takeIf { it.exists() }
+private val Path.file get() = this.toFile().also { println("Loading ${it.absolutePath}") }.takeIf { it.exists() }
