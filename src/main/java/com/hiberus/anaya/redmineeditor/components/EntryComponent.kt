@@ -1,9 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineapi.dNONE
-import com.hiberus.anaya.redmineapi.dUNINITIALIZED
-import com.hiberus.anaya.redmineapi.isSet
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
@@ -90,17 +87,13 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             txt_details.text = toString()
 
             // estimated
-            txt_estimated.text = when (estimated) {
-                dUNINITIALIZED -> "?"
-                dNONE -> "none"
-                else -> estimated.formatHours()
-            }
-            sub_estimated.isDisable = estimated < 0
+            txt_estimated.text = estimated?.formatHours() ?: "none"
+            sub_estimated.isDisable = estimated == null
 
             // spent
-            btn_total.isVisible = spent == dUNINITIALIZED
-            txt_total.isVisible = spent != dUNINITIALIZED
-            txt_total.text = if (spent.isSet) spent.formatHours() else "none"
+            btn_total.isVisible = spent == null
+            txt_total.isVisible = spent != null
+            txt_total.text = spent?.formatHours() ?: "none"
 
             // sync spent-realization
             spent_realization?.let {

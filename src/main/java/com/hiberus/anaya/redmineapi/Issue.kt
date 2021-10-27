@@ -36,8 +36,9 @@ class Issue {
 
     /**
      * Estimated hours
+     * null if unset
      */
-    var estimated: Double
+    var estimated: Double?
         private set
 
     /**
@@ -48,16 +49,19 @@ class Issue {
 
     /**
      * Total hours spent on this issue.
-     * Can be uninitialized
+     * null if uninitialized
      */
-    var spent: Double
+    var spent: Double?
         private set
 
     /**
      * [spent]/[estimated]
      * null if invalid
      */
-    val spent_realization get() = spent.takeIf { it.isSet && it >= 0 && estimated > 0 }?.let { (it / estimated * 100).toInt() }
+    val spent_realization: Int?
+        get() {
+            return ((spent?.takeIf { it >= 0 } ?: return null) / (estimated?.takeIf { it > 0 } ?: return null) * 100).toInt()
+        }
 
     /**
      * Id of the assigned user
@@ -80,9 +84,9 @@ class Issue {
         project = rawIssue.getJSONObject("project").optString("name")
         subject = rawIssue.optString("subject", "")
         description = rawIssue.optString("description")
-        estimated = rawIssue.optDouble("estimated_hours", dNONE)
+        estimated = rawIssue.noNaNDouble("estimated_hours")
         realization = rawIssue.optInt("done_ratio", 0)
-        spent = rawIssue.optDouble("spent_hours", dUNINITIALIZED)
+        spent = rawIssue.noNaNDouble("spent_hours")
         assigned_to = rawIssue.optJSONObject("assigned_to")?.getInt("id")
     }
 
@@ -113,9 +117,9 @@ class Issue {
      * @param amount number of hours (negative to subtract)
      */
     fun addSpent(amount: Double) {
-        assert(spent.isSet) // assert initialized
-        spent += amount
-        assert(spent >= 0) // assert non-negative
+        assert(spent != null) // assert initialized
+        spent?.let { spent = it + amount }
+        assert(spent?.let { it >= 0 } ?: false) // assert non-negative
     }
 
     /**
@@ -124,15 +128,14 @@ class Issue {
      * @param amount number of hours (negative to subtract)
      */
     fun addEstimated(amount: Double) {
-        estimated = when {
-            // still uninitialized, cancel
-            estimated == dUNINITIALIZED -> return
+        estimated = estimated?.let {
             // no hours and want to subtract, disable
-            estimated == 0.0 && amount < 0 -> dNONE
-            // disabled and want to change, set to 0 if it wants to add, keep if not
-            estimated == dNONE -> if (amount > 0) 0.0 else return
+            if (it == 0.0 && amount < 0) null
             // else change, but don't subtract what can't be subtracted
-            else -> (estimated + amount).coerceAtLeast(0.0)
+            else (it + amount).coerceAtLeast(0.0)
+        } ?: run {
+            // disabled and want to change, set to 0 if it wants to add, keep if not
+            if (amount > 0) 0.0 else null
         }
     }
 
@@ -162,12 +165,12 @@ class Issue {
      */
     @Throws(IOException::class)
     fun downloadSpent() {
-        if (spent != dUNINITIALIZED) return // skip initialized
+        spent?.let { return } // skip initialized
 
         // load
         spent = connector.buildUrl("issues/$id").getJSON()
             .getJSONObject("issue")
-            .optDouble("spent_hours", dNONE)
+            .noNaNDouble("spent_hours")
     }
 
 
@@ -178,10 +181,10 @@ class Issue {
      */
     private val changes
         get() = JSONObject().apply {
-            // TODO: use a JSON as container so this can be a simple foreach diff
-            if (estimated != original?.optDouble("estimated_hours", dNONE)) {
+            // TODO: maybe use a JSON as container so this can be a simple foreach diff
+            if (original?.run { noNaNDouble("estimated_hours") != estimated } != false) { // if original is null or estimated is different (true != false)
                 // changed hours
-                put("estimated_hours", estimated.takeIf { it != dNONE } ?: "")
+                put("estimated_hours", estimated ?: "")
             }
             if (realization != original?.optInt("done_ratio", 0)) {
                 // changed ratio
@@ -213,3 +216,10 @@ class Issue {
     }
 
 }
+
+/* ------------------------- utils ------------------------- */
+
+/**
+ * Get an optional double associated with a key, or null if there is no such key or if its value is not a number (NaN). If the value is a string, an attempt will be made to evaluate it as a number.
+ */
+private fun JSONObject.noNaNDouble(key: String) = optDouble(key).takeIf { !it.isNaN() }

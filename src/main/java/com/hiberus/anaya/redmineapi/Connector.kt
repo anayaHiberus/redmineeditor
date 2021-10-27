@@ -6,24 +6,6 @@ import java.io.IOException
 import java.net.URL
 import java.time.LocalDate
 
-/* ------------------------- defaults ------------------------- */
-// TODO: remove this and replace with null
-
-/**
- * Unset double property
- */
-const val dNONE = -1.0
-
-/**
- * Not initialized double property
- */
-const val dUNINITIALIZED = -2.0
-
-/**
- * Check if the value is set (not NONE nor UNINITIALIZED)
- */
-val Double.isSet get() = this >= 0.0
-
 /* ------------------------- class ------------------------- */
 
 /**
