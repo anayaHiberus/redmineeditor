@@ -42,6 +42,7 @@ val SETTING.value: String
 
 /**
  * true iff the settings were loaded
+ * TODO: remove this
  */
 var SettingsLoaded = false
     private set
@@ -51,6 +52,7 @@ var SettingsLoaded = false
  */
 fun LoadSettings() =
     runCatching {
+        DATA.clear()
         SettingsLoaded = false
         findFile("conf/settings.properties").inputStream().use {
             DATA.load(it)

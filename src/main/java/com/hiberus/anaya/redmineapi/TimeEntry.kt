@@ -12,7 +12,7 @@ class TimeEntry {
 
     /* ------------------------- manager ------------------------- */
 
-    private val manager: RedmineManager // an entry is associated to a manager
+    private val connector: Connector // an entry is associated to a connector
 
     /* ------------------------- data ------------------------- */
 
@@ -50,8 +50,12 @@ class TimeEntry {
 
     /* ------------------------- constructors ------------------------- */
 
-    internal constructor(rawEntry: JSONObject, issues: Iterable<Issue>, manager: RedmineManager) {
-        this.manager = manager
+    /**
+     * Creates a new entry from a json [rawEntry]
+     * Issues must contain the issue!
+     */
+    internal constructor(rawEntry: JSONObject, issues: Iterable<Issue>, manager: Connector) {
+        this.connector = manager
         original = rawEntry
         // creates a new entry from a json raw data
         id = rawEntry.getInt("id")
@@ -61,9 +65,11 @@ class TimeEntry {
         comment = rawEntry.optString("comments")
     }
 
-    internal constructor(issue: Issue, spent_on: LocalDate, manager: RedmineManager) {
-        this.manager = manager
-        // Creates a new time entry for an existing issue and date
+    /**
+     * Creates a new time entry for an existing [issue] and [spent_on] date
+     */
+    internal constructor(issue: Issue, spent_on: LocalDate, manager: Connector) {
+        this.connector = manager
         id = iNONE
         this.issue = issue
         this.spent_on = spent_on
@@ -142,9 +148,9 @@ class TimeEntry {
                 id == iNONE && spent > 0 -> {
                     // new entry with hours, create
                     println("Creating entry with data: $it")
-                    if (manager.read_only) return
+                    if (connector.read_only) return
                     JSONObject().put("time_entry", it)
-                        .postTo(manager.buildUrl("time_entries"))
+                        .postTo(connector.buildUrl("time_entries"))
                         .ifNot(201) {
                             throw IOException("Error when creating entry with data: $it")
                         }
@@ -156,9 +162,9 @@ class TimeEntry {
                 id >= 0 && spent > 0 -> {
                     // existing entry with hours, update
                     println("Updating entry $id with data: $it")
-                    if (manager.read_only) return
+                    if (connector.read_only) return
                     JSONObject().put("time_entry", it)
-                        .putTo(manager.buildUrl("time_entries/$id"))
+                        .putTo(connector.buildUrl("time_entries/$id"))
                         .ifNot(200) {
                             throw IOException("Error when updating entry $id with data: $it")
                         }
@@ -167,8 +173,8 @@ class TimeEntry {
                 id >= 0 && spent <= 0 -> {
                     // existing entry without hours, delete
                     println("Deleting entry $id")
-                    if (manager.read_only) return
-                    manager.buildUrl("time_entries/$id")
+                    if (connector.read_only) return
+                    connector.buildUrl("time_entries/$id")
                         .delete()
                         .ifNot(200) {
                             throw IOException("Error when deleting entry $id")
@@ -184,4 +190,4 @@ class TimeEntry {
 
 /* ------------------------- util ------------------------- */
 
-fun getIssueId(rawEntry: JSONObject) = rawEntry.getJSONObject("issue").getInt("id") // returns the id from a rawEntry
+internal fun getIssueId(rawEntry: JSONObject) = rawEntry.getJSONObject("issue").getInt("id") // returns the id from a rawEntry

@@ -6,10 +6,11 @@ import java.io.IOException
 /**
  * A redmine issue
  */
-class Issue(
-    rawIssue: JSONObject,
-    private val manager: RedmineManager, // an issue is associated to a manager
-) {
+class Issue {
+
+    /* ------------------------- manager ------------------------- */
+
+    private val connector: Connector // an entry is associated to a connector
 
     /* ------------------------- data ------------------------- */
 
@@ -64,9 +65,10 @@ class Issue(
 
     /* ------------------------- constructors ------------------------- */
 
-    init {
+    // an issue is associated to a manager
+    internal constructor(rawIssue: JSONObject, manager: Connector) {
+        this.connector = manager
         original = rawIssue
-        // parse issue from raw json data
         id = rawIssue.getInt("id")
         project = rawIssue.getJSONObject("project").optString("name")
         subject = rawIssue.optString("subject", "")
@@ -82,19 +84,19 @@ class Issue(
     /**
      * the url to see this issue details
      */
-    val url get() = "${manager.domain}issues/$id"
+    val url get() = "${connector.domain}issues/$id"
 
     /**
      * @return a short string describing this issue
      * @see .toString
      */
-    fun toShortString() = "#$id: $subject${manager.userId?.takeIf { it == assigned_to }?.let { " [you]" } ?: ""}"
+    fun toShortString() = "#$id: $subject${connector.userId?.takeIf { it == assigned_to }?.let { " [you]" } ?: ""}"
 
     /**
      * @return a multiline string describing this issue
      * @see .toShortString
      */
-    override fun toString() = "$project\n#$id: $subject" + (manager.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
+    override fun toString() = "$project\n#$id: $subject" + (connector.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
 
     /* ------------------------- modifiers ------------------------- */
 
@@ -156,7 +158,7 @@ class Issue(
         if (spent != dUNINITIALIZED) return // skip initialized
 
         // load
-        spent = manager.buildUrl("issues/$id").getJSON()
+        spent = connector.buildUrl("issues/$id").getJSON()
             .getJSONObject("issue")
             .optDouble("spent_hours", dNONE)
     }
@@ -196,9 +198,9 @@ class Issue(
 
         // update
         println("Updating issue $id with data: $changes")
-        if (manager.read_only) return
+        if (connector.read_only) return
         JSONObject().put("issue", changes)
-            .putTo(manager.buildUrl("issues/$id"))
+            .putTo(connector.buildUrl("issues/$id"))
             .ifNot(200) { throw IOException("Error when updating issue $id with data: $changes") }
 
     }

@@ -119,11 +119,14 @@ internal class CalendarComponent {
     private fun loadMonth(offset: Int, model: Model.Editor) = with(model) {
         // change month by offset
         month = month.plusMonths(offset.toLong())
+
         // unselect the day
         day = null
+
         AppController.fireChanges() // notify now to display month in UI
+
         // and load month
-        loadMonth()
+        loadDate()
     }
 
     /**

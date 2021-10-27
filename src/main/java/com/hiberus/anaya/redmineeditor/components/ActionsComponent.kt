@@ -6,12 +6,11 @@ import com.hiberus.anaya.redmineeditor.controller.SettingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
+import com.hiberus.anaya.redmineeditor.utils.hiberus.SpecialDaysLoaded
 import com.hiberus.anaya.redmineeditor.utils.resultButton
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import java.time.LocalDate
-import java.time.YearMonth
 
 /**
  * A list of action buttons
@@ -24,7 +23,7 @@ internal class ActionsComponent {
     fun initialize() {
         AppController.onChanges(setOf(ChangeEvents.Start)) {
             // start the app
-            forceReload(true)
+            forceReload()
         }
     }
 
@@ -69,33 +68,35 @@ internal class ActionsComponent {
     /**
      * reloads the data (loses changes, if existing)
      */
-    private fun forceReload(initialize: Boolean = false) = AppController.runBackground({
+    private fun forceReload() = AppController.runBackground({ model ->
 
-        if (initialize) {
-            // load current day and month
-            it.month = YearMonth.now()
-            it.day = LocalDate.now().dayOfMonth
-        } else {
-            // reload files (even though manager is not reloaded)
-            LoadSettings()
-            LoadSpecialDays()
+        // reload files
+        LoadSettings()
+        LoadSpecialDays()
 
-            // clear data
-            it.clearAll()
-        }
+        // reload data
+        model.reload()
 
         // notify so that the ui is updated at this step and the month is displayed
         AppController.fireChanges()
 
         // load month
-        it.loadMonth()
+        model.loadDate()
 
     }) {
         // after loading
         if (!SettingsLoaded) {
             // invalid configuration, error
             Alert(Alert.AlertType.ERROR).apply {
+                title = "Configuration error"
                 contentText = "No valid configuration found"
+            }.showAndWait()
+        }
+        if (!SpecialDaysLoaded) {
+            // invalid special days, warning
+            Alert(Alert.AlertType.WARNING).apply {
+                title = "Special days error"
+                contentText = "No valid special days data found"
             }.showAndWait()
         }
     }

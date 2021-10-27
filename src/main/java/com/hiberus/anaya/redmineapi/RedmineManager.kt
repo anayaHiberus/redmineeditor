@@ -1,170 +1,162 @@
 package com.hiberus.anaya.redmineapi
 
-import org.json.JSONArray
-import org.json.JSONObject
+import com.hiberus.anaya.redmineeditor.controller.MyException
 import java.io.IOException
-import java.net.URL
 import java.time.LocalDate
-
-/* ------------------------- defaults ------------------------- */
-
-/**
- * Unset int property
- */
-const val iNONE = -1
-
-/**
- * Check if the value is set (not NONE)
- */
-//val Int.isSet get() = this >= 0
-
-/**
- * Unset double property
- */
-const val dNONE = -1.0
-
-/**
- * Not initialized double property
- */
-const val dUNINITIALIZED = -2.0
-
-/**
- * Check if the value is set (not NONE nor UNINITIALIZED)
- */
-val Double.isSet get() = this >= 0.0
-
-/* ------------------------- class ------------------------- */
+import java.time.YearMonth
 
 /**
  * Redmine API.
  * The 'official' one is not used because it doesn't allow searching with multiple filters
- * @param domain the redmine domain
- * @param key the redmine api key
- * @param read_only if true, put/post petitions will be skipped (but still logged)
  */
-class RedmineManager(
-    val domain: String,
-    private val key: String,
-    val read_only: Boolean = false,
-) {
+class RedmineManager {
 
-    /* ------------------------- properties ------------------------- */
+    /* ------------------------- constructor ------------------------- */
 
     /**
-     * Build a redmine json api url for a given path (including key)
+     * @param domain the redmine domain
+     * @param key the redmine api key
+     * @param read_only if true, put/post petitions will be skipped (but still logged)
      */
-    fun buildUrl(path: String) = URL("$domain$path.json?key=$key")
+    constructor(domain: String, key: String, read_only: Boolean = false) {
+        this.connector = Connector(domain, key, read_only)
+    }
+
+    /* ------------------------- private data ------------------------- */
 
     /**
-     * Id of the user (null if uninitialized)
+     * The connector
      */
-    var userId: Int? = null
-
-    /* ------------------------- time entries ------------------------- */
+    private var connector: Connector
 
     /**
-     * Returns all the entries on a timeframe for the current user
-     *
-     * @param from         from this date (included)
-     * @param to           to this date (included)
-     * @param loadedIssues issues already loaded. New ones will be added here!!!
-     * @return the list of entries from that data
-     * @throws IOException if network failed
+     * if assigned issues are already loaded
+     */
+    private var assignedLoaded = false
+
+    /* ------------------------- public data ------------------------- */
+
+    /**
+     * time entries
+     */
+    val entries = mutableListOf<TimeEntry>()
+
+    /**
+     * Loaded issues
+     */
+    val issues = mutableSetOf<Issue>()
+
+    /**
+     * months that are already loaded and don't need to be again
+     * TODO: remove this (make it private) and replace with nulls when requesting data that doesn't exists
+     */
+    val monthsLoaded = mutableSetOf<YearMonth>()
+
+    /**
+     * iff there is at least something that was modified (and should be uploaded)
+     */
+    val hasChanges
+        get() = entries.any { it.requiresUpload } || issues.any { it.requiresUpload }
+
+    /* ------------------------- getters ------------------------- */
+
+    /**
+     * return assigned issues
      */
     @Throws(IOException::class)
-    fun getTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: MutableSet<Issue>) = (
-            "${domain}time_entries.json?utf8=✓&"
-                    + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=me"
-                    + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=$from&v[spent_on][]=$to"
-                    + "&key=$key"
-            ).paginatedGet("time_entries")
-        .apply {
-            // fetch missing issues, and add them to loadedIssues
-            val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
-            loadedIssues += getIssues(this.map { getIssueId(it) }.distinct().filter { it !in loadedIssuesIds })
-            // also initialize user id if not still
-            if (userId == null && isNotEmpty()) userId = first().getJSONObject("user").getInt("id")
-        }.map { TimeEntry(it, loadedIssues, this) }
+    fun getAssignedIssues(): List<Issue> {
+        // download if not yet
+        if (!assignedLoaded) {
+            issues += connector.downloadAssignedIssues()
+            assignedLoaded = true
+        }
+
+        // filter
+        return issues.filter { it.assigned_to == (connector.userId ?: return emptyList()) }
+    }
+
+    /* ------------------------- loaders ------------------------- */
 
     /**
-     * Creates a new Time Entry associated with this manager
+     * downloads entries for a given [month] with +-[prevDays] (unless already loaded)
+     * returns a pair of booleans: newentries, newissues
+     */
+    @Throws(IOException::class)
+    fun downloadEntriesFromMonth(month: YearMonth, prevDays: Long): Pair<Boolean, Boolean> {
+        if (month in monthsLoaded) return false to false // already loaded
+
+        // load from the internet all entries in month
+        connector.downloadTimeEntries(
+            month.atDay(1)
+                .ifCheck(month.minusMonths(1) !in monthsLoaded) {
+                    // load previous days if previous month was not loaded
+                    minusDays(prevDays)
+                },
+            month.atEndOfMonth()
+                .ifCheck(month.plusMonths(1) in monthsLoaded) {
+                    // don't load last days if next month was loaded
+                    minusDays(prevDays)
+                },
+            issues
+        ).let { (newEntries, newIssues) ->
+            // and save them
+            entries += newEntries
+            issues += newIssues
+            monthsLoaded += month
+            return newEntries.isNotEmpty() to newIssues.isNotEmpty()
+        }
+    }
+
+    /**
+     * Uploads all needed data
+     */
+    @Throws(IOException::class)
+    fun uploadAll() =
+        (entries.runEachCatching { it.upload() }
+                + issues.runEachCatching { it.upload() })
+
+    /**
+     * Creates a new Time Entry
      *
      * @param issue    issue for the entry
      * @param spent_on day this entry is spent on
      * @return the created entry
      */
-    fun newTimeEntry(issue: Issue, spent_on: LocalDate) = TimeEntry(issue, spent_on, this)
-
-    /* ------------------------- issues ------------------------- */
-
-    /**
-     * Returns the issues associated with the specified ids
-     *
-     * @param ids list of ids to retrieve
-     * @return the list of issues (maybe less if some are not found!)
-     * @throws IOException on network error
-     */
-    @Throws(IOException::class)
-    fun getIssues(ids: List<Int>) = ids
-        // return empty if no issues
-        .ifEmpty { return emptyList<Issue>() }
-        .run {
-            // build url
-            ("${domain}issues.json?utf8=✓"
-                    + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=${joinToString("%2C")}"
-                    + "&key=$key")
-                // get
-                .paginatedGet("issues")
-                // create issues
-                .map { Issue(it, this@RedmineManager) }
-        }
+    fun createTimeEntry(issue: Issue, spent_on: LocalDate) =
+        TimeEntry(issue, spent_on, connector).also { entries += it }
 
     /**
-     * Return assigned issues
+     * Downloads issues if required from their [ids]
+     * returns true if there was at least one downloaded
      */
-    @Throws(IOException::class)
-    fun getAssignedIssues() = (
-            "${domain}issues.json?utf8=✓"
-                    + "&f[]=assigned_to_id&op[assigned_to_id]=%3D&v[assigned_to_id][]=me"
-                    + "&f[]=updated_on&op[updated_on]=>t-&v[updated_on][]=31"
-                    + "&key=$key"
-            ).paginatedGet("issues")
-        .apply {
-            // also initialize user id if not still
-            if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
-        }
-        .map { Issue(it, this) }
-
-}
-
-/* ------------------------- private ------------------------- */
-
-/**
- * returns all entries from a paginated result
- */
-@Throws(IOException::class)
-private fun String.paginatedGet(key: String) =
-    ArrayList<JSONObject>().apply {
-        doWhile {
-            // get page
-            URL("${this@paginatedGet}&limit=100&offset=$size").getJSON()
-                // add to returned list
-                .also { addAll(it.getJSONArray(key).mapAsObjects()) }
-                // continue to next page if still not all
-                .getInt("total_count") > size
+    @Throws(MyException::class)
+    fun downloadIssues(ids: List<Int>): Boolean {
+        // load missing
+        val loadedIds = issues.map { it.id }
+        connector.downloadIssues(ids.filter { it !in loadedIds }).let {
+            // save and return
+            issues += it
+            return it.isNotEmpty()
         }
     }
 
-/**
- * Map a JSONArray as a list of JSONObject
- */
-private fun JSONArray.mapAsObjects() = List(length()) { i -> getJSONObject(i) }
+}
+
+/* ------------------------- utils ------------------------- */
 
 /**
- * Run while it returns false (compact while)
+ * If check is true, apply and return then, else keep this
  */
-private fun doWhile(thing: () -> Boolean) {
-    while (thing()) {
-        // nothing
+private fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() else this
+
+
+/**
+ * Runs [function] on each element, returns a list of all the exceptions thrown
+ * (this is public because others use it)
+ */
+fun <T> Iterable<T>.runEachCatching(function: (T) -> Unit) =
+    mapNotNull {
+        runCatching {
+            function(it)
+        }.exceptionOrNull()
     }
-}

@@ -81,7 +81,7 @@ internal class InsertComponent {
             Regex("\\d+").findAll(
                 // get and clear text
                 input.text.also { input.clear() }
-            ).map { it.value.toInt() }
+            ).map { it.value.toInt() }.toList()
         )
     }
 
