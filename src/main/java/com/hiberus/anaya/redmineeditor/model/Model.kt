@@ -60,63 +60,33 @@ abstract class Model {
         get() = day?.let { month.atDay(it) }
 
     /**
-     * true iff the current month was loaded (and data is valid)
-     */
-    val monthLoaded get() = month in manager.monthsLoaded
-
-    /**
-     * Calculates the hours spent in a date
-     * TODO: return NONE (-1) if not loaded
-     *
-     * @param date date to check
-     * @return hours spent that date
+     * calculates the hours spent in a [date], null if the date is not loaded
      */
     fun getSpent(date: LocalDate) =
-        getEntriesForDate(date).sumOf { it.spent }
+        manager.getEntriesForDate(date)?.sumOf { it.spent }
 
     /**
-     * Calculates the hours spent in a month
-     *
-     * @param month month to check
-     * @return hours spent that month
+     * calculates the hours spent in a [month], null if the month is not loaded
      */
     fun getSpent(month: YearMonth) =
-        getEntriesForMonth(month).sumOf { it.spent }
+        manager.getEntriesForMonth(month)?.sumOf { it.spent }
 
     /**
-     * the entries that should be displayed on the current day (empty if no current day)
+     * the entries that should be displayed on the current day (null if no current day or not loaded)
      */
     val dayEntries
-        get() = date?.let { getEntriesForDate(it) } ?: emptyList()
+        get() = date?.let { manager.getEntriesForDate(it) }
 
     /**
-     * all distinct available issues (readonly)
+     * all distinct loaded issues (readonly)
      */
-    val allIssues
-        get() = manager.issues.toSet()
+    val loadedIssues
+        get() = manager.loadedIssues.toSet()
 
     /**
      * iff there is at least something that was modified (and should be uploaded)
      */
     val hasChanges get() = manager.hasChanges
-
-    /* ------------------------- private getters ------------------------- */
-
-
-    /**
-     * return entries of a specific date
-     * TODO replace with a map with date as key
-     */
-    protected fun getEntriesForDate(date: LocalDate) =
-        manager.entries.filter { it.wasSpentOn(date) }
-
-    /**
-     * return entries of a specific month
-     * TODO replace with a map with month as key
-     */
-    protected fun getEntriesForMonth(month: YearMonth) =
-        manager.entries.filter { it.wasSpentOn(month) }
-
 
     /* ------------------------- setters ------------------------- */
 
@@ -173,8 +143,8 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun loadDate() {
-            // skip if already loaded or invalid settings
-            if (month in manager.monthsLoaded || !SettingsLoaded) return
+            // skip if invalid settings
+            if (!SettingsLoaded) return
 
             try {
                 // download
@@ -242,7 +212,7 @@ abstract class Model {
                 // create entries
                 val missingIds = ids.filter { id ->
                     // create new entries for existing ids, and keep missing ids
-                    manager.issues.firstOrNull { it.id == id }?.also { createTimeEntry(it) } == null
+                    manager.loadedIssues.firstOrNull { it.id == id }?.also { createTimeEntry(it) } == null
                 }
 
                 when {
@@ -270,13 +240,9 @@ abstract class Model {
                 // still not initialized
                 if (!this::manager.isInitialized) return
 
-                // skip if not loaded yet
-                if (date.yearMonth !in manager.monthsLoaded)
-                    return
-
                 // add copy of past issues from previous days
                 // for all entries in previous days (sorted by date)
-                (0L..prevDays).flatMap { getEntriesForDate(date.minusDays(it)) }
+                (0L..prevDays).flatMap { manager.getEntriesForDate(date.minusDays(it)) ?: return } // skip if not loaded yet
                     // keep one for each issue
                     .distinctBy { it.issue }
                     // then remove those from today
@@ -288,7 +254,7 @@ abstract class Model {
                     }
 
                 // add missing assigned issues for today
-                val currentIssues = getEntriesForDate(date).map { it.issue }.distinct() // temp variable
+                val currentIssues = (manager.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
                 // get issues assigned to us
                 manager.getAssignedIssues()
                     // not in today
@@ -299,7 +265,7 @@ abstract class Model {
                 // download all issues of today if configured
                 if (autoLoadTotalHours) {
                     // load all issues of today
-                    getEntriesForDate(date).map { it.issue }.distinct().forEach {
+                    (manager.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
                         runCatching { it.downloadSpent() }.onFailure {
                             // warning
                             System.err.println("Error when loading spent, ignoring: $it")
@@ -319,8 +285,3 @@ abstract class Model {
     }
 
 }
-
-/**
- * YearMoth of a full date
- */
-private val LocalDate.yearMonth get() = YearMonth.from(this)

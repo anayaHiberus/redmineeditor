@@ -35,29 +35,28 @@ class RedmineManager {
      */
     private var assignedLoaded = false
 
+    /**
+     * months that are already loaded and don't need to be again
+     */
+    private val monthsLoaded = mutableSetOf<YearMonth>()
+
     /* ------------------------- public data ------------------------- */
 
     /**
-     * time entries
+     * loaded time entries
      */
-    val entries = mutableListOf<TimeEntry>()
+    val loadedEntries = mutableListOf<TimeEntry>()
 
     /**
      * Loaded issues
      */
-    val issues = mutableSetOf<Issue>()
-
-    /**
-     * months that are already loaded and don't need to be again
-     * TODO: remove this (make it private) and replace with nulls when requesting data that doesn't exists
-     */
-    val monthsLoaded = mutableSetOf<YearMonth>()
+    val loadedIssues = mutableSetOf<Issue>()
 
     /**
      * iff there is at least something that was modified (and should be uploaded)
      */
     val hasChanges
-        get() = entries.any { it.requiresUpload } || issues.any { it.requiresUpload }
+        get() = loadedEntries.any { it.requiresUpload } || loadedIssues.any { it.requiresUpload }
 
     /* ------------------------- getters ------------------------- */
 
@@ -68,13 +67,28 @@ class RedmineManager {
     fun getAssignedIssues(): List<Issue> {
         // download if not yet
         if (!assignedLoaded) {
-            issues += connector.downloadAssignedIssues()
+            loadedIssues += connector.downloadAssignedIssues()
             assignedLoaded = true
         }
 
         // filter
-        return issues.filter { it.assigned_to == (connector.userId ?: return emptyList()) }
+        return loadedIssues.filter { it.assigned_to == (connector.userId ?: return emptyList()) }
     }
+
+
+    /**
+     * return entries of a specific date
+     * TODO replace with a map with date as key
+     */
+    fun getEntriesForDate(date: LocalDate) =
+        date.takeIf { it.yearMonth in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
+
+    /**
+     * return entries of a specific month
+     * TODO replace with a map with month as key
+     */
+    fun getEntriesForMonth(month: YearMonth) =
+        month.takeIf { it in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
 
     /* ------------------------- loaders ------------------------- */
 
@@ -98,11 +112,11 @@ class RedmineManager {
                     // don't load last days if next month was loaded
                     minusDays(prevDays)
                 },
-            issues
+            loadedIssues
         ).let { (newEntries, newIssues) ->
             // and save them
-            entries += newEntries
-            issues += newIssues
+            loadedEntries += newEntries
+            loadedIssues += newIssues
             monthsLoaded += month
             return newEntries.isNotEmpty() to newIssues.isNotEmpty()
         }
@@ -113,8 +127,8 @@ class RedmineManager {
      */
     @Throws(IOException::class)
     fun uploadAll() =
-        (entries.runEachCatching { it.upload() }
-                + issues.runEachCatching { it.upload() })
+        (loadedEntries.runEachCatching { it.upload() }
+                + loadedIssues.runEachCatching { it.upload() })
 
     /**
      * Creates a new Time Entry
@@ -124,7 +138,7 @@ class RedmineManager {
      * @return the created entry
      */
     fun createTimeEntry(issue: Issue, spent_on: LocalDate) =
-        TimeEntry(issue, spent_on, connector).also { entries += it }
+        TimeEntry(issue, spent_on, connector).also { loadedEntries += it }
 
     /**
      * Downloads issues if required from their [ids]
@@ -133,10 +147,10 @@ class RedmineManager {
     @Throws(MyException::class)
     fun downloadIssues(ids: List<Int>): Boolean {
         // load missing
-        val loadedIds = issues.map { it.id }
+        val loadedIds = loadedIssues.map { it.id }
         connector.downloadIssues(ids.filter { it !in loadedIds }).let {
             // save and return
-            issues += it
+            loadedIssues += it
             return it.isNotEmpty()
         }
     }
@@ -160,3 +174,8 @@ private fun <T> Iterable<T>.runEachCatching(function: (T) -> Unit) =
             function(it)
         }.exceptionOrNull()
     }
+
+/**
+ * YearMoth of a full date
+ */
+private val LocalDate.yearMonth get() = YearMonth.from(this)

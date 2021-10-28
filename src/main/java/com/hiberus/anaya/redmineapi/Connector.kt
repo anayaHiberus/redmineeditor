@@ -29,6 +29,7 @@ internal class Connector(
 
     /**
      * Loaded id of the user (null if uninitialized)
+     * TODO: consider using users/current.json, and display its info in a new component. maybe even use this field to detect if the api is ok or not
      */
     var userId: Int? = null
 
@@ -36,6 +37,7 @@ internal class Connector(
 
     /**
      * Returns all the entries on a timeframe for the current user
+     * TODO: if the api is wrong, this returns an empty list!
      *
      * @param from         from this date (included)
      * @param to           to this date (included)

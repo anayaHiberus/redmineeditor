@@ -77,8 +77,8 @@ internal class CalendarComponent {
 
         // when finished loading, color days
         AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
-            // if it's not loading, a recoloring is pending, and data is loaded: color days
-            if (!model.isLoading && model.monthLoaded) {
+            // if it's not loading and a recoloring is pending: color days
+            if (!model.isLoading) {
                 if (needsColoring) {
                     colorDays(model)
                     updateLabel(model)
@@ -141,8 +141,8 @@ internal class CalendarComponent {
      */
     private fun colorDay(day: Int, model: Model) =
         model.month.atDay(day).let { date ->
-            days[day - 1]?.let {
-                it.backgroundColor = getColor(date.expectedHours, model.getSpent(date), date)
+            days[day - 1]?.let { label ->
+                label.backgroundColor = model.getSpent(date)?.let { getColor(date.expectedHours, it, date) }
             }
         }
 
@@ -155,14 +155,14 @@ internal class CalendarComponent {
             .toFormatter()
             .format(model.month)
 
-        if (!model.isLoading) {
-            // spent/expected
-            val spent = model.getSpent(model.month)
+        val spent = model.getSpent(model.month)
+        if (!model.isLoading && spent != null) {
+            // loaded, append spent/expected and set color
             val expected = model.month.expectedHours
             label += " (${spent.formatHours()}/${expected.formatHours()})"
             calendarLabel.backgroundColor = getColor(expected, spent, model.month.atEndOfMonth())
         } else {
-            // still not loaded, clear
+            // not loaded, clear
             calendarLabel.backgroundColor = null
         }
 

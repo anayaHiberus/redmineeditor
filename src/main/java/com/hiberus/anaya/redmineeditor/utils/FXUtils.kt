@@ -17,10 +17,10 @@ import kotlin.DeprecationLevel.ERROR
 
 /**
  * The background color of this region (null for no color)
- * Setter only (https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0)
+ * Setter only
  */
 var Region.backgroundColor: Color?
-    @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException()
+    @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException() // https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0
     set(value) {
         // create a background with that color and rounded borders
         background = value?.let { Background(BackgroundFill(it, CornerRadii(5.0), Insets(1.0))) }

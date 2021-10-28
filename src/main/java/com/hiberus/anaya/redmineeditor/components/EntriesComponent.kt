@@ -44,7 +44,7 @@ internal class EntriesComponent {
             setOf(ChangeEvents.Entries, ChangeEvents.Day, ChangeEvents.Hours)
         ) { model: Model ->
             // clear and replace
-            listItems.setAll(model.dayEntries)
+            listItems.setAll(model.dayEntries ?: emptyList())
         }
     }
 }

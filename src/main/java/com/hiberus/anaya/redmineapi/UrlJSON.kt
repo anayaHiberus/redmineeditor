@@ -12,11 +12,15 @@ import java.nio.charset.StandardCharsets
  * Reads JSON data from this url
  *
  * @return the json data returned
- * @throws IOException on network errors
+ * @throws IOException on network errors or invalid result (not 200-OK)
  */
 @Throws(IOException::class)
-fun URL.getJSON(): JSONObject =
-    openStream().use { JSONObject(it.bufferedReader().readText()) }
+fun URL.getJSON() = (openConnection() as HttpURLConnection).run {
+    if (responseCode != 200) throw IOException("Returned $responseCode: $responseMessage")
+    else openStream().use {
+        JSONObject(it.bufferedReader().readText())
+    }
+}
 
 /**
  * POSTs this JSON data to that url

@@ -36,34 +36,40 @@ internal class SummaryComponent {
                 // while loading, notify user
                 summary.text = "Loading..."
                 summary.background = null
-            } else if (!SettingsLoaded) {
+                return@onChanges
+            }
+            if (!SettingsLoaded) {
                 // on settings error, notify too
                 summary.text = "Can't load settings"
                 summary.background = null
-            } else if (!model.monthLoaded) {
-                // data not loaded yet
-                summary.text = "Month not loaded"
-                summary.background = null
-            } else model.date?.also { date ->
-                // on something selected, display info
-                val spent = model.getSpent(date)
-                val expected = date.expectedHours
-                summary.text = date.formatLong() +
-                        " --- Time: ${spent.formatHours()} / ${expected.formatHours()}" +
-                        when {
-                            spent < expected -> " --- Missing: ${(expected - spent).formatHours()}"
-                            spent > expected -> " --- Extra: ${(spent - expected).formatHours()}"
-                            spent == expected && expected != 0.0 -> " --- OK"
-                            else -> "" // spent=expected=0
-                        }
+                return@onChanges
+            }
 
-                // and change color
-                summary.backgroundColor = getColor(expected, spent, date)
-            } ?: run {
+            val date = model.date ?: run {
                 // if nothing selected, just ask
                 summary.text = "Select day"
                 summary.background = null
+                return@onChanges
             }
+            val spent = model.getSpent(date) ?: run {
+                // data not loaded yet
+                summary.text = "Month not loaded"
+                summary.background = null
+                return@onChanges
+            }
+            val expected = date.expectedHours
+
+            // on something selected, display info
+            summary.text = date.formatLong() +
+                    " --- Time: ${spent.formatHours()} / ${expected.formatHours()}" +
+                    when {
+                        spent < expected -> " --- Missing: ${(expected - spent).formatHours()}"
+                        spent > expected -> " --- Extra: ${(spent - expected).formatHours()}"
+                        spent == expected && expected != 0.0 -> " --- OK"
+                        else -> "" // spent=expected=0
+                    }
+            // and change color
+            summary.backgroundColor = getColor(expected, spent, date)
         }
     }
 }

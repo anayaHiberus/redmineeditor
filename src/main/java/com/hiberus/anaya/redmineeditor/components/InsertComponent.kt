@@ -40,7 +40,7 @@ internal class InsertComponent {
             choice.items.clear()
 
             // add issues,
-            choice.items += model.allIssues
+            choice.items += model.loadedIssues
                 .map { issue ->
                     // create a menu item for each issue
                     MenuItem(issue.toShortString()).apply {
