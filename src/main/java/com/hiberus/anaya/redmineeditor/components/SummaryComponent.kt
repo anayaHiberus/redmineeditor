@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.controller.SettingsLoaded
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.backgroundColor
@@ -30,17 +29,11 @@ internal class SummaryComponent {
     fun initialize() {
         AppController.onChanges(
             // when month, day, hours or the loading state changes, update
-            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.Hours, ChangeEvents.Loading)
+            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.DayHours, ChangeEvents.Loading)
         ) { model: Model ->
             if (model.isLoading) {
                 // while loading, notify user
                 summary.text = "Loading..."
-                summary.background = null
-                return@onChanges
-            }
-            if (!SettingsLoaded) {
-                // on settings error, notify too
-                summary.text = "Can't load settings"
                 summary.background = null
                 return@onChanges
             }
@@ -53,7 +46,7 @@ internal class SummaryComponent {
             }
             val spent = model.getSpent(date) ?: run {
                 // data not loaded yet
-                summary.text = "Month not loaded"
+                summary.text = "Data not found, try reloading"
                 summary.background = null
                 return@onChanges
             }

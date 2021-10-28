@@ -161,7 +161,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             // update entry
             addSpent(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.Hours))
+            AppController.fireChanges(setOf(ChangeEvents.DayHours))
         }
 
 
@@ -174,7 +174,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             // update issue entry
             addEstimated(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.Hours))
+            AppController.fireChanges(setOf(ChangeEvents.DayHours))
         }
 
     /**
@@ -190,7 +190,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
                 else -> addRealization(data.toInt()) // the button data is the amount
             }
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.Hours))
+            AppController.fireChanges(setOf(ChangeEvents.DayHours))
         }
 
     /**
@@ -201,7 +201,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         item?.issue?.run {
             try {
                 downloadSpent()
-                model.registerExternalChange(ChangeEvents.Hours)
+                model.registerExternalChange(ChangeEvents.DayHours)
             } catch (e: IOException) {
                 throw MyException("Network error", "Unable to fetch the issue details", e)
             }

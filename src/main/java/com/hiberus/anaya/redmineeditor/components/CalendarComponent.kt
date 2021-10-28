@@ -70,7 +70,7 @@ internal class CalendarComponent {
         }
 
         // when hours change, recolor today
-        AppController.onChanges(setOf(ChangeEvents.Hours)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.DayHours)) { model: Model ->
             // when hours change (and a recoloring is not pending), recolor day
             if (!needsColoring) model.day?.let { colorDay(it, model) }
         }

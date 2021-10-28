@@ -33,7 +33,7 @@ enum class ChangeEvents {
     /**
      * Hours from displayed day were changed
      */
-    Hours,
+    DayHours,
 
     /**
      * List of issues changed

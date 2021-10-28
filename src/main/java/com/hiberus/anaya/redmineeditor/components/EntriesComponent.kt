@@ -41,7 +41,7 @@ internal class EntriesComponent {
 
         // on new entries, display them
         AppController.onChanges(
-            setOf(ChangeEvents.Entries, ChangeEvents.Day, ChangeEvents.Hours)
+            setOf(ChangeEvents.Entries, ChangeEvents.Day, ChangeEvents.DayHours)
         ) { model: Model ->
             // clear and replace
             listItems.setAll(model.dayEntries ?: emptyList())

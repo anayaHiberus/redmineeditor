@@ -2,7 +2,6 @@ package com.hiberus.anaya.redmineeditor.controller
 
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import com.hiberus.anaya.redmineeditor.utils.runInForeground
 import javafx.application.Platform
 import kotlin.concurrent.thread
@@ -17,14 +16,7 @@ class Controller {
     /**
      * the model used
      */
-    private val model = run {
-
-        // TODO: remove this when the model allows replacing the manager
-        LoadSettings()
-        LoadSpecialDays()
-
-        Model.Editor()
-    }
+    private val model = Model.Editor()
 
     /**
      * saved list of listeners and its data

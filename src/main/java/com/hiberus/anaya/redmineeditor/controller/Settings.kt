@@ -41,22 +41,13 @@ val SETTING.value: String
     get() = DATA.getProperty(name, default)
 
 /**
- * true iff the settings were loaded
- * TODO: remove this
- */
-var SettingsLoaded = false
-    private set
-
-/**
  * Loads the settings from the properties file
  */
 fun LoadSettings() =
     runCatching {
         DATA.clear()
-        SettingsLoaded = false
         findFile("conf/settings.properties").inputStream().use {
             DATA.load(it)
-            SettingsLoaded = true
         }
     }.onFailure {
         println(it)

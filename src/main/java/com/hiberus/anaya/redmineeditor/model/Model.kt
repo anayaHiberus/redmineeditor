@@ -2,7 +2,10 @@ package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.Redmine
-import com.hiberus.anaya.redmineeditor.controller.*
+import com.hiberus.anaya.redmineeditor.controller.MyException
+import com.hiberus.anaya.redmineeditor.controller.SETTING
+import com.hiberus.anaya.redmineeditor.controller.convert
+import com.hiberus.anaya.redmineeditor.controller.value
 import org.json.JSONException
 import java.io.IOException
 import java.time.LocalDate
@@ -47,9 +50,9 @@ abstract class Model {
     /* ------------------------- redmine data ------------------------- */
 
     /**
-     * interactions with the api. Initialized in [Editor.reload]
+     * interactions with the api. Initialized in [Editor.reloadRedmine]
      */
-    protected lateinit var redmine: Redmine
+    protected var redmine: Redmine? = null
 
     /* ------------------------- compound data ------------------------- */
 
@@ -63,30 +66,30 @@ abstract class Model {
      * calculates the hours spent in a [date], null if the date is not loaded
      */
     fun getSpent(date: LocalDate) =
-        redmine.getEntriesForDate(date)?.sumOf { it.spent }
+        redmine?.getEntriesForDate(date)?.sumOf { it.spent }
 
     /**
      * calculates the hours spent in a [month], null if the month is not loaded
      */
     fun getSpent(month: YearMonth) =
-        redmine.getEntriesForMonth(month)?.sumOf { it.spent }
+        redmine?.getEntriesForMonth(month)?.sumOf { it.spent }
 
     /**
      * the entries that should be displayed on the current day (null if no current day or not loaded)
      */
     val dayEntries
-        get() = date?.let { redmine.getEntriesForDate(it) }
+        get() = date?.let { redmine?.getEntriesForDate(it) }
 
     /**
-     * all distinct loaded issues (readonly)
+     * all distinct loaded issues (readonly), null if not loaded
      */
     val loadedIssues
-        get() = redmine.loadedIssues.toSet()
+        get() = redmine?.loadedIssues?.toSet()
 
     /**
-     * iff there is at least something that was modified (and should be uploaded)
+     * iff there is at least something that was modified (and should be uploaded), null if not loaded
      */
-    val hasChanges get() = redmine.hasChanges
+    val hasChanges get() = redmine?.hasChanges
 
     /* ------------------------- setters ------------------------- */
 
@@ -121,13 +124,13 @@ abstract class Model {
                 changes += ChangeEvents.Loading
             }
 
-        override var month: YearMonth = YearMonth.now()
+        override var month: YearMonth = YearMonth.of(1997, 1) // this should never be used
             set(value) {
                 field = value
                 changes += ChangeEvents.Month
             }
 
-        override var day: Int? = LocalDate.now().dayOfMonth
+        override var day: Int? = null
             @Throws(MyException::class)
             set(value) {
                 field = value?.takeIf { month.isValidDay(it) }
@@ -143,12 +146,9 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun loadDate() {
-            // skip if invalid settings
-            if (!SettingsLoaded) return
-
             try {
-                // download
-                redmine.downloadEntriesFromMonth(month, prevDays).let { (newEntries, newIssues) ->
+                // download (skip if not loaded)
+                (redmine ?: return).downloadEntriesFromMonth(month, prevDays).let { (newEntries, newIssues) ->
                     // and notify
                     if (newEntries) changes += ChangeEvents.Entries
                     if (newIssues) changes += ChangeEvents.Issues
@@ -171,7 +171,7 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun uploadAll() {
-            redmine.uploadAll().convert {
+            redmine?.uploadAll()?.convert {
                 // on upload error
                 MyException("Updating error", "An error occurred while updating data")
             }?.let { throw it }
@@ -182,19 +182,22 @@ abstract class Model {
          *
          * @param issue for this issue
          */
-        fun createTimeEntry(issue: Issue) =
-            date?.let { date ->
-                redmine.createTimeEntry(issue, date).also {
-                    // autoload if required, ignore errors
-                    if (autoLoadTotalHours) {
-                        runCatching { it.issue.downloadSpent() }.onFailure {
-                            // warning
-                            System.err.println("Error when loading spent, ignoring: $it")
-                        }
+        fun createTimeEntry(issue: Issue): Boolean {
+            val redmine = redmine ?: return false // skip if no api
+            val date = date ?: return false // skip if no date
+
+            redmine.createTimeEntry(issue, date).also {
+                // autoload if required, ignore errors
+                if (autoLoadTotalHours) {
+                    runCatching { it.issue.downloadSpent() }.onFailure {
+                        // warning
+                        System.err.println("Error when loading spent, ignoring: $it")
                     }
                 }
-                changes += ChangeEvents.Entries
-            } != null
+            }
+            changes += ChangeEvents.Entries
+            return true
+        }
 
         /**
          * Creates multiple new time entries for current date (does nothing if there is no current day)
@@ -203,7 +206,8 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun createTimeEntries(ids: List<Int>) {
-            date ?: return // skip now if there is no date
+            val redmine = redmine ?: return // skip if no api
+            date ?: return // skip if no date
 
             try {
                 // download missing issues, if any
@@ -235,52 +239,49 @@ abstract class Model {
          */
         @Throws(MyException::class)
         private fun prepareDay() {
-            date?.also { date ->
+            val redmine = redmine ?: return // skip if no api
+            val date = date ?: return // skip if no date
 
-                // still not initialized
-                if (!this::redmine.isInitialized) return
+            // add copy of past issues from previous days
+            // for all entries in previous days (sorted by date)
+            (0L..prevDays).flatMap { redmine.getEntriesForDate(date.minusDays(it)) ?: return } // skip if not loaded yet
+                // keep one for each issue
+                .distinctBy { it.issue }
+                // then remove those from today
+                .filterNot { it.wasSpentOn(date) }
+                // and create entry
+                .map {
+                    redmine.createTimeEntry(it.issue, date)
+                        .apply { comment = it.comment }
+                }
 
-                // add copy of past issues from previous days
-                // for all entries in previous days (sorted by date)
-                (0L..prevDays).flatMap { redmine.getEntriesForDate(date.minusDays(it)) ?: return } // skip if not loaded yet
-                    // keep one for each issue
-                    .distinctBy { it.issue }
-                    // then remove those from today
-                    .filterNot { it.wasSpentOn(date) }
-                    // and create entry
-                    .map {
-                        redmine.createTimeEntry(it.issue, date)
-                            .apply { comment = it.comment }
-                    }
+            // add missing assigned issues for today
+            val currentIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
+            // get issues assigned to us
+            redmine.getAssignedIssues()
+                // not in today
+                .filterNot { it in currentIssues }
+                // and create empty entries
+                .map { redmine.createTimeEntry(it, date) }
 
-                // add missing assigned issues for today
-                val currentIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
-                // get issues assigned to us
-                redmine.getAssignedIssues()
-                    // not in today
-                    .filterNot { it in currentIssues }
-                    // and create empty entries
-                    .map { redmine.createTimeEntry(it, date) }
-
-                // download all issues of today if configured
-                if (autoLoadTotalHours) {
-                    // load all issues of today
-                    (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
-                        runCatching { it.downloadSpent() }.onFailure {
-                            // warning
-                            System.err.println("Error when loading spent, ignoring: $it")
-                        }
+            // download all issues of today if configured
+            if (autoLoadTotalHours) {
+                // load all issues of today
+                (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
+                    runCatching { it.downloadSpent() }.onFailure {
+                        // warning
+                        System.err.println("Error when loading spent, ignoring: $it")
                     }
                 }
             }
         }
 
         /**
-         * clears and initializes the data
+         * Clears and initializes (unless [clearOnly] is true) the redmine data
          */
-        fun reload() {
-            redmine = Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
-            changes += setOf(ChangeEvents.Issues, ChangeEvents.Entries, ChangeEvents.Hours, ChangeEvents.Day, ChangeEvents.Month) // hack, to reload all
+        fun reloadRedmine(clearOnly: Boolean = false) {
+            redmine = if (clearOnly) null else Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
+            changes += setOf(ChangeEvents.Issues, ChangeEvents.Entries, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
         }
     }
 

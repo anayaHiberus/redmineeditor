@@ -54,17 +54,10 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 /* ------------------------- Special days ------------------------- */
 
 /**
- * true iff the special days were loaded
- * TODO: remove this
- */
-var SpecialDaysLoaded = false
-
-/**
  * Load special days from the configuration file
  */
 fun LoadSpecialDays() = runCatching {
     SPECIAL.clear()
-    SpecialDaysLoaded = false
     findFile("conf/special_days.conf").readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
@@ -98,7 +91,6 @@ fun LoadSpecialDays() = runCatching {
         // and save
         .let {
             SPECIAL.putAll(it)
-            SpecialDaysLoaded = true
         }
 }.onFailure {
     println(it)

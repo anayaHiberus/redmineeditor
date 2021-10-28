@@ -39,8 +39,8 @@ internal class InsertComponent {
             // clear existing
             choice.items.clear()
 
-            // add issues,
-            choice.items += model.loadedIssues
+            // add issues
+            choice.items += (model.loadedIssues.also { input.isDisable = it == null } ?: emptySet()) // disable input if issues are not loaded
                 .map { issue ->
                     // create a menu item for each issue
                     MenuItem(issue.toShortString()).apply {
