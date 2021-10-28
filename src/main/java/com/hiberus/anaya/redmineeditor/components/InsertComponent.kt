@@ -34,7 +34,7 @@ internal class InsertComponent {
         add.disableProperty().bind(input.textProperty().isEmpty) // TODO: Investigate this
 
         // when issues change, add them all as menus
-        AppController.onChanges(setOf(ChangeEvents.Issues)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.IssueList)) { model: Model ->
 
             // clear existing
             choice.items.clear()

@@ -150,8 +150,8 @@ abstract class Model {
                 // download (skip if not loaded)
                 (redmine ?: return).downloadEntriesFromMonth(month, prevDays).let { (newEntries, newIssues) ->
                     // and notify
-                    if (newEntries) changes += ChangeEvents.Entries
-                    if (newIssues) changes += ChangeEvents.Issues
+                    if (newEntries) changes += ChangeEvents.EntryList
+                    if (newIssues) changes += ChangeEvents.IssueList
                 }
             } catch (e: IOException) {
                 throw MyException("Network error", "Can't load content from Redmine. Try again later.", e)
@@ -195,7 +195,7 @@ abstract class Model {
                     }
                 }
             }
-            changes += ChangeEvents.Entries
+            changes += ChangeEvents.EntryList
             return true
         }
 
@@ -211,7 +211,7 @@ abstract class Model {
 
             try {
                 // download missing issues, if any
-                if (redmine.downloadIssues(ids)) changes += ChangeEvents.Issues
+                if (redmine.downloadIssues(ids)) changes += ChangeEvents.IssueList
 
                 // create entries
                 val missingIds = ids.filter { id ->
@@ -281,7 +281,7 @@ abstract class Model {
          */
         fun reloadRedmine(clearOnly: Boolean = false) {
             redmine = if (clearOnly) null else Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
-            changes += setOf(ChangeEvents.Issues, ChangeEvents.Entries, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
+            changes += setOf(ChangeEvents.IssueList, ChangeEvents.EntryList, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
         }
     }
 

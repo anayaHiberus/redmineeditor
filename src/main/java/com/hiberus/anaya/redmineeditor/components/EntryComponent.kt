@@ -79,6 +79,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
 
     public override fun update() {
         // sets the cell data
+        // TODO: mark each individual modified setting, or show a dialog when pressing save with option to revert (maybe even checkboxes)
 
         // --- issue ---
         item?.issue?.apply {
@@ -101,6 +102,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
                 txt_total.text += " | $it%"
                 txt_total.backgroundColor = if (it > 100) Color.INDIANRED else null
                 btn_sync.isVisible = true
+                btn_sync.isDisable = it == realization
             } ?: run {
                 // disable sync
                 txt_total.backgroundColor = null
@@ -130,7 +132,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             sub_spent.isDisable = spent <= 0
 
             // comment
-            edTxt_comment.text = comment
+            comment.takeIf { it != edTxt_comment.text }?.let { edTxt_comment.text = it } // don't update if the same, to avoid moving the caret
 
             // container
             box_entry.opacity = when {
@@ -149,7 +151,8 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
     private fun changedComment() {
         // update comment
         item?.comment = edTxt_comment.text
-        // no need to notify
+        // and notify
+        AppController.fireChanges(setOf(ChangeEvents.EntryContent))
     }
 
     /**
@@ -161,7 +164,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             // update entry
             addSpent(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.DayHours))
+            AppController.fireChanges(setOf(ChangeEvents.EntryContent, ChangeEvents.DayHours))
         }
 
 
@@ -174,7 +177,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             // update issue entry
             addEstimated(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.DayHours))
+            AppController.fireChanges(setOf(ChangeEvents.IssueContent))
         }
 
     /**
@@ -190,7 +193,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
                 else -> addRealization(data.toInt()) // the button data is the amount
             }
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.DayHours))
+            AppController.fireChanges(setOf(ChangeEvents.IssueContent))
         }
 
     /**
@@ -201,7 +204,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         item?.issue?.run {
             try {
                 downloadSpent()
-                model.registerExternalChange(ChangeEvents.DayHours)
+                model.registerExternalChange(ChangeEvents.IssueContent)
             } catch (e: IOException) {
                 throw MyException("Network error", "Unable to fetch the issue details", e)
             }

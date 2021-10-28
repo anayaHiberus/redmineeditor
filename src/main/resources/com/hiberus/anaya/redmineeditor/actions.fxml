@@ -7,6 +7,6 @@
       fx:controller="com.hiberus.anaya.redmineeditor.components.ActionsComponent">
     <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#reload" text="Reload"
             HBox.hgrow="ALWAYS"/>
-    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#upload" text="Save"
+    <Button fx:id="save" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#upload" text="Save"
             HBox.hgrow="ALWAYS"/>
 </HBox>

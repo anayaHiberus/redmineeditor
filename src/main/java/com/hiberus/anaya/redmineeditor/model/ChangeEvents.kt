@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.model
 
 /**
  * Events corresponding to 'changes in the model'
+ * TODO: make events automatically depend on other events, to avoid registering or notifying multiple
  */
 enum class ChangeEvents {
 
@@ -28,7 +29,17 @@ enum class ChangeEvents {
     /**
      * Entries for the displayed day changed (not its content)
      */
-    Entries,
+    EntryList,
+
+    /**
+     * Content for any entry changed
+     */
+    EntryContent,
+
+    /**
+     * Content for any issue changed
+     */
+    IssueContent,
 
     /**
      * Hours from displayed day were changed
@@ -38,6 +49,6 @@ enum class ChangeEvents {
     /**
      * List of issues changed
      */
-    Issues
+    IssueList,
 
 }

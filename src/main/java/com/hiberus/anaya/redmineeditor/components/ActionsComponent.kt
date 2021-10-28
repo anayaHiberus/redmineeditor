@@ -8,6 +8,7 @@ import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import com.hiberus.anaya.redmineeditor.utils.resultButton
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
+import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
 import java.time.LocalDate
 import java.time.YearMonth
@@ -17,16 +18,27 @@ import java.time.YearMonth
  */
 internal class ActionsComponent {
 
+    @FXML
+    lateinit var save: Button
+
     /* ------------------------- init ------------------------- */
 
     @FXML
     fun initialize() {
+        // when app starts
         AppController.onChanges(setOf(ChangeEvents.Start)) { model ->
             // init data
             model.day = LocalDate.now().dayOfMonth
             model.month = YearMonth.now()
             // start the app
             forceReload(true)
+        }
+
+        // when data changes
+        AppController.onChanges(setOf(
+            ChangeEvents.EntryList, ChangeEvents.EntryContent, ChangeEvents.IssueContent
+        )) {
+            save.isDisable = it.hasChanges != true
         }
     }
 

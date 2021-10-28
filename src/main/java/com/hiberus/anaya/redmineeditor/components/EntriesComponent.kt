@@ -41,10 +41,27 @@ internal class EntriesComponent {
 
         // on new entries, display them
         AppController.onChanges(
-            setOf(ChangeEvents.Entries, ChangeEvents.Day, ChangeEvents.DayHours)
+            setOf(ChangeEvents.EntryList, ChangeEvents.Day)
         ) { model: Model ->
             // clear and replace
             listItems.setAll(model.dayEntries ?: emptyList())
         }
+
+        // when entry change, update
+        AppController.onChanges(setOf(ChangeEvents.EntryContent)) {
+            list.lookupAll(".cell").forEach {
+                if (it is EntryComponent) it.update()
+            }
+        }
+
+        // when issue change, update
+        AppController.onChanges(setOf(ChangeEvents.IssueContent)) {
+            list.lookupAll(".cell").forEach {
+                if (it is EntryComponent) {
+                    it.update()
+                }
+            }
+        }
+
     }
 }
