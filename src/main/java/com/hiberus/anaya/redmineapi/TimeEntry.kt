@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineapi
 
 import org.json.JSONObject
-import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -12,7 +11,7 @@ class TimeEntry {
 
     /* ------------------------- manager ------------------------- */
 
-    private val connector: Connector // an entry is associated to a connector
+    private val remote: Remote // for remote interactions
 
     /* ------------------------- data ------------------------- */
 
@@ -54,8 +53,8 @@ class TimeEntry {
      * Creates a new entry from a json [rawEntry]
      * Issues must contain the issue!
      */
-    internal constructor(rawEntry: JSONObject, issues: Iterable<Issue>, manager: Connector) {
-        this.connector = manager
+    internal constructor(rawEntry: JSONObject, issues: Iterable<Issue>, remote: Remote) {
+        this.remote = remote
         original = rawEntry
         // creates a new entry from a json raw data
         id = rawEntry.getInt("id")
@@ -68,8 +67,8 @@ class TimeEntry {
     /**
      * Creates a new time entry for an existing [issue] and [spent_on] date
      */
-    internal constructor(issue: Issue, spent_on: LocalDate, manager: Connector) {
-        this.connector = manager
+    internal constructor(issue: Issue, spent_on: LocalDate, remote: Remote) {
+        this.remote = remote
         id = null
         this.issue = issue
         this.spent_on = spent_on
@@ -112,7 +111,7 @@ class TimeEntry {
     /**
      * a list of changes made to this entry, as an object (empty means no changes)
      */
-    private val changes
+    internal val changes
         get() = JSONObject().apply {
             if (spent != original?.getDouble("hours")) {
                 // changed hours
@@ -136,56 +135,6 @@ class TimeEntry {
         get() = !(changes.isEmpty // no changes, no upload
                 || (id == null && spent <= 0)) // no useful changes, no upload
 
-    /**
-     * Uploads an entry to redmine (unless not needed)
-     *
-     * @throws IOException on upload error
-     */
-    @Throws(IOException::class)
-    fun upload() {
-        changes.takeUnless { it.isEmpty }?.also { // if there are changes
-            when {
-                id == null && spent > 0 -> {
-                    // new entry with hours, create
-                    println("Creating entry with data: $it")
-                    if (connector.read_only) return
-                    JSONObject().put("time_entry", it)
-                        .postTo(connector.buildUrl("time_entries"))
-                        .ifNot(201) {
-                            throw IOException("Error when creating entry with data: $it")
-                        }
-                }
-
-                // new entry without hours, ignore
-                id == null && spent <= 0 -> Unit
-
-                id != null && spent > 0 -> {
-                    // existing entry with hours, update
-                    println("Updating entry $id with data: $it")
-                    if (connector.read_only) return
-                    JSONObject().put("time_entry", it)
-                        .putTo(connector.buildUrl("time_entries/$id"))
-                        .ifNot(200) {
-                            throw IOException("Error when updating entry $id with data: $it")
-                        }
-                }
-
-                id != null && spent <= 0 -> {
-                    // existing entry without hours, delete
-                    println("Deleting entry $id")
-                    if (connector.read_only) return
-                    connector.buildUrl("time_entries/$id")
-                        .delete()
-                        .ifNot(200) {
-                            throw IOException("Error when deleting entry $id")
-                        }
-                }
-
-                // should never happen, but if it does, do nothing
-                else -> Unit
-            }
-        }
-    }
 }
 
 /* ------------------------- util ------------------------- */

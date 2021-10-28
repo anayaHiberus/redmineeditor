@@ -9,7 +9,7 @@ import java.time.YearMonth
  * Redmine API.
  * The 'official' one is not used because it doesn't allow searching with multiple filters
  */
-class RedmineManager {
+class Redmine {
 
     /* ------------------------- constructor ------------------------- */
 
@@ -20,15 +20,15 @@ class RedmineManager {
      */
     @Suppress("ConvertSecondaryConstructorToPrimary")
     constructor(domain: String, key: String, read_only: Boolean = false) {
-        this.connector = Connector(domain, key, read_only)
+        this.remote = Remote(domain.removeSuffix("/"), key, read_only)
     }
 
     /* ------------------------- private data ------------------------- */
 
     /**
-     * The connector
+     * The remote
      */
-    private var connector: Connector
+    private var remote: Remote
 
     /**
      * if assigned issues are already loaded
@@ -67,12 +67,12 @@ class RedmineManager {
     fun getAssignedIssues(): List<Issue> {
         // download if not yet
         if (!assignedLoaded) {
-            loadedIssues += connector.downloadAssignedIssues()
+            loadedIssues += remote.downloadAssignedIssues()
             assignedLoaded = true
         }
 
         // filter
-        return loadedIssues.filter { it.assigned_to == (connector.userId ?: return emptyList()) }
+        return loadedIssues.filter { it.assigned_to == (remote.userId ?: return emptyList()) }
     }
 
 
@@ -101,7 +101,7 @@ class RedmineManager {
         if (month in monthsLoaded) return false to false // already loaded
 
         // load from the internet all entries in month
-        connector.downloadTimeEntries(
+        remote.downloadTimeEntries(
             month.atDay(1)
                 .ifCheck(month.minusMonths(1) !in monthsLoaded) {
                     // load previous days if previous month was not loaded
@@ -127,8 +127,8 @@ class RedmineManager {
      */
     @Throws(IOException::class)
     fun uploadAll() =
-        (loadedEntries.runEachCatching { it.upload() }
-                + loadedIssues.runEachCatching { it.upload() })
+        (loadedEntries.runEachCatching { remote.upload(it) }
+                + loadedIssues.runEachCatching { remote.upload(it) })
 
     /**
      * Creates a new Time Entry
@@ -138,7 +138,7 @@ class RedmineManager {
      * @return the created entry
      */
     fun createTimeEntry(issue: Issue, spent_on: LocalDate) =
-        TimeEntry(issue, spent_on, connector).also { loadedEntries += it }
+        TimeEntry(issue, spent_on, remote).also { loadedEntries += it }
 
     /**
      * Downloads issues if required from their [ids]
@@ -148,7 +148,7 @@ class RedmineManager {
     fun downloadIssues(ids: List<Int>): Boolean {
         // load missing
         val loadedIds = loadedIssues.map { it.id }
-        connector.downloadIssues(ids.filter { it !in loadedIds }).let {
+        remote.downloadIssues(ids.filter { it !in loadedIds }).let {
             // save and return
             loadedIssues += it
             return it.isNotEmpty()

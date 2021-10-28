@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineapi
 
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -83,6 +84,14 @@ private fun URL.send(method: String, body: JSONObject?) =
 
 /* ------------------------- utils ------------------------- */
 
+/**
+ * Compare value with another one, if different execute function
+ */
 fun <T> T.ifNot(compareTo: T, execute: () -> Unit) {
     if (this != compareTo) execute()
 }
+
+/**
+ * Map a JSONArray as a list of JSONObject
+ */
+internal fun JSONArray.mapAsObjects() = List(length()) { i -> getJSONObject(i) }

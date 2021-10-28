@@ -1,6 +1,5 @@
 package com.hiberus.anaya.redmineapi
 
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
@@ -9,23 +8,18 @@ import java.time.LocalDate
 /* ------------------------- class ------------------------- */
 
 /**
- * Manages connections with the api
- * @param domain the redmine domain
- * @param key the redmine api key
- * @param read_only if true, put/post petitions will be skipped (but still logged)
+ * Manages connections with the api on a [domain] (MUST NOT END WITH A SLASH) using an api [key].
+ * If [read_only], put/post petitions will be skipped (but still logged)
  */
-internal class Connector(
-    val domain: String,
+internal class Remote(
+    private val domain: String,
     private val key: String,
-    val read_only: Boolean,
+    private val read_only: Boolean,
 ) {
 
-    /* ------------------------- properties ------------------------- */
+    // TODO: consider extracting urls for common use
 
-    /**
-     * Build a redmine json api url for a given path (including key)
-     */
-    fun buildUrl(path: String) = URL("$domain$path.json?key=$key")
+    /* ------------------------- properties ------------------------- */
 
     /**
      * Loaded id of the user (null if uninitialized)
@@ -49,7 +43,7 @@ internal class Connector(
     fun downloadTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: Set<Issue>): Pair<List<TimeEntry>, MutableList<Issue>> {
         val newIssues = mutableListOf<Issue>()
         val entries = (
-                "${domain}time_entries.json?utf8=✓&"
+                "$domain/time_entries.json?utf8=✓&"
                         + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=me"
                         + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=$from&v[spent_on][]=$to"
                         + "&key=$key"
@@ -65,7 +59,71 @@ internal class Connector(
         return entries to newIssues
     }
 
+    /**
+     * Uploads an [entry] to redmine (unless not needed)
+     *
+     * @throws IOException on upload error
+     */
+    @Throws(IOException::class)
+    fun upload(entry: TimeEntry) {
+        entry.run {
+            changes.takeUnless { it.isEmpty }?.also { // if there are changes
+                when {
+                    // new entry with hours, create
+                    id == null && spent > 0 -> {
+                        println("Creating entry with data: $it")
+                        if (read_only) return
+                        JSONObject().put("time_entry", it)
+                            .postTo(URL("$domain/time_entries.json?key=$key"))
+                            .ifNot(201) {
+                                throw IOException("Error when creating entry with data: $it")
+                            }
+                    }
+
+                    // new entry without hours, ignore
+                    id == null && spent <= 0 -> Unit
+
+                    // existing entry with hours, update
+                    id != null && spent > 0 -> {
+                        println("Updating entry $id with data: $it")
+                        if (read_only) return
+                        JSONObject().put("time_entry", it)
+                            .putTo(URL("$domain/time_entries/$id.json?key=$key"))
+                            .ifNot(200) {
+                                throw IOException("Error when updating entry $id with data: $it")
+                            }
+                    }
+
+                    // existing entry without hours, delete
+                    id != null && spent <= 0 -> {
+                        println("Deleting entry $id")
+                        if (read_only) return
+                        URL("$domain/time_entries/$id.json?key=$key")
+                            .delete()
+                            .ifNot(200) {
+                                throw IOException("Error when deleting entry $id")
+                            }
+                    }
+
+                    // should never happen, but if it does, do nothing
+                    else -> println("This should never happen! $id $spent")
+                }
+            }
+        }
+    }
+
     /* ------------------------- issues ------------------------- */
+
+    /**
+     * returns the url to externally view this issue details
+     */
+    fun getIssueDetailsUrl(issue: Issue) = "$domain/issues/${issue.id}"
+
+    /**
+     * Returns the raw details of an issue, for internal use
+     */
+    @Throws(IOException::class)
+    internal fun downloadRawIssueDetails(id: Int) = URL("$domain/issues/$id.json?key=$key").getJSON().getJSONObject("issue")
 
     /**
      * Returns the issues associated with the specified ids
@@ -80,13 +138,13 @@ internal class Connector(
         .ifEmpty { return emptyList<Issue>() }
         .run {
             // build url
-            ("${domain}issues.json?utf8=✓"
+            ("$domain/issues.json?utf8=✓"
                     + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=${joinToString("%2C")}"
                     + "&key=$key")
                 // get
                 .paginatedGet("issues")
                 // create issues
-                .map { Issue(it, this@Connector) }
+                .map { Issue(it, this@Remote) }
         }
 
     /**
@@ -94,7 +152,7 @@ internal class Connector(
      */
     @Throws(IOException::class)
     fun downloadAssignedIssues() = (
-            "${domain}issues.json?utf8=✓"
+            "$domain/issues.json?utf8=✓"
                     + "&f[]=assigned_to_id&op[assigned_to_id]=%3D&v[assigned_to_id][]=me"
                     + "&f[]=updated_on&op[updated_on]=>t-&v[updated_on][]=31"
                     + "&key=$key"
@@ -105,6 +163,22 @@ internal class Connector(
         }
         .map { Issue(it, this) }
 
+    /**
+     * Uploads an [issue] to redmine (unless not needed)
+     */
+    @Throws(IOException::class)
+    fun upload(issue: Issue) {
+        issue.run {
+            changes.takeUnless { it.isEmpty }?.let { // if there are changes
+                // update
+                println("Updating issue $id with data: $it")
+                if (read_only) return
+                JSONObject().put("issue", this)
+                    .putTo(URL("$domain/issues/$id.json?key=$key"))
+                    .ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }
+            }
+        }
+    }
 }
 
 /* ------------------------- private ------------------------- */
@@ -124,11 +198,6 @@ private fun String.paginatedGet(key: String) =
                 .getInt("total_count") > size
         }
     }
-
-/**
- * Map a JSONArray as a list of JSONObject
- */
-private fun JSONArray.mapAsObjects() = List(length()) { i -> getJSONObject(i) }
 
 /**
  * Run while it returns false (compact while)

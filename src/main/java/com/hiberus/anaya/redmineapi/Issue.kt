@@ -10,7 +10,7 @@ class Issue {
 
     /* ------------------------- manager ------------------------- */
 
-    private val connector: Connector // an entry is associated to a connector
+    private val remote: Remote // for remote interactions
 
     /* ------------------------- data ------------------------- */
 
@@ -75,10 +75,9 @@ class Issue {
 
     /* ------------------------- constructors ------------------------- */
 
-    // an issue is associated to a manager
     @Suppress("ConvertSecondaryConstructorToPrimary")
-    internal constructor(rawIssue: JSONObject, manager: Connector) {
-        this.connector = manager
+    internal constructor(rawIssue: JSONObject, remote: Remote) {
+        this.remote = remote
         original = rawIssue
         id = rawIssue.getInt("id")
         project = rawIssue.getJSONObject("project").optString("name")
@@ -95,19 +94,19 @@ class Issue {
     /**
      * the url to see this issue details
      */
-    val url get() = "${connector.domain}issues/$id"
+    val url get() = remote.getIssueDetailsUrl(this)
 
     /**
      * @return a short string describing this issue
      * @see .toString
      */
-    fun toShortString() = "#$id: $subject${connector.userId?.takeIf { it == assigned_to }?.let { " [you]" } ?: ""}"
+    fun toShortString() = "#$id: $subject${remote.userId?.takeIf { it == assigned_to }?.let { " [you]" } ?: ""}"
 
     /**
      * @return a multiline string describing this issue
      * @see .toShortString
      */
-    override fun toString() = "$project\n#$id: $subject" + (connector.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
+    override fun toString() = "$project\n#$id: $subject" + (remote.userId?.takeIf { it == assigned_to }?.let { "\nAssigned to you" } ?: "")
 
     /* ------------------------- modifiers ------------------------- */
 
@@ -168,9 +167,7 @@ class Issue {
         spent?.let { return } // skip initialized
 
         // load
-        spent = connector.buildUrl("issues/$id").getJSON()
-            .getJSONObject("issue")
-            .noNaNDouble("spent_hours")
+        spent = remote.downloadRawIssueDetails(id).noNaNDouble("spent_hours")
     }
 
 
@@ -179,7 +176,7 @@ class Issue {
     /**
      * a list of changes made to this issue, as an object (empty means no changes)
      */
-    private val changes
+    internal val changes
         get() = JSONObject().apply {
             // TODO: maybe use a JSON as container so this can be a simple foreach diff
             if (original?.run { noNaNDouble("estimated_hours") != estimated } != false) { // if original is null or estimated is different (true != false)
@@ -196,24 +193,6 @@ class Issue {
      * iff this entry requires upload, false otherwise
      */
     val requiresUpload get() = !changes.isEmpty
-
-    /**
-     * Uploads an entry to redmine (unless not needed)
-     *
-     * @throws IOException on upload error
-     */
-    @Throws(IOException::class)
-    fun upload() = changes.run {
-        if (isEmpty) return // ignore unmodified
-
-        // update
-        println("Updating issue $id with data: $changes")
-        if (connector.read_only) return
-        JSONObject().put("issue", changes)
-            .putTo(connector.buildUrl("issues/$id"))
-            .ifNot(200) { throw IOException("Error when updating issue $id with data: $changes") }
-
-    }
 
 }
 

@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineapi.Issue
-import com.hiberus.anaya.redmineapi.RedmineManager
+import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.controller.*
 import org.json.JSONException
 import java.io.IOException
@@ -47,9 +47,9 @@ abstract class Model {
     /* ------------------------- redmine data ------------------------- */
 
     /**
-     * the manager for online operations
+     * interactions with the api. Initialized in [Editor.reload]
      */
-    protected lateinit var manager: RedmineManager
+    protected lateinit var redmine: Redmine
 
     /* ------------------------- compound data ------------------------- */
 
@@ -63,30 +63,30 @@ abstract class Model {
      * calculates the hours spent in a [date], null if the date is not loaded
      */
     fun getSpent(date: LocalDate) =
-        manager.getEntriesForDate(date)?.sumOf { it.spent }
+        redmine.getEntriesForDate(date)?.sumOf { it.spent }
 
     /**
      * calculates the hours spent in a [month], null if the month is not loaded
      */
     fun getSpent(month: YearMonth) =
-        manager.getEntriesForMonth(month)?.sumOf { it.spent }
+        redmine.getEntriesForMonth(month)?.sumOf { it.spent }
 
     /**
      * the entries that should be displayed on the current day (null if no current day or not loaded)
      */
     val dayEntries
-        get() = date?.let { manager.getEntriesForDate(it) }
+        get() = date?.let { redmine.getEntriesForDate(it) }
 
     /**
      * all distinct loaded issues (readonly)
      */
     val loadedIssues
-        get() = manager.loadedIssues.toSet()
+        get() = redmine.loadedIssues.toSet()
 
     /**
      * iff there is at least something that was modified (and should be uploaded)
      */
-    val hasChanges get() = manager.hasChanges
+    val hasChanges get() = redmine.hasChanges
 
     /* ------------------------- setters ------------------------- */
 
@@ -148,7 +148,7 @@ abstract class Model {
 
             try {
                 // download
-                manager.downloadEntriesFromMonth(month, prevDays).let { (newEntries, newIssues) ->
+                redmine.downloadEntriesFromMonth(month, prevDays).let { (newEntries, newIssues) ->
                     // and notify
                     if (newEntries) changes += ChangeEvents.Entries
                     if (newIssues) changes += ChangeEvents.Issues
@@ -171,7 +171,7 @@ abstract class Model {
          */
         @Throws(MyException::class)
         fun uploadAll() {
-            manager.uploadAll().convert {
+            redmine.uploadAll().convert {
                 // on upload error
                 MyException("Updating error", "An error occurred while updating data")
             }?.let { throw it }
@@ -184,7 +184,7 @@ abstract class Model {
          */
         fun createTimeEntry(issue: Issue) =
             date?.let { date ->
-                manager.createTimeEntry(issue, date).also {
+                redmine.createTimeEntry(issue, date).also {
                     // autoload if required, ignore errors
                     if (autoLoadTotalHours) {
                         runCatching { it.issue.downloadSpent() }.onFailure {
@@ -207,12 +207,12 @@ abstract class Model {
 
             try {
                 // download missing issues, if any
-                if (manager.downloadIssues(ids)) changes += ChangeEvents.Issues
+                if (redmine.downloadIssues(ids)) changes += ChangeEvents.Issues
 
                 // create entries
                 val missingIds = ids.filter { id ->
                     // create new entries for existing ids, and keep missing ids
-                    manager.loadedIssues.firstOrNull { it.id == id }?.also { createTimeEntry(it) } == null
+                    redmine.loadedIssues.firstOrNull { it.id == id }?.also { createTimeEntry(it) } == null
                 }
 
                 when {
@@ -238,34 +238,34 @@ abstract class Model {
             date?.also { date ->
 
                 // still not initialized
-                if (!this::manager.isInitialized) return
+                if (!this::redmine.isInitialized) return
 
                 // add copy of past issues from previous days
                 // for all entries in previous days (sorted by date)
-                (0L..prevDays).flatMap { manager.getEntriesForDate(date.minusDays(it)) ?: return } // skip if not loaded yet
+                (0L..prevDays).flatMap { redmine.getEntriesForDate(date.minusDays(it)) ?: return } // skip if not loaded yet
                     // keep one for each issue
                     .distinctBy { it.issue }
                     // then remove those from today
                     .filterNot { it.wasSpentOn(date) }
                     // and create entry
                     .map {
-                        manager.createTimeEntry(it.issue, date)
+                        redmine.createTimeEntry(it.issue, date)
                             .apply { comment = it.comment }
                     }
 
                 // add missing assigned issues for today
-                val currentIssues = (manager.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
+                val currentIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
                 // get issues assigned to us
-                manager.getAssignedIssues()
+                redmine.getAssignedIssues()
                     // not in today
                     .filterNot { it in currentIssues }
                     // and create empty entries
-                    .map { manager.createTimeEntry(it, date) }
+                    .map { redmine.createTimeEntry(it, date) }
 
                 // download all issues of today if configured
                 if (autoLoadTotalHours) {
                     // load all issues of today
-                    (manager.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
+                    (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
                         runCatching { it.downloadSpent() }.onFailure {
                             // warning
                             System.err.println("Error when loading spent, ignoring: $it")
@@ -279,7 +279,7 @@ abstract class Model {
          * clears and initializes the data
          */
         fun reload() {
-            manager = RedmineManager(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
+            redmine = Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
             changes += setOf(ChangeEvents.Issues, ChangeEvents.Entries, ChangeEvents.Hours, ChangeEvents.Day, ChangeEvents.Month) // hack, to reload all
         }
     }
