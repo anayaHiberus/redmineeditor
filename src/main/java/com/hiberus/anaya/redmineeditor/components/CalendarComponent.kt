@@ -65,24 +65,24 @@ internal class CalendarComponent {
         // on new month, draw it and prepare to draw colors
         AppController.onChanges(setOf(ChangeEvents.Month)) { model: Model ->
             drawGrid(model)
-            updateLabel(model)
             needsColoring = true
         }
 
-        // when hours change, recolor today
+        // when hours change (and a recoloring is not pending), recolor day
         AppController.onChanges(setOf(ChangeEvents.DayHours)) { model: Model ->
-            // when hours change (and a recoloring is not pending), recolor day
             if (!needsColoring) model.day?.let { colorDay(it, model) }
+        }
+
+        // when month or hours change, or loading finishes, set label
+        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.DayHours, ChangeEvents.Loading)) { model ->
+            updateLabel(model)
         }
 
         // when finished loading, color days
         AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
             // if it's not loading and a recoloring is pending: color days
-            if (!model.isLoading) {
-                if (needsColoring) {
-                    colorDays(model)
-                    updateLabel(model)
-                }
+            if (!model.isLoading && needsColoring) {
+                colorDays(model)
                 needsColoring = false
             }
         }
@@ -147,20 +147,24 @@ internal class CalendarComponent {
         }
 
     private fun updateLabel(model: Model) {
+        val month = model.month
         // month info
         var label = DateTimeFormatterBuilder()
             .appendText(ChronoField.MONTH_OF_YEAR)
             .appendLiteral(", ")
             .appendText(ChronoField.YEAR)
             .toFormatter()
-            .format(model.month)
+            .format(month)
 
-        val spent = model.getSpent(model.month)
+        val spent = model.getSpent(month)
         if (!model.isLoading && spent != null) {
             // loaded, append spent/expected and set color
-            val expected = model.month.expectedHours
+            val expected = month.expectedHours
             label += " (${spent.formatHours()}/${expected.formatHours()})"
-            calendarLabel.backgroundColor = getColor(expected, spent, model.month.atEndOfMonth())
+            calendarLabel.backgroundColor = getColor(expected, spent,
+                // last non-holiday day
+                (month.lengthOfMonth() downTo 1).map { month.atDay(it) }.firstOrNull { it.expectedHours > 0 } ?: month.atDay(1)
+            )
         } else {
             // not loaded, clear
             calendarLabel.backgroundColor = null

@@ -98,7 +98,7 @@ class Controller {
             .filter { (lEvents, _) -> lEvents intersects events }
             // and notify them all in foreground
             .let {
-                runInForeground {
+                runInForeground { // TODO: consider adding a try/catch here
                     it.forEach { (_, listener) -> listener(model) }
                 }
             }
