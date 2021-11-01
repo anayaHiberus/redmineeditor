@@ -20,7 +20,7 @@ class Redmine {
      */
     @Suppress("ConvertSecondaryConstructorToPrimary")
     constructor(domain: String, key: String, read_only: Boolean = false) {
-        this.remote = Remote(domain.removeSuffix("/"), key, read_only)
+        this.remote = Remote(domain, key, read_only)
     }
 
     /* ------------------------- private data ------------------------- */
@@ -162,7 +162,7 @@ class Redmine {
 /**
  * If check is true, apply and return then, else keep this
  */
-private fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() else this
+private inline fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() else this
 
 
 /**

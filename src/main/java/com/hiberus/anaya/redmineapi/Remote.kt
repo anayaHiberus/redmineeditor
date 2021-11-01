@@ -6,9 +6,8 @@ import java.net.URL
 import java.time.LocalDate
 
 /* ------------------------- class ------------------------- */
-
 /**
- * Manages connections with the api on a [domain] (MUST NOT END WITH A SLASH) using an api [key].
+ * Manages connections with the api on a [domain] using an api [key].
  * If [read_only], put/post petitions will be skipped (but still logged)
  */
 internal class Remote(
@@ -17,7 +16,43 @@ internal class Remote(
     private val read_only: Boolean,
 ) {
 
-    // TODO: consider extracting urls for common use
+    /* ------------------------- Endpoint builder ------------------------- */
+
+    /**
+     * Implemented API endpoints
+     */
+    private enum class Endpoint {
+        TIME_ENTRIES,
+        ISSUES,
+    }
+
+    /**
+     * url parameter: [field] [operation] [values]/[value]
+     */
+    private data class Param(val field: String, val operation: String, val values: List<Any>) {
+        constructor(field: String, operation: String, value: Any) : this(field, operation, listOf(value))
+    }
+
+    /**
+     * The url of this endpoint, from a specific [id] if not empty, and with a list of [parameters] if supplied (set to null for user url)
+     */
+    private fun Endpoint.build(id: Int? = null, parameters: List<Param>? = listOf()) =
+        ("${domain.removeSuffix("/")}/${name.lowercase()}" +
+                (id?.let { "/$it" }.orEmpty()) +
+                (parameters?.let { params ->
+                    ".json?" +
+                            "utf8=✓&".takeIf { params.isNotEmpty() }.orEmpty() +
+                            params.joinToString("") { (field, operation, values) ->
+                                "f[]=$field&op[$field]=${
+                                    when (operation) {
+                                        "=" -> "%3D"
+                                        "between" -> "><"
+                                        else -> operation
+                                    }
+                                }&" + values.joinToString("") { "v[$field][]=$it&" }
+                            } +
+                            "key=$key"
+                }.orEmpty())).also { println(it) }
 
     /* ------------------------- properties ------------------------- */
 
@@ -42,12 +77,10 @@ internal class Remote(
     @Throws(IOException::class)
     fun downloadTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: Set<Issue>): Pair<List<TimeEntry>, MutableList<Issue>> {
         val newIssues = mutableListOf<Issue>()
-        val entries = (
-                "$domain/time_entries.json?utf8=✓&"
-                        + "&f[]=user_id&op[user_id]=%3D&v[user_id][]=me"
-                        + "&f[]=spent_on&op[spent_on]=><&v[spent_on][]=$from&v[spent_on][]=$to"
-                        + "&key=$key"
-                ).paginatedGet("time_entries")
+        val entries = Endpoint.TIME_ENTRIES.build(parameters = listOf(
+            Param("user_id", "=", "me"),
+            Param("spent_on", "between", listOf(from, to))
+        )).paginatedGet("time_entries")
             .apply {
                 // fetch missing issues, and add them to loadedIssues
                 val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
@@ -74,7 +107,7 @@ internal class Remote(
                         println("Creating entry with data: $it")
                         if (read_only) return
                         JSONObject().put("time_entry", it)
-                            .postTo(URL("$domain/time_entries.json?key=$key"))
+                            .postTo(Endpoint.TIME_ENTRIES.build().url)
                             .ifNot(201) {
                                 throw IOException("Error when creating entry with data: $it")
                             }
@@ -88,7 +121,7 @@ internal class Remote(
                         println("Updating entry $id with data: $it")
                         if (read_only) return
                         JSONObject().put("time_entry", it)
-                            .putTo(URL("$domain/time_entries/$id.json?key=$key"))
+                            .putTo(Endpoint.TIME_ENTRIES.build(id = id).url)
                             .ifNot(200) {
                                 throw IOException("Error when updating entry $id with data: $it")
                             }
@@ -98,7 +131,7 @@ internal class Remote(
                     id != null && spent <= 0 -> {
                         println("Deleting entry $id")
                         if (read_only) return
-                        URL("$domain/time_entries/$id.json?key=$key")
+                        Endpoint.TIME_ENTRIES.build(id = id).url
                             .delete()
                             .ifNot(200) {
                                 throw IOException("Error when deleting entry $id")
@@ -117,13 +150,13 @@ internal class Remote(
     /**
      * returns the url to externally view this issue details
      */
-    fun getIssueDetailsUrl(issue: Issue) = "$domain/issues/${issue.id}"
+    fun getIssueDetailsUrl(issue: Issue) = Endpoint.ISSUES.build(id = issue.id, parameters = null)
 
     /**
      * Returns the raw details of an issue, for internal use
      */
     @Throws(IOException::class)
-    internal fun downloadRawIssueDetails(id: Int) = URL("$domain/issues/$id.json?key=$key").getJSON().getJSONObject("issue")
+    internal fun downloadRawIssueDetails(id: Int) = Endpoint.ISSUES.build(id = id).url.getJSON().getJSONObject("issue")
 
     /**
      * Returns the issues associated with the specified ids
@@ -138,9 +171,9 @@ internal class Remote(
         .ifEmpty { return emptyList<Issue>() }
         .run {
             // build url
-            ("$domain/issues.json?utf8=✓"
-                    + "&f[]=issue_id&op[issue_id]=%3D&v[issue_id][]=${joinToString("%2C")}"
-                    + "&key=$key")
+            Endpoint.ISSUES.build(parameters = listOf(
+                Param("issue_id", "=", joinToString("%2C"))
+            ))
                 // get
                 .paginatedGet("issues")
                 // create issues
@@ -151,17 +184,16 @@ internal class Remote(
      * Return assigned issues
      */
     @Throws(IOException::class)
-    fun downloadAssignedIssues() = (
-            "$domain/issues.json?utf8=✓"
-                    + "&f[]=assigned_to_id&op[assigned_to_id]=%3D&v[assigned_to_id][]=me"
-                    + "&f[]=updated_on&op[updated_on]=>t-&v[updated_on][]=31"
-                    + "&key=$key"
-            ).paginatedGet("issues")
-        .apply {
-            // also initialize user id if not still
-            if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
-        }
-        .map { Issue(it, this) }
+    fun downloadAssignedIssues() =
+        Endpoint.ISSUES.build(parameters = listOf(
+            Param("assigned_to_id", "=", "me"),
+            Param("updated_on", "t-", "31")
+        )).paginatedGet("issues")
+            .apply {
+                // also initialize user id if not still
+                if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
+            }
+            .map { Issue(it, this) }
 
     /**
      * Uploads an [issue] to redmine (unless not needed)
@@ -174,14 +206,20 @@ internal class Remote(
                 println("Updating issue $id with data: $it")
                 if (read_only) return
                 JSONObject().put("issue", this)
-                    .putTo(URL("$domain/issues/$id.json?key=$key"))
+                    .putTo(Endpoint.ISSUES.build(id = id).url)
                     .ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }
             }
         }
     }
 }
 
+
 /* ------------------------- private ------------------------- */
+
+/**
+ * Functional way to convert a string to an url: "http".url instead of URL("http")
+ */
+private inline val String.url get() = URL(this)
 
 /**
  * returns all entries from a paginated result
@@ -202,7 +240,7 @@ private fun String.paginatedGet(key: String) =
 /**
  * Run while it returns false (compact while)
  */
-private fun doWhile(thing: () -> Boolean) {
+private inline fun doWhile(thing: () -> Boolean) {
     while (thing()) {
         // nothing
     }

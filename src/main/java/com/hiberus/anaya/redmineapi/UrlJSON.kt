@@ -87,7 +87,7 @@ private fun URL.send(method: String, body: JSONObject?) =
 /**
  * Compare value with another one, if different execute function
  */
-fun <T> T.ifNot(compareTo: T, execute: () -> Unit) {
+inline fun <T> T.ifNot(compareTo: T, execute: () -> Unit) {
     if (this != compareTo) execute()
 }
 
