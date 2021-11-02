@@ -36,23 +36,38 @@ internal class Remote(
     /**
      * The url of this endpoint, from a specific [id] if not empty, and with a list of [parameters] if supplied (set to null for user url)
      */
-    private fun Endpoint.build(id: Int? = null, parameters: List<Param>? = listOf()) =
-        ("${domain.removeSuffix("/")}/${name.lowercase()}" +
-                (id?.let { "/$it" }.orEmpty()) +
-                (parameters?.let { params ->
-                    ".json?" +
-                            "utf8=✓&".takeIf { params.isNotEmpty() }.orEmpty() +
-                            params.joinToString("") { (field, operation, values) ->
-                                "f[]=$field&op[$field]=${
-                                    when (operation) {
-                                        "=" -> "%3D"
-                                        "between" -> "><"
-                                        else -> operation
-                                    }
-                                }&" + values.joinToString("") { "v[$field][]=$it&" }
-                            } +
-                            "key=$key"
-                }.orEmpty())).also { println(it) }
+    private fun Endpoint.build(id: Int? = null, parameters: List<Param>? = listOf()) = buildString {
+        // domain
+        append(domain.removeSuffix("/")).append("/")
+        // entry
+        append(name.lowercase())
+        // id if supplied
+        if (id != null) append("/").append(id)
+
+        // nothing else if parameters is null
+        if (parameters == null) return@buildString
+
+        // file
+        append(".json?")
+        // parameters
+        if (parameters.isNotEmpty()) append("utf8=✓&")
+        parameters.forEach { (field, operation, values) ->
+            // field
+            append("f[]=$field&")
+            // operation
+            val op = when (operation) {
+                "=" -> "%3D"
+                "between" -> "><"
+                else -> operation
+            }
+            append("op[$field]=$op&")
+            // values
+            assert(values.isNotEmpty())
+            values.forEach { append("v[$field][]=$it&") }
+        }
+        // key
+        append("key=$key")
+    }.also { println(it) }
 
     /* ------------------------- properties ------------------------- */
 
