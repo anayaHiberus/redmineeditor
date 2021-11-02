@@ -1,6 +1,5 @@
 package com.hiberus.anaya.redmineapi
 
-import com.hiberus.anaya.redmineeditor.controller.MyException
 import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
@@ -148,7 +147,7 @@ class Redmine {
      * Downloads issues if required from their [ids]
      * returns true if there was at least one downloaded
      */
-    @Throws(MyException::class)
+    @Throws(IOException::class)
     fun downloadIssues(ids: List<Int>): Boolean {
         // load missing
         val loadedIds = loadedIssues.map { it.id }
