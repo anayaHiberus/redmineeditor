@@ -19,8 +19,9 @@ class Redmine {
      * @param read_only if true, put/post petitions will be skipped (but still logged)
      */
     @Suppress("ConvertSecondaryConstructorToPrimary")
-    constructor(domain: String, key: String, read_only: Boolean = false) {
+    constructor(domain: String, key: String, read_only: Boolean, prevDays: Long) {
         this.remote = Remote(domain, key, read_only)
+        this.prevDays = prevDays
     }
 
     /* ------------------------- private data ------------------------- */
@@ -39,6 +40,11 @@ class Redmine {
      * months that are already loaded and don't need to be again
      */
     private val monthsLoaded = mutableSetOf<YearMonth>()
+
+    /**
+     * Number of days for 'past' computations
+     */
+    private var prevDays: Long
 
     /* ------------------------- public data ------------------------- */
 
@@ -78,14 +84,12 @@ class Redmine {
 
     /**
      * return entries of a specific date
-     * TODO replace with a map with date as key
      */
     fun getEntriesForDate(date: LocalDate) =
-        date.takeIf { it.yearMonth in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
+        date.takeIf { it.yearMonth in monthsLoaded || it.plusDays(prevDays).yearMonth in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
 
     /**
      * return entries of a specific month
-     * TODO replace with a map with month as key
      */
     fun getEntriesForMonth(month: YearMonth) =
         month.takeIf { it in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
@@ -97,7 +101,7 @@ class Redmine {
      * returns a pair of booleans: newentries, newissues
      */
     @Throws(IOException::class)
-    fun downloadEntriesFromMonth(month: YearMonth, prevDays: Long): Pair<Boolean, Boolean> {
+    fun downloadEntriesFromMonth(month: YearMonth): Pair<Boolean, Boolean> {
         if (month in monthsLoaded) return false to false // already loaded
 
         // load from the internet all entries in month

@@ -148,7 +148,7 @@ abstract class Model {
         fun loadDate() {
             try {
                 // download (skip if not loaded)
-                (redmine ?: return).downloadEntriesFromMonth(month, prevDays).let { (newEntries, newIssues) ->
+                (redmine ?: return).downloadEntriesFromMonth(month).let { (newEntries, newIssues) ->
                     // and notify
                     if (newEntries) changes += ChangeEvents.EntryList
                     if (newIssues) changes += ChangeEvents.IssueList
@@ -280,7 +280,7 @@ abstract class Model {
          * Clears and initializes (unless [clearOnly] is true) the redmine data
          */
         fun reloadRedmine(clearOnly: Boolean = false) {
-            redmine = if (clearOnly) null else Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean())
+            redmine = if (clearOnly) null else Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean(), prevDays)
             changes += setOf(ChangeEvents.IssueList, ChangeEvents.EntryList, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
         }
     }
