@@ -10,6 +10,7 @@ import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.VBox
 
+
 /**
  * Component for the parent app. Manages the loading indicator
  */

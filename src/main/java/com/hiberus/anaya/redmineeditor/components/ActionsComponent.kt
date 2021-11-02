@@ -6,10 +6,12 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import com.hiberus.anaya.redmineeditor.utils.resultButton
+import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
+import javafx.stage.WindowEvent
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -25,6 +27,11 @@ internal class ActionsComponent {
 
     @FXML
     fun initialize() {
+        // register closing
+        Platform.runLater {
+            save.scene.window.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent) // attached to save because it's one valid element
+        }
+
         // when app starts
         AppController.onChanges(setOf(ChangeEvents.Start)) { model ->
             // init data
@@ -49,24 +56,7 @@ internal class ActionsComponent {
      */
     @FXML
     private fun reload() = AppController.runForeground { model: Model ->
-        if (model.hasChanges == true) {
-            // if there are changes, ask first
-            val result = Alert(
-                Alert.AlertType.WARNING,
-                "There are unsaved changes, do you want to lose them and reload?",
-                ButtonType.YES, ButtonType.CANCEL
-            ).apply {
-                title = "Warning"
-                headerText = "Unsaved changes"
-
-            }.showAndWait() // display
-
-            // stop if the user didn't accept
-            if (result.resultButton != ButtonType.YES) return@runForeground
-        }
-
-        // either no changes, or the user did want to lose them
-        forceReload(true)
+        if (confirmLoseChanges(model, "reload")) forceReload(true)
     }
 
     /**
@@ -121,6 +111,38 @@ internal class ActionsComponent {
                     contentText = "No valid special days data found"
                 }.showAndWait()
             }
+        }
+    }
+
+    /**
+     * Checks for changes, if there are asks to 'lose them and [message]?' returns false if the user don't want to lose existing changes
+     */
+    private fun confirmLoseChanges(model: Model, message: String): Boolean {
+        if (model.hasChanges == true) {
+            // if there are changes, ask first
+            val result = Alert(
+                Alert.AlertType.WARNING,
+                "There are unsaved changes, do you want to lose them and $message?",
+                ButtonType.YES, ButtonType.CANCEL
+            ).apply {
+                title = "Warning"
+                headerText = "Unsaved changes"
+
+            }.showAndWait() // display
+
+            // stop if the user didn't accept
+            if (result.resultButton != ButtonType.YES) return false
+        }
+        // continue otherwise
+        return true
+    }
+
+    /**
+     * On window closes, asks to lose changes if any
+     */
+    private fun closeWindowEvent(event: WindowEvent) {
+        AppController.runForeground { model ->
+            if (!confirmLoseChanges(model, "exit")) event.consume()
         }
     }
 
