@@ -93,10 +93,11 @@ internal class ActionsComponent {
                 // reload files
                 settingsERROR = !LoadSettings()
                 specialDaysERROR = !LoadSpecialDays()
-
-                // reload data
-                model.reloadRedmine(clearOnly = settingsERROR)
             }
+
+            // reload data
+            // TODO: don't reload when uploading, update internal state
+            model.reloadRedmine(clearOnly = settingsERROR)
 
             // notify so that the ui is updated at this step and everything is updated
             AppController.fireChanges()
