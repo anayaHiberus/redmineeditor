@@ -50,7 +50,7 @@ class Redmine {
     /**
      * loaded time entries
      */
-    val loadedEntries = mutableListOf<TimeEntry>()
+    private val loadedEntries = mutableListOf<TimeEntry>()
 
     /**
      * Loaded issues
@@ -97,7 +97,7 @@ class Redmine {
 
     /**
      * downloads entries for a given [month] with +-[prevDays] (unless already loaded)
-     * returns a pair of booleans: newentries, newissues
+     * returns a pair of booleans: newEntries, newIssues
      */
     @Throws(IOException::class)
     fun downloadEntriesFromMonth(month: YearMonth): Pair<Boolean, Boolean> {

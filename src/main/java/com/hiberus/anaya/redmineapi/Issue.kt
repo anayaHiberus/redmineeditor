@@ -64,7 +64,7 @@ class Issue {
         }
 
     /**
-     * Id of the assigned user
+     * ID of the assigned user
      */
     val assigned_to: Int?
 
@@ -136,6 +136,14 @@ class Issue {
             // disabled and want to change, set to 0 if it wants to add, keep if not
             if (amount > 0) 0.0 else null
         }
+    }
+
+    /**
+     * Changes the estimated hours to any [amount] (null for none)
+     * TODO: set as the estimated setter, and move there the logic
+     */
+    fun changeEstimated(amount: Double?) {
+        estimated = amount?.coerceAtLeast(0.0)
     }
 
     /**

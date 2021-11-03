@@ -106,6 +106,11 @@ class TimeEntry {
             issue.addSpent(it)
         }
 
+    /**
+     * changes the spent hours to any [amount]
+     */
+    fun changeSpent(amount: Double) = addSpent(amount - spent)
+
     /* ------------------------- uploading ------------------------- */
 
     /**

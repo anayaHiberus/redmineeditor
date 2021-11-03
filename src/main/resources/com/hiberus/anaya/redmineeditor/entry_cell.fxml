@@ -29,7 +29,7 @@
                             </font>
                         </Button>
                     </HBox>
-                    <Label fx:id="txt_estimated" contentDisplay="CENTER" text="hh"/>
+                    <Label fx:id="txt_estimated" contentDisplay="CENTER" text="hh" onMouseClicked="#editEstimated"/>
                     <HBox fx:id="sub_estimated" alignment="TOP_CENTER">
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-0.25">
@@ -98,7 +98,7 @@
                             </font>
                         </Button>
                     </HBox>
-                    <Label fx:id="txt_spent" contentDisplay="CENTER" text="hh"/>
+                    <Label fx:id="txt_spent" contentDisplay="CENTER" text="hh" onMouseClicked="#editSpent"/>
                     <HBox fx:id="sub_spent" alignment="TOP_CENTER">
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1"/>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-0.25">

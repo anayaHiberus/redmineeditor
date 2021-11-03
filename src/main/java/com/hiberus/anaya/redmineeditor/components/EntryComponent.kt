@@ -8,15 +8,19 @@ import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.event.Event
+import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.*
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.web.WebView
 import java.io.IOException
 import java.net.URI
+import java.util.function.Consumer
 import kotlin.concurrent.thread
+
 
 /**
  * One of the entries in the entries list
@@ -167,6 +171,22 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             AppController.fireChanges(setOf(ChangeEvents.EntryContent, ChangeEvents.DayHours))
         }
 
+    /**
+     * edits the entry hours with an editor
+     */
+    @FXML
+    private fun editSpent() =
+        item?.run {
+            // editor
+            showHoursEditor("Spent", "0h", spent.toString()) {
+                // update entry
+                runCatching {
+                    changeSpent(it.takeIf { it.isNotBlank() }?.toDouble() ?: 0.0)
+                }
+            }
+            // and notify
+            AppController.fireChanges(setOf(ChangeEvents.EntryContent, ChangeEvents.DayHours))
+        }
 
     /**
      * increase or decrease the issue estimated hours
@@ -176,6 +196,23 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         item?.issue?.run {
             // update issue entry
             addEstimated(node.targetData.toDouble()) // the button data is the amount
+            // and notify
+            AppController.fireChanges(setOf(ChangeEvents.IssueContent))
+        }
+
+    /**
+     * edits the estimated hours with an editor
+     */
+    @FXML
+    private fun editEstimated() =
+        item?.issue?.run {
+            // editor
+            showHoursEditor("Estimated", "none", estimated?.toString() ?: "") {
+                // update entry
+                runCatching {
+                    changeEstimated(it.takeIf { it.isNotBlank() }?.toDouble())
+                }
+            }
             // and notify
             AppController.fireChanges(setOf(ChangeEvents.IssueContent))
         }
@@ -265,3 +302,17 @@ val OPEN_BUTTON = ButtonType("Open in Redmine")
 private val Event.targetData: String
     get() = (target as Node).userData.toString()
 
+/**
+ * Displays an editor to change an hours entry
+ */
+private fun showHoursEditor(label: String, ifEmpty: String, initialValue: String, onResult: Consumer<in String>) {
+    TextInputDialog(initialValue).apply {
+        title = "Hours raw editor"
+        contentText = "$label:"
+        editor.onKeyTyped = EventHandler<KeyEvent> {
+            headerText = editor.text.takeIf { it.isNotBlank() }
+                ?.runCatching { "$label: ${toDouble().formatHours()}" }?.getOrElse { "Invalid input" }
+                ?: "$label: $ifEmpty"
+        }.also { it.handle(null) } // also, run it now
+    }.showAndWait().ifPresent(onResult)
+}

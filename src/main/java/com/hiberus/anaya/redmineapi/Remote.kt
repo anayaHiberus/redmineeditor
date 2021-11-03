@@ -27,7 +27,7 @@ internal class Remote(
     }
 
     /**
-     * url parameter: [field] [operation] [values]/[value]
+     * url parameter: [field] [operation] [values]/value
      */
     private data class Param(val field: String, val operation: String, val values: List<Any>) {
         constructor(field: String, operation: String, value: Any) : this(field, operation, listOf(value))
