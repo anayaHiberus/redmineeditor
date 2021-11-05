@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.Redmine
+import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.controller.SETTING
 import com.hiberus.anaya.redmineeditor.controller.convert
@@ -139,6 +140,14 @@ abstract class Model {
             }
 
         /**
+         * Sets the date to now
+         */
+        fun toNow() {
+            day = LocalDate.now().dayOfMonth
+            month = YearMonth.now()
+        }
+
+        /**
          * Loads the current month (if it is already loaded this does nothing)
          * Long operation
          *
@@ -178,17 +187,18 @@ abstract class Model {
         }
 
         /**
-         * Creates a new time entry for current day (does nothing if there is no current day)
+         * Creates a new Time Entry for [issue] on the current date with already [spent] hours and [comment], returns whether it was added or not
          *
          * @param issue for this issue
          */
-        fun createTimeEntry(issue: Issue): Boolean {
+        fun createTimeEntry(issue: Issue, spent: Double = 0.0, comment: String = ""): Boolean {
             val redmine = redmine ?: return false // skip if no api
             val date = date ?: return false // skip if no date
 
-            redmine.createTimeEntry(issue, date).also {
+            redmine.createTimeEntry(issue = issue, spent_on = date, spent = spent, comment = comment).also {
                 // autoload if required, ignore errors
                 if (autoLoadTotalHours) {
+                    // TODO: move the autoloading to Redmine object
                     runCatching { it.issue.downloadSpent() }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
@@ -198,6 +208,11 @@ abstract class Model {
             changes += ChangeEvents.EntryList
             return true
         }
+
+        /**
+         * Copies an existing entry to today, returns true if it was added
+         */
+        fun copyTimeEntry(entry: TimeEntry) = createTimeEntry(entry.issue, entry.spent, entry.comment)
 
         /**
          * Creates multiple new time entries for current date (does nothing if there is no current day)
@@ -251,8 +266,7 @@ abstract class Model {
                 .filterNot { it.wasSpentOn(date) }
                 // and create entry
                 .map {
-                    redmine.createTimeEntry(it.issue, date)
-                        .apply { comment = it.comment }
+                    createTimeEntry(issue = it.issue, comment = it.comment)
                 }
 
             // add missing assigned issues for today
@@ -262,7 +276,7 @@ abstract class Model {
                 // not in today
                 .filterNot { it in currentIssues }
                 // and create empty entries
-                .map { redmine.createTimeEntry(it, date) }
+                .map { createTimeEntry(issue = it) }
 
             // download all issues of today if configured
             if (autoLoadTotalHours) {

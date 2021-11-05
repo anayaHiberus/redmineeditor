@@ -134,14 +134,11 @@ class Redmine {
                 + loadedIssues.runEachCatching { remote.upload(it) })
 
     /**
-     * Creates a new Time Entry
-     *
-     * @param issue    issue for the entry
-     * @param spent_on day this entry is spent on
-     * @return the created entry
+     * Creates a new Time Entry for [issue] on [spent_on] with already [spent] hours and [comment], and returns it
      */
-    fun createTimeEntry(issue: Issue, spent_on: LocalDate) =
-        TimeEntry(issue, spent_on, remote).also { loadedEntries += it }
+    fun createTimeEntry(issue: Issue, spent_on: LocalDate, spent: Double = 0.0, comment: String = "") =
+        TimeEntry(issue, spent_on, spent, comment, remote).also { loadedEntries += it }
+            .also { issue.addSpent(spent) } // update issue hours too
 
     /**
      * Downloads issues if required from their [ids]

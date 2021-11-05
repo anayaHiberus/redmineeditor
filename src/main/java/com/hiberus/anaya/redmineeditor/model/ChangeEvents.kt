@@ -7,11 +7,6 @@ package com.hiberus.anaya.redmineeditor.model
 enum class ChangeEvents {
 
     /**
-     * The app start event
-     */
-    Start,
-
-    /**
      * The loading state changed
      */
     Loading,

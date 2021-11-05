@@ -287,6 +287,16 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         }
     }
 
+    @FXML
+    fun copyToToday() = AppController.runBackground { model ->
+        item?.let {
+            // set now and copy entry
+            model.toNow()
+            model.copyTimeEntry(it)
+        }
+    }
+
+
 }
 
 /* ------------------------- utils ------------------------- */

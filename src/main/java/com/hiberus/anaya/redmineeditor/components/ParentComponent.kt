@@ -34,7 +34,6 @@ internal class ParentComponent {
             parent.isDisable = it.isLoading
         }
 
-        AppController.fireChanges(setOf(ChangeEvents.Start))
     }
 
     /* ------------------------- readme ------------------------- */

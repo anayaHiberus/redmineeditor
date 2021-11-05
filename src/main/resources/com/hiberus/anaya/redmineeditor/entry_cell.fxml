@@ -14,7 +14,11 @@
             <HBox fx:id="box_issue" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
                   HBox.hgrow="ALWAYS">
                 <Label fx:id="txt_details" maxWidth="1.7976931348623157E308" onMouseClicked="#showDetails"
-                       prefWidth="50.0" text="#" wrapText="true" HBox.hgrow="ALWAYS"/>
+                       prefWidth="50.0" text="#" wrapText="true" HBox.hgrow="ALWAYS">
+                    <HBox.margin>
+                        <Insets/>
+                    </HBox.margin>
+                </Label>
                 <Label text="Estimated:" HBox.hgrow="ALWAYS">
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
@@ -29,7 +33,7 @@
                             </font>
                         </Button>
                     </HBox>
-                    <Label fx:id="txt_estimated" contentDisplay="CENTER" text="hh" onMouseClicked="#editEstimated"/>
+                    <Label fx:id="txt_estimated" contentDisplay="CENTER" onMouseClicked="#editEstimated" text="hh"/>
                     <HBox fx:id="sub_estimated" alignment="TOP_CENTER">
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-0.25">
@@ -98,7 +102,7 @@
                             </font>
                         </Button>
                     </HBox>
-                    <Label fx:id="txt_spent" contentDisplay="CENTER" text="hh" onMouseClicked="#editSpent"/>
+                    <Label fx:id="txt_spent" contentDisplay="CENTER" onMouseClicked="#editSpent" text="hh"/>
                     <HBox fx:id="sub_spent" alignment="TOP_CENTER">
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1"/>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-0.25">
@@ -111,6 +115,18 @@
                 <TextField fx:id="edTxt_comment" maxWidth="1.7976931348623157E308" onKeyTyped="#changedComment"
                            prefWidth="50.0" HBox.hgrow="ALWAYS"/>
             </HBox>
+            <MenuButton contentDisplay="GRAPHIC_ONLY" ellipsisString="" graphicTextGap="0.0" maxWidth="24.0"
+                        minWidth="24.0" mnemonicParsing="false" prefWidth="24.0" textOverrun="CLIP">
+                <items>
+                    <MenuItem mnemonicParsing="false" onAction="#copyToToday" text="Copy to today"/>
+                </items>
+                <font>
+                    <Font/>
+                </font>
+                <HBox.margin>
+                    <Insets left="10.0"/>
+                </HBox.margin>
+            </MenuButton>
         </HBox>
     </graphic>
 </fx:root>

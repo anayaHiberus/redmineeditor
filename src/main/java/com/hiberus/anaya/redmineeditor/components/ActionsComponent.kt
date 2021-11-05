@@ -12,8 +12,6 @@ import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
 import javafx.stage.WindowEvent
-import java.time.LocalDate
-import java.time.YearMonth
 
 /**
  * A list of action buttons
@@ -33,12 +31,8 @@ internal class ActionsComponent {
         }
 
         // when app starts
-        AppController.onChanges(setOf(ChangeEvents.Start)) { model ->
-            // init data
-            model.day = LocalDate.now().dayOfMonth
-            model.month = YearMonth.now()
-            // start the app
-            forceReload(true)
+        Platform.runLater {
+            reload(reloadConfig = true, resetDay = true)
         }
 
         // when data changes
@@ -55,8 +49,8 @@ internal class ActionsComponent {
      * press the refresh button to reload the data, asks if there are changes
      */
     @FXML
-    private fun reload() = AppController.runForeground { model: Model ->
-        if (confirmLoseChanges(model, "reload")) forceReload(true)
+    private fun askReload() = AppController.runForeground { model: Model ->
+        if (confirmLoseChanges(model, "reload")) reload(reloadConfig = true)
     }
 
     /**
@@ -65,7 +59,7 @@ internal class ActionsComponent {
     @FXML
     private fun upload() = AppController.runBackground(
         { it.uploadAll() }, // let it upload
-        { ok -> if (ok) forceReload() } // then reload if everything was ok
+        { ok -> if (ok) reload() } // then reload if everything was ok
     )
 
     /* ------------------------- internal ------------------------- */
@@ -73,17 +67,21 @@ internal class ActionsComponent {
     /**
      * reloads the data (loses changes, if existing)
      * Also reloads configuration if [reloadConfig] is set
+     * Also resets the day if [resetDay] is set
      */
-    private fun forceReload(reloadConfig: Boolean = false) {
+    private fun reload(reloadConfig: Boolean = false, resetDay: Boolean = false) {
         var settingsERROR = false
         var specialDaysERROR = false
         AppController.runBackground({ model ->
 
+            // reload files
             if (reloadConfig) {
-                // reload files
                 settingsERROR = !LoadSettings()
                 specialDaysERROR = !LoadSpecialDays()
             }
+
+            // set now
+            if (resetDay) model.toNow()
 
             // reload data
             // TODO: don't reload when uploading, update internal state
