@@ -51,8 +51,9 @@ class Issue {
      * Total hours spent on this issue.
      * null if uninitialized
      */
-    var spent: Double?
-        private set
+    val spent get() = remote_spent?.plus(local_spent)
+    private var remote_spent: Double? // the remote part, may be uninitialized
+    private var local_spent = 0.0 // the local part, must be the sum of all entries
 
     /**
      * [spent]/[estimated]
@@ -85,7 +86,7 @@ class Issue {
         description = rawIssue.optString("description")
         estimated = rawIssue.noNaNDouble("estimated_hours")
         realization = rawIssue.optInt("done_ratio", 0)
-        spent = rawIssue.noNaNDouble("spent_hours")
+        remote_spent = rawIssue.noNaNDouble("spent_hours")
         assigned_to = rawIssue.optJSONObject("assigned_to")?.getInt("id")
     }
 
@@ -117,7 +118,7 @@ class Issue {
      */
     fun addSpent(amount: Double) {
         assert(spent != null) // assert initialized
-        spent?.let { spent = it + amount }
+        local_spent += amount
         assert(spent?.let { it >= 0 } ?: false) // assert non-negative
     }
 
@@ -175,7 +176,7 @@ class Issue {
         spent?.let { return } // skip initialized
 
         // load
-        spent = remote.downloadRawIssueDetails(id).noNaNDouble("spent_hours")
+        remote_spent = remote.downloadRawIssueDetails(id).noNaNDouble("spent_hours")
     }
 
 
