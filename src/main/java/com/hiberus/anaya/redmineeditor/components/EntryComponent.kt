@@ -270,6 +270,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             buttonTypes += OPEN_BUTTON
             buttonTypes += ButtonType.CLOSE // to allow closing by pressing the 'x' button
 
+            stylize()
         }.showAndWait() // display
 
         if (result.resultButton == OPEN_BUTTON) {
@@ -280,6 +281,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
                     Platform.runLater {
                         Alert(Alert.AlertType.ERROR).apply {
                             contentText = "Couldn't open the browser"
+                            stylize()
                         }.showAndWait()
                     }
                 }
@@ -324,5 +326,6 @@ private fun showHoursEditor(label: String, ifEmpty: String, initialValue: String
                 ?.runCatching { "$label: ${toDouble().formatHours()}" }?.getOrElse { "Invalid input" }
                 ?: "$label: $ifEmpty"
         }.also { it.handle(null) } // also, run it now
+        stylize()
     }.showAndWait().ifPresent(onResult)
 }

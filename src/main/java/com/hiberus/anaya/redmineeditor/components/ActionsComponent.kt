@@ -6,11 +6,14 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import com.hiberus.anaya.redmineeditor.utils.resultButton
+import com.hiberus.anaya.redmineeditor.utils.runInForeground
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
+import javafx.stage.Window
 import javafx.stage.WindowEvent
 
 /**
@@ -78,6 +81,11 @@ internal class ActionsComponent {
             if (reloadConfig) {
                 settingsERROR = !LoadSettings()
                 specialDaysERROR = !LoadSpecialDays()
+
+                runInForeground {
+                    // stylize displayed windows (should only be the main one)
+                    Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
+                }
             }
 
             // set now
@@ -100,6 +108,7 @@ internal class ActionsComponent {
                 Alert(Alert.AlertType.ERROR).apply {
                     title = "Configuration error"
                     contentText = "No valid configuration found"
+                    stylize()
                 }.showAndWait()
             }
             if (specialDaysERROR) {
@@ -107,6 +116,7 @@ internal class ActionsComponent {
                 Alert(Alert.AlertType.WARNING).apply {
                     title = "Special days error"
                     contentText = "No valid special days data found"
+                    stylize()
                 }.showAndWait()
             }
         }
@@ -125,7 +135,7 @@ internal class ActionsComponent {
             ).apply {
                 title = "Warning"
                 headerText = "Unsaved changes"
-
+                stylize()
             }.showAndWait() // display
 
             // stop if the user didn't accept

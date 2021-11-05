@@ -8,7 +8,10 @@ KEY=
 READ_ONLY = true
 
 # PREV_DAYS: number of previous days to fill entries, between 0 and 28. For any given day, entries spent in the previous [PREV_DAYS] days will appear as suggestions. 7 by default
-# PREV_DAYS = 7
+# PREV_DAYS = 14
 
 # AUTO_LOAD_TOTAL_HOURS: set to false to manually load total hours (faster startup time), true by default
-# AUTO_LOAD_TOTAL_HOURS = true
+# AUTO_LOAD_TOTAL_HOURS = false
+
+# DARK_THEME: if true, a dark theme will be applied. False by default
+# DARK_THEME = true

@@ -30,7 +30,12 @@ enum class SETTING(val default: String) {
     /**
      * Number of days for 'past' computations
      */
-    PREV_DAYS("7")
+    PREV_DAYS("7"),
+
+    /**
+     * Dark theme
+     */
+    DARK_THEME("false")
 }
 
 /**

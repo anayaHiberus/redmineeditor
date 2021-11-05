@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.utils.getModuleResource
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.Label
@@ -33,15 +34,17 @@ internal class ParentComponent {
             progress.isVisible = it.isLoading
             parent.isDisable = it.isLoading
         }
-
     }
 
     /* ------------------------- readme ------------------------- */
 
     @FXML
-    fun showReadme() = Alert(Alert.AlertType.INFORMATION).apply {
-        headerText = "Readme"
-        dialogPane.content = ScrollPane(Label(this@ParentComponent.javaClass.getModuleResource("Readme.txt").readText()))
-    }.showAndWait()
+    fun showReadme() {
+        Alert(Alert.AlertType.INFORMATION).apply {
+            headerText = "Readme"
+            dialogPane.content = ScrollPane(Label(this@ParentComponent.javaClass.getModuleResource("Readme.txt").readText()))
+            stylize()
+        }.showAndWait()
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.controller
 
 import com.hiberus.anaya.redmineeditor.utils.printStackTraceFix
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
 import javafx.scene.control.Alert.AlertType.WARNING
@@ -52,6 +53,7 @@ class MyException(
         Alert(if (warning) WARNING else ERROR).apply {
             headerText = title
             contentText = "$message\n\n$details"
+            stylize()
         }.showAndWait()
     }
 
