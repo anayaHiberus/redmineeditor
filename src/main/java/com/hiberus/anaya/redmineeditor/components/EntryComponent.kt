@@ -266,9 +266,8 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
                 contentText = "no description"
             }
 
-            // button
-            buttonTypes += OPEN_BUTTON
-            buttonTypes += ButtonType.CLOSE // to allow closing by pressing the 'x' button
+            // buttons
+            buttonTypes.setAll(OPEN_BUTTON, ButtonType.CLOSE)
 
             stylize()
         }.showAndWait() // display
@@ -298,6 +297,7 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         }
     }
 
+    // TODO: add a 'delete' entry, think about what to do if the entry exists
 
 }
 
