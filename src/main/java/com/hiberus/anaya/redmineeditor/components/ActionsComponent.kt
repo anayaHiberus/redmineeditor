@@ -62,7 +62,7 @@ internal class ActionsComponent {
     @FXML
     private fun upload() = AppController.runBackground(
         { it.uploadAll() }, // let it upload
-        { ok -> if (ok) reload() } // then reload if everything was ok
+        { reload() } // then reload (even if there were errors) TODO: on errors, try to keep them or something
     )
 
     /* ------------------------- internal ------------------------- */

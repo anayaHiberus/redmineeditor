@@ -5,7 +5,7 @@ URL=https://redmine.hiberus.com/redmine/
 KEY=
 
 # READ_ONLY: set to true to skip PUT/POST petitions (they will still be logged), false by default
-READ_ONLY = true
+# READ_ONLY = true
 
 # PREV_DAYS: number of previous days to fill entries, between 0 and 28. For any given day, entries spent in the previous [PREV_DAYS] days will appear as suggestions. 7 by default
 # PREV_DAYS = 14

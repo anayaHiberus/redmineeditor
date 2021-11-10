@@ -220,7 +220,7 @@ internal class Remote(
                 // update
                 println("Updating issue $id with data: $it")
                 if (read_only) return
-                JSONObject().put("issue", this)
+                JSONObject().put("issue", changes)
                     .putTo(Endpoint.ISSUES.build(id = id).url)
                     .ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }
             }

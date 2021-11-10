@@ -182,7 +182,7 @@ abstract class Model {
         fun uploadAll() {
             redmine?.uploadAll()?.convert {
                 // on upload error
-                MyException("Updating error", "An error occurred while updating data")
+                MyException("Updating error", "An error occurred while updating data, some changes were not saved")
             }?.let { throw it }
         }
 
