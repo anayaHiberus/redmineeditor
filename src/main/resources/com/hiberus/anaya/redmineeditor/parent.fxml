@@ -30,13 +30,13 @@
                 <Insets bottom="10.0" top="10.0"/>
             </padding>
         </Separator>
-        <fx:include fx:id="insert" source="insert.fxml" VBox.vgrow="ALWAYS"/>
+        <fx:include fx:id="insert" source="insert.fxml" VBox.vgrow="NEVER"/>
         <Separator prefWidth="200.0">
             <padding>
                 <Insets bottom="10.0" top="10.0"/>
             </padding>
         </Separator>
-        <fx:include fx:id="actions" source="actions.fxml"/>
+        <fx:include fx:id="actions" source="actions.fxml" VBox.vgrow="NEVER"/>
     </VBox>
     <ProgressIndicator fx:id="progress"/>
     <Button mnemonicParsing="false" onAction="#showReadme" text="?" StackPane.alignment="TOP_RIGHT">

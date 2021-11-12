@@ -16,6 +16,6 @@
          </tooltip>
       </Button>
    </HBox>
-   <ListView fx:id="list">
+   <ListView fx:id="list" VBox.vgrow="ALWAYS">
    </ListView>
 </VBox>
