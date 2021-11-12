@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
-<ListView fx:id="list" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="com.hiberus.anaya.redmineeditor.components.EntriesComponent">
-</ListView>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hiberus.anaya.redmineeditor.components.EntriesComponent">
+   <HBox>
+      <TextField fx:id="filter" promptText="Filter issues"/>
+      <Button fx:id="clearFilter" mnemonicParsing="false" onAction="#clearFilter" text="&lt;"/>
+   </HBox>
+   <ListView fx:id="list">
+   </ListView>
+</VBox>

@@ -13,6 +13,7 @@ Summary:
 - Colored the same as the day in calendar
 
 Entries:
+- The top-left input textbox allows to filter the displayed lists by issue content. Press the button to clear the filter.
 - For the selected day, the following entries are displayed:
     * entries with spent hours
     * entries of the past n days, configurable (see configuration)
