@@ -58,6 +58,7 @@ internal class Remote(
             val op = when (operation) {
                 "=" -> "%3D"
                 "between" -> "><"
+                "lessThan" -> ">t-"
                 else -> operation
             }
             append("op[$field]=$op&")
@@ -202,7 +203,7 @@ internal class Remote(
     fun downloadAssignedIssues() =
         Endpoint.ISSUES.build(parameters = listOf(
             Param("assigned_to_id", "=", "me"),
-            Param("updated_on", "t-", "31")
+            Param("updated_on", "lessThan", "31")
         )).paginatedGet("issues")
             .apply {
                 // also initialize user id if not still
