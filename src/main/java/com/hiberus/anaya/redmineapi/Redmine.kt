@@ -72,7 +72,8 @@ class Redmine {
     fun getAssignedIssues(): List<Issue> {
         // download if not yet
         if (!assignedLoaded) {
-            loadedIssues += remote.downloadAssignedIssues()
+            val loadedIssuesIds = loadedIssues.map { it.id } // temp
+            loadedIssues += remote.downloadAssignedIssues().filter { it.id !in loadedIssuesIds } // skip already loaded
             assignedLoaded = true
         }
 

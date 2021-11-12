@@ -270,11 +270,11 @@ abstract class Model {
                 }
 
             // add missing assigned issues for today
-            val currentIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
+            val todayIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
             // get issues assigned to us
             redmine.getAssignedIssues()
                 // not in today
-                .filterNot { it in currentIssues }
+                .filterNot { it in todayIssues }
                 // and create empty entries
                 .map { createTimeEntry(issue = it) }
 
