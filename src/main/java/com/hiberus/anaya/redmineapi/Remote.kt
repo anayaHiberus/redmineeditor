@@ -68,7 +68,7 @@ internal class Remote(
         }
         // key
         append("key=$key")
-    }.also { println(it) }
+    }.also { println(if (System.getenv("DEBUG").toBoolean()) it else this) } // debug full url in 'DEBUG', else just the endpoint
 
     /* ------------------------- properties ------------------------- */
 
