@@ -26,20 +26,34 @@
                 </Label>
                 <VBox alignment="CENTER">
                     <HBox alignment="BOTTOM_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="1"/>
+                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="1">
+                            <tooltip>
+                                <Tooltip text="Increases 1 hour"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="+" userData="0.25">
                             <font>
                                 <Font size="10.0"/>
                             </font>
+                            <tooltip>
+                                <Tooltip text="Increases 15 minutes"/>
+                            </tooltip>
                         </Button>
                     </HBox>
                     <Label fx:id="txt_estimated" contentDisplay="CENTER" onMouseClicked="#editEstimated" text="hh"/>
                     <HBox fx:id="sub_estimated" alignment="TOP_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1"/>
+                        <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-1">
+                            <tooltip>
+                                <Tooltip text="Decreases 1 hour"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeEstimated" text="-" userData="-0.25">
                             <font>
                                 <Font size="10.0"/>
                             </font>
+                            <tooltip>
+                                <Tooltip text="Decreases 15 minutes"/>
+                            </tooltip>
                         </Button>
                     </HBox>
                 </VBox>
@@ -48,14 +62,22 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </padding>
                 </Label>
-                <Button fx:id="btn_total" mnemonicParsing="false" onAction="#loadTotal" text="*"/>
+                <Button fx:id="btn_total" mnemonicParsing="false" onAction="#loadTotal" text="*">
+                    <tooltip>
+                        <Tooltip text="Load total spent hours from Redmine"/>
+                    </tooltip>
+                </Button>
                 <Label fx:id="txt_total" text="hh | %">
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </padding>
                 </Label>
                 <Button fx:id="btn_sync" mnemonicParsing="false" onAction="#changeRealization" text="&gt;"
-                        userData="&gt;"/>
+                        userData="&gt;">
+                    <tooltip>
+                        <Tooltip text="Sets the realization hours to the total/estimated calculation"/>
+                    </tooltip>
+                </Button>
                 <Label text="Realization:" HBox.hgrow="ALWAYS">
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
@@ -63,11 +85,18 @@
                 </Label>
                 <VBox alignment="CENTER">
                     <HBox fx:id="add_realization" alignment="BOTTOM_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="10"/>
+                        <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="10">
+                            <tooltip>
+                                <Tooltip text="Increases 10%"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeRealization" text="+" userData="1">
                             <font>
                                 <Font size="10.0"/>
                             </font>
+                            <tooltip>
+                                <Tooltip text="Increases 1%"/>
+                            </tooltip>
                         </Button>
                     </HBox>
                     <Label fx:id="txt_realization" contentDisplay="CENTER" text="\%">
@@ -76,11 +105,18 @@
                         </padding>
                     </Label>
                     <HBox fx:id="sub_realization" alignment="TOP_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-10"/>
+                        <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-10">
+                            <tooltip>
+                                <Tooltip text="Decreases 10%"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeRealization" text="-" userData="-1">
                             <font>
                                 <Font size="10.0"/>
                             </font>
+                            <tooltip>
+                                <Tooltip text="Decreases 1%"/>
+                            </tooltip>
                         </Button>
                     </HBox>
                 </VBox>
@@ -95,20 +131,34 @@
                 <Label contentDisplay="RIGHT" text="Spent: " HBox.hgrow="ALWAYS"/>
                 <VBox alignment="CENTER">
                     <HBox alignment="BOTTOM_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="1"/>
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="1">
+                            <tooltip>
+                                <Tooltip text="Increases 1 hour"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="0.25">
                             <font>
                                 <Font size="10.0"/>
                             </font>
+                            <tooltip>
+                                <Tooltip text="Increases 15 minutes"/>
+                            </tooltip>
                         </Button>
                     </HBox>
                     <Label fx:id="txt_spent" contentDisplay="CENTER" onMouseClicked="#editSpent" text="hh"/>
                     <HBox fx:id="sub_spent" alignment="TOP_CENTER">
-                        <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1"/>
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1">
+                            <tooltip>
+                                <Tooltip text="Decreases 1 hour"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-0.25">
                             <font>
                                 <Font size="10.0"/>
                             </font>
+                            <tooltip>
+                                <Tooltip text="Decreases 15 minutes"/>
+                            </tooltip>
                         </Button>
                     </HBox>
                 </VBox>
@@ -126,6 +176,9 @@
                 <HBox.margin>
                     <Insets left="10.0"/>
                 </HBox.margin>
+                <tooltip>
+                    <Tooltip text="Actions"/>
+                </tooltip>
             </MenuButton>
         </HBox>
     </graphic>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" fillWidth="false" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.hiberus.anaya.redmineeditor.components.CalendarComponent">
@@ -14,7 +13,11 @@
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </padding>
-            <Button mnemonicParsing="false" onAction="#onPreviousMonth" text="&lt;" textOverrun="CLIP"/>
+            <Button mnemonicParsing="false" onAction="#onPreviousMonth" text="&lt;" textOverrun="CLIP">
+                <tooltip>
+                    <Tooltip text="Load previous month"/>
+                </tooltip>
+            </Button>
             <Label fx:id="calendarLabel" alignment="CENTER" maxHeight="1.7976931348623157E308"
                    maxWidth="1.7976931348623157E308" text="Year Month" textOverrun="CLIP" HBox.hgrow="ALWAYS">
                 <HBox.margin>
@@ -23,8 +26,15 @@
                 <padding>
                     <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                 </padding>
+                <tooltip>
+                    <Tooltip text="Current month and year (spent hours / total hours)"/>
+                </tooltip>
             </Label>
-            <Button mnemonicParsing="false" onAction="#onNextMonth" text="&gt;" textOverrun="CLIP"/>
+            <Button mnemonicParsing="false" onAction="#onNextMonth" text="&gt;" textOverrun="CLIP">
+                <tooltip>
+                    <Tooltip text="Load next month"/>
+                </tooltip>
+            </Button>
         </HBox>
         <GridPane fx:id="calendar">
             <columnConstraints>

@@ -39,6 +39,10 @@
         <fx:include fx:id="actions" source="actions.fxml"/>
     </VBox>
     <ProgressIndicator fx:id="progress"/>
-    <Button mnemonicParsing="false" onAction="#showReadme" text="?" StackPane.alignment="TOP_RIGHT"/>
+    <Button mnemonicParsing="false" onAction="#showReadme" text="?" StackPane.alignment="TOP_RIGHT">
+        <tooltip>
+            <Tooltip text="Show help"/>
+        </tooltip>
+    </Button>
 
 </StackPane>
