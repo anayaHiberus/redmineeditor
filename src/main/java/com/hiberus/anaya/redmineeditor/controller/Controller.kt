@@ -6,6 +6,10 @@ import com.hiberus.anaya.redmineeditor.utils.runInForeground
 import javafx.application.Platform
 import kotlin.concurrent.thread
 
+// - Nooooo you need a whole 100TB of frameworks to use beans
+// - haha, static go brrrrr
+val AppController = Controller()
+
 /**
  * The main application controller
  */

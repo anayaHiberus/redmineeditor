@@ -168,15 +168,17 @@ class Issue {
     /**
      * Loads spent hours (nothing if already initialized)
      * Long operation
+     * returns true if downloaded, false if already made
      *
      * @throws IOException on network error
      */
     @Throws(IOException::class)
-    fun downloadSpent() {
-        spent?.let { return } // skip initialized
+    fun downloadSpent(): Boolean {
+        spent?.let { return false } // skip initialized
 
         // load
         remote_spent = remote.downloadRawIssueDetails(id).noNaNDouble("spent_hours")
+        return true
     }
 
 

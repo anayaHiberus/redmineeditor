@@ -85,6 +85,8 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         // sets the cell data
         // TODO: mark each individual modified setting, or show a dialog when pressing save with option to revert (maybe even checkboxes)
 
+        // TODO: separate updateIssue and updateEntry
+
         // --- issue ---
         item?.issue?.apply {
 
@@ -240,8 +242,8 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
     private fun loadTotal() = AppController.runBackground { model: Model.Editor ->
         item?.issue?.run {
             try {
-                downloadSpent()
-                model.registerExternalChange(ChangeEvents.IssueContent)
+                if (downloadSpent())
+                    model.registerExternalChange(ChangeEvents.IssueContent)
             } catch (e: IOException) {
                 throw MyException("Network error", "Unable to fetch the issue details", e)
             }

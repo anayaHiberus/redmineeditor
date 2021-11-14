@@ -28,15 +28,9 @@ internal class SummaryComponent {
     @FXML
     fun initialize() {
         AppController.onChanges(
-            // when month, day, hours or the loading state changes, update
-            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.DayHours, ChangeEvents.Loading)
+            // when month, day or hours changes, update
+            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.DayHours, ChangeEvents.EntryList)
         ) { model: Model ->
-            if (model.isLoading) {
-                // while loading, notify user
-                summary.text = "Loading..."
-                summary.background = null
-                return@onChanges
-            }
 
             val date = model.date ?: run {
                 // if nothing selected, just ask
@@ -46,7 +40,7 @@ internal class SummaryComponent {
             }
             val spent = model.getSpent(date) ?: run {
                 // data not loaded yet
-                summary.text = "Data not found, try reloading"
+                summary.text = "Data not loaded"
                 summary.background = null
                 return@onChanges
             }

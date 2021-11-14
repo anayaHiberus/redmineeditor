@@ -3,10 +3,8 @@ package com.hiberus.anaya.redmineeditor.model
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.controller.MyException
-import com.hiberus.anaya.redmineeditor.controller.SETTING
-import com.hiberus.anaya.redmineeditor.controller.convert
-import com.hiberus.anaya.redmineeditor.controller.value
+import com.hiberus.anaya.redmineeditor.controller.*
+import com.hiberus.anaya.redmineeditor.utils.ifOK
 import org.json.JSONException
 import java.io.IOException
 import java.time.LocalDate
@@ -135,8 +133,8 @@ abstract class Model {
             @Throws(MyException::class)
             set(value) {
                 field = value?.takeIf { month.isValidDay(it) }
-                prepareDay() // prepare day
                 changes += ChangeEvents.Day // notify
+                prepareDay() // prepare day
             }
 
         /**
@@ -168,6 +166,8 @@ abstract class Model {
                 throw MyException("Parsing error", "Unknown Redmine response. Try again later.", e)
             }
 
+            AppController.fireChanges()
+
             // prepare day
             prepareDay()
         }
@@ -191,15 +191,15 @@ abstract class Model {
          *
          * @param issue for this issue
          */
-        fun createTimeEntry(issue: Issue, spent: Double = 0.0, comment: String = ""): Boolean {
+        fun createTimeEntry(issue: Issue, spent: Double = 0.0, comment: String = "", loadHours: Boolean = true): Boolean {
             val redmine = redmine ?: return false // skip if no api
             val date = date ?: return false // skip if no date
 
             redmine.createTimeEntry(issue = issue, spent_on = date, spent = spent, comment = comment).also {
                 // autoload if required, ignore errors
-                if (autoLoadTotalHours) {
+                if (autoLoadTotalHours && loadHours) {
                     // TODO: move the autoloading to Redmine object
-                    runCatching { it.issue.downloadSpent() }.onFailure {
+                    runCatching { it.issue.downloadSpent().ifOK { changes += ChangeEvents.IssueContent } }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
                     }
@@ -266,8 +266,10 @@ abstract class Model {
                 .filterNot { it.wasSpentOn(date) }
                 // and create entry
                 .map {
-                    createTimeEntry(issue = it.issue, comment = it.comment)
+                    createTimeEntry(issue = it.issue, comment = it.comment, loadHours = false)
                 }
+
+            AppController.fireChanges()
 
             // add missing assigned issues for today
             val todayIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
@@ -276,13 +278,15 @@ abstract class Model {
                 // not in today
                 .filterNot { it in todayIssues }
                 // and create empty entries
-                .map { createTimeEntry(issue = it) }
+                .map { createTimeEntry(issue = it, loadHours = false) }
+
+            AppController.fireChanges()
 
             // download all issues of today if configured
             if (autoLoadTotalHours) {
                 // load all issues of today
                 (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
-                    runCatching { it.downloadSpent() }.onFailure {
+                    runCatching { it.downloadSpent().ifOK { changes += ChangeEvents.IssueContent } }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
                     }

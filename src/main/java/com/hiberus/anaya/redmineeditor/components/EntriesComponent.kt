@@ -60,9 +60,7 @@ internal class EntriesComponent {
         clearFilter.disableProperty().bind(filter.textProperty().isEmpty)
 
         // on new entries, display them
-        AppController.onChanges(
-            setOf(ChangeEvents.EntryList, ChangeEvents.Day)
-        ) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvents.EntryList, ChangeEvents.Day)) { model: Model ->
             // clear and replace
             itemsList.setAll(model.dayEntries ?: emptyList())
             clearFilter()
@@ -71,16 +69,14 @@ internal class EntriesComponent {
         // when entry change, update
         AppController.onChanges(setOf(ChangeEvents.EntryContent)) {
             list.lookupAll(".cell").forEach {
-                if (it is EntryComponent) it.update()
+                if (it is EntryComponent) it.update() // TODO: call updateEntry
             }
         }
 
         // when issue change, update
         AppController.onChanges(setOf(ChangeEvents.IssueContent)) {
             list.lookupAll(".cell").forEach {
-                if (it is EntryComponent) {
-                    it.update()
-                }
+                if (it is EntryComponent) it.update() // TODO: call updateIssue
             }
         }
 

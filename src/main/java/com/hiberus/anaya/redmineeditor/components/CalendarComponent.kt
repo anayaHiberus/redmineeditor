@@ -37,11 +37,6 @@ internal class CalendarComponent {
      */
     private var selected = -1
 
-    /**
-     * to draw colors after month loads
-     */
-    private var needsColoring = false
-
     /* ------------------------- views ------------------------- */
 
     @FXML
@@ -65,26 +60,22 @@ internal class CalendarComponent {
         // on new month, draw it and prepare to draw colors
         AppController.onChanges(setOf(ChangeEvents.Month)) { model: Model ->
             drawGrid(model)
-            needsColoring = true
         }
 
-        // when hours change (and a recoloring is not pending), recolor day
+        // when hours change, recolor day
         AppController.onChanges(setOf(ChangeEvents.DayHours)) { model: Model ->
-            if (!needsColoring) model.day?.let { colorDay(it, model) }
+            model.day?.let { colorDay(it, model) }
         }
 
-        // when month or hours change, or loading finishes, set label
-        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.DayHours, ChangeEvents.Loading)) { model ->
+        // when month or hours change, set label
+        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.DayHours, ChangeEvents.EntryList)) { model ->
             updateLabel(model)
         }
 
-        // when finished loading, color days
-        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.Loading)) { model: Model ->
-            // if it's not loading and a recoloring is pending: color days
-            if (!model.isLoading && needsColoring) {
-                colorDays(model)
-                needsColoring = false
-            }
+        // when month or entries change, color days
+        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.EntryList)) { model: Model ->
+            // color days
+            colorDays(model)
         }
 
         // when day changes (or month), set selection
@@ -157,7 +148,7 @@ internal class CalendarComponent {
             .format(month)
 
         val spent = model.getSpent(month)
-        if (!model.isLoading && spent != null) {
+        if (spent != null) {
             // loaded, append spent/expected and set color
             val expected = month.expectedHours
             label += " (${spent.formatHours()}/${expected.formatHours()})"
