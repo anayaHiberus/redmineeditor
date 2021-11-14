@@ -81,14 +81,17 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
         btn_sync.syncInvisible()
     }
 
-    public override fun update() {
+    override fun update() = partialUpdate(updateIssue = true, updateEntry = true)
+
+    /**
+     * Updates the content of issue or entry
+     */
+    fun partialUpdate(updateIssue: Boolean = false, updateEntry: Boolean = false) {
         // sets the cell data
         // TODO: mark each individual modified setting, or show a dialog when pressing save with option to revert (maybe even checkboxes)
 
-        // TODO: separate updateIssue and updateEntry
-
         // --- issue ---
-        item?.issue?.apply {
+        item?.takeIf { updateIssue }?.issue?.apply {
 
             // text
             txt_details.text = toString()
@@ -121,17 +124,23 @@ class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
             add_realization.isDisable = realization >= 100
             sub_realization.isDisable = realization <= 0
 
-            // container
-            box_issue.opacity = when {
-                requiresUpload -> 1.0 // need to upload
-                item?.run { spent > 0 } == true -> 0.75 // entry used today
-                else -> 0.5 // other
-            }
+        }
 
+        // issue container opacity (depends on entry too)
+        if (updateEntry || updateIssue) {
+            item?.let { entry ->
+                entry.issue.let { issue ->
+                    box_issue.opacity = when {
+                        issue.requiresUpload -> 1.0 // need to upload
+                        entry.spent > 0 -> 0.75 // entry used today
+                        else -> 0.5 // other
+                    }
+                }
+            }
         }
 
         // --- entry ---
-        item?.apply {
+        item?.takeIf { updateEntry }?.apply {
 
             // spent
             txt_spent.text = spent.formatHours()

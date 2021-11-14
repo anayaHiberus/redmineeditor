@@ -69,14 +69,14 @@ internal class EntriesComponent {
         // when entry change, update
         AppController.onChanges(setOf(ChangeEvents.EntryContent)) {
             list.lookupAll(".cell").forEach {
-                if (it is EntryComponent) it.update() // TODO: call updateEntry
+                if (it is EntryComponent) it.partialUpdate(updateEntry = true)
             }
         }
 
         // when issue change, update
         AppController.onChanges(setOf(ChangeEvents.IssueContent)) {
             list.lookupAll(".cell").forEach {
-                if (it is EntryComponent) it.update() // TODO: call updateIssue
+                if (it is EntryComponent) it.partialUpdate(updateIssue = true)
             }
         }
 
