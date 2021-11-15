@@ -2,7 +2,6 @@
 
 <!--<fx:root xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"-->
 <!--         type="com.hiberus.anaya.redmineeditor.components.EntryComponent">-->
-<!--suppress XmlHighlighting -->
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>

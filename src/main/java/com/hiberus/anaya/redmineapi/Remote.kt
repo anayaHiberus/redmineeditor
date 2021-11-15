@@ -24,6 +24,7 @@ internal class Remote(
     private enum class Endpoint {
         TIME_ENTRIES,
         ISSUES,
+        USERS,
     }
 
     /**
@@ -34,15 +35,15 @@ internal class Remote(
     }
 
     /**
-     * The url of this endpoint, from a specific [id] if not empty, and with a list of [parameters] if supplied (set to null for user url)
+     * The url of this endpoint, from a specific [subdomain] if not empty, and with a list of [parameters] if supplied (set to null for user url)
      */
-    private fun Endpoint.build(id: Int? = null, parameters: List<Param>? = listOf()) = buildString {
+    private fun Endpoint.build(subdomain: Any? = null, parameters: List<Param>? = listOf()) = buildString {
         // domain
         append(domain.removeSuffix("/")).append("/")
         // entry
         append(name.lowercase())
         // id if supplied
-        if (id != null) append("/").append(id)
+        if (subdomain != null) append("/").append(subdomain)
 
         // nothing else if parameters is null
         if (parameters == null) return@buildString
@@ -137,7 +138,7 @@ internal class Remote(
                         println("Updating entry $id with data: $it")
                         if (read_only) return
                         JSONObject().put("time_entry", it)
-                            .putTo(Endpoint.TIME_ENTRIES.build(id = id).url)
+                            .putTo(Endpoint.TIME_ENTRIES.build(subdomain = id).url)
                             .ifNot(200) {
                                 throw IOException("Error when updating entry $id with data: $it")
                             }
@@ -147,7 +148,7 @@ internal class Remote(
                     id != null && spent <= 0 -> {
                         println("Deleting entry $id")
                         if (read_only) return
-                        Endpoint.TIME_ENTRIES.build(id = id).url
+                        Endpoint.TIME_ENTRIES.build(subdomain = id).url
                             .delete()
                             .ifNot(200) {
                                 throw IOException("Error when deleting entry $id")
@@ -166,13 +167,13 @@ internal class Remote(
     /**
      * returns the url to externally view this issue details
      */
-    fun getIssueDetailsUrl(issue: Issue) = Endpoint.ISSUES.build(id = issue.id, parameters = null)
+    fun getIssueDetailsUrl(issue: Issue) = Endpoint.ISSUES.build(subdomain = issue.id, parameters = null)
 
     /**
      * Returns the raw details of an issue, for internal use
      */
     @Throws(IOException::class)
-    internal fun downloadRawIssueDetails(id: Int) = Endpoint.ISSUES.build(id = id).url.getJSON().getJSONObject("issue")
+    internal fun downloadRawIssueDetails(id: Int) = Endpoint.ISSUES.build(subdomain = id).url.getJSON().getJSONObject("issue")
 
     /**
      * Returns the issues associated with the specified ids
@@ -222,11 +223,26 @@ internal class Remote(
                 println("Updating issue $id with data: $it")
                 if (read_only) return
                 JSONObject().put("issue", changes)
-                    .putTo(Endpoint.ISSUES.build(id = id).url)
+                    .putTo(Endpoint.ISSUES.build(subdomain = id).url)
                     .ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }
             }
         }
     }
+
+    /**
+     * Returns user data as: "firstName lastName (login)"
+     */
+    @Throws(IOException::class)
+    fun getUserName() = Endpoint.USERS.build("current").url
+        .getJSON().getJSONObject("user")
+        .apply {
+            // get user id just in case
+            if (userId == null) userId = getInt("id")
+        }.run {
+            // return name
+            "${getString("firstname")} ${getString("lastname")} (${getString("login")})"
+        }
+
 }
 
 

@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controller
+package com.hiberus.anaya.redmineeditor.settings
 
 import com.hiberus.anaya.redmineeditor.utils.findFile
 import java.util.*
@@ -65,4 +65,4 @@ fun LoadSettings() =
 /**
  * loaded settings data
  */
-private val DATA = Properties()
+internal val DATA = Properties()

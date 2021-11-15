@@ -3,7 +3,11 @@ package com.hiberus.anaya.redmineeditor.model
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.controller.*
+import com.hiberus.anaya.redmineeditor.controller.AppController
+import com.hiberus.anaya.redmineeditor.controller.MyException
+import com.hiberus.anaya.redmineeditor.controller.convert
+import com.hiberus.anaya.redmineeditor.settings.SETTING
+import com.hiberus.anaya.redmineeditor.settings.value
 import com.hiberus.anaya.redmineeditor.utils.ifOK
 import org.json.JSONException
 import java.io.IOException
@@ -88,7 +92,7 @@ abstract class Model {
     /**
      * iff there is at least something that was modified (and should be uploaded), null if not loaded
      */
-    val hasChanges get() = redmine?.hasChanges
+    val hasChanges get() = redmine?.hasChanges ?: false
 
     /* ------------------------- setters ------------------------- */
 

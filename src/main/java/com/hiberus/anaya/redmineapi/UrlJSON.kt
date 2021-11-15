@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets
  * @return the json data returned
  * @throws IOException on network errors or invalid result (not 200-OK)
  */
-@Throws(IOException::class)
+@Throws(IOException::class) // TODO: replace all of this with async/await?
 fun URL.getJSON() = (openConnection() as HttpURLConnection).run {
     if (responseCode != 200) throw IOException("Returned $responseCode: $responseMessage")
     else openStream().use {

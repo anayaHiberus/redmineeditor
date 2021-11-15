@@ -5,6 +5,7 @@ import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
 import javafx.scene.control.Alert.AlertType.WARNING
+import javafx.scene.control.Label
 import java.util.*
 
 /**
@@ -48,11 +49,12 @@ class MyException(
      * Displays an error dialog with this exception details
      */
     fun showAndWait() {
-        cause?.let { println("MyException cause: $it") } // TODO: add in the alert as scrollable text or something
-
         Alert(if (warning) WARNING else ERROR).apply {
             headerText = title
             contentText = "$message\n\n$details"
+            cause?.let { cause ->
+                dialogPane.expandableContent = Label(cause.toString().also { println(it) }) // show error details
+            }
             stylize()
         }.showAndWait()
     }

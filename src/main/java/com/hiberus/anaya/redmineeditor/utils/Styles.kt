@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils
 
-import com.hiberus.anaya.redmineeditor.controller.SETTING
-import com.hiberus.anaya.redmineeditor.controller.value
+import com.hiberus.anaya.redmineeditor.settings.SETTING
+import com.hiberus.anaya.redmineeditor.settings.value
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Dialog
@@ -12,22 +12,22 @@ import javafx.scene.paint.Color
 /**
  * Sets the light/dark theme
  */
-fun Scene.stylize() = stylesheets.run { if (isDark) add(DARK_STYLESHEET) else remove(DARK_STYLESHEET) }
+fun Scene.stylize(asDark: Boolean = isDark) = stylesheets.run { if (asDark) add(DARK_STYLESHEET) else remove(DARK_STYLESHEET) }
 
 /**
  * Sets the light/dark theme
  */
-fun Parent.stylize() = stylesheets.run { if (isDark) add(DARK_STYLESHEET) else remove(DARK_STYLESHEET) }
+fun Parent.stylize(asDark: Boolean = isDark) = stylesheets.run { if (asDark) add(DARK_STYLESHEET) else remove(DARK_STYLESHEET) }
 
 /**
  * Sets the light/dark theme
  */
-fun Dialog<*>.stylize() = dialogPane.stylize()
+fun Dialog<*>.stylize(asDark: Boolean = isDark) = dialogPane.stylize(asDark)
 
 /**
  * Changes the color to adapt to the current light/dark theme
  */
-fun Color.stylize(): Color = if (isDark) darker() else brighter()
+fun Color.stylize(asDark: Boolean = isDark): Color = if (asDark) darker() else brighter()
 
 /* ------------------------- property ------------------------- */
 

@@ -4,6 +4,7 @@ import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
+import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.layout.Background
@@ -21,10 +22,21 @@ import kotlin.DeprecationLevel.ERROR
  */
 var Region.backgroundColor: Color?
     @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException() // https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0
-    set(value) {
-        // create a background with that color and rounded borders
-        background = value?.let { Background(BackgroundFill(it.stylize(), CornerRadii(5.0), Insets(1.0))) }
+    set(value) = setBackgroundColor(value, null)
+
+/**
+ * Sets the background [color] of this region, stylizing it [asDark] if required
+ */
+fun Region.setBackgroundColor(color: Color?, asDark: Boolean? = null) {
+    // create a background with that color and rounded borders
+    background = color?.let {
+        Background(BackgroundFill(
+            if (asDark != null) it.stylize(asDark) else it,
+            CornerRadii(5.0),
+            Insets(1.0)
+        ))
     }
+}
 
 /**
  * Creates a new Label that will have its content centered
@@ -73,3 +85,22 @@ fun runInForeground(function: () -> Unit) =
  */
 val Optional<ButtonType>.resultButton
     get() = this.takeIf { it.isPresent }?.get()
+
+
+/**
+ * Checks for changes, if there are asks to 'lose them and [message]?' returns false if the user don't want to lose existing changes
+ */
+fun confirmLoseChanges(message: String): Boolean {
+
+    return Alert(
+        Alert.AlertType.WARNING,
+        "There are unsaved changes, do you want to lose them and $message?",
+        ButtonType.YES, ButtonType.CANCEL
+    ).apply {
+        title = "Warning"
+        headerText = "Unsaved changes"
+        stylize()
+    }.showAndWait()
+        // return whether the user accepted
+        .resultButton == ButtonType.YES
+}

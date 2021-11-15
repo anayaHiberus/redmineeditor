@@ -2,14 +2,15 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.settings.ShowSettingsDialog
 import com.hiberus.anaya.redmineeditor.utils.getModuleResource
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
+import javafx.scene.Node
 import javafx.scene.control.Alert
 import javafx.scene.control.Label
 import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.ScrollPane
-import javafx.scene.layout.VBox
 
 
 /**
@@ -23,7 +24,7 @@ internal class ParentComponent {
     lateinit var progress: ProgressIndicator  // that circular thingy
 
     @FXML
-    lateinit var parent: VBox // the main app, disabled while loading
+    lateinit var parent: Node // the main app, disabled while loading
 
     /* ------------------------- init ------------------------- */
 
@@ -46,5 +47,8 @@ internal class ParentComponent {
             stylize()
         }.showAndWait()
     }
+
+    @FXML
+    fun showSettings() = ShowSettingsDialog()
 
 }

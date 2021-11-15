@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="parent" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hiberus.anaya.redmineeditor.settings.SettingsController">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+    <Label layoutX="25.0" layoutY="25.0" text="Redmine instance configuration:">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Label>
+    <HBox alignment="CENTER">
+        <Label text="Domain:">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Label>
+        <TextField fx:id="domain" HBox.hgrow="ALWAYS">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </TextField>
+        <Button mnemonicParsing="false" onAction="#hiberus" text="Hiberus">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+    <HBox alignment="CENTER" layoutX="20.0" layoutY="51.0">
+        <Label text="API key:">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Label>
+        <PasswordField fx:id="key" HBox.hgrow="ALWAYS">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </PasswordField>
+        <Button mnemonicParsing="false" onAction="#instructions" text="Instructions">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+    <HBox alignment="CENTER_LEFT">
+        <Button mnemonicParsing="false" onAction="#testAPI" text="Test API">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+        <ProgressIndicator fx:id="testLoading" prefHeight="24.0" prefWidth="24.0">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </ProgressIndicator>
+        <Label fx:id="testInfo">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+            <padding>
+                <Insets left="5.0" right="5.0"/>
+            </padding>
+        </Label>
+    </HBox>
+    <CheckBox fx:id="allowGetOnly" layoutX="25.0" layoutY="346.0" mnemonicParsing="false"
+              text="[DEBUG] Allow only GET petitions (modifications will be logged but not applied)">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </CheckBox>
+    <Separator prefWidth="200.0">
+        <VBox.margin>
+            <Insets bottom="10.0" top="10.0"/>
+        </VBox.margin>
+    </Separator>
+    <Label layoutX="25.0" layoutY="25.0" text="Auto load total hours:">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Label>
+    <CheckBox fx:id="autoLoadTotal" mnemonicParsing="false" text="Automatically load total hours (slower startup time)">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </CheckBox>
+    <Separator layoutX="20.0" layoutY="162.0" prefWidth="200.0">
+        <VBox.margin>
+            <Insets bottom="10.0" top="10.0"/>
+        </VBox.margin>
+    </Separator>
+    <Label layoutX="25.0" layoutY="170.0" text="Previous days:">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Label>
+    <HBox alignment="CENTER">
+        <Spinner fx:id="prevDays" editable="true" max="28" min="0" HBox.hgrow="NEVER">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Spinner>
+        <VBox HBox.hgrow="ALWAYS">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+            <children>
+                <Label maxWidth="1.7976931348623157E308"
+                       text="Number of previous days to fill entries, between 0 and 28." wrapText="true"/>
+                <Label layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308"
+                       text="For any given day, entries spent in the specified previous days will appear as suggestions."
+                       wrapText="true"/>
+                <Label layoutX="10.0" layoutY="28.0" maxWidth="1.7976931348623157E308" text="7 recommended"
+                       wrapText="true"/>
+            </children>
+        </VBox>
+    </HBox>
+    <Separator layoutX="20.0" layoutY="156.0" prefWidth="200.0">
+        <VBox.margin>
+            <Insets bottom="10.0" top="10.0"/>
+        </VBox.margin>
+    </Separator>
+    <Label layoutX="25.0" layoutY="164.0" text="Dark theme:">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Label>
+    <CheckBox fx:id="dark" layoutX="25.0" layoutY="192.0" mnemonicParsing="false" text="Apply a dark theme">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </CheckBox>
+    <Region maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
+    <Separator>
+        <VBox.margin>
+            <Insets bottom="10.0" top="10.0"/>
+        </VBox.margin>
+    </Separator>
+    <HBox>
+        <Button mnemonicParsing="false" onAction="#loadDefault" text="Default">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+        <Button defaultButton="true" mnemonicParsing="false" onAction="#save" text="Save">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+</VBox>
