@@ -6,8 +6,7 @@ import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.controller.convert
-import com.hiberus.anaya.redmineeditor.settings.SETTING
-import com.hiberus.anaya.redmineeditor.settings.value
+import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.ifOK
 import org.json.JSONException
 import java.io.IOException
@@ -19,12 +18,12 @@ import java.time.YearMonth
 /**
  * set to true to auto-download today issues
  */
-private val autoLoadTotalHours get() = SETTING.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
+private val autoLoadTotalHours get() = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
 
 /**
  * Number of days for 'past' computations
  */
-private val prevDays get() = runCatching { SETTING.PREV_DAYS.value.toLong().coerceIn(0, 28) }.getOrDefault(0)
+private val prevDays get() = runCatching { AppSettings.PREV_DAYS.value.toLong().coerceIn(0, 28) }.getOrDefault(0)
 
 /* ------------------------- model ------------------------- */
 
@@ -302,7 +301,7 @@ abstract class Model {
          * Clears and initializes (unless [clearOnly] is true) the redmine data
          */
         fun reloadRedmine(clearOnly: Boolean = false) {
-            redmine = if (clearOnly) null else Redmine(SETTING.URL.value, SETTING.KEY.value, SETTING.READ_ONLY.value.toBoolean(), prevDays)
+            redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, AppSettings.READ_ONLY.value.toBoolean(), prevDays)
             changes += setOf(ChangeEvents.IssueList, ChangeEvents.EntryList, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
         }
     }

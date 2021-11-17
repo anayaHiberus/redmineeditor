@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
-import com.hiberus.anaya.redmineeditor.settings.ShowSettingsDialog
+import com.hiberus.anaya.redmineeditor.settings.SettingsController
 import com.hiberus.anaya.redmineeditor.utils.getModuleResource
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
@@ -35,6 +35,9 @@ internal class ParentComponent {
             progress.isVisible = it.isLoading
             parent.isDisable = it.isLoading
         }
+
+        // when app starts, reload
+        AppController.reload(reloadConfig = true, resetDay = true)
     }
 
     /* ------------------------- readme ------------------------- */
@@ -49,6 +52,9 @@ internal class ParentComponent {
     }
 
     @FXML
-    fun showSettings() = ShowSettingsDialog()
+    fun showSettings() {
+        if (SettingsController.show())
+            AppController.reload(reloadConfig = true)
+    }
 
 }

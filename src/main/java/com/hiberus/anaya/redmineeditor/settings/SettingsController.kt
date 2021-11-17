@@ -12,25 +12,30 @@ import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
-import java.util.*
 import kotlin.concurrent.thread
-
-/**
- * Displays the settings configuration dialog
- */
-fun ShowSettingsDialog() {
-    Stage().apply {
-        title = "Settings"
-        scene = Scene(FXMLLoader(object {}.javaClass.getModuleResource("settings.fxml")).load())
-            .also { it.stylize() }
-        initModality(Modality.APPLICATION_MODAL)
-    }.showAndWait()
-}
 
 /**
  * The settings controller
  */
 class SettingsController {
+
+    companion object {
+        /**
+         * Displays the settings configuration dialog
+         */
+        fun show(): Boolean {
+            Stage().apply {
+                title = "Settings"
+                scene = Scene(FXMLLoader(object {}.javaClass.getModuleResource("settings.fxml")).load())
+                    .apply { stylize() }
+                initModality(Modality.APPLICATION_MODAL)
+
+                showAndWait()
+
+                return scene.window.userData != null
+            }
+        }
+    }
 
     /* ------------------------- nodes ------------------------- */
 
@@ -62,19 +67,14 @@ class SettingsController {
     @FXML
     lateinit var dark: CheckBox // dark theme setting
 
-    /* ------------------------- settings ------------------------- */
-
-    private val data = DATA.clone() as Properties
-
     /* ------------------------- functions ------------------------- */
 
     @FXML
     fun initialize() {
         // register callback to closing event
         Platform.runLater {
-            window.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST) {
-                if (!data.isEmpty && !confirmLoseChanges("exit")) it.consume()
-            }
+//            window.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent)
+            window.setOnCloseRequest { closeWindowEvent() }
         }
 
         // prepare testLoading
@@ -90,14 +90,12 @@ class SettingsController {
         }
 
         // initialize properties
-        // TODO: fix this
-        domain.text = data.getProperty(SETTING.URL.name, SETTING.URL.default)
-        key.text = data.getProperty(SETTING.KEY.name, SETTING.KEY.default)
-        allowGetOnly.isSelected = data.getProperty(SETTING.READ_ONLY.name, SETTING.READ_ONLY.default).toBoolean()
-        autoLoadTotal.isSelected = data.getProperty(SETTING.AUTO_LOAD_TOTAL_HOURS.name, SETTING.AUTO_LOAD_TOTAL_HOURS.default).toBoolean()
-        prevDays.valueFactory.value = data.getProperty(SETTING.PREV_DAYS.name, SETTING.PREV_DAYS.default).toInt()
-        dark.isSelected = data.getProperty(SETTING.DARK_THEME.name, SETTING.DARK_THEME.default).toBoolean()
-
+        domain.text = AppSettings.URL.value
+        key.text = AppSettings.KEY.value
+        allowGetOnly.isSelected = AppSettings.READ_ONLY.value.toBoolean()
+        autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
+        prevDays.valueFactory.value = AppSettings.PREV_DAYS.value.toInt()
+        dark.isSelected = AppSettings.DARK_THEME.value.toBoolean()
     }
 
     @FXML
@@ -150,24 +148,55 @@ class SettingsController {
 
     @FXML
     fun loadDefault() {
-        // load default settings
-        if (Alert(Alert.AlertType.CONFIRMATION, "Do you want to discard all data and load all default settings?").showAndWait().resultButton == ButtonType.YES) {
-            hiberus()
-            key.text = ""
-        }
+        // load default settings, but ask first
+        Alert(Alert.AlertType.CONFIRMATION, "Do you want to discard all data and load all default settings?")
+            .apply { stylize(dark.isSelected) }
+            .showAndWait()
+            .run { resultButton == ButtonType.OK }.ifOK {
+                domain.text = AppSettings.URL.default
+                key.text = AppSettings.KEY.default
+                allowGetOnly.isSelected = AppSettings.READ_ONLY.default.toBoolean()
+                autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.default.toBoolean()
+                prevDays.valueFactory.value = AppSettings.PREV_DAYS.default.toInt()
+                dark.isSelected = AppSettings.DARK_THEME.default.toBoolean()
+            }
     }
 
     @FXML
     fun save() {
         // save settings
-        findFile("conf/settings.properties").outputStream().use {
-            data.store(it, "IT WORKS")
-        }
-        cancel()
+        AppSettings.URL.value = domain.text
+        AppSettings.KEY.value = key.text
+        AppSettings.READ_ONLY.value = allowGetOnly.isSelected.toString()
+        AppSettings.AUTO_LOAD_TOTAL_HOURS.value = autoLoadTotal.isSelected.toString()
+        AppSettings.PREV_DAYS.value = prevDays.valueFactory.value.toString()
+        AppSettings.DARK_THEME.value = dark.isSelected.toString()
+        AppSettings.save()
+        // and exit
+
+        window.userData = true
+        window.hide()
     }
 
     @FXML
     // pressing cancel is the same as pressing the 'x' close button
     fun cancel() = window.fireEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST))
+
+    /* ------------------------- internal ------------------------- */
+
+    private fun hasChanges() =
+        AppSettings.URL.value != domain.text
+                || AppSettings.KEY.value != key.text
+                || AppSettings.READ_ONLY.value != allowGetOnly.isSelected.toString()
+                || AppSettings.AUTO_LOAD_TOTAL_HOURS.value != autoLoadTotal.isSelected.toString()
+                || AppSettings.PREV_DAYS.value != prevDays.valueFactory.value.toString()
+                || AppSettings.DARK_THEME.value != dark.isSelected.toString()
+
+    /**
+     * On window closes, asks to lose changes if any
+     */
+    private fun closeWindowEvent() {
+        if (hasChanges() && !confirmLoseChanges("exit")) window.hide()
+    }
 
 }

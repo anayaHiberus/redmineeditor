@@ -2,8 +2,13 @@ package com.hiberus.anaya.redmineeditor.controller
 
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.settings.AppSettings
+import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import com.hiberus.anaya.redmineeditor.utils.runInForeground
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
+import javafx.scene.control.Alert
+import javafx.stage.Window
 import kotlin.concurrent.thread
 
 // - Nooooo you need a whole 100TB of frameworks to use beans
@@ -106,6 +111,61 @@ class Controller {
                     it.forEach { (_, listener) -> listener(model) }
                 }
             }
+
+    /**
+     * reloads the model data (loses changes, if existing)
+     * Also reloads configuration if [reloadConfig] is set
+     * Also resets the day if [resetDay] is set
+     */
+    fun reload(reloadConfig: Boolean = false, resetDay: Boolean = false) {
+        var settingsERROR = false
+        var specialDaysERROR = false
+        runBackground({ model ->
+
+            // reload files
+            if (reloadConfig) {
+                settingsERROR = !AppSettings.load()
+                specialDaysERROR = !LoadSpecialDays()
+
+                runInForeground {
+                    // stylize displayed windows (should only be the main one)
+                    Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
+                }
+            }
+
+            // set now
+            if (resetDay) model.toNow()
+
+            // reload data
+            // TODO: don't reload when uploading, update internal state
+            model.reloadRedmine(clearOnly = settingsERROR)
+
+            // notify so that the ui is updated at this step and everything is updated
+            AppController.fireChanges()
+
+            // load month
+            model.loadDate()
+
+        }) {
+            // after loading
+            if (settingsERROR) {
+                // invalid configuration, error
+                Alert(Alert.AlertType.ERROR).apply {
+                    title = "Configuration error"
+                    contentText = "No valid configuration found"
+                    stylize()
+                }.showAndWait()
+            }
+            if (specialDaysERROR) {
+                // invalid special days, warning
+                Alert(Alert.AlertType.WARNING).apply {
+                    title = "Special days error"
+                    contentText = "No valid special days data found"
+                    stylize()
+                }.showAndWait()
+            }
+        }
+    }
 
 }
 
