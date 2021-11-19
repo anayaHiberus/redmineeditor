@@ -160,7 +160,7 @@ class Redmine {
      * Returns the username, can be used as a way to check if the settings are ok
      */
     @Throws(IOException::class)
-    fun getUserName() = remote.getUserName()
+    fun getUserName(appendLogin: Boolean = false) = remote.getUserName(appendLogin)
 
 }
 

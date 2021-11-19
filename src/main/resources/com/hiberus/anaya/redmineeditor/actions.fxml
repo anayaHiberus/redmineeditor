@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -10,6 +9,11 @@
             HBox.hgrow="ALWAYS">
         <tooltip>
             <Tooltip text="Reload settings and Redmine data"/>
+        </tooltip>
+    </Button>
+    <Button mnemonicParsing="false" onAction="#summary" text="Summary">
+        <tooltip>
+            <Tooltip text="Month summary"/>
         </tooltip>
     </Button>
     <Button fx:id="save" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#upload" text="Save"

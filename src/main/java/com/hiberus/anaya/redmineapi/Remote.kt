@@ -233,14 +233,14 @@ internal class Remote(
      * Returns user data as: "firstName lastName (login)"
      */
     @Throws(IOException::class)
-    fun getUserName() = Endpoint.USERS.build("current").url
+    fun getUserName(appendLogin: Boolean) = Endpoint.USERS.build("current").url
         .getJSON().getJSONObject("user")
         .apply {
             // get user id just in case
             if (userId == null) userId = getInt("id")
         }.run {
             // return name
-            "${getString("firstname")} ${getString("lastname")} (${getString("login")})"
+            "${getString("firstname")} ${getString("lastname")}" + if (appendLogin) " (${getString("login")})" else ""
         }
 
 }

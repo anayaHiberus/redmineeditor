@@ -129,7 +129,7 @@ class SettingsController {
         // run in background
         thread(isDaemon = true) {
             val result = runCatching {
-                "OK: Valid settings found for user " + Redmine(domain.text, key.text, true, 0).getUserName()
+                "OK: Valid settings found for user " + Redmine(domain.text, key.text, true, 0).getUserName(appendLogin = true)
             }.getOrNull()
 
             // then notify in foreground

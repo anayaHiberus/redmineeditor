@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.summary.DisplaySummary
 import com.hiberus.anaya.redmineeditor.utils.confirmLoseChanges
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -52,6 +53,9 @@ internal class ActionsComponent {
         { it.uploadAll() }, // let it upload
         { AppController.reload() } // then reload (even if there were errors) TODO: on errors, try to keep them or something
     )
+
+    @FXML
+    fun summary() = DisplaySummary()
 
     /* ------------------------- internal ------------------------- */
 

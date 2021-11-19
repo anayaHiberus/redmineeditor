@@ -27,7 +27,7 @@ class Issue {
     /**
      * The subject (title)
      */
-    private val subject: String
+    val subject: String
 
     /**
      * The description, may probably be empty

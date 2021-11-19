@@ -89,6 +89,12 @@ abstract class Model {
         get() = redmine?.loadedIssues?.toSet()
 
     /**
+     * Return all entries from the current month
+     */
+    val monthEntries: List<TimeEntry>?
+        get() = redmine?.getEntriesForMonth(month)
+
+    /**
      * iff there is at least something that was modified (and should be uploaded), null if not loaded
      */
     val hasChanges get() = redmine?.hasChanges ?: false
@@ -117,6 +123,11 @@ abstract class Model {
          * @param event event to register
          */
         fun registerExternalChange(event: ChangeEvents) = changes.add(event)
+
+        /* ------------------------- getters ------------------------- */
+
+        val user: String?
+            get() = redmine?.getUserName()
 
         /* ------------------------- public setters ------------------------- */
 
