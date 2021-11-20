@@ -25,6 +25,7 @@ internal class Remote(
         TIME_ENTRIES,
         ISSUES,
         USERS,
+        PROJECTS,
     }
 
     /**
@@ -242,6 +243,23 @@ internal class Remote(
             // return name
             "${getString("firstname")} ${getString("lastname")}" + if (appendLogin) " (${getString("login")})" else ""
         }
+
+    /* ------------------------- project ------------------------- */
+
+    /**
+     * returns the OT code of a project with [projectId]
+     */
+    @Throws(IOException::class)
+    fun getProjectOT(projectId: Int): String {
+        val fields = Endpoint.PROJECTS.build(subdomain = projectId).url
+            .getJSON().getJSONObject("project").getJSONArray("custom_fields")
+        for (i in 0..fields.length()) {
+            val data = fields.getJSONObject(i)
+            if (data.getString("name").equals("OT(Sólo para sincro con ADN)"))
+                return data.getString("value")
+        }
+        return ""
+    }
 
 }
 

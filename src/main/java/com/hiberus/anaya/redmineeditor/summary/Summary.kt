@@ -23,7 +23,7 @@ fun DisplaySummary() {
 
                 projects.onEachIndexed { i, (project, issues) ->
                     val index = i + 1
-                    appendLine("Código proyecto $index: $project")
+                    appendLine("Código proyecto $index: ${issues.first().getProjectOT()} ($project)")
                     appendLine("Descripción de la actividad $index:")
                     append("[reword] ")
                     appendLine(entries.asSequence().filter { it.issue.project == project }.map { it.comment }.distinct()

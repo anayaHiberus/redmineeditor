@@ -23,6 +23,7 @@ class Issue {
      * The name of its project
      */
     val project: String
+    val projectId: Int // TODO: move to a Project class
 
     /**
      * The subject (title)
@@ -82,6 +83,7 @@ class Issue {
         original = rawIssue
         id = rawIssue.getInt("id")
         project = rawIssue.getJSONObject("project").optString("name")
+        projectId = rawIssue.getJSONObject("project").optInt("id")
         subject = rawIssue.optString("subject", "")
         description = rawIssue.optString("description")
         estimated = rawIssue.noNaNDouble("estimated_hours")
@@ -180,6 +182,12 @@ class Issue {
         remote_spent = remote.downloadRawIssueDetails(id).noNaNDouble("spent_hours")
         return true
     }
+
+    /**
+     * returns this issue's project OT code
+     */
+    @Throws(IOException::class)
+    fun getProjectOT(): String = remote.getProjectOT(projectId)
 
 
     /* ------------------------- uploading ------------------------- */
