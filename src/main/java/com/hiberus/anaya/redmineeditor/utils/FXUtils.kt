@@ -22,21 +22,16 @@ import kotlin.DeprecationLevel.ERROR
  */
 var Region.backgroundColor: Color?
     @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException() // https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0
-    set(value) = setBackgroundColor(value, null)
-
-/**
- * Sets the background [color] of this region, stylizing it [asDark] if required
- */
-fun Region.setBackgroundColor(color: Color?, asDark: Boolean? = null) {
-    // create a background with that color and rounded borders
-    background = color?.let {
-        Background(BackgroundFill(
-            if (asDark != null) it.stylize(asDark) else it,
-            CornerRadii(5.0),
-            Insets(1.0)
-        ))
+    set(value) {
+        // create a background with that color and rounded borders
+        background = value?.let {
+            Background(BackgroundFill(
+                Color(it.red, it.green, it.blue, 0.75),
+                CornerRadii(5.0),
+                Insets(1.0)
+            ))
+        }
     }
-}
 
 /**
  * Creates a new Label that will have its content centered
@@ -88,7 +83,8 @@ val Optional<ButtonType>.resultButton
 
 
 /**
- * Checks for changes, if there are asks to 'lose them and [message]?' returns false if the user don't want to lose existing changes
+ * Displays a dialog to confirm losing changes and [message]
+ * returns true if the user accepted (so it is ok to lose changes)
  */
 fun confirmLoseChanges(message: String): Boolean {
 

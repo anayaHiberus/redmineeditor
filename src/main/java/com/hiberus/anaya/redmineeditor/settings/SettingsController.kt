@@ -23,7 +23,7 @@ class SettingsController {
         /**
          * Displays the settings configuration dialog
          */
-        fun show(): Boolean {
+        fun show(): Set<AppSettings> {
             Stage().apply {
                 title = "Settings"
                 scene = Scene(FXMLLoader(object {}.javaClass.getModuleResource("settings.fxml")).load())
@@ -32,7 +32,7 @@ class SettingsController {
 
                 showAndWait()
 
-                return scene.window.userData != null
+                return (scene.window.userData as? Set<*>)?.filterIsInstance<AppSettings>()?.toSet() ?: emptySet()
             }
         }
     }
@@ -86,7 +86,6 @@ class SettingsController {
         // syn dark setting with dark theme
         dark.selectedProperty().addListener { _, _, isDark ->
             parent.scene?.stylize(isDark)
-            testInfo.apply { setBackgroundColor(userData as Color?, isDark) }
         }
 
         // initialize properties
@@ -124,7 +123,7 @@ class SettingsController {
         // test domain and key
         testLoading.isVisible = true
         testInfo.text = ""
-        colorizeTestAPIResult(null)
+        testInfo.backgroundColor = null
 
         // run in background
         thread(isDaemon = true) {
@@ -135,15 +134,10 @@ class SettingsController {
             // then notify in foreground
             Platform.runLater {
                 testInfo.text = result ?: "ERROR: Invalid settings, can't connect to service"
-                colorizeTestAPIResult(if (result != null) Color.GREEN else Color.RED)
+                testInfo.backgroundColor = if (result != null) Color.GREEN else Color.RED
                 testLoading.isVisible = false
             }
         }
-    }
-
-    private fun colorizeTestAPIResult(color: Color?) {
-        testInfo.setBackgroundColor(color, dark.isSelected)
-        testInfo.userData = color
     }
 
     @FXML
@@ -165,15 +159,17 @@ class SettingsController {
     @FXML
     fun save() {
         // save settings
-        AppSettings.URL.value = domain.text
-        AppSettings.KEY.value = key.text
-        AppSettings.READ_ONLY.value = allowGetOnly.isSelected.toString()
-        AppSettings.AUTO_LOAD_TOTAL_HOURS.value = autoLoadTotal.isSelected.toString()
-        AppSettings.PREV_DAYS.value = prevDays.valueFactory.value.toString()
-        AppSettings.DARK_THEME.value = dark.isSelected.toString()
+        val changes = mutableSetOf<AppSettings>()
+
+        with(AppSettings.URL) { if (modify(domain.text)) changes += this }
+        with(AppSettings.KEY) { if (modify(key.text)) changes += this }
+        with(AppSettings.READ_ONLY) { if (modify(allowGetOnly.isSelected)) changes += this }
+        with(AppSettings.AUTO_LOAD_TOTAL_HOURS) { if (modify(autoLoadTotal.isSelected)) changes += this }
+        with(AppSettings.PREV_DAYS) { if (modify(prevDays.valueFactory.value)) changes += this }
+        with(AppSettings.DARK_THEME) { if (modify(dark.isSelected)) changes += this }
 
         // and exit
-        window.userData = true
+        window.userData = changes
         window.hide()
     }
 

@@ -31,7 +31,7 @@ internal class ParentComponent {
         }
 
         // when app starts, reload
-        AppController.reload(resetDay = true)
+        AppController.reload(askIfChanges = false, resetDay = true)
     }
 
 }

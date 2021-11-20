@@ -2,7 +2,6 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
-import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.confirmLoseChanges
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -40,9 +39,7 @@ internal class ActionsComponent {
      * press the refresh button to reload the data, asks if there are changes
      */
     @FXML
-    private fun askReload() = AppController.runForeground { model: Model ->
-        if (!model.hasChanges || confirmLoseChanges("reload")) AppController.reload()
-    }
+    private fun askReload() = AppController.reload()
 
     /**
      * Uploads the data, then reloads
@@ -50,7 +47,7 @@ internal class ActionsComponent {
     @FXML
     private fun upload() = AppController.runBackground(
         { it.uploadAll() }, // let it upload
-        { AppController.reload() } // then reload (even if there were errors) TODO: on errors, try to keep them or something
+        { AppController.reload(askIfChanges = false) } // then reload (even if there were errors) TODO: on errors, try to keep them or something
     )
 
     /* ------------------------- internal ------------------------- */

@@ -44,19 +44,20 @@ enum class AppSettings(val default: String) {
      * this setting entry value
      */
     var value: String
-        get() = DATA.get(name, default)
+        get() = PREFS.get(name, default)
         set(value) {
-            DATA.put(name, value)
+            PREFS.put(name, value)
         }
 
-    /* ------------------------- settings functions ------------------------- */
-
-    companion object {
-
-        /**
-         * loaded settings data
-         */
-        private val DATA = Preferences.userNodeForPackage(Main::class.java)
-    }
+    /**
+     * Same as [setValue], but returns true if the new value is different
+     */
+    fun modify(newValue: Any) = newValue.toString().let { (it != value).apply { value = it } }
 
 }
+
+
+/**
+ * loaded settings preferences
+ */
+private val PREFS = Preferences.userNodeForPackage(Main::class.java)

@@ -3,7 +3,7 @@ package com.hiberus.anaya.redmineeditor.utils
 import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import javafx.scene.Scene
 import javafx.scene.control.Dialog
-import javafx.scene.paint.Color
+import javafx.stage.Window
 
 /* ------------------------- functions ------------------------- */
 
@@ -24,9 +24,11 @@ fun Scene.stylize(asDark: Boolean = isDark) = stylesheets.run {
 fun Dialog<*>.stylize(asDark: Boolean = isDark) = dialogPane.scene.stylize(asDark)
 
 /**
- * Changes the color to adapt to the current light/dark theme
+ * Stylize all displayed windows
  */
-fun Color.stylize(asDark: Boolean = isDark): Color = if (asDark) darker() else brighter()
+fun stylizeDisplayed() = runInForeground {
+    Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
+}
 
 /* ------------------------- property ------------------------- */
 

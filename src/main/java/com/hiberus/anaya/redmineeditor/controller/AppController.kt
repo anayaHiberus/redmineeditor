@@ -4,15 +4,11 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import com.hiberus.anaya.redmineeditor.settings.SettingsController
+import com.hiberus.anaya.redmineeditor.utils.*
 import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
-import com.hiberus.anaya.redmineeditor.utils.ifOK
-import com.hiberus.anaya.redmineeditor.utils.resultButton
-import com.hiberus.anaya.redmineeditor.utils.runInForeground
-import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import javafx.stage.Window
 import kotlin.concurrent.thread
 
 // - Nooooo you need a whole 100TB of frameworks to use beans
@@ -118,10 +114,16 @@ class Controller {
     /* ------------------------- common methods ------------------------- */
 
     /**
-     * reloads the model data (loses changes, if existing)
+     * reloads the model data
+     * asks first if there are changes that may be lost (unless [askIfChanges] is false)
      * Also resets the day if [resetDay] is set
      */
-    fun reload(resetDay: Boolean = false) {
+    fun reload(askIfChanges: Boolean = true, resetDay: Boolean = false) {
+
+        // ask first
+        if (askIfChanges && model.hasChanges && !confirmLoseChanges("reload")) return
+
+        // init
         val uninitializedSettings = AppSettings.URL.value.isBlank() && AppSettings.KEY.value.isBlank()
         var specialDaysERROR = false
         runBackground({ model ->
@@ -130,9 +132,7 @@ class Controller {
             specialDaysERROR = !LoadSpecialDays()
 
             // stylize displayed windows (should only be the main one, but just in case)
-            runInForeground {
-                Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
-            }
+            stylizeDisplayed()
 
             // set now
             if (resetDay) model.toNow()
@@ -174,8 +174,9 @@ class Controller {
      * Displays the settings dialog, and reloads if something changed
      */
     fun showSettings() {
-        if (SettingsController.show())
-            reload()
+        val changes = SettingsController.show()
+        if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
+        if (setOf(AppSettings.URL, AppSettings.KEY, AppSettings.READ_ONLY) intersects changes) reload()
     }
 
 }
