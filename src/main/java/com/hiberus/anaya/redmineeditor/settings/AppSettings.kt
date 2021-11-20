@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.settings
 
-import com.hiberus.anaya.redmineeditor.utils.findFile
-import java.util.*
+import com.hiberus.anaya.redmineeditor.Main
+import java.util.prefs.Preferences
 
 /**
  * Global settings
@@ -44,43 +44,19 @@ enum class AppSettings(val default: String) {
      * this setting entry value
      */
     var value: String
-        get() = DATA.getProperty(name, default)
+        get() = DATA.get(name, default)
         set(value) {
-            DATA.setProperty(name, value)
+            DATA.put(name, value)
         }
 
     /* ------------------------- settings functions ------------------------- */
 
     companion object {
 
-        private val FILE = "conf/settings.properties"
-
         /**
          * loaded settings data
          */
-        private val DATA = Properties()
-
-        /**
-         * Loads the settings from the properties file
-         */
-        fun load() =
-            runCatching {
-                DATA.clear()
-                findFile(FILE).inputStream().use {
-                    DATA.load(it)
-                }
-            }.onFailure {
-                println(it)
-                System.err.println("Settings file error!")
-            }.isSuccess
-
-        /**
-         * Save the settings to the property file
-         */
-        fun save() =
-            findFile(FILE).outputStream().use {
-                DATA.store(it, null)
-            }
+        private val DATA = Preferences.userNodeForPackage(Main::class.java)
     }
 
 }

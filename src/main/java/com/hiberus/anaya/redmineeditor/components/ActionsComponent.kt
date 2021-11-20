@@ -41,7 +41,7 @@ internal class ActionsComponent {
      */
     @FXML
     private fun askReload() = AppController.runForeground { model: Model ->
-        if (!model.hasChanges || confirmLoseChanges("reload")) AppController.reload(reloadConfig = true)
+        if (!model.hasChanges || confirmLoseChanges("reload")) AppController.reload()
     }
 
     /**

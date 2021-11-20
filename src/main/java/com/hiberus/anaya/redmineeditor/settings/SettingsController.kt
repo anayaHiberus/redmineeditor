@@ -171,9 +171,8 @@ class SettingsController {
         AppSettings.AUTO_LOAD_TOTAL_HOURS.value = autoLoadTotal.isSelected.toString()
         AppSettings.PREV_DAYS.value = prevDays.valueFactory.value.toString()
         AppSettings.DARK_THEME.value = dark.isSelected.toString()
-        AppSettings.save()
-        // and exit
 
+        // and exit
         window.userData = true
         window.hide()
     }

@@ -40,7 +40,7 @@ internal class SummaryComponent {
             }
             val spent = model.getSpent(date) ?: run {
                 // data not loaded yet
-                summary.text = "Data not loaded"
+                summary.text = "No data"
                 summary.background = null
                 return@onChanges
             }

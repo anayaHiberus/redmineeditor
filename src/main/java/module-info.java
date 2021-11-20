@@ -6,6 +6,7 @@ module com.hiberus.anaya.redmineeditor {
     requires org.json;
     requires java.desktop;
     requires kotlin.stdlib;
+    requires java.prefs;
     // requires redmine.java.api;
 
 

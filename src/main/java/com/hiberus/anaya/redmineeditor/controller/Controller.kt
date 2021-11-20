@@ -3,11 +3,15 @@ package com.hiberus.anaya.redmineeditor.controller
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.settings.AppSettings
+import com.hiberus.anaya.redmineeditor.settings.SettingsController
 import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
+import com.hiberus.anaya.redmineeditor.utils.ifOK
+import com.hiberus.anaya.redmineeditor.utils.resultButton
 import com.hiberus.anaya.redmineeditor.utils.runInForeground
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
 import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.stage.Window
 import kotlin.concurrent.thread
 
@@ -20,29 +24,12 @@ val AppController = Controller()
  */
 class Controller {
 
-    /* ------------------------- data ------------------------- */
+    /* ------------------------- model management ------------------------- */
 
     /**
      * the model used
      */
     private val model = Model.Editor()
-
-    /**
-     * saved list of listeners and its data
-     */
-    private val listeners = mutableListOf<Pair<Set<ChangeEvents>, (Model) -> Unit>>()
-
-    /* ------------------------- methods ------------------------- */
-
-    /**
-     * Registers a new listener that will react to events.
-     * Listeners will be called in register order
-     *
-     * @param events   list of events to react to
-     * @param listener listener
-     */
-    fun onChanges(events: Set<ChangeEvents>, listener: (Model) -> Unit) =
-        listeners.add(events to listener)
 
     /**
      * Run something in foreground.
@@ -51,7 +38,6 @@ class Controller {
      * @param foreground what to run
      */
     fun runForeground(foreground: (Model) -> Unit) = foreground(model)
-
 
     /**
      * Run something in background, and then something in foreground. Updates the loading status.
@@ -96,6 +82,23 @@ class Controller {
         }
     }
 
+    /* ------------------------- changes management ------------------------- */
+
+    /**
+     * saved list of listeners and its data
+     */
+    private val listeners = mutableListOf<Pair<Set<ChangeEvents>, (Model) -> Unit>>()
+
+    /**
+     * Registers a new listener that will react to events.
+     * Listeners will be called in register order
+     *
+     * @param events   list of events to react to
+     * @param listener listener
+     */
+    fun onChanges(events: Set<ChangeEvents>, listener: (Model) -> Unit) =
+        listeners.add(events to listener)
+
     /**
      * Fires changes made to the model (or specific ones)
      *
@@ -112,25 +115,23 @@ class Controller {
                 }
             }
 
+    /* ------------------------- common methods ------------------------- */
+
     /**
      * reloads the model data (loses changes, if existing)
-     * Also reloads configuration if [reloadConfig] is set
      * Also resets the day if [resetDay] is set
      */
-    fun reload(reloadConfig: Boolean = false, resetDay: Boolean = false) {
-        var settingsERROR = false
+    fun reload(resetDay: Boolean = false) {
+        val uninitializedSettings = AppSettings.URL.value.isBlank() && AppSettings.KEY.value.isBlank()
         var specialDaysERROR = false
         runBackground({ model ->
 
             // reload files
-            if (reloadConfig) {
-                settingsERROR = !AppSettings.load()
-                specialDaysERROR = !LoadSpecialDays()
+            specialDaysERROR = !LoadSpecialDays()
 
-                runInForeground {
-                    // stylize displayed windows (should only be the main one)
-                    Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
-                }
+            // stylize displayed windows (should only be the main one, but just in case)
+            runInForeground {
+                Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
             }
 
             // set now
@@ -138,7 +139,7 @@ class Controller {
 
             // reload data
             // TODO: don't reload when uploading, update internal state
-            model.reloadRedmine(clearOnly = settingsERROR)
+            model.reloadRedmine(clearOnly = uninitializedSettings)
 
             // notify so that the ui is updated at this step and everything is updated
             AppController.fireChanges()
@@ -148,23 +149,33 @@ class Controller {
 
         }) {
             // after loading
-            if (settingsERROR) {
-                // invalid configuration, error
-                Alert(Alert.AlertType.ERROR).apply {
-                    title = "Configuration error"
-                    contentText = "No valid configuration found"
+            if (uninitializedSettings) {
+                // invalid configuration, ask to configure
+                Alert(Alert.AlertType.CONFIRMATION).apply {
+                    title = "Missin configuration"
+                    contentText = "No valid configuration found, do you want to open settings?"
                     stylize()
-                }.showAndWait()
+                }.showAndWait().run { resultButton == ButtonType.OK }.ifOK {
+                    AppController.showSettings()
+                }
             }
             if (specialDaysERROR) {
                 // invalid special days, warning
                 Alert(Alert.AlertType.WARNING).apply {
                     title = "Special days error"
-                    contentText = "No valid special days data found"
+                    contentText = "No valid special days data found, holidays won't be shown"
                     stylize()
                 }.showAndWait()
             }
         }
+    }
+
+    /**
+     * Displays the settings dialog, and reloads if something changed
+     */
+    fun showSettings() {
+        if (SettingsController.show())
+            reload()
     }
 
 }

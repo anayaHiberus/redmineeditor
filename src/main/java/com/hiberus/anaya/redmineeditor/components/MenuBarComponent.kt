@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.settings.SettingsController
 import com.hiberus.anaya.redmineeditor.summary.DisplaySummary
 import com.hiberus.anaya.redmineeditor.utils.getModuleResource
 import com.hiberus.anaya.redmineeditor.utils.stylize
@@ -21,7 +20,7 @@ internal class MenuBarComponent {
     fun readme() {
         Alert(Alert.AlertType.INFORMATION).apply {
             headerText = "Readme"
-            dialogPane.content = ScrollPane(Label(this@MenuBarComponent.javaClass.getModuleResource("Readme.txt").readText()).apply { isWrapText = true })
+            dialogPane.content = ScrollPane(Label(this@MenuBarComponent.javaClass.getModuleResource("Readme.txt").readText())).apply { maxWidth = 100.0; maxHeight = 50.0 }
             stylize()
         }.showAndWait()
     }
@@ -36,10 +35,7 @@ internal class MenuBarComponent {
     }
 
     @FXML
-    fun settings() {
-        if (SettingsController.show())
-            AppController.reload(reloadConfig = true)
-    }
+    fun settings() = AppController.showSettings()
 
     @FXML
     fun summary() {
