@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<HBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.hiberus.anaya.redmineeditor.components.MenuBarComponent">
+    <children>
+        <MenuBar maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#summary" text="Generate summary"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#settings" text="Settings"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#readme" text="Readme"/>
+                        <MenuItem mnemonicParsing="false" onAction="#about" text="About"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </children>
+</HBox>

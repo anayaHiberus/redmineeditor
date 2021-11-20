@@ -2,15 +2,9 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
-import com.hiberus.anaya.redmineeditor.settings.SettingsController
-import com.hiberus.anaya.redmineeditor.utils.getModuleResource
-import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
 import javafx.scene.Node
-import javafx.scene.control.Alert
-import javafx.scene.control.Label
 import javafx.scene.control.ProgressIndicator
-import javafx.scene.control.ScrollPane
 
 
 /**
@@ -38,23 +32,6 @@ internal class ParentComponent {
 
         // when app starts, reload
         AppController.reload(reloadConfig = true, resetDay = true)
-    }
-
-    /* ------------------------- readme ------------------------- */
-
-    @FXML
-    fun showReadme() {
-        Alert(Alert.AlertType.INFORMATION).apply {
-            headerText = "Readme"
-            dialogPane.content = ScrollPane(Label(this@ParentComponent.javaClass.getModuleResource("Readme.txt").readText()))
-            stylize()
-        }.showAndWait()
-    }
-
-    @FXML
-    fun showSettings() {
-        if (SettingsController.show())
-            AppController.reload(reloadConfig = true)
     }
 
 }

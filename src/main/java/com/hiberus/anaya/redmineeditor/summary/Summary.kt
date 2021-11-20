@@ -47,7 +47,7 @@ fun DisplaySummary() {
         }
     }) {
         Alert(Alert.AlertType.INFORMATION).apply {
-            headerText = "Readme"
+            headerText = "Summary"
             dialogPane.content = TextArea(text).apply { isWrapText = true }
             stylize()
         }.showAndWait()
