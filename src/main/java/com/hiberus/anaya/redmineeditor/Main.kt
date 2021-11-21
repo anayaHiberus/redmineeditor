@@ -16,10 +16,10 @@ class Main : Application() {
 
     override fun start(stage: Stage) = stage.run {
         // load and show
-        title = "Redmine editor, by Abel Naya (V 0.3 alpha)"
-        scene = Scene(FXMLLoader(this@Main.javaClass.getResource("parent.fxml")).load())
+        title = "Redmine editor, by Abel Naya (V 0.4 alpha)"
+        scene = Scene(FXMLLoader(Resources.getLayout("parent")).load())
         scene.stylize()
-        icons.add(Image(this@Main.javaClass.getResourceAsStream("icon.png")))
+        icons.add(Image(Resources.getImage("icon").openStream()))
         show()
     }
 

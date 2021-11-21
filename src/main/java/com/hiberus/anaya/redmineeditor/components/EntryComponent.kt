@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
+import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
@@ -26,7 +27,7 @@ import kotlin.concurrent.thread
  * One of the entries in the entries list
  */
 @Suppress("unused")
-class EntryComponent : SimpleListCell<TimeEntry>("entry_cell.fxml") {
+class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell")) {
 
     /* ------------------------- views ------------------------- */
 

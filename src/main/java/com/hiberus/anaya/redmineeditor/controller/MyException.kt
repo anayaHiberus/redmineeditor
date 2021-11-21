@@ -53,7 +53,8 @@ class MyException(
             headerText = title
             contentText = "$message\n\n$details"
             cause?.let { cause ->
-                dialogPane.expandableContent = Label(cause.toString().also { println(it) }) // show error details
+                printStackTraceFix()
+                dialogPane.expandableContent = Label(cause.toString()) // show error details
             }
             stylize()
         }.showAndWait()

@@ -1,8 +1,8 @@
 package com.hiberus.anaya.redmineeditor.components
 
+import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.summary.DisplaySummary
-import com.hiberus.anaya.redmineeditor.utils.getModuleResource
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
@@ -20,7 +20,7 @@ internal class MenuBarComponent {
     fun readme() {
         Alert(Alert.AlertType.INFORMATION).apply {
             headerText = "Readme"
-            dialogPane.content = ScrollPane(Label(this@MenuBarComponent.javaClass.getModuleResource("Readme.txt").readText())).apply { maxWidth = 100.0; maxHeight = 50.0 }
+            dialogPane.content = ScrollPane(Label(Resources.getFile("Readme.txt").readText())).apply { maxWidth = 100.0; maxHeight = 50.0 }
             stylize()
         }.showAndWait()
     }

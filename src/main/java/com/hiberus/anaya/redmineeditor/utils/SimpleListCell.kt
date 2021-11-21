@@ -3,20 +3,21 @@ package com.hiberus.anaya.redmineeditor.utils
 import javafx.fxml.FXMLLoader
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.ListCell
+import java.net.URL
 
 
 /**
  * A ListCell that loads its data from a fxml file
  * Adapted from https://stackoverflow.com/a/47526952
  *
- * @param filename the fxml file to load (from the module root)
+ * @param fxml the fxml file to load (from the module root)
  * @param <T> type of data for this cell
  */
-abstract class SimpleListCell<T>(filename: String) : ListCell<T>() {
+abstract class SimpleListCell<T>(fxml: URL) : ListCell<T>() {
 
     init {
         // initialize ListCell by loading the fxml file
-        FXMLLoader(javaClass.getModuleResource(filename)).apply {
+        FXMLLoader(fxml).apply {
             setController(this@SimpleListCell)
             setRoot(this@SimpleListCell)
             load()

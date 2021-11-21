@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.settings
 
 import com.hiberus.anaya.redmineapi.Redmine
+import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -26,7 +27,7 @@ class SettingsController {
         fun show(): Set<AppSettings> {
             Stage().apply {
                 title = "Settings"
-                scene = Scene(FXMLLoader(object {}.javaClass.getModuleResource("settings.fxml")).load())
+                scene = Scene(FXMLLoader(Resources.getLayout("settings")).load())
                     .apply { stylize() }
                 initModality(Modality.APPLICATION_MODAL)
 
