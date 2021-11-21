@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineapi.Issue
+import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.controller.AppController
@@ -312,7 +313,8 @@ abstract class Model {
          * Clears and initializes (unless [clearOnly] is true) the redmine data
          */
         fun reloadRedmine(clearOnly: Boolean = false) {
-            redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, AppSettings.READ_ONLY.value.toBoolean(), prevDays)
+            redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, prevDays)
+            READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
             changes += setOf(ChangeEvents.IssueList, ChangeEvents.EntryList, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
         }
     }

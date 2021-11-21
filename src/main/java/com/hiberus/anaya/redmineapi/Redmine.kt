@@ -4,6 +4,15 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.YearMonth
 
+/* ------------------------- Global settings ------------------------- */
+
+/**
+ * if true, put/post petitions will be skipped (but still logged)
+ */
+var READ_ONLY = false
+
+/* ------------------------- Main ------------------------- */
+
 /**
  * Redmine API.
  * The 'official' one is not used because it doesn't allow searching with multiple filters
@@ -15,11 +24,10 @@ class Redmine {
     /**
      * @param domain the redmine domain
      * @param key the redmine api key
-     * @param read_only if true, put/post petitions will be skipped (but still logged)
      */
     @Suppress("ConvertSecondaryConstructorToPrimary")
-    constructor(domain: String, key: String, read_only: Boolean, prevDays: Long) {
-        this.remote = Remote(domain, key, read_only)
+    constructor(domain: String, key: String, prevDays: Long) {
+        this.remote = Remote(domain, key)
         this.prevDays = prevDays
     }
 

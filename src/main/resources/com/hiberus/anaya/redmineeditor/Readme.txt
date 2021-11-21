@@ -37,7 +37,3 @@ Insertion:
 Actions:
 - Reload: press it to fetch data from Redmine
 - Save: press it to upload modified data to Redmine. Reloads afterwards.
-
-
-Configuration:
-- See 'settings.properties' file in 'conf' folder

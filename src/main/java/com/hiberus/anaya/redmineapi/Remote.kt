@@ -5,15 +5,12 @@ import java.io.IOException
 import java.net.URL
 import java.time.LocalDate
 
-/* ------------------------- class ------------------------- */
 /**
  * Manages connections with the api on a [domain] using an api [key].
- * If [read_only], put/post petitions will be skipped (but still logged)
  */
 internal class Remote(
     private val domain: String,
     private val key: String,
-    private val read_only: Boolean,
 ) {
 
     /* ------------------------- Endpoint builder ------------------------- */
@@ -123,7 +120,7 @@ internal class Remote(
                     // new entry with hours, create
                     id == null && spent > 0 -> {
                         println("Creating entry with data: $it")
-                        if (read_only) return
+                        if (READ_ONLY) return
                         JSONObject().put("time_entry", it)
                             .postTo(Endpoint.TIME_ENTRIES.build().url)
                             .ifNot(201) {
@@ -137,7 +134,7 @@ internal class Remote(
                     // existing entry with hours, update
                     id != null && spent > 0 -> {
                         println("Updating entry $id with data: $it")
-                        if (read_only) return
+                        if (READ_ONLY) return
                         JSONObject().put("time_entry", it)
                             .putTo(Endpoint.TIME_ENTRIES.build(subdomain = id).url)
                             .ifNot(200) {
@@ -148,7 +145,7 @@ internal class Remote(
                     // existing entry without hours, delete
                     id != null && spent <= 0 -> {
                         println("Deleting entry $id")
-                        if (read_only) return
+                        if (READ_ONLY) return
                         Endpoint.TIME_ENTRIES.build(subdomain = id).url
                             .delete()
                             .ifNot(200) {
@@ -222,7 +219,7 @@ internal class Remote(
             changes.takeUnless { it.isEmpty }?.let { // if there are changes
                 // update
                 println("Updating issue $id with data: $it")
-                if (read_only) return
+                if (READ_ONLY) return
                 JSONObject().put("issue", changes)
                     .putTo(Endpoint.ISSUES.build(subdomain = id).url)
                     .ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }

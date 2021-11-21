@@ -39,7 +39,7 @@ internal class ActionsComponent {
      * press the refresh button to reload the data, asks if there are changes
      */
     @FXML
-    private fun askReload() = AppController.reload()
+    private fun reload() = AppController.reload()
 
     /**
      * Uploads the data, then reloads

@@ -13,7 +13,7 @@
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </padding>
-            <Button mnemonicParsing="false" onAction="#onPreviousMonth" text="&lt;" textOverrun="CLIP">
+            <Button mnemonicParsing="false" onAction="#onPreviousMonth" text="&lt;">
                 <tooltip>
                     <Tooltip text="Load previous month"/>
                 </tooltip>
@@ -30,7 +30,7 @@
                     <Tooltip text="Current month and year (spent hours / total hours)"/>
                 </tooltip>
             </Label>
-            <Button mnemonicParsing="false" onAction="#onNextMonth" text="&gt;" textOverrun="CLIP">
+            <Button mnemonicParsing="false" onAction="#onNextMonth" text="&gt;">
                 <tooltip>
                     <Tooltip text="Load next month"/>
                 </tooltip>

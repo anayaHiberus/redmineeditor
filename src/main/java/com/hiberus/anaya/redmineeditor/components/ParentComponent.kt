@@ -1,7 +1,9 @@
 package com.hiberus.anaya.redmineeditor.components
 
+import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.ProgressIndicator
@@ -30,7 +32,8 @@ internal class ParentComponent {
             parent.isDisable = it.isLoading
         }
 
-        // when app starts, reload
+        // when app starts, initialize and reload
+        READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
         AppController.reload(askIfChanges = false, resetDay = true)
     }
 

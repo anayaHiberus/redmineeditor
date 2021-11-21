@@ -6,7 +6,7 @@
 <HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.hiberus.anaya.redmineeditor.components.ActionsComponent">
-    <Button maxWidth="1.7976931348623157E308" onAction="#askReload" text="_Reload"
+    <Button maxWidth="1.7976931348623157E308" onAction="#reload" text="_Reload"
             HBox.hgrow="ALWAYS">
         <tooltip>
             <Tooltip text="Reload settings and Redmine data"/>

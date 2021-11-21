@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.controller
 
+import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.settings.AppSettings
@@ -124,15 +125,12 @@ class Controller {
         if (askIfChanges && model.hasChanges && !confirmLoseChanges("reload")) return
 
         // init
-        val uninitializedSettings = AppSettings.URL.value.isBlank() && AppSettings.KEY.value.isBlank()
+        val uninitializedSettings = AppSettings.URL.value.isBlank() || AppSettings.KEY.value.isBlank()
         var specialDaysERROR = false
         runBackground({ model ->
 
             // reload files
             specialDaysERROR = !LoadSpecialDays()
-
-            // stylize displayed windows (should only be the main one, but just in case)
-            stylizeDisplayed()
 
             // set now
             if (resetDay) model.toNow()
@@ -176,7 +174,8 @@ class Controller {
     fun showSettings() {
         val changes = SettingsController.show()
         if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
-        if (setOf(AppSettings.URL, AppSettings.KEY, AppSettings.READ_ONLY) intersects changes) reload()
+        if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
+        if (setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS) intersects changes) reload()
     }
 
 }

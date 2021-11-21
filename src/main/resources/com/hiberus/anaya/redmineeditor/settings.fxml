@@ -24,7 +24,7 @@
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
         </TextField>
-        <Button mnemonicParsing="false" onAction="#hiberus" text="Hiberus">
+        <Button onAction="#hiberus" text="_Hiberus">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
@@ -41,14 +41,14 @@
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
         </PasswordField>
-        <Button mnemonicParsing="false" onAction="#instructions" text="Instructions">
+        <Button onAction="#instructions" text="_Instructions">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
         </Button>
     </HBox>
     <HBox alignment="CENTER_LEFT">
-        <Button mnemonicParsing="false" onAction="#testAPI" text="Test API">
+        <Button onAction="#testAPI" text="T_est API">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
@@ -67,8 +67,8 @@
             </padding>
         </Label>
     </HBox>
-    <CheckBox fx:id="allowGetOnly" layoutX="25.0" layoutY="346.0" mnemonicParsing="false"
-              text="[DEBUG] Allow only GET petitions (modifications will be logged but not applied)">
+    <CheckBox fx:id="allowGetOnly" layoutX="25.0" layoutY="346.0"
+              text="[DEBUG] Allow only _GET petitions (modifications will be logged but not applied)">
         <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
@@ -83,7 +83,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
     </Label>
-    <CheckBox fx:id="autoLoadTotal" mnemonicParsing="false" text="Automatically load total hours (slower startup time)">
+    <CheckBox fx:id="autoLoadTotal" text="_Automatically load total hours (slower startup time)">
         <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
@@ -129,7 +129,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
     </Label>
-    <CheckBox fx:id="dark" layoutX="25.0" layoutY="192.0" mnemonicParsing="false" text="Apply a dark theme">
+    <CheckBox fx:id="dark" layoutX="25.0" layoutY="192.0" text="Apply a dark _theme">
         <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
@@ -141,18 +141,18 @@
         </VBox.margin>
     </Separator>
     <HBox>
-        <Button mnemonicParsing="false" onAction="#loadDefault" text="Default">
+        <Button onAction="#loadDefault" text="_Default">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
         </Button>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel">
+        <Button cancelButton="true" onAction="#cancel" text="_Cancel">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
         </Button>
-        <Button defaultButton="true" mnemonicParsing="false" onAction="#save" text="Save">
+        <Button defaultButton="true" onAction="#save" text="_Save">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
