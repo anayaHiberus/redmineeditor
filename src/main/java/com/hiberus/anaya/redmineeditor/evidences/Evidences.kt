@@ -80,7 +80,6 @@ fun DisplayEvidences() {
                     appendLine()
 
                 }
-
         }
     }) {
         Alert(Alert.AlertType.INFORMATION).apply {

@@ -113,14 +113,14 @@ class SettingsController {
         Alert(Alert.AlertType.INFORMATION).apply alert@{
             title = "API key instructions"
             headerText = "Fill this value with your Redmine API key"
-            dialogPane.content = HBox(
-                Label("You can find it in "),
-                "Redmine -> my page -> api key".let {
-                    // allow click if domain is not empty
-                    if (domain.text.isBlank()) Label("$it\n(note: fill the domain and press this button again for an easy to click link)")
-                    else Hyperlink(it).apply { setOnAction { URI(domain.text.ensureSuffix("/") + "my/api_key").openInBrowser() } }
-                }
-            ).apply { alignment = Pos.CENTER_LEFT }
+            dialogPane.content = ("You can find it in " to "Redmine -> my page -> api key.").let { (prefix, instructions) ->
+                if (domain.text.isBlank())
+                    Label("$prefix$instructions\n(note: fill the domain and press this button again for an easy to click link)")
+                else HBox(Label(prefix), Hyperlink(instructions).apply {
+                    setOnAction { URI(domain.text.ensureSuffix("/") + "my/api_key").openInBrowser() }
+                }).apply { alignment = Pos.CENTER_LEFT }
+            }
+
             stylize(dark.isSelected)
         }.showAndWait() // display
     }
@@ -141,7 +141,7 @@ class SettingsController {
             // then notify in foreground
             Platform.runLater {
                 testInfo.text = result ?: "ERROR: Invalid settings, can't connect to service"
-                testInfo.backgroundColor = if (result != null) Color.GREEN else Color.RED
+                testInfo.backgroundColor = if (result != null) Color.LIGHTGREEN else Color.INDIANRED
                 testLoading.isVisible = false
             }
         }
