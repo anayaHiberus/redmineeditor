@@ -222,7 +222,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
             showHoursEditor("Estimated", "none", estimated?.toString() ?: "") {
                 // update entry
                 runCatching {
-                    changeEstimated(it.takeIf { it.isNotBlank() }?.toDouble())
+                    estimated = it.takeIf { it.isNotBlank() }?.toDouble()
                 }
             }
             // and notify
@@ -264,7 +264,6 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
     private fun showDetails() {
         // TODO: improve
         val issue = item?.issue ?: return
-
 
         // build alert
         val result = Alert(Alert.AlertType.INFORMATION).apply {

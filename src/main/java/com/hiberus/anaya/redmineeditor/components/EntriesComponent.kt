@@ -66,15 +66,15 @@ internal class EntriesComponent {
             clearFilter()
         }
 
-        // when entry change, update
+        // when entry change, update entries
         AppController.onChanges(setOf(ChangeEvents.EntryContent)) {
             list.lookupAll(".cell").forEach {
                 if (it is EntryComponent) it.partialUpdate(updateEntry = true)
             }
         }
 
-        // when issue change, update
-        AppController.onChanges(setOf(ChangeEvents.IssueContent)) {
+        // when issue or hours change, update issues
+        AppController.onChanges(setOf(ChangeEvents.IssueContent, ChangeEvents.DayHours)) {
             list.lookupAll(".cell").forEach {
                 if (it is EntryComponent) it.partialUpdate(updateIssue = true)
             }

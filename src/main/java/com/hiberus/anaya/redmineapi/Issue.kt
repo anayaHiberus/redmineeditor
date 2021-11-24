@@ -36,11 +36,13 @@ class Issue {
     val description: String
 
     /**
-     * Estimated hours
+     * Estimated hours, greater than 0
      * null if unset
      */
     var estimated: Double?
-        private set
+        set(value) {
+            field = value?.coerceAtLeast(0.0)
+        }
 
     /**
      * Ratio of realization (percentage)
@@ -142,14 +144,6 @@ class Issue {
     }
 
     /**
-     * Changes the estimated hours to any [amount] (null for none)
-     * TODO: set as the estimated setter, and move there the logic
-     */
-    fun changeEstimated(amount: Double?) {
-        estimated = amount?.coerceAtLeast(0.0)
-    }
-
-    /**
      * Changes the realization percentage of this issue
      *
      * @param amount percentage (negative to subtract)
@@ -218,6 +212,7 @@ class Issue {
 /* ------------------------- utils ------------------------- */
 
 /**
- * Get an optional double associated with a key, or null if there is no such key or if its value is not a number (NaN). If the value is a string, an attempt will be made to evaluate it as a number.
+ * Get an optional double associated with a key, or null if there is no such key or if its value is not a number (NaN).
+ * If the value is a string, an attempt will be made to evaluate it as a number.
  */
 private fun JSONObject.noNaNDouble(key: String) = optDouble(key).takeIf { !it.isNaN() }
