@@ -46,7 +46,8 @@ enum class AppSettings(val default: String) {
     var value: String
         get() = PREFS.get(name, default)
         set(value) {
-            PREFS.put(name, value)
+            if (value != default) PREFS.put(name, value)
+            else PREFS.remove(name) // don't save default
         }
 
     /**

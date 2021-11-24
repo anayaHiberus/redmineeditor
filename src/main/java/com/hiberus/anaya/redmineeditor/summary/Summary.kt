@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.summary
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
+import com.hiberus.anaya.redmineeditor.utils.ensureSuffix
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
 import javafx.scene.control.TextArea
@@ -27,7 +28,7 @@ fun DisplaySummary() {
                     appendLine("Descripción de la actividad $index:")
                     append("[reword] ")
                     appendLine(entries.asSequence().filter { it.issue.project == project }.map { it.comment }.distinct()
-                        .filter { it.isNotBlank() }.map { it.trim().removeSuffix(".") + "." }
+                        .filter { it.isNotBlank() }.map { it.trim().ensureSuffix(".") }
                         .joinToString(" ")
                     )
                     appendLine()

@@ -14,3 +14,8 @@ inline fun Boolean.ifNotOK(function: () -> Unit) = this.also { if (!it) function
  * Kotlin has an error, and you can't use Throwable#printStackTrace because "Symbol is declared in module 'java.base' which does not export package 'kotlin'"
  */
 fun Throwable.printStackTraceFix() = System.err.println(stackTraceToString())
+
+/**
+ * Makes sure the string ends with the suffix, if it doesn't append it
+ */
+fun String.ensureSuffix(suffix: String) = removeSuffix(suffix) + suffix

@@ -6,13 +6,16 @@ import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
+import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
+import java.net.URI
 import kotlin.concurrent.thread
 
 /**
@@ -100,21 +103,24 @@ class SettingsController {
 
     @FXML
     fun hiberus() {
-        // restore hiberus default setting
+        // restore hiberus default setting, this button is the only time 'Hiberus' should be present in the app (ignoring the packages)
         domain.text = "https://redmine.hiberus.com/redmine/"
     }
 
     @FXML
     fun instructions() {
         // show instructions to fill the key
-        Alert(Alert.AlertType.INFORMATION).apply {
+        Alert(Alert.AlertType.INFORMATION).apply alert@{
             title = "API key instructions"
             headerText = "Fill this value with your Redmine API key"
-            contentText = """
-                |1) Go to <a href="https://redmine.hiberus.com/redmine/my/account">myPage</a>
-                |2) Press on 'Show' at the right
-                |3) Copy the key and paste it here
-                |""".trimMargin()
+            dialogPane.content = HBox(
+                Label("You can find it in "),
+                "Redmine -> my page -> api key".let {
+                    // allow click if domain is not empty
+                    if (domain.text.isBlank()) Label("$it\n(note: fill the domain and press this button again for an easy to click link)")
+                    else Hyperlink(it).apply { setOnAction { URI(domain.text.ensureSuffix("/") + "my/api_key").openInBrowser() } }
+                }
+            ).apply { alignment = Pos.CENTER_LEFT }
             stylize(dark.isSelected)
         }.showAndWait() // display
     }

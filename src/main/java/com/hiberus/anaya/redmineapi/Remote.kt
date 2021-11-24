@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineapi
 
+import com.hiberus.anaya.redmineeditor.utils.ensureSuffix
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
@@ -37,7 +38,7 @@ internal class Remote(
      */
     private fun Endpoint.build(subdomain: Any? = null, parameters: List<Param>? = listOf()) = buildString {
         // domain
-        append(domain.removeSuffix("/")).append("/")
+        append(domain.ensureSuffix("/"))
         // entry
         append(name.lowercase())
         // id if supplied
