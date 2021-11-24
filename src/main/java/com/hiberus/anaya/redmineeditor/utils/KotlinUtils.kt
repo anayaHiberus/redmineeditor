@@ -19,3 +19,4 @@ fun Throwable.printStackTraceFix() = System.err.println(stackTraceToString())
  * Makes sure the string ends with the suffix, if it doesn't append it
  */
 fun String.ensureSuffix(suffix: String) = removeSuffix(suffix) + suffix
+

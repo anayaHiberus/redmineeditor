@@ -9,6 +9,7 @@ import com.hiberus.anaya.redmineeditor.utils.hiberus.expectedHours
 import com.hiberus.anaya.redmineeditor.utils.hiberus.getColor
 import javafx.fxml.FXML
 import javafx.scene.control.Label
+import javafx.scene.paint.Color
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -29,36 +30,39 @@ internal class SummaryComponent {
     fun initialize() {
         AppController.onChanges(
             // when month, day or hours changes, update
-            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.DayHours, ChangeEvents.EntryList)
-        ) { model: Model ->
+            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.DayHours, ChangeEvents.EntryList, ChangeEvents.Loading)
+        ) updating@{ model: Model ->
 
             val date = model.date ?: run {
                 // if nothing selected, just ask
-                summary.text = "Select day"
-                summary.background = null
-                return@onChanges
+                set("Select day")
+                return@updating
             }
             val spent = model.getSpent(date) ?: run {
-                // data not loaded yet
-                summary.text = "No data"
-                summary.background = null
-                return@onChanges
+                // data not loaded yet, maybe loading
+                set(if (model.isLoading) "Loading..." else "No data")
+                return@updating
             }
             val expected = date.expectedHours
 
-            // on something selected, display info
-            summary.text = date.formatLong() +
+            // on something selected, display info with color
+            set(date.formatLong() +
                     " --- Time: ${spent.formatHours()} / ${expected.formatHours()}" +
                     when {
                         spent < expected -> " --- Missing: ${(expected - spent).formatHours()}"
                         spent > expected -> " --- Extra: ${(spent - expected).formatHours()}"
                         spent == expected && expected != 0.0 -> " --- OK"
                         else -> "" // spent=expected=0
-                    }
-            // and change color
-            summary.backgroundColor = getColor(expected, spent, date)
+                    },
+                getColor(expected, spent, date)
+            )
         }
     }
+
+    /**
+     * Just for easier setters
+     */
+    fun set(label: String, color: Color? = null) = summary.apply { text = label; backgroundColor = color }
 }
 
 /**

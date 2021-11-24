@@ -28,7 +28,7 @@ class TimeEntry {
     /**
      * date it was spent
      */
-    private val spent_on: LocalDate
+    val spent_on: LocalDate
 
     /**
      * the spent hours of this entry

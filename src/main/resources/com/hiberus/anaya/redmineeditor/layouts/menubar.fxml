@@ -7,7 +7,7 @@
       fx:controller="com.hiberus.anaya.redmineeditor.components.MenuBarComponent">
     <MenuBar maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
         <Menu text="_File">
-            <MenuItem onAction="#summary" text="Generate _summary [beta]"/>
+            <MenuItem onAction="#evidences" text="Generate _evidences [beta]"/>
         </Menu>
         <Menu text="_Edit">
             <MenuItem onAction="#settings" text="_Settings"/>

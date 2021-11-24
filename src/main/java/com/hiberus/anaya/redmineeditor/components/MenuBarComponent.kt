@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.summary.DisplaySummary
+import com.hiberus.anaya.redmineeditor.evidences.DisplayEvidences
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
@@ -38,8 +38,8 @@ internal class MenuBarComponent {
     fun settings() = AppController.showSettings()
 
     @FXML
-    fun summary() {
-        DisplaySummary()
+    fun evidences() {
+        DisplayEvidences()
     }
 
 }
