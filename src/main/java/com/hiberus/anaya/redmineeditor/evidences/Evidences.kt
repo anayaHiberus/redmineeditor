@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.evidences
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.utils.ensureSuffix
+import com.hiberus.anaya.redmineeditor.utils.findFile
 import com.hiberus.anaya.redmineeditor.utils.formatHours
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
@@ -11,16 +12,21 @@ import java.util.*
 
 /**
  * Calculates and displays the evidences
- * TODO: extract all strings to file
  */
 fun DisplayEvidences() {
-    var text = "Can't load"
+    // init properties
+    val strings = Properties().apply { findFile("conf/Evidences.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+    fun string(key: String, default: String? = null) = strings.getProperty(key, default ?: key)
+
+    var text = string("error", "Can't load properties")
     AppController.runBackground({ model ->
         text = buildString {
 
             // common header
-            appendLine("Mes: ${model.month.format(DateTimeFormatter.ofPattern("LLLL uuuu", Locale.forLanguageTag("es")))}")
-            appendLine("Datos trabajador: " + model.user)
+            appendLine("${string("header.month")}: " + model.month.format(
+                DateTimeFormatter.ofPattern(string("header.date", "LLLL uuuu"), Locale.forLanguageTag(string("header.locale", "en")))
+            ))
+            appendLine("${string("header.worker")}: " + model.user)
             appendLine()
             appendLine()
 
@@ -39,18 +45,18 @@ fun DisplayEvidences() {
 
                     // project header
                     val index = i + 1
-                    appendLine("Código proyecto $index: ${issues.first().getProjectOT()} ($project)")
-                    appendLine("Descripción de la actividad $index:")
-                    append("[reword] ")
-                    // concatenate all comments
-                    appendLine(entries.asSequence().map { it.comment }.distinct()
-                        .filter { it.isNotBlank() }.map { it.trim().ensureSuffix(".") }
-                        .joinToString(" ")
+                    appendLine("${string("project.code")} $index: ${issues.first().getProjectOT()} ($project)")
+                    appendLine("${string("project.description")} $index:")
+                    appendLine(string("project.edit") + " " +
+                            // concatenate all comments
+                            entries.asSequence().map { it.comment }.distinct()
+                                .filter { it.isNotBlank() }.map { it.trim().ensureSuffix(".") }
+                                .joinToString(" ")
                     )
                     appendLine()
 
                     // issues
-                    appendLine("1. Tarea realizada")
+                    appendLine(string("tasks"))
                     issues.sortedBy { it.id }.forEach {
                         appendLine("#${it.id} - ${it.subject}")
                         appendLine(it.url)
@@ -58,7 +64,7 @@ fun DisplayEvidences() {
                     appendLine()
 
                     // hours
-                    appendLine("Resumen de horas imputadas:")
+                    appendLine(string("hours"))
                     appendLine(
                         // group entries by date
                         entries.groupBy { it.spent_on }.toSortedMap()
@@ -74,8 +80,8 @@ fun DisplayEvidences() {
                     appendLine()
 
                     // pictures (placeholder)
-                    appendLine("2. Archivos de configuración asociados")
-                    appendLine("[fill with pictures]")
+                    appendLine(string("files"))
+                    appendLine(string("files.edit"))
                     appendLine()
                     appendLine()
 
