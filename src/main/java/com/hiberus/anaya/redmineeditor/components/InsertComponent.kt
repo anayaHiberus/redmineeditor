@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Node
@@ -74,15 +75,21 @@ internal class InsertComponent {
      * Add the input entries
      */
     @FXML
-    private fun onAdd() = AppController.runBackground { model ->
-        // create issues
-        model.createTimeEntries(
-            // with all sequential numbers
-            Regex("\\d+").findAll(
-                // get and clear text
-                input.text.also { input.clear() }
-            ).map { it.value.toInt() }.toList()
-        )
+    private fun onAdd() {
+        // get all sequential numbers
+        val numbers = Regex("\\d+").findAll(input.text).map { it.value.toInt() }.toList()
+
+        if (numbers.isEmpty()) {
+            // no numbers found
+            Alert(Alert.AlertType.ERROR, "No issues found, make sure you enter the identifier (sequence of numbers)").apply {
+                stylize()
+            }.showAndWait()
+        } else {
+            // create issues from them
+            AppController.runBackground({ it.createTimeEntries(numbers) }) {
+                input.clear()
+            }
+        }
     }
 
 }
