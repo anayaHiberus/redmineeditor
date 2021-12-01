@@ -4,6 +4,7 @@ import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
+import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.geometry.Pos
@@ -16,6 +17,7 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import java.net.URI
+import java.util.*
 import kotlin.concurrent.thread
 
 /**
@@ -51,6 +53,9 @@ class SettingsController {
     lateinit var domain: TextField // domain setting
 
     @FXML
+    lateinit var predefined: MenuButton
+
+    @FXML
     lateinit var key: PasswordField // key setting
 
     @FXML
@@ -77,7 +82,6 @@ class SettingsController {
     fun initialize() {
         // register callback to closing event
         Platform.runLater {
-//            window.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent)
             window.setOnCloseRequest { closeWindowEvent() }
         }
 
@@ -92,6 +96,26 @@ class SettingsController {
             parent.scene?.stylize(isDark)
         }
 
+        // predefined options
+        with(predefined) {
+            // get from file, if exists
+            val options = Properties().apply { findFile("conf/predefined.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+            if (options.isEmpty) {
+                // no entries, hide button
+                syncInvisible()
+                isVisible = false
+            } else {
+                // entries, add as menus
+                items += options.map { (name, value) ->
+                    MenuItem(name as String?).apply {
+                        onAction = EventHandler {
+                            domain.text = value as String?
+                        }
+                    }
+                }
+            }
+        }
+
         // initialize properties
         domain.text = AppSettings.URL.value
         key.text = AppSettings.KEY.value
@@ -99,12 +123,6 @@ class SettingsController {
         autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
         prevDays.valueFactory.value = AppSettings.PREV_DAYS.value.toInt()
         dark.isSelected = AppSettings.DARK_THEME.value.toBoolean()
-    }
-
-    @FXML
-    fun hiberus() {
-        // restore hiberus default setting, this button is the only time 'Hiberus' should be present in the app (ignoring the packages)
-        domain.text = "https://redmine.hiberus.com/redmine/"
     }
 
     @FXML
