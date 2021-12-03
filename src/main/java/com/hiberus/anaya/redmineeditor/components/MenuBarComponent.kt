@@ -29,7 +29,7 @@ internal class MenuBarComponent {
     fun about() {
         Alert(Alert.AlertType.INFORMATION).apply {
             headerText = "About"
-            contentText = "App made by Abel Naya"
+            contentText = "App made by Abel Naya in https://gitlabdes.hiberus.com/anaya/redmineeditor" // TODO: set as button
             stylize()
         }.showAndWait()
     }
