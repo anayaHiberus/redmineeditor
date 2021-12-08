@@ -20,3 +20,8 @@ fun Throwable.printStackTraceFix() = System.err.println(stackTraceToString())
  */
 fun String.ensureSuffix(suffix: String) = removeSuffix(suffix) + suffix
 
+/**
+ * test if there is at least a common element in both sets
+ */
+infix fun <E> Set<E>.intersects(other: Set<E>) =
+    (this intersect other).isNotEmpty()

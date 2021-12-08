@@ -176,15 +176,15 @@ class Controller {
         val changes = SettingsController.show()
         if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
         if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
-        if (setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS) intersects changes) reload()
+        if (ReloadSettings intersects changes) reload()
     }
 
 }
 
-/* ------------------------- utils ------------------------- */
+/* ------------------------- public utils ------------------------- */
 
 /**
- * test if there is at least a common element in both sets
+ * Settings that will trigger a reload
  */
-private infix fun <E> Set<E>.intersects(other: Set<E>) =
-    (this intersect other).isNotEmpty()
+val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS)
+

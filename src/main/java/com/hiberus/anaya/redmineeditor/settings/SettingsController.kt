@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.settings
 
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.controller.ReloadSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -73,6 +74,9 @@ class SettingsController {
     @FXML
     lateinit var dark: CheckBox // dark theme setting
 
+    @FXML
+    lateinit var save: Button // save button
+
     /* ------------------------- functions ------------------------- */
 
     @FXML
@@ -120,6 +124,31 @@ class SettingsController {
         autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
         prevDays.valueFactory.value = AppSettings.PREV_DAYS.value.toInt()
         dark.isSelected = AppSettings.DARK_THEME.value.toBoolean()
+
+        // intelligent save button
+        with({
+            // check and update lambda
+            val changes = changes()
+            save.text = when {
+                ReloadSettings intersects changes -> "_Save & reload"
+                changes.isNotEmpty() -> "_Save & apply"
+                else -> "_Save"
+            }
+            save.isDisable = changes.isEmpty()
+        }) {
+            // apply to all properties
+            listOf(
+                domain.textProperty(),
+                key.textProperty(),
+                allowGetOnly.selectedProperty(),
+                autoLoadTotal.selectedProperty(),
+                prevDays.valueProperty(),
+                dark.selectedProperty()
+            ).forEach {
+                it.addListener { _, _, _ -> this() }
+            }
+            this()
+        }
     }
 
     @FXML
@@ -189,39 +218,38 @@ class SettingsController {
     @FXML
     fun save() {
         // save settings
-        val changes = mutableSetOf<AppSettings>()
-
-        with(AppSettings.URL) { if (modify(domain.text)) changes += this }
-        with(AppSettings.KEY) { if (modify(key.text)) changes += this }
-        with(AppSettings.READ_ONLY) { if (modify(allowGetOnly.isSelected)) changes += this }
-        with(AppSettings.AUTO_LOAD_TOTAL_HOURS) { if (modify(autoLoadTotal.isSelected)) changes += this }
-        with(AppSettings.PREV_DAYS) { if (modify(prevDays.valueFactory.value)) changes += this }
-        with(AppSettings.DARK_THEME) { if (modify(dark.isSelected)) changes += this }
-
+        window.userData = changes(apply = true)
         // and exit
-        window.userData = changes
         window.hide()
     }
 
     @FXML
-// pressing cancel is the same as pressing the 'x' close button
+    // pressing cancel is the same as pressing the 'x' close button
     fun cancel() = window.fireEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST))
 
 /* ------------------------- internal ------------------------- */
 
-    private fun hasChanges() =
-        AppSettings.URL.value != domain.text
-                || AppSettings.KEY.value != key.text
-                || AppSettings.READ_ONLY.value != allowGetOnly.isSelected.toString()
-                || AppSettings.AUTO_LOAD_TOTAL_HOURS.value != autoLoadTotal.isSelected.toString()
-                || AppSettings.PREV_DAYS.value != prevDays.valueFactory.value.toString()
-                || AppSettings.DARK_THEME.value != dark.isSelected.toString()
+    /**
+     * List of changes
+     */
+    private fun changes(apply: Boolean = false) =
+        listOf(
+            AppSettings.URL to domain.text,
+            AppSettings.KEY to key.text,
+            AppSettings.READ_ONLY to allowGetOnly.isSelected,
+            AppSettings.AUTO_LOAD_TOTAL_HOURS to autoLoadTotal.isSelected,
+            AppSettings.PREV_DAYS to prevDays.valueFactory.value,
+            AppSettings.DARK_THEME to dark.isSelected,
+        ).filter { (setting, value) ->
+            if (apply) setting.modify(value)
+            else setting.value != value.toString()
+        }.map { it.first }.toSet()
 
     /**
      * On window closes, asks to lose changes if any
      */
     private fun closeWindowEvent() {
-        if (hasChanges() && !confirmLoseChanges("exit")) window.hide()
+        if (changes().isNotEmpty() && !confirmLoseChanges("exit")) window.hide()
     }
 
 }

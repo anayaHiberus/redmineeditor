@@ -148,7 +148,7 @@
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
         </Button>
-        <Button defaultButton="true" onAction="#save" text="_Save">
+        <Button fx:id="save" defaultButton="true" onAction="#save" text="_Save">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>
