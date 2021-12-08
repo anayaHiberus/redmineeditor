@@ -7,7 +7,6 @@ import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvents
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.*
-import javafx.application.Platform
 import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -18,9 +17,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.web.WebView
 import java.io.IOException
-import java.net.URI
 import java.util.function.Consumer
-import kotlin.concurrent.thread
 
 
 /**
@@ -266,7 +263,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
         val issue = item?.issue ?: return
 
         // build alert
-        val result = Alert(Alert.AlertType.INFORMATION).apply {
+        Alert(Alert.AlertType.INFORMATION).apply {
             title = issue.toShortString()
             headerText = issue.toString()
             if (issue.description.isNotEmpty()) {
@@ -277,26 +274,15 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
                 contentText = "no description"
             }
 
-            // buttons
-            buttonTypes.setAll(OPEN_BUTTON, ButtonType.CLOSE)
-
             stylize()
+            clearButtons()
+            addButton(ButtonType("Open in Redmine")) {
+                // if open pressed, open in desktop
+                openInBrowser(issue.url)
+            }
+            addButton(ButtonType.CLOSE)
         }.showAndWait() // display
 
-        if (result.resultButton == OPEN_BUTTON) {
-            // if open pressed, open in desktop
-            thread(isDaemon = true) {
-                URI(issue.url).openInBrowser().ifNotOK {
-                    // on error, display alert
-                    Platform.runLater {
-                        Alert(Alert.AlertType.ERROR).apply {
-                            contentText = "Couldn't open the browser"
-                            stylize()
-                        }.showAndWait()
-                    }
-                }
-            }
-        }
     }
 
     @FXML
@@ -313,11 +299,6 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
 }
 
 /* ------------------------- utils ------------------------- */
-
-/**
- * Button to open in redmine
- */
-val OPEN_BUTTON = ButtonType("Open in Redmine")
 
 /**
  * Get the userdata of the target node

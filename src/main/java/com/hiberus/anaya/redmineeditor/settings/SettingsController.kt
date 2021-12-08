@@ -7,16 +7,13 @@ import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
-import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.*
-import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
-import java.net.URI
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -128,15 +125,22 @@ class SettingsController {
     @FXML
     fun instructions() {
         // show instructions to fill the key
-        Alert(Alert.AlertType.INFORMATION).apply alert@{
+        Alert(Alert.AlertType.INFORMATION).apply {
             title = "API key instructions"
             headerText = "Fill this value with your Redmine API key"
-            dialogPane.content = ("You can find it in " to "Redmine -> my page -> api key.").let { (prefix, instructions) ->
-                if (domain.text.isBlank())
-                    Label("$prefix$instructions\n(note: fill the domain and press this button again for an easy to click link)")
-                else HBox(Label(prefix), Hyperlink(instructions).apply {
-                    setOnAction { URI(domain.text.ensureSuffix("/") + "my/api_key").openInBrowser() }
-                }).apply { alignment = Pos.CENTER_LEFT }
+            dialogPane.contentText = "You can find it in Redmine -> my page -> api key."
+
+            // set buttons
+            clearButtons()
+            val openButton = addButton(ButtonType("Open")) {
+                openInBrowser(domain.text.ensureSuffix("/") + "my/api_key")
+            }
+            addButton(ButtonType.CLOSE)
+
+            // disable open if no domain
+            if (domain.text.isBlank()) {
+                openButton.isDisable = true
+                dialogPane.contentText += "\n\n(note: fill the domain and open these instructions again to enable the open button)"
             }
 
             stylize(dark.isSelected)
@@ -169,16 +173,17 @@ class SettingsController {
     fun loadDefault() {
         // load default settings, but ask first
         Alert(Alert.AlertType.CONFIRMATION, "Do you want to discard all data and load all default settings?")
-            .apply { stylize(dark.isSelected) }
-            .showAndWait()
-            .run { resultButton == ButtonType.OK }.ifOK {
-                domain.text = AppSettings.URL.default
-                key.text = AppSettings.KEY.default
-                allowGetOnly.isSelected = AppSettings.READ_ONLY.default.toBoolean()
-                autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.default.toBoolean()
-                prevDays.valueFactory.value = AppSettings.PREV_DAYS.default.toInt()
-                dark.isSelected = AppSettings.DARK_THEME.default.toBoolean()
-            }
+            .apply {
+                stylize(dark.isSelected)
+                addButton(ButtonType.OK) {
+                    domain.text = AppSettings.URL.default
+                    key.text = AppSettings.KEY.default
+                    allowGetOnly.isSelected = AppSettings.READ_ONLY.default.toBoolean()
+                    autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.default.toBoolean()
+                    prevDays.valueFactory.value = AppSettings.PREV_DAYS.default.toInt()
+                    dark.isSelected = AppSettings.DARK_THEME.default.toBoolean()
+                }
+            }.showAndWait()
     }
 
     @FXML
@@ -199,10 +204,10 @@ class SettingsController {
     }
 
     @FXML
-    // pressing cancel is the same as pressing the 'x' close button
+// pressing cancel is the same as pressing the 'x' close button
     fun cancel() = window.fireEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST))
 
-    /* ------------------------- internal ------------------------- */
+/* ------------------------- internal ------------------------- */
 
     private fun hasChanges() =
         AppSettings.URL.value != domain.text

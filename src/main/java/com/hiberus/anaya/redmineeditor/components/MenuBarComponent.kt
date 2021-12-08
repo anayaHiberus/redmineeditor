@@ -3,9 +3,13 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.evidences.DisplayEvidences
+import com.hiberus.anaya.redmineeditor.utils.addButton
+import com.hiberus.anaya.redmineeditor.utils.clearButtons
+import com.hiberus.anaya.redmineeditor.utils.openInBrowser
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
 
@@ -29,8 +33,13 @@ internal class MenuBarComponent {
     fun about() {
         Alert(Alert.AlertType.INFORMATION).apply {
             headerText = "About"
-            contentText = "App made by Abel Naya in https://gitlabdes.hiberus.com/anaya/redmineeditor" // TODO: set as button
+            contentText = "App made by Abel Naya"
             stylize()
+            clearButtons()
+            addButton(ButtonType("Source code")) {
+                openInBrowser("https://gitlabdes.hiberus.com/anaya/redmineeditor")
+            }
+            addButton(ButtonType.CLOSE)
         }.showAndWait()
     }
 

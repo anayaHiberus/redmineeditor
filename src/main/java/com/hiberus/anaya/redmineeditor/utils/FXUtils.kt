@@ -5,6 +5,7 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Alert
+import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Label
 import javafx.scene.layout.Background
@@ -12,9 +13,11 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
+import java.net.URI
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import kotlin.DeprecationLevel.ERROR
+import kotlin.concurrent.thread
 
 /**
  * The background color of this region (null for no color)
@@ -99,4 +102,40 @@ fun confirmLoseChanges(message: String): Boolean {
     }.showAndWait()
         // return whether the user accepted
         .resultButton == ButtonType.YES
+}
+
+/**
+ * Removes all buttons of this alert
+ */
+fun Alert.clearButtons() = buttonTypes.clear()
+
+/**
+ * Adds and returns a button with a custom listener.
+ * If the button exists it's not duplicated, only the listener is updated
+ */
+fun Alert.addButton(button: ButtonType, listener: () -> Unit = {}): Button {
+    if (button !in buttonTypes) buttonTypes += button
+    return (dialogPane.lookupButton(button) as Button).apply {
+        setOnAction {
+            listener()
+            it.consume()
+        }
+    }
+}
+
+/**
+ * Tries to open an url in the browser, displays an alert if fails
+ */
+fun openInBrowser(url: String) {
+    thread(isDaemon = true) {
+        URI(url).openInBrowser().ifNotOK {
+            // on error, display alert
+            Platform.runLater {
+                Alert(Alert.AlertType.ERROR).apply {
+                    contentText = "Couldn't open the browser. Can't open $url"
+                    stylize()
+                }.showAndWait()
+            }
+        }
+    }
 }

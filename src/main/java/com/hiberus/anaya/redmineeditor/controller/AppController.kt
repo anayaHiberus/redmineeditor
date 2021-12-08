@@ -150,12 +150,13 @@ class Controller {
             if (uninitializedSettings) {
                 // invalid configuration, ask to configure
                 Alert(Alert.AlertType.CONFIRMATION).apply {
-                    title = "Missin configuration"
+                    title = "Missing configuration"
                     contentText = "No valid configuration found, do you want to open settings?"
                     stylize()
-                }.showAndWait().run { resultButton == ButtonType.OK }.ifOK {
-                    AppController.showSettings()
-                }
+                    addButton(ButtonType.OK) {
+                        AppController.showSettings()
+                    }
+                }.showAndWait()
             }
             if (specialDaysERROR) {
                 // invalid special days, warning
