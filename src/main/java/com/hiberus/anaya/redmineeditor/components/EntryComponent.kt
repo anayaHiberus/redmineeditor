@@ -4,7 +4,7 @@ import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
-import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.Event
@@ -165,7 +165,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
         // update comment
         item?.comment = edTxt_comment.text
         // and notify
-        AppController.fireChanges(setOf(ChangeEvents.EntryContent))
+        AppController.fireChanges(setOf(ChangeEvent.EntryContent))
     }
 
     /**
@@ -177,7 +177,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
             // update entry
             addSpent(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.EntryContent, ChangeEvents.DayHours))
+            AppController.fireChanges(setOf(ChangeEvent.EntryContent, ChangeEvent.DayHours))
         }
 
     /**
@@ -194,7 +194,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
                 }
             }
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.EntryContent, ChangeEvents.DayHours))
+            AppController.fireChanges(setOf(ChangeEvent.EntryContent, ChangeEvent.DayHours))
         }
 
     /**
@@ -206,7 +206,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
             // update issue entry
             addEstimated(node.targetData.toDouble()) // the button data is the amount
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.IssueContent))
+            AppController.fireChanges(setOf(ChangeEvent.IssueContent))
         }
 
     /**
@@ -223,7 +223,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
                 }
             }
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.IssueContent))
+            AppController.fireChanges(setOf(ChangeEvent.IssueContent))
         }
 
     /**
@@ -239,7 +239,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
                 else -> addRealization(data.toInt()) // the button data is the amount
             }
             // and notify
-            AppController.fireChanges(setOf(ChangeEvents.IssueContent))
+            AppController.fireChanges(setOf(ChangeEvent.IssueContent))
         }
 
     /**
@@ -250,7 +250,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
         item?.issue?.run {
             try {
                 if (downloadSpent())
-                    model.registerExternalChange(ChangeEvents.IssueContent)
+                    model.registerExternalChange(ChangeEvent.IssueContent)
             } catch (e: IOException) {
                 throw MyException("Network error", "Unable to fetch the issue details", e)
             }

@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.controller
 
 import com.hiberus.anaya.redmineapi.READ_ONLY
-import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import com.hiberus.anaya.redmineeditor.settings.SettingsController
@@ -84,7 +84,7 @@ class Controller {
     /**
      * saved list of listeners and its data
      */
-    private val listeners = mutableListOf<Pair<Set<ChangeEvents>, (Model) -> Unit>>()
+    private val listeners = mutableListOf<Pair<Set<ChangeEvent>, (Model) -> Unit>>()
 
     /**
      * Registers a new listener that will react to events.
@@ -93,7 +93,7 @@ class Controller {
      * @param events   list of events to react to
      * @param listener listener
      */
-    fun onChanges(events: Set<ChangeEvents>, listener: (Model) -> Unit) =
+    fun onChanges(events: Set<ChangeEvent>, listener: (Model) -> Unit) =
         listeners.add(events to listener)
 
     /**
@@ -101,7 +101,7 @@ class Controller {
      *
      * @param events events to fire, those from the model by default
      */
-    fun fireChanges(events: Set<ChangeEvents> = model.getChanges()) =
+    fun fireChanges(events: Set<ChangeEvent> = model.getChanges()) =
         listeners.also { println("Changes: $events") } // debug
             // get those who need to be modified
             .filter { (lEvents, _) -> lEvents intersects events }

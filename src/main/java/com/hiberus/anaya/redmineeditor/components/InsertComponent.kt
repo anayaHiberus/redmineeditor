@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.event.EventHandler
@@ -34,8 +34,8 @@ internal class InsertComponent {
         // enable add button if input is not blank
         add.disableProperty().bind(input.textProperty().isEmpty) // TODO: Investigate this
 
-        // when issues change, add them all as menus
-        AppController.onChanges(setOf(ChangeEvents.IssueList)) { model: Model ->
+        // when day issues change, add them all as menus
+        AppController.onChanges(setOf(ChangeEvent.DayIssues)) { model: Model ->
 
             // clear existing
             choice.items.clear()
@@ -65,7 +65,7 @@ internal class InsertComponent {
         }
 
         // when day change, enable/disable
-        AppController.onChanges(setOf(ChangeEvents.Day)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvent.Day)) { model: Model ->
             // disable if no date selected
             parent.isDisable = model.date == null
         }

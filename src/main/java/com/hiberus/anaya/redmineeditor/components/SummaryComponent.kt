@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.backgroundColor
 import com.hiberus.anaya.redmineeditor.utils.formatHours
@@ -30,7 +30,7 @@ internal class SummaryComponent {
     fun initialize() {
         AppController.onChanges(
             // when month, day or hours changes, update
-            setOf(ChangeEvents.Month, ChangeEvents.Day, ChangeEvents.DayHours, ChangeEvents.EntryList, ChangeEvents.Loading)
+            setOf(ChangeEvent.Month, ChangeEvent.Day, ChangeEvent.DayHours, ChangeEvent.EntryList, ChangeEvent.Loading)
         ) updating@{ model: Model ->
 
             val date = model.date ?: run {

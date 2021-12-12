@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
-import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.CenteredLabel
 import com.hiberus.anaya.redmineeditor.utils.backgroundColor
@@ -15,6 +15,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.TextStyle
 import java.time.temporal.ChronoField
@@ -57,29 +58,29 @@ internal class CalendarComponent {
             ), it.value - 1, 0)
         }
 
-        // on new month, draw it and prepare to draw colors
-        AppController.onChanges(setOf(ChangeEvents.Month)) { model: Model ->
+        // on new month, draw grid
+        AppController.onChanges(setOf(ChangeEvent.Month)) { model: Model ->
             drawGrid(model)
         }
 
         // when hours change, recolor day
-        AppController.onChanges(setOf(ChangeEvents.DayHours)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvent.DayHours)) { model: Model ->
             model.day?.let { colorDay(it, model) }
         }
 
         // when month or hours change, set label
-        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.DayHours, ChangeEvents.EntryList)) { model ->
+        AppController.onChanges(setOf(ChangeEvent.Month, ChangeEvent.DayHours, ChangeEvent.MonthHours)) { model ->
             updateLabel(model)
         }
 
-        // when month or entries change, color days
-        AppController.onChanges(setOf(ChangeEvents.Month, ChangeEvents.EntryList)) { model: Model ->
+        // when month or month hours change, color days
+        AppController.onChanges(setOf(ChangeEvent.Month, ChangeEvent.MonthHours)) { model: Model ->
             // color days
             colorDays(model)
         }
 
         // when day changes (or month), set selection
-        AppController.onChanges(setOf(ChangeEvents.Day, ChangeEvents.Month)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvent.Day, ChangeEvent.Month)) { model: Model ->
             // unselect
             unselectDay()
             // select new (if there is a selection)

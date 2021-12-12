@@ -109,7 +109,7 @@ abstract class Model {
         /**
          * list of changes
          */
-        private val changes = mutableSetOf<ChangeEvents>()
+        private val changes = mutableSetOf<ChangeEvent>()
 
         /**
          * @return changes made to this model since last call (or initialization)
@@ -123,7 +123,7 @@ abstract class Model {
          *
          * @param event event to register
          */
-        fun registerExternalChange(event: ChangeEvents) = changes.add(event)
+        fun registerExternalChange(event: ChangeEvent) = changes.add(event)
 
         /* ------------------------- getters ------------------------- */
 
@@ -135,20 +135,20 @@ abstract class Model {
         override var isLoading = true
             set(value) {
                 field = value
-                changes += ChangeEvents.Loading
+                changes += ChangeEvent.Loading
             }
 
         override var month: YearMonth = YearMonth.of(1997, 1) // this should never be used
             set(value) {
                 field = value
-                changes += ChangeEvents.Month
+                changes += ChangeEvent.Month
             }
 
         override var day: Int? = null
             @Throws(MyException::class)
             set(value) {
                 field = value?.takeIf { month.isValidDay(it) }
-                changes += ChangeEvents.Day // notify
+                changes += ChangeEvent.Day // notify
                 prepareDay() // prepare day
             }
 
@@ -170,10 +170,11 @@ abstract class Model {
         fun loadDate() {
             try {
                 // download (skip if not loaded)
-                (redmine ?: return).downloadEntriesFromMonth(month).let { (newEntries, newIssues) ->
+                (redmine ?: return).downloadEntriesFromMonth(month).let { (newEntries, newIssues, loaded) ->
                     // and notify
-                    if (newEntries) changes += ChangeEvents.EntryList
-                    if (newIssues) changes += ChangeEvents.IssueList
+                    if (newEntries) changes += ChangeEvent.EntryList
+                    if (newIssues) changes += ChangeEvent.DayIssues
+                    if (loaded) changes += ChangeEvent.MonthHours
                 }
             } catch (e: IOException) {
                 throw MyException("Network error", "Can't load content from Redmine. Try again later.", e)
@@ -214,13 +215,13 @@ abstract class Model {
                 // autoload if required, ignore errors
                 if (autoLoadTotalHours && loadHours) {
                     // TODO: move the autoloading to Redmine object
-                    runCatching { it.issue.downloadSpent().ifOK { changes += ChangeEvents.IssueContent } }.onFailure {
+                    runCatching { it.issue.downloadSpent().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
                     }
                 }
             }
-            changes += ChangeEvents.EntryList
+            changes += ChangeEvent.EntryList
             return true
         }
 
@@ -241,7 +242,7 @@ abstract class Model {
 
             try {
                 // download missing issues, if any
-                if (redmine.downloadIssues(ids)) changes += ChangeEvents.IssueList
+                if (redmine.downloadIssues(ids)) changes += ChangeEvent.DayIssues
 
                 // create entries
                 val missingIds = ids.filter { id ->
@@ -301,7 +302,7 @@ abstract class Model {
             if (autoLoadTotalHours) {
                 // load all issues of today
                 (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
-                    runCatching { it.downloadSpent().ifOK { changes += ChangeEvents.IssueContent } }.onFailure {
+                    runCatching { it.downloadSpent().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
                     }
@@ -315,7 +316,7 @@ abstract class Model {
         fun reloadRedmine(clearOnly: Boolean = false) {
             redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, prevDays)
             READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
-            changes += setOf(ChangeEvents.IssueList, ChangeEvents.EntryList, ChangeEvents.DayHours, ChangeEvents.Month) // all the hours of the month change TODO add a monthHours event
+            changes += setOf(ChangeEvent.DayIssues, ChangeEvent.EntryList, ChangeEvent.DayHours, ChangeEvent.MonthHours)
         }
     }
 

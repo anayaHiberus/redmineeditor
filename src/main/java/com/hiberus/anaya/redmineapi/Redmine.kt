@@ -106,11 +106,11 @@ class Redmine {
 
     /**
      * downloads entries for a given [month] with +-[prevDays] (unless already loaded)
-     * returns a pair of booleans: newEntries, newIssues
+     * returns a triple of booleans: newEntries, newIssues, loaded
      */
     @Throws(IOException::class)
-    fun downloadEntriesFromMonth(month: YearMonth): Pair<Boolean, Boolean> {
-        if (month in monthsLoaded) return false to false // already loaded
+    fun downloadEntriesFromMonth(month: YearMonth): Triple<Boolean, Boolean, Boolean> {
+        if (month in monthsLoaded) return Triple(false, false, false) // already loaded
 
         // load from the internet all entries in month
         remote.downloadTimeEntries(
@@ -130,7 +130,7 @@ class Redmine {
             loadedEntries += newEntries
             loadedIssues += newIssues
             monthsLoaded += month
-            return newEntries.isNotEmpty() to newIssues.isNotEmpty()
+            return Triple(newEntries.isNotEmpty(), newIssues.isNotEmpty(), true)
         }
     }
 

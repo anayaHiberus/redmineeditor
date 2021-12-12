@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.controller.AppController
-import com.hiberus.anaya.redmineeditor.model.ChangeEvents
+import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.NoSelectionModel
 import javafx.collections.FXCollections
@@ -60,21 +60,21 @@ internal class EntriesComponent {
         clearFilter.disableProperty().bind(filter.textProperty().isEmpty)
 
         // on new entries, display them
-        AppController.onChanges(setOf(ChangeEvents.EntryList, ChangeEvents.Day)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvent.EntryList, ChangeEvent.Day)) { model: Model ->
             // clear and replace
             itemsList.setAll(model.dayEntries ?: emptyList())
             clearFilter()
         }
 
         // when entry change, update entries
-        AppController.onChanges(setOf(ChangeEvents.EntryContent)) {
+        AppController.onChanges(setOf(ChangeEvent.EntryContent)) {
             list.lookupAll(".cell").forEach {
                 if (it is EntryComponent) it.partialUpdate(updateEntry = true)
             }
         }
 
         // when issue or hours change, update issues
-        AppController.onChanges(setOf(ChangeEvents.IssueContent, ChangeEvents.DayHours)) {
+        AppController.onChanges(setOf(ChangeEvent.IssueContent, ChangeEvent.DayHours)) {
             list.lookupAll(".cell").forEach {
                 if (it is EntryComponent) it.partialUpdate(updateIssue = true)
             }
