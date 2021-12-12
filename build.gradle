@@ -52,8 +52,7 @@ jlink {
         additive = true
         forceMerge "kotlin" // https://issueexplorer.com/issue/beryx/badass-jlink-plugin/165
     }
-    targetPlatform("personal") {/* Default settings */ } // https://badass-jlink-plugin.beryx.org/releases/latest/
-    targetPlatform("linux") {/* Default settings */ }
+    targetPlatform("linux") {/* Default settings */ } // https://badass-jlink-plugin.beryx.org/releases/latest/
     targetPlatform("windows") {
         //noinspection GroovyAssignabilityCheck
         jdkHome = "${buildDir}/../../win-sdk/jdk-16.0.2.7"
@@ -78,9 +77,6 @@ task copyConf(type: Copy) {
     into("${buildDir}/image")
     include("**/*.*")
 
-    into("RedmineEditor-personal/conf") {
-        from("${buildDir}/../conf")
-    }
     into("RedmineEditor-linux/conf") {
         from("${buildDir}/../conf")
     }
@@ -93,8 +89,7 @@ task cleanImage(type: Delete) {
     // delete invalid launchers
     delete files(
             "${buildDir}/image/RedmineEditor-windows/bin/RedmineEditor",
-            "${buildDir}/image/RedmineEditor-linux/bin/RedmineEditor.bat",
-            "${buildDir}/image/RedmineEditor-personal/bin/RedmineEditor.bat"
+            "${buildDir}/image/RedmineEditor-linux/bin/RedmineEditor.bat"
     )
 }
 
