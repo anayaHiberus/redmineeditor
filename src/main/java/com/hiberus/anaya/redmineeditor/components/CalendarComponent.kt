@@ -188,6 +188,8 @@ internal class CalendarComponent {
             // add and save label
             calendar.add(CenteredLabel(day.toString()).apply {
                 onMouseClicked = EventHandler { selectDay(day) }
+                // today in bold
+                if (LocalDate.now() == month.atDay(day)) style = "-fx-font-weight: bold"
                 days[day - 1] = this
             }, index % 7, column)
 
