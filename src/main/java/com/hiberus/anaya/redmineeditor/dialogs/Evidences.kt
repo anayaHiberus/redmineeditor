@@ -32,6 +32,8 @@ fun DisplayEvidences() {
 
             // from all entries
             (model.monthEntries ?: return@runBackground)
+                // in which you spent something
+                .filter { it.spent > 0 }
                 // group by issues
                 .groupBy { it.issue }.entries
                 // then by projects
@@ -57,10 +59,12 @@ fun DisplayEvidences() {
 
                     // issues
                     appendLine(string("tasks"))
-                    issues.sortedBy { it.id }.forEach {
-                        appendLine("#${it.id} - ${it.subject}")
-                        appendLine(it.url)
-                    }
+                    issues
+                        .sortedByDescending { issue -> entries.filter { it.issue == issue }.sumOf { it.spent } }
+                        .forEach {
+                            appendLine("#${it.id} - ${it.subject}")
+                            appendLine(it.url)
+                        }
                     appendLine()
 
                     // hours
@@ -70,13 +74,12 @@ fun DisplayEvidences() {
                         entries.groupBy { it.spent_on }.toSortedMap()
                             // calculate total hours for each date
                             .mapValues { (_, dateEntries) -> dateEntries.sumOf { it.spent } }
-                            // skip days with zero hours
-                            .filterValues { it > 0 }
                             // append each
                             .map { (date, hours) ->
                                 " - $date: $hours (${hours.formatHours()})"
                             }.joinToString("\n")
                     )
+                    appendLine(string("total") + " " + entries.sumOf { it.spent }.formatHours())
                     appendLine()
 
                     // pictures (placeholder)
