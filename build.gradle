@@ -3,7 +3,7 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
     id 'org.beryx.jlink' version '2.24.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0-RC'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
 }
 
 group 'com.hiberus.anaya'
@@ -11,10 +11,6 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-}
-
-ext {
-    junitVersion = '5.7.2'
 }
 
 sourceCompatibility = '16'
@@ -39,12 +35,14 @@ javafx {
 //noinspection SpellCheckingInspection
 dependencies {
     implementation "org.json:json:20210307"
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0'
     // implementation 'com.taskadapter:redmine-java-api:4.0.0.rc4' // useless api, cant search using multiple filters
 }
 
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages',
+               '--add-modules', 'jdk.crypto.ec' // fixes handshake error
+    ]
     launcher {
         name = 'RedmineEditor'
     }
@@ -57,6 +55,9 @@ jlink {
         //noinspection GroovyAssignabilityCheck
         jdkHome = "${buildDir}/../../win-sdk/jdk-16.0.2.7"
         addExtraModulePath("${buildDir}/../../win-sdk/javafx-jmods-16")
+    }
+    launcher {
+        noConsole = true
     }
 }
 compileKotlin {
@@ -82,6 +83,16 @@ task copyConf(type: Copy) {
     }
     into("RedmineEditor-windows/conf") {
         from("${buildDir}/../conf")
+    }
+
+    into("RedmineEditor-linux") {
+        from("${buildDir}/../launcher")
+        include("RedmineEditor") // for some reason, both (include and exclude) are needed
+        exclude("RedmineEditor.bat")
+    }
+    into("RedmineEditor-windows") {
+        from("${buildDir}/../launcher")
+        include("RedmineEditor.bat")
     }
 }
 
