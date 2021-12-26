@@ -215,7 +215,7 @@ abstract class Model {
                 // autoload if required, ignore errors
                 if (autoLoadTotalHours && loadHours) {
                     // TODO: move the autoloading to Redmine object
-                    runCatching { it.issue.downloadSpent().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
+                    runCatching { it.issue.downloadExtra().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
                     }
@@ -302,7 +302,7 @@ abstract class Model {
             if (autoLoadTotalHours) {
                 // load all issues of today
                 (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
-                    runCatching { it.downloadSpent().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
+                    runCatching { it.downloadExtra().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
                         // warning
                         System.err.println("Error when loading spent, ignoring: $it")
                     }

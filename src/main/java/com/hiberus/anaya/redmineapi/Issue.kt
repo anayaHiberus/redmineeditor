@@ -73,6 +73,11 @@ class Issue {
     val assigned_to: Int?
 
     /**
+     * Journal entries (non-empty)
+     */
+    var journals: List<String> = emptyList()
+
+    /**
      * the original raw object, if any, for diff purposes
      */
     private val original: JSONObject?
@@ -169,11 +174,13 @@ class Issue {
      * @throws IOException on network error
      */
     @Throws(IOException::class)
-    fun downloadSpent(): Boolean {
-        spent?.let { return false } // skip initialized
+    fun downloadExtra(): Boolean {
+        remote_spent?.let { return false } // skip initialized
 
         // load
-        remote_spent = remote.downloadRawIssueDetails(id).noNaNDouble("spent_hours")
+        val rawIssue = remote.downloadRawIssueDetails(id)
+        remote_spent = rawIssue.noNaNDouble("spent_hours")
+        journals = rawIssue.optJSONArray("journals")?.run { (0 until length()).map { getJSONObject(it).optString("notes", "") } } ?: emptyList()
         return true
     }
 

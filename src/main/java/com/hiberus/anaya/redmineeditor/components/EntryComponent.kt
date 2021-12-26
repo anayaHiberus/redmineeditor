@@ -6,6 +6,7 @@ import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.Event
 import javafx.event.EventHandler
@@ -242,47 +243,62 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
             AppController.fireChanges(setOf(ChangeEvent.IssueContent))
         }
 
-    /**
-     * load spent hours
-     */
     @FXML
-    private fun loadTotal() = AppController.runBackground { model: Model.Editor ->
+    private fun loadTotal() = loadExtra { }
+
+    /**
+     * load spent hours and journal
+     */
+    private fun loadExtra(later: (Boolean) -> Unit) = AppController.runBackground({ model: Model.Editor ->
         item?.issue?.run {
             try {
-                if (downloadSpent())
+                if (downloadExtra())
                     model.registerExternalChange(ChangeEvent.IssueContent)
             } catch (e: IOException) {
                 throw MyException("Network error", "Unable to fetch the issue details", e)
             }
         }
-    }
+    }, later)
 
     @FXML
     private fun showDetails() {
+
         // TODO: improve
         val issue = item?.issue ?: return
 
-        // build alert
-        Alert(Alert.AlertType.INFORMATION).apply {
-            title = issue.toShortString()
-            headerText = issue.toString()
-            if (issue.description.isNotEmpty()) {
-                // html description
-                dialogPane.content = WebView().apply { engine.loadContent(issue.description) }
-            } else {
-                // no description
-                contentText = "no description"
-            }
+        loadExtra {
 
-            stylize()
-            clearButtons()
-            addButton(ButtonType("Open in Redmine")) {
-                // if open pressed, open in desktop
-                openInBrowser(issue.url)
-            }
-            addButton(ButtonType.CLOSE)
-        }.showAndWait() // display
+            // build alert
+            Alert(Alert.AlertType.INFORMATION).apply {
+                title = issue.toShortString()
+                headerText = issue.toString()
+                if (issue.description.isNotEmpty() || issue.journals.any { it.isNotBlank() }) {
+                    // html description
+                    dialogPane.content = WebView().apply {
+                        engine.loadContent("""
+                            <head>
+                              <base href="${AppSettings.URL.value}" target="_blank">
+                            </head>
+                            <body>
+                              ${issue.description}
+                              ${issue.journals.mapIndexedNotNull { i, text -> if (text.isBlank()) null else "<hr><h3>Journal #${i + 1}</h3>$text" }.joinToString("\n")}
+                            </body>
+                        """.trimIndent())
+                    }
+                } else {
+                    // no description
+                    contentText = "no description nor journals to display"
+                }
 
+                stylize()
+                clearButtons()
+                addButton(ButtonType("Open in Redmine")) {
+                    // if open pressed, open in desktop
+                    openInBrowser(issue.url)
+                }
+                addButton(ButtonType.CLOSE)
+            }.showAndWait() // display
+        }
     }
 
     @FXML

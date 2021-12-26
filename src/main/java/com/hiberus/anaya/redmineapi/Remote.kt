@@ -36,7 +36,7 @@ internal class Remote(
     /**
      * The url of this endpoint, from a specific [subdomain] if not empty, and with a list of [parameters] if supplied (set to null for user url)
      */
-    private fun Endpoint.build(subdomain: Any? = null, parameters: List<Param>? = listOf()) = buildString {
+    private fun Endpoint.build(subdomain: Any? = null, parameters: List<Param>? = listOf(), rawParameters: List<String>? = listOf()) = buildString {
         // domain
         append(domain.ensureSuffix("/"))
         // entry
@@ -66,6 +66,8 @@ internal class Remote(
             assert(values.isNotEmpty())
             values.forEach { append("v[$field][]=$it&") }
         }
+        // raw parameters
+        rawParameters?.forEach { append("$it&") }
         // key
         append("key=$key")
     }.also { println(if (System.getenv("DEBUG").toBoolean()) it else this) } // debug full url in 'DEBUG', else just the endpoint
@@ -172,7 +174,9 @@ internal class Remote(
      * Returns the raw details of an issue, for internal use
      */
     @Throws(IOException::class)
-    internal fun downloadRawIssueDetails(id: Int) = Endpoint.ISSUES.build(subdomain = id).url.getJSON().getJSONObject("issue")
+    internal fun downloadRawIssueDetails(id: Int) = Endpoint.ISSUES.build(subdomain = id, rawParameters = listOf("include=journals")).url.getJSON().run {
+        getJSONObject("issue")
+    }
 
     /**
      * Returns the issues associated with the specified ids
