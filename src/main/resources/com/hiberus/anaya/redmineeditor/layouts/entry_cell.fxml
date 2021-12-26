@@ -12,7 +12,15 @@
         <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
             <HBox fx:id="box_issue" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
                   HBox.hgrow="ALWAYS">
-                <Label fx:id="txt_details" maxWidth="1.7976931348623157E308" onMouseClicked="#showDetails"
+                <Button mnemonicParsing="false" onMouseClicked="#showDetails" text="+" userData="1">
+                    <tooltip>
+                        <Tooltip text="Issue details"/>
+                    </tooltip>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                </Button>
+                <Label fx:id="txt_details" maxWidth="1.7976931348623157E308"
                        prefWidth="50.0" text="#" wrapText="true" HBox.hgrow="ALWAYS">
                     <HBox.margin>
                         <Insets/>
