@@ -1,6 +1,5 @@
-package com.hiberus.anaya.redmineeditor.utils.hiberus
+package com.hiberus.anaya.redmineeditor.utils
 
-import com.hiberus.anaya.redmineeditor.utils.findFile
 import javafx.scene.paint.Color
 import java.security.InvalidParameterException
 import java.time.DayOfWeek

@@ -6,7 +6,6 @@ import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import com.hiberus.anaya.redmineeditor.settings.SettingsController
 import com.hiberus.anaya.redmineeditor.utils.*
-import com.hiberus.anaya.redmineeditor.utils.hiberus.LoadSpecialDays
 import javafx.application.Platform
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType

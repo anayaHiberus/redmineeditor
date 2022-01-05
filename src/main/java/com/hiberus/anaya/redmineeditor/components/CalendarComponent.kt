@@ -4,11 +4,7 @@ import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.controller.MyException
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.CenteredLabel
-import com.hiberus.anaya.redmineeditor.utils.backgroundColor
-import com.hiberus.anaya.redmineeditor.utils.formatHours
-import com.hiberus.anaya.redmineeditor.utils.hiberus.expectedHours
-import com.hiberus.anaya.redmineeditor.utils.hiberus.getColor
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.control.Label
