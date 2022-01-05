@@ -7,17 +7,18 @@ import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.showDetails
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Node
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.control.TextField
+import javafx.scene.control.TextInputDialog
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
-import javafx.scene.web.WebView
 import java.io.IOException
 import java.util.function.Consumer
 
@@ -262,45 +263,8 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
     }, later)
 
     @FXML
-    private fun showDetails() {
-
-        // TODO: improve
-        val issue = item?.issue ?: return
-
-        loadExtra {
-
-            // build alert
-            Alert(Alert.AlertType.INFORMATION).apply {
-                title = issue.toShortString()
-                headerText = issue.toString()
-                if (issue.description.isNotEmpty() || issue.journals.any { it.isNotBlank() }) {
-                    // html description
-                    dialogPane.content = WebView().apply {
-                        engine.loadContent("""
-                            <head>
-                              <base href="${AppSettings.URL.value}" target="_blank">
-                            </head>
-                            <body>
-                              ${issue.description}
-                              ${issue.journals.mapIndexedNotNull { i, text -> if (text.isBlank()) null else "<hr><h3>Journal #${i + 1}</h3>$text" }.joinToString("\n")}
-                            </body>
-                        """.trimIndent())
-                    }
-                } else {
-                    // no description
-                    contentText = "no description nor journals to display"
-                }
-
-                stylize()
-                clearButtons()
-                addButton(ButtonType("Open in Redmine")) {
-                    // if open pressed, open in desktop
-                    openInBrowser(issue.url)
-                }
-                addButton(ButtonType.CLOSE)
-            }.showAndWait() // display
-        }
-    }
+    // load and show issue details
+    private fun showDetails() = item?.issue?.apply { loadExtra { showDetails() } }
 
     @FXML
     fun copyToToday() = AppController.runBackground { model ->
