@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils
 
 import com.hiberus.anaya.redmineeditor.Resources
-import com.hiberus.anaya.redmineeditor.settings.AppSettings
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import javafx.scene.Scene
 import javafx.scene.control.Dialog
 import javafx.stage.Window

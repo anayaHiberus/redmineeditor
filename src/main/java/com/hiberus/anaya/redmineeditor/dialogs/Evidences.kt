@@ -1,6 +1,5 @@
-package com.hiberus.anaya.redmineeditor.evidences
+package com.hiberus.anaya.redmineeditor.dialogs
 
-import com.hiberus.anaya.redmineeditor.controller.AppController
 import com.hiberus.anaya.redmineeditor.utils.ensureSuffix
 import com.hiberus.anaya.redmineeditor.utils.findFile
 import com.hiberus.anaya.redmineeditor.utils.formatHours

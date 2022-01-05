@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.controller
+package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineeditor.utils.printStackTraceFix
 import com.hiberus.anaya.redmineeditor.utils.stylize

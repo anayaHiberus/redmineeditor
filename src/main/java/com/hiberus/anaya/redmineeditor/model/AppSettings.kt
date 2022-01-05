@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.settings
+package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineeditor.Main
 import java.util.prefs.Preferences

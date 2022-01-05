@@ -12,7 +12,7 @@
         <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
             <HBox fx:id="box_issue" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
                   HBox.hgrow="ALWAYS">
-                <Button mnemonicParsing="false" onMouseClicked="#showDetails" text="+" userData="1">
+                <Button mnemonicParsing="false" onMouseClicked="#showDetails" text="i" userData="1">
                     <tooltip>
                         <Tooltip text="Issue details"/>
                     </tooltip>

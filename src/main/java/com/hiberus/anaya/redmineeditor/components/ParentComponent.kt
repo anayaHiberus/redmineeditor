@@ -1,9 +1,9 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.READ_ONLY
-import com.hiberus.anaya.redmineeditor.controller.AppController
+import com.hiberus.anaya.redmineeditor.dialogs.AppController
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
-import com.hiberus.anaya.redmineeditor.settings.AppSettings
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.ProgressIndicator

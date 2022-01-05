@@ -1,10 +1,9 @@
-package com.hiberus.anaya.redmineeditor.controller
+package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.READ_ONLY
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.settings.AppSettings
-import com.hiberus.anaya.redmineeditor.settings.SettingsController
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.scene.control.Alert

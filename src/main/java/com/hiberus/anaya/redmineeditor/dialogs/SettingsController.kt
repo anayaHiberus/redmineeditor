@@ -1,8 +1,8 @@
-package com.hiberus.anaya.redmineeditor.settings
+package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.Resources
-import com.hiberus.anaya.redmineeditor.controller.ReloadSettings
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -66,7 +66,7 @@ class SettingsController {
     lateinit var allowGetOnly: CheckBox // allow get only setting
 
     @FXML
-    lateinit var autoLoadTotal: CheckBox // auto load total hours setting
+    lateinit var autoLoadTotal: CheckBox // autoload total hours setting
 
     @FXML
     lateinit var prevDays: Spinner<Int> // number of previous days setting
