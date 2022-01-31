@@ -47,7 +47,7 @@ class Controller {
      * Call this to have access to a readWrite version of the model.
      *
      * @param background to run in background while the loading indicator is shown
-     * @param later      to run in foreground after the background thread finishes (the parameter indicates if there was an error). Optional
+     * @param later      to run in foreground after the background thread finishes (the parameter indicates if the background code was successful, if false it means there was an error). Optional
      */
     fun runBackground(background: (Model.Editor) -> Unit, later: (Boolean) -> Unit = {}) {
         // set as loading

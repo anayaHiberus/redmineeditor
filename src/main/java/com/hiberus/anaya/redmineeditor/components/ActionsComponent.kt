@@ -2,10 +2,15 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
+import com.hiberus.anaya.redmineeditor.utils.addButton
+import com.hiberus.anaya.redmineeditor.utils.clearButtons
 import com.hiberus.anaya.redmineeditor.utils.confirmLoseChanges
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
 import javafx.fxml.FXML
+import javafx.scene.control.Alert
 import javafx.scene.control.Button
+import javafx.scene.control.ButtonType
 import javafx.stage.WindowEvent
 
 /**
@@ -47,7 +52,23 @@ internal class ActionsComponent {
     @FXML
     private fun upload() = AppController.runBackground(
         { it.uploadAll() }, // let it upload
-        { AppController.reload(askIfChanges = false) } // then reload (even if there were errors) TODO: on errors, try to keep them or something
+        {
+            // then ask to reload/exit (even if there were errors)
+            // TODO: on errors, try to keep them or something
+            // TODO: add setting to automatically do one without asking (configurable as 'ask, exit, reload' and this dialog should have a 'always do this without asking' checkbox that should show 'you can change this from settings' and then changes the setting)
+            Alert(if (it) Alert.AlertType.CONFIRMATION else Alert.AlertType.ERROR).apply {
+                headerText = if (it) "Uploaded" else "Error"
+                contentText = (if (it) "The changes where uploaded correctly." else "There was an error uploading changes. Unfortunately the app is not yet ready to recover in such cases.") + "\nWhat do you want to do now?"
+                stylize()
+                clearButtons()
+                addButton(ButtonType("Reload")) {
+                    AppController.reload(askIfChanges = false)
+                }
+                addButton(ButtonType("Exit")) {
+                    Platform.exit()
+                }
+            }.showAndWait()
+        }
     )
 
     /* ------------------------- internal ------------------------- */
