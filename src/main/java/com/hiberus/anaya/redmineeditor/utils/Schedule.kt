@@ -41,9 +41,11 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     // today, but still not all, WARNING!
     day == LocalDate.now() -> Color.ORANGE
     // past day and not all, ERROR!
-    day.isBefore(LocalDate.now()) -> Color.INDIANRED
-    // future day, NOTHING! (null = no color)
-    else -> null
+    day.isBefore(LocalDate.now()) -> Color.RED
+    // future day, but something spent, IN PROGRESS
+    spent > 0 -> Color.LIGHTBLUE
+    // future day, NOTHING!
+    else -> null // (null = no color)
 }
 
 /* ------------------------- Special days ------------------------- */

@@ -3,8 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" fillWidth="false" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.hiberus.anaya.redmineeditor.components.CalendarComponent">
+<VBox alignment="CENTER" fillWidth="false" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.components.CalendarComponent">
     <VBox>
         <HBox>
             <VBox.margin>
@@ -18,13 +17,12 @@
                     <Tooltip text="Load previous month"/>
                 </tooltip>
             </Button>
-            <Label fx:id="calendarLabel" alignment="CENTER" maxHeight="1.7976931348623157E308"
-                   maxWidth="1.7976931348623157E308" text="Year Month" textOverrun="CLIP" HBox.hgrow="ALWAYS">
+            <Label fx:id="calendarLabel" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Year Month" textOverrun="CLIP" HBox.hgrow="ALWAYS">
                 <HBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </HBox.margin>
                 <padding>
-                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
+                    <Insets bottom="1.0" left="7.0" right="7.0" top="1.0"/>
                 </padding>
                 <tooltip>
                     <Tooltip text="Current month and year (spent hours / total hours)"/>
