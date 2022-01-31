@@ -4,6 +4,7 @@ import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
+import com.hiberus.anaya.redmineeditor.utils.enabled
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.ProgressIndicator
@@ -29,7 +30,7 @@ internal class ParentComponent {
         // When loading, the indicator is shown and the whole app is disabled.
         AppController.onChanges(setOf(ChangeEvent.Loading)) {
             progress.isVisible = it.isLoading
-            parent.isDisable = it.isLoading
+            parent.enabled = !it.isLoading
         }
 
         // when app starts, initialize and reload

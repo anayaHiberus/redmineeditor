@@ -2,10 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
-import com.hiberus.anaya.redmineeditor.utils.addButton
-import com.hiberus.anaya.redmineeditor.utils.clearButtons
-import com.hiberus.anaya.redmineeditor.utils.confirmLoseChanges
-import com.hiberus.anaya.redmineeditor.utils.stylize
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
@@ -34,7 +31,7 @@ internal class ActionsComponent {
         AppController.onChanges(setOf(
             ChangeEvent.EntryList, ChangeEvent.EntryContent, ChangeEvent.IssueContent
         )) {
-            save.isDisable = !it.hasChanges
+            save.enabled = it.hasChanges
         }
     }
 

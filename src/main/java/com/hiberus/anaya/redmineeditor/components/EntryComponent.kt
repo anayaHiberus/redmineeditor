@@ -102,7 +102,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
 
             // estimated
             txt_estimated.text = estimated?.formatHours() ?: "none"
-            sub_estimated.isDisable = estimated == null
+            sub_estimated.enabled = estimated != null
 
             // spent
             btn_total.isVisible = spent == null
@@ -115,7 +115,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
                 txt_total.text += " | $it%"
                 txt_total.backgroundColor = if (it > 100) Color.INDIANRED else null
                 btn_sync.isVisible = true
-                btn_sync.isDisable = it == realization
+                btn_sync.enabled = it != realization
             } ?: run {
                 // disable sync
                 txt_total.backgroundColor = null
@@ -125,8 +125,8 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
             // realization
             txt_realization.text = "$realization%"
             txt_realization.backgroundColor = spent_realization?.let { if (it > realization) Color.ORANGE else null }
-            add_realization.isDisable = realization >= 100
-            sub_realization.isDisable = realization <= 0
+            add_realization.enabled = realization < 100
+            sub_realization.enabled = realization > 0
 
         }
 
@@ -149,9 +149,9 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
             // spent
             txt_spent.text = spent.formatHours()
             AppController.runForeground { model ->
-                max_spent.isDisable = model.getPending()?.let { it <= 0 } ?: false
+                max_spent.enabled = model.getPending()?.let { it > 0 } ?: false
             }
-            sub_spent.isDisable = spent <= 0
+            sub_spent.enabled = spent > 0
 
             // comment
             comment.takeIf { it != edTxt_comment.text }?.let { edTxt_comment.text = it } // don't update if the same, to avoid moving the caret

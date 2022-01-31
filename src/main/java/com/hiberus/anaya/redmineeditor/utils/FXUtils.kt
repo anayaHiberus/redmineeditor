@@ -23,7 +23,7 @@ import kotlin.concurrent.thread
  * The background color of this region (null for no color)
  * Setter only
  */
-var Region.backgroundColor: Color?
+inline var Region.backgroundColor: Color?
     @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException() // https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0
     set(value) {
         // create a background with that color and rounded borders
@@ -42,7 +42,7 @@ var Region.backgroundColor: Color?
  * @param text initial label text
  * @return the created centered label
  */
-fun CenteredLabel(text: String) = Label(text).apply {
+inline fun CenteredLabel(text: String) = Label(text).apply {
     maxWidth = Double.MAX_VALUE
     alignment = Pos.CENTER
 }
@@ -50,7 +50,21 @@ fun CenteredLabel(text: String) = Label(text).apply {
 /**
  * Makes the node gone (no space) when invisible, otherwise it's just invisible
  */
-fun Node.syncInvisible() = managedProperty().bind(visibleProperty())
+inline fun Node.syncInvisible() = managedProperty().bind(visibleProperty())
+
+/**
+ * The enable/disable state of a node.
+ * JavaFX contains two properties: isDisable specifies if a node is marked as disabled. isDisabled specifies if a node is effectively disabled (because either itself is disabled or a parent is disabled)
+ * This property was created to flip the logic to an enabled property (I personally prefer it) and also to mix both properties:
+ * - getter: If true, the button is enabled, if false the button or a prent is disabled (!isDisabled)
+ * - setter: Sets the isDisable property (negated)
+ * This means that after enable = true, enable can still return false (if a parent is disabled)
+ */
+inline var Node.enabled
+    get() = !isDisabled
+    set(value) {
+        isDisable = !value
+    }
 
 /**
  * Runs something in UI thread, then continues.
@@ -81,7 +95,7 @@ fun runInForeground(function: () -> Unit) =
 /**
  * The result button, null if not present
  */
-val Optional<ButtonType>.resultButton
+inline val Optional<ButtonType>.resultButton
     get() = this.takeIf { it.isPresent }?.get()
 
 
@@ -107,7 +121,7 @@ fun confirmLoseChanges(message: String): Boolean {
 /**
  * Removes all buttons of this alert
  */
-fun Alert.clearButtons() = buttonTypes.clear()
+inline fun Alert.clearButtons() = buttonTypes.clear()
 
 /**
  * Adds and returns a button with a custom listener.

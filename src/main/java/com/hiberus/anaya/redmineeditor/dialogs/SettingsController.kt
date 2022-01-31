@@ -134,7 +134,7 @@ class SettingsController {
                 changes.isNotEmpty() -> "_Save & apply"
                 else -> "_Save"
             }
-            save.isDisable = changes.isEmpty()
+            save.enabled = changes.isNotEmpty()
         }) {
             // apply to all properties
             listOf(
@@ -168,7 +168,7 @@ class SettingsController {
 
             // disable open if no domain
             if (domain.text.isBlank()) {
-                openButton.isDisable = true
+                openButton.enabled = false
                 dialogPane.contentText += "\n\n(note: fill the domain and open these instructions again to enable the open button)"
             }
 

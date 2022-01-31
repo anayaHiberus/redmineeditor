@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.utils.enabled
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -41,7 +42,7 @@ internal class InsertComponent {
             choice.items.clear()
 
             // add issues
-            choice.items += (model.loadedIssues.also { input.isDisable = it == null } ?: emptySet()) // disable input if issues are not loaded
+            choice.items += (model.loadedIssues.also { input.enabled = it != null } ?: emptySet()) // disable input if issues are not loaded
                 .map { issue ->
                     // create a menu item for each issue
                     MenuItem(issue.toShortString()).apply {
@@ -61,13 +62,13 @@ internal class InsertComponent {
                 }
 
             // disable if no issues
-            choice.isDisable = choice.items.isEmpty()
+            choice.enabled = choice.items.isNotEmpty()
         }
 
         // when day change, enable/disable
         AppController.onChanges(setOf(ChangeEvent.Day)) { model: Model ->
             // disable if no date selected
-            parent.isDisable = model.date == null
+            parent.enabled = model.date != null
         }
     }
 
