@@ -134,6 +134,9 @@ internal class CalendarComponent {
             }
         }
 
+    /**
+     * Updates the month/year label and color
+     */
     private fun updateLabel(model: Model) {
         val month = model.month
         // month info
@@ -162,6 +165,9 @@ internal class CalendarComponent {
         calendarLabel.text = label
     }
 
+    /**
+     * recreates the days grid
+     */
     private fun drawGrid(model: Model) {
         // clear
         calendar.children.removeAll(days)
