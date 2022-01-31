@@ -7,6 +7,7 @@ Calendar:
     * orange = wrong spent hours for today
     * red = wrong spent hours
     * grey = holiday
+    * blue = in progress (some hours but not all spent)
 
 Summary:
 - Details of the selected day or other messages
@@ -36,4 +37,4 @@ Insertion:
 
 Actions:
 - Reload: press it to fetch data from Redmine
-- Save: press it to upload modified data to Redmine. Reloads afterwards.
+- Save: press it to upload modified data to Redmine. Asks to exit or reload afterwards.
