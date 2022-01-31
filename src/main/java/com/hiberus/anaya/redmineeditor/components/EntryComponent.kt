@@ -68,6 +68,9 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
     lateinit var txt_spent: Label
 
     @FXML
+    lateinit var max_spent: Button
+
+    @FXML
     lateinit var sub_spent: HBox
 
     @FXML
@@ -145,6 +148,9 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
 
             // spent
             txt_spent.text = spent.formatHours()
+            AppController.runForeground { model ->
+                max_spent.isDisable = model.getPending()?.let { it <= 0 } ?: false
+            }
             sub_spent.isDisable = spent <= 0
 
             // comment
@@ -177,8 +183,15 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
     @FXML
     private fun changeSpent(node: Event) =
         item?.run {
-            // update entry
-            addSpent(node.targetData.toDouble()) // the button data is the amount
+            when (val data = node.targetData) {
+                // add all button
+                "max" -> AppController.runForeground { model -> model.getPending()?.let { addSpent(it) } }
+                // substract all button
+                "min" -> changeSpent(0.0)
+                // offset button
+                else -> addSpent(data.toDouble()) // the button data is the amount
+            }
+
             // and notify
             AppController.fireChanges(setOf(ChangeEvent.EntryContent, ChangeEvent.DayHours))
         }

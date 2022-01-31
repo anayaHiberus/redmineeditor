@@ -7,11 +7,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<fx:root type="ListCell" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="ListCell" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <graphic>
         <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
-            <HBox fx:id="box_issue" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
-                  HBox.hgrow="ALWAYS">
+            <HBox fx:id="box_issue" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0" HBox.hgrow="ALWAYS">
                 <Button mnemonicParsing="false" onMouseClicked="#showDetails" text="i" userData="1">
                     <tooltip>
                         <Tooltip text="Issue details"/>
@@ -20,8 +19,7 @@
                         <Insets right="10.0"/>
                     </HBox.margin>
                 </Button>
-                <Label fx:id="txt_details" maxWidth="1.7976931348623157E308"
-                       prefWidth="50.0" text="#" wrapText="true" HBox.hgrow="ALWAYS">
+                <Label fx:id="txt_details" maxWidth="1.7976931348623157E308" prefWidth="50.0" text="#" wrapText="true" HBox.hgrow="ALWAYS">
                     <HBox.margin>
                         <Insets/>
                     </HBox.margin>
@@ -79,8 +77,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </padding>
                 </Label>
-                <Button fx:id="btn_sync" mnemonicParsing="false" onAction="#changeRealization" text="&gt;"
-                        userData="&gt;">
+                <Button fx:id="btn_sync" mnemonicParsing="false" onAction="#changeRealization" text="&gt;" userData="&gt;">
                     <tooltip>
                         <Tooltip text="Sets the realization hours to the total/estimated calculation"/>
                     </tooltip>
@@ -133,11 +130,18 @@
                     <Insets bottom="10.0" top="10.0"/>
                 </HBox.margin>
             </Separator>
-            <HBox fx:id="box_entry" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0"
-                  HBox.hgrow="ALWAYS">
+            <HBox fx:id="box_entry" alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="50.0" HBox.hgrow="ALWAYS">
                 <Label contentDisplay="RIGHT" text="Spent: " HBox.hgrow="ALWAYS"/>
                 <VBox alignment="CENTER">
                     <HBox alignment="BOTTOM_CENTER">
+                        <Button fx:id="max_spent" mnemonicParsing="false" onAction="#changeSpent" text="+" userData="max">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                            <tooltip>
+                                <Tooltip text="Adds all pending hours"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="+" userData="1">
                             <tooltip>
                                 <Tooltip text="Increases 1 hour"/>
@@ -154,6 +158,14 @@
                     </HBox>
                     <Label fx:id="txt_spent" contentDisplay="CENTER" onMouseClicked="#editSpent" text="hh"/>
                     <HBox fx:id="sub_spent" alignment="TOP_CENTER">
+                        <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="min">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                            <tooltip>
+                                <Tooltip text="Sets as 0"/>
+                            </tooltip>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1">
                             <tooltip>
                                 <Tooltip text="Decreases 1 hour"/>
@@ -169,11 +181,9 @@
                         </Button>
                     </HBox>
                 </VBox>
-                <TextField fx:id="edTxt_comment" maxWidth="1.7976931348623157E308" onKeyTyped="#changedComment"
-                           prefWidth="50.0" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="edTxt_comment" maxWidth="1.7976931348623157E308" onKeyTyped="#changedComment" prefWidth="50.0" HBox.hgrow="ALWAYS"/>
             </HBox>
-            <MenuButton contentDisplay="GRAPHIC_ONLY" ellipsisString="" graphicTextGap="0.0" maxWidth="24.0"
-                        minWidth="24.0" mnemonicParsing="false" prefWidth="24.0" textOverrun="CLIP">
+            <MenuButton contentDisplay="GRAPHIC_ONLY" ellipsisString="" graphicTextGap="0.0" maxWidth="24.0" minWidth="24.0" mnemonicParsing="false" prefWidth="24.0" textOverrun="CLIP">
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#copyToToday" text="Copy to today"/>
                 </items>

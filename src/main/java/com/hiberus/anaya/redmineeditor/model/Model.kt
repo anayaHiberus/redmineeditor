@@ -7,6 +7,7 @@ import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.convert
+import com.hiberus.anaya.redmineeditor.utils.expectedHours
 import com.hiberus.anaya.redmineeditor.utils.ifOK
 import org.json.JSONException
 import java.io.IOException
@@ -75,6 +76,12 @@ abstract class Model {
      */
     fun getSpent(month: YearMonth) =
         redmine?.getEntriesForMonth(month)?.sumOf { it.spent }
+
+    /**
+     * gets the pending hours from the current day (if negative, it means the user spent more than necessary)
+     */
+    fun getPending() =
+        date?.run { getSpent(this)?.let { expectedHours - it } }
 
     /**
      * the entries that should be displayed on the current day (null if no current day or not loaded)
