@@ -21,7 +21,7 @@ val LocalDate.expectedHours
  */
 val YearMonth.expectedHours
     // just add all the hours of each day in month
-    get() = (1..lengthOfMonth()).sumOf { atDay(it).expectedHours }
+    get() = days().sumOf { it.expectedHours }
 
 /**
  * Calculates the color based on the day, and hours

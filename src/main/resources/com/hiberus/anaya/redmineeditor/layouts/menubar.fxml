@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
-<HBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.hiberus.anaya.redmineeditor.components.MenuBarComponent">
+<HBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.components.MenuBarComponent">
     <MenuBar maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
         <Menu text="_File">
-            <MenuItem onAction="#evidences" text="Generate _evidences [beta]"/>
+            <MenuItem onAction="#evidences" text="Generate _evidences"/>
+            <MenuItem onAction="#batchEditor" text="_Batch editor [beta]"/>
         </Menu>
         <Menu text="_Edit">
             <MenuItem onAction="#settings" text="_Settings"/>

@@ -23,12 +23,12 @@ class TimeEntry {
     /**
      * the issue id
      */
-    val issue: Issue
+    var issue: Issue
 
     /**
      * date it was spent
      */
-    val spent_on: LocalDate
+    var spent_on: LocalDate
 
     /**
      * the spent hours of this entry
@@ -58,8 +58,8 @@ class TimeEntry {
         original = rawEntry
         // creates a new entry from a json raw data
         id = rawEntry.getInt("id")
-        issue = issues.first { issue: Issue -> issue.id == getIssueId(rawEntry) }
-        spent_on = LocalDate.parse(rawEntry.getString("spent_on"))
+        issue = issues.first { issue: Issue -> issue.id == rawEntry.getIssueId() }
+        spent_on = rawEntry.getSpentOnDate()
         spent = rawEntry.getDouble("hours")
         comment = rawEntry.optString("comments")
     }
@@ -126,10 +126,17 @@ class TimeEntry {
                 // changed comment
                 put("comments", comment)
             }
-            id ?: run {
-                // without original, this data is considered new
-                put("issue_id", issue.id)
+            if (spent_on != original?.getSpentOnDate()
+                || id == null
+            ) {
+                // change date, or new entry
                 put("spent_on", spent_on)
+            }
+            if (issue.id != original?.getIssueId()
+                || id == null
+            ) {
+                // change issue, or new entry
+                put("issue_id", issue.id)
             }
         }
 
@@ -144,4 +151,5 @@ class TimeEntry {
 
 /* ------------------------- util ------------------------- */
 
-internal fun getIssueId(rawEntry: JSONObject) = rawEntry.getJSONObject("issue").getInt("id") // returns the id from a rawEntry
+internal fun JSONObject.getIssueId() = getJSONObject("issue").getInt("id") // returns the id from a rawEntry
+internal fun JSONObject.getSpentOnDate() = LocalDate.parse(getString("spent_on")) // returns the spent_on date from a rawEntry

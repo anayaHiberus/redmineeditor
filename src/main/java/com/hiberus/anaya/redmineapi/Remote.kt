@@ -102,7 +102,7 @@ internal class Remote(
             .apply {
                 // fetch missing issues, and add them to loadedIssues
                 val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
-                newIssues += downloadIssues(this.map { getIssueId(it) }.distinct().filter { it !in loadedIssuesIds })
+                newIssues += downloadIssues(this.map { it.getIssueId() }.distinct().filter { it !in loadedIssuesIds })
                 // also initialize user id if not still
                 if (userId == null && isNotEmpty()) userId = first().getJSONObject("user").getInt("id")
             }.map { TimeEntry(it, loadedIssues + newIssues, this) }

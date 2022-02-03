@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
+import com.hiberus.anaya.redmineeditor.dialogs.BatchEditor
 import com.hiberus.anaya.redmineeditor.dialogs.DisplayEvidences
 import com.hiberus.anaya.redmineeditor.utils.addButton
 import com.hiberus.anaya.redmineeditor.utils.clearButtons
@@ -47,8 +48,9 @@ internal class MenuBarComponent {
     fun settings() = AppController.showSettings()
 
     @FXML
-    fun evidences() {
-        DisplayEvidences()
-    }
+    fun evidences() = DisplayEvidences()
+
+    @FXML
+    fun batchEditor() = BatchEditor()
 
 }

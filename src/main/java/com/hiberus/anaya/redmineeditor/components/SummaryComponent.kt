@@ -46,16 +46,7 @@ internal class SummaryComponent {
             val expected = date.expectedHours
 
             // on something selected, display info with color
-            set(date.formatLong() +
-                    " --- Time: ${spent.formatHours()} / ${expected.formatHours()}" +
-                    when {
-                        spent < expected -> " --- Missing: ${(expected - spent).formatHours()}"
-                        spent > expected -> " --- Extra: ${(spent - expected).formatHours()}"
-                        spent == expected && expected != 0.0 -> " --- OK"
-                        else -> "" // spent=expected=0
-                    },
-                getColor(expected, spent, date)
-            )
+            set(describe(date, spent, expected), getColor(expected, spent, date))
         }
     }
 
@@ -63,7 +54,22 @@ internal class SummaryComponent {
      * Just for easier setters
      */
     fun set(label: String, color: Color? = null) = summary.apply { text = label; backgroundColor = color }
+
 }
+
+
+/**
+ * Get the description of a [date] with [spent] and [expected] hours
+ */
+fun describe(date: LocalDate, spent: Double, expected: Double) =
+    date.formatLong() +
+            " --- Time: ${spent.formatHours()} / ${expected.formatHours()}" +
+            when {
+                spent < expected -> " --- Missing: ${(expected - spent).formatHours()}"
+                spent > expected -> " --- Extra: ${(spent - expected).formatHours()}"
+                spent == expected && expected != 0.0 -> " --- OK"
+                else -> "" // spent=expected=0
+            }
 
 /**
  * Format LocalDate as LONG

@@ -154,7 +154,7 @@ internal class CalendarComponent {
             label += " (${spent.formatHours()}/${expected.formatHours()})"
             calendarLabel.backgroundColor = getColor(expected, spent,
                 // last non-holiday day
-                (month.lengthOfMonth() downTo 1).map { month.atDay(it) }.firstOrNull { it.expectedHours > 0 } ?: month.atDay(1)
+                month.days().reversed().firstOrNull { it.expectedHours > 0 } ?: month.atDay(1)
             )
         } else {
             // not loaded, clear

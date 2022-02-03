@@ -209,15 +209,13 @@ abstract class Model {
         }
 
         /**
-         * Creates a new Time Entry for [issue] on the current date with already [spent] hours and [comment], returns whether it was added or not
-         *
-         * @param issue for this issue
+         * Creates a new Time Entry for [issue] on [date], or the current day if null, with already [spent] hours and [comment], returns whether it was added or not
          */
-        fun createTimeEntry(issue: Issue, spent: Double = 0.0, comment: String = "", loadHours: Boolean = true): Boolean {
+        fun createTimeEntry(issue: Issue, spent: Double = 0.0, comment: String = "", date: LocalDate? = null, loadHours: Boolean = true): Boolean {
             val redmine = redmine ?: return false // skip if no api
-            val date = date ?: return false // skip if no date
+            val spent_on = date ?: this.date ?: return false // skip if no date
 
-            redmine.createTimeEntry(issue = issue, spent_on = date, spent = spent, comment = comment).also {
+            redmine.createTimeEntry(issue = issue, spent_on = spent_on, spent = spent, comment = comment).also {
                 // autoload if required, ignore errors
                 if (autoLoadTotalHours && loadHours) {
                     // TODO: move the autoloading to Redmine object
@@ -267,6 +265,10 @@ abstract class Model {
             } catch (e: IOException) {
                 throw MyException("Error loading issues", "Can't load issues", e)
             }
+        }
+
+        fun loadIssues(issuesIds: List<Int>) {
+            if (redmine?.downloadIssues(issuesIds) == true) changes += ChangeEvent.DayIssues
         }
 
         /* ------------------------- private setters ------------------------- */
