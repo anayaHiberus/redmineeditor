@@ -10,6 +10,7 @@
         </Menu>
         <Menu text="_Edit">
             <MenuItem onAction="#settings" text="_Settings"/>
+            <MenuItem onAction="#hours" text="_Hours (holidays and default hours per day)"/>
         </Menu>
         <Menu text="_Help">
             <MenuItem onAction="#readme" text="_Readme"/>

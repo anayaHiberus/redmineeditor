@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import javafx.scene.control.Alert
 import javafx.scene.paint.Color
 import java.security.InvalidParameterException
 import java.time.DayOfWeek
@@ -56,7 +57,7 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 fun LoadSpecialDays() = runCatching {
     CACHE.clear()
     RULES.clear()
-    findFile("conf/hours.conf").readLines().asSequence()
+    findFile(HOURS_FILE).readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
         // skip empty
@@ -94,7 +95,15 @@ fun LoadSpecialDays() = runCatching {
     System.err.println("Special days file error!")
 }.isSuccess
 
+/**
+ * Opens the special days file in an external app
+ */
+fun OpenSpecialDaysFile() = findFile(HOURS_FILE).openInApp()
+    .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open hours file").showAndWait() }
+
 /* ------------------------- internal ------------------------- */
+
+private const val HOURS_FILE = "conf/hours.conf"
 
 private val CACHE = mutableMapOf<LocalDate, Double>() // caching
 

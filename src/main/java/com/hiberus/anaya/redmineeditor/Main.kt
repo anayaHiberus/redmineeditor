@@ -18,7 +18,7 @@ class Main : Application() {
         // load and show
         title = "Redmine editor, by Abel Naya (V 0.5 beta)"
         scene = Scene(FXMLLoader(Resources.getLayout("parent")).load())
-        scene.stylize()
+            .apply { stylize() }
         icons.add(Image(Resources.getImage("icon").openStream()))
         show()
     }

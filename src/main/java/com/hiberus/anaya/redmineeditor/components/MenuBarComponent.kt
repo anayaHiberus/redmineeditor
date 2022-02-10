@@ -4,10 +4,7 @@ import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.dialogs.BatchEditor
 import com.hiberus.anaya.redmineeditor.dialogs.DisplayEvidences
-import com.hiberus.anaya.redmineeditor.utils.addButton
-import com.hiberus.anaya.redmineeditor.utils.clearButtons
-import com.hiberus.anaya.redmineeditor.utils.openInBrowser
-import com.hiberus.anaya.redmineeditor.utils.stylize
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
@@ -25,7 +22,8 @@ internal class MenuBarComponent {
     fun readme() {
         Alert(Alert.AlertType.INFORMATION).apply {
             headerText = "Readme"
-            dialogPane.content = ScrollPane(Label(Resources.getFile("Readme.txt").readText())).apply { maxWidth = 100.0; maxHeight = 50.0 }
+            dialogPane.content = ScrollPane(Label(Resources.getFile("Readme.txt").readText()))
+                .apply { maxWidth = 100.0; maxHeight = 50.0 }
             stylize()
         }.showAndWait()
     }
@@ -46,6 +44,9 @@ internal class MenuBarComponent {
 
     @FXML
     fun settings() = AppController.showSettings()
+
+    @FXML
+    fun hours() = OpenSpecialDaysFile()
 
     @FXML
     fun evidences() = DisplayEvidences()
