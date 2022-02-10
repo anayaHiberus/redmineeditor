@@ -23,28 +23,23 @@ private const val SEP = ", "
 private const val LB = "\n"
 
 /**
- * Calculates and displays the evidences
+ * Show the batch editor dialog
  */
 fun BatchEditor() {
-    // get data
-    var text = "Error exporting data"
-    AppController.runBackground({ model ->
-        text = exportData(model)
-    }) {
-
-        Stage().apply {
-            title = "Batch editor"
-            initModality(Modality.APPLICATION_MODAL)
-
-            // initialize scene
-            val loader = FXMLLoader(Resources.getLayout("batch_editor"))
-            scene = Scene(loader.load()).apply { stylize() }
-        }.showAndWait()
-
-    }
+    Stage().apply {
+        title = "Batch editor"
+        initModality(Modality.APPLICATION_MODAL)
+        scene = Scene(FXMLLoader(Resources.getLayout("batch_editor")).load())
+            .apply { stylize() }
+    }.showAndWait()
 }
 
+/**
+ * The batch editor dialog controller
+ */
 class BatchEditorController {
+
+    /* ------------------------- elements ------------------------- */
 
     @FXML
     lateinit var editor: TextArea
@@ -52,13 +47,22 @@ class BatchEditorController {
     @FXML
     lateinit var info: Label
 
-    fun setInfo(text: String) = Platform.runLater { info.text = text }
+    /* ------------------------- utils ------------------------- */
+
+    /**
+     * set the text info
+     */
+    private fun setInfo(text: String) = Platform.runLater { info.text = text }
+
+    /* ------------------------- callbacks ------------------------- */
 
     @FXML
+    // on init, get and show data
     fun initialize() = AppController.runBackground { editor.text = exportData(it) }
 
     @FXML
     fun test() = AppController.runBackground {
+        // import in testing mode
         setInfo("Testing...")
         val errors = importData(editor.text, it, test = true)
         setInfo(errors.ifEmpty { "Valid content" })
@@ -66,6 +70,7 @@ class BatchEditorController {
 
     @FXML
     fun doImport() = AppController.runBackground {
+        // import
         setInfo("Importing...")
         val errors = importData(editor.text, it)
         setInfo(errors.ifEmpty { "Imported" })
@@ -76,12 +81,14 @@ class BatchEditorController {
 
 }
 
+/* ------------------------- export/import ------------------------- */
+
 /**
  * Exports data from the app model
  */
 private fun exportData(model: Model): String {
     // get data
-    val entries = (model.monthEntries ?: return "Can't export data").filter { it.id != null } // TODO: allow editing created entries
+    val entries = (model.monthEntries ?: return "Internal error: no data available").filter { it.id != null } // TODO: allow editing created entries
     val month = model.month
 
     // header
@@ -113,9 +120,17 @@ private fun exportData(model: Model): String {
                                         '"' + it.comment.replace("\n", "\\n").replace("\"", "\\\"") + '"'
                                     ).joinToString(SEP) + LB
                                 } + LB
-                }.joinToString("")
+                }.joinToString("") +
+            LB +
+            // append entries too
+            "# Loaded entries: " + LB +
+            entries.map { it.issue }.distinct().joinToString("") { it.toShortString() + LB }
 }
 
+/**
+ * Imports entries [data] into a [model]. In [test] mode the model is not edited (but errors still can happen).
+ * Returns the list of error/warnings. Empty if everything was ok.
+ */
 private fun importData(data: String, model: Model.Editor, test: Boolean = false) = buildString {
 
     // get entries
@@ -123,7 +138,6 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
         appendLine("Internal error (no entries available)")
         return@buildString
     }
-
 
     // parse data
     data.lines()
@@ -166,26 +180,26 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
             model.loadIssues(data.map { it.issueId })
         }
         // import
-        .forEachIndexed importLine@{ line, entryData ->
+        .forEachIndexed { line, entryData ->
             runCatching {
                 // common data
                 val issue = model.loadedIssues?.firstOrNull { it.id == entryData.issueId } ?: throw IllegalArgumentException("No issue with id ${entryData.issueId} found")
                 val id = entryData.id
 
                 if (id == null) {
-                    if (test) return@importLine
+                    // no id: create new entry
 
-                    // create new entry
-                    model.createTimeEntry(
-                        date = entryData.spent_on,
-                        spent = entryData.spent,
-                        issue = issue,
-                        comment = entryData.comment,
-                    ).ifNotOK { throw IllegalArgumentException("Can't create entry with data $entryData") }
+                    if (!test) { // skip while testing
+                        model.createTimeEntry(
+                            date = entryData.spent_on,
+                            spent = entryData.spent,
+                            issue = issue,
+                            comment = entryData.comment,
+                        ).ifNotOK { throw IllegalArgumentException("Can't create entry with data $entryData") }
+                    }
 
                 } else {
-
-                    // update existing entry
+                    // existing id: find and update existing entry
                     val matchedEntries = entries.filter { it.id == id }
                     if (matchedEntries.isEmpty()) {
                         // no entries to update
@@ -194,30 +208,36 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
                         // multiple???
                         throw IllegalArgumentException("Internal error (multiple entries for id $id)")
                     } else {
-                        if (test) return@importLine
-
-                        // update the entry
-                        val entry = matchedEntries[0]
-
-                        entry.spent_on = entryData.spent_on
-                        entry.changeSpent(entryData.spent)
-                        entry.issue = issue
-                        entry.comment = entryData.comment
+                        // found, update
+                        if (!test) { // unless testing
+                            matchedEntries[0].apply {
+                                spent_on = entryData.spent_on
+                                changeSpent(entryData.spent)
+                                this.issue = issue
+                                comment = entryData.comment
+                            }
+                        }
                     }
-
                 }
 
             }.onFailure {
+                // error while importing line
                 appendLine("Error on line $line: ${it.message}")
             }
         }
-
+    
     // reload everything
     if (!test) ChangeEvent.values().forEach { model.registerExternalChange(it) }
 }
 
+/**
+ * Temporal dataClass for evaluated lines
+ */
 class ImportEntry(val id: Int?, val spent_on: LocalDate, val spent: Double, val issueId: Int, val comment: String)
 
+/**
+ * Custom CSV line parser. Don't do this, kids.
+ */
 private fun lineParser(line: String) = mutableListOf<String>().apply {
     var column = "" // current building column
     var spaces = 0 // spaces found
@@ -228,7 +248,9 @@ private fun lineParser(line: String) = mutableListOf<String>().apply {
     for (char in line) {
         if (slash) {
             // previous char was a slash, add without checks
-            column += char
+            column += " ".repeat(spaces)
+            spaces = 0
+            column += if (char == 'n') '\n' else char
             slash = false
         } else if (string && char != '"') {
             // in string mode, add without check

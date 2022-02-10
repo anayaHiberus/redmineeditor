@@ -50,7 +50,10 @@ fun DisplayEvidences() {
                     appendLine("${string("project.description")} $index:")
                     appendLine(string("project.edit") + " " +
                             // concatenate all comments
-                            entries.asSequence().map { it.comment }.distinct()
+                            entries
+                                .sortedBy { it.spent_on } // sort by date
+                                .map { it.comment }
+                                .reversed().distinct().reversed() // remove duplicates, but keep the last element
                                 .filter { it.isNotBlank() }.map { it.trim().ensureSuffix(".") }
                                 .joinToString(" ")
                     )
