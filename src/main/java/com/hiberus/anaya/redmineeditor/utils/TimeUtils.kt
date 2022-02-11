@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.roundToInt
 
@@ -39,3 +40,8 @@ fun Double.formatHours() =
  * list of days of this month (as LocalDates)
  */
 fun YearMonth.days() = (1..lengthOfMonth()).map { atDay(it) }
+
+/**
+ * YearMoth of a full date
+ */
+val LocalDate.yearMonth get() = YearMonth.from(this)

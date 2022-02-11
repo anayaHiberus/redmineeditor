@@ -148,9 +148,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
 
             // spent
             txt_spent.text = spent.formatHours()
-            AppController.runForeground { model ->
-                max_spent.enabled = model.getPending()?.let { it > 0 } ?: false
-            }
+            max_spent.enabled = AppController.runForeground { model -> model.getPending()?.let { it > 0 } ?: false }
             sub_spent.enabled = spent > 0
 
             // comment

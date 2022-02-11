@@ -32,7 +32,7 @@ class Controller {
      *
      * @param foreground what to run
      */
-    fun runForeground(foreground: (Model) -> Unit) = foreground(model)
+    fun <T> runForeground(foreground: (Model) -> T) = foreground(model)
 
     /**
      * Run something in background, and then something in foreground. Updates the loading status.

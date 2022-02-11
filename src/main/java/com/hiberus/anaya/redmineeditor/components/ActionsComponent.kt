@@ -73,10 +73,9 @@ internal class ActionsComponent {
     /**
      * On window closes, asks to lose changes if any
      */
-    private fun closeWindowEvent(event: WindowEvent) {
-        AppController.runForeground { model ->
-            if (model.hasChanges && !confirmLoseChanges("exit")) event.consume()
-        }
+    private fun closeWindowEvent(event: WindowEvent) = AppController.runForeground { model ->
+        if (model.hasChanges && !confirmLoseChanges("exit")) event.consume()
     }
+
 
 }

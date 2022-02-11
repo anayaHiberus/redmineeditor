@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.Redmine
+import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.*
@@ -19,28 +20,26 @@ import java.util.*
 import kotlin.concurrent.thread
 
 /**
- * The settings controller
- * TODO: extract showSettings function and rename file
+ * Displays the Fix Month tool dialog
  */
-class SettingsController {
+fun ShowFixMonthDialog() =
+    Stage().run {
+        title = "Fix month tool"
+        scene = Scene(FXMLLoader(Resources.getLayout("fix_month")).load())
+            .apply { stylize() }
+        initModality(Modality.APPLICATION_MODAL)
 
-    companion object {
-        /**
-         * Displays the settings configuration dialog
-         */
-        fun show(): Set<AppSettings> {
-            Stage().apply {
-                title = "Settings"
-                scene = Scene(FXMLLoader(Resources.getLayout("settings")).load())
-                    .apply { stylize() }
-                initModality(Modality.APPLICATION_MODAL)
+        showAndWait()
 
-                showAndWait()
-
-                return (scene.window.userData as? Set<*>)?.filterIsInstance<AppSettings>()?.toSet() ?: emptySet()
-            }
-        }
+        // return
+        scene.window.userData as? TimeEntry
     }
+
+
+/**
+ * The fix month controller
+ */
+class FixMonthController {
 
     /* ------------------------- nodes ------------------------- */
 
@@ -86,6 +85,8 @@ class SettingsController {
         Platform.runLater {
             window.setOnCloseRequest { closeWindowEvent() }
         }
+
+        val issues = AppController.runForeground { it.loadedIssues }
 
         // prepare testLoading
         testLoading.run {

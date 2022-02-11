@@ -9,6 +9,7 @@ import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.convert
 import com.hiberus.anaya.redmineeditor.utils.expectedHours
 import com.hiberus.anaya.redmineeditor.utils.ifOK
+import com.hiberus.anaya.redmineeditor.utils.yearMonth
 import org.json.JSONException
 import java.io.IOException
 import java.time.LocalDate
@@ -226,6 +227,8 @@ abstract class Model {
                 }
             }
             changes += ChangeEvent.EntryList
+            if (spent > 0 && spent_on == this.date) changes += ChangeEvent.DayHours
+            if (spent > 0 && spent_on.yearMonth == month) changes += ChangeEvent.MonthHours
             return true
         }
 
