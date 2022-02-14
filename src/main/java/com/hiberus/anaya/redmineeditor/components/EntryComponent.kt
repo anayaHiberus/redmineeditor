@@ -185,7 +185,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell
                 // add all button
                 "max" -> AppController.runForeground { model -> model.getPending()?.let { addSpent(it) } }
                 // substract all button
-                "min" -> changeSpent(0.0)
+                "min" -> AppController.runForeground { model -> model.getPending()?.let { if (it < 0) addSpent(it) else changeSpent(0.0) } }
                 // offset button
                 else -> addSpent(data.toDouble()) // the button data is the amount
             }

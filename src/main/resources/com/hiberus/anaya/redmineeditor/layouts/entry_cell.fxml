@@ -163,7 +163,7 @@
                                 <Font size="16.0"/>
                             </font>
                             <tooltip>
-                                <Tooltip text="Sets as 0"/>
+                                <Tooltip text="Removes extra hours, or sets as 0"/>
                             </tooltip>
                         </Button>
                         <Button mnemonicParsing="false" onAction="#changeSpent" text="-" userData="-1">
