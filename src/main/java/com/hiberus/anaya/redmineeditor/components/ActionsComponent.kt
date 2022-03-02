@@ -6,8 +6,8 @@ import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
-import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
+import javafx.scene.layout.HBox
 import javafx.stage.WindowEvent
 
 /**
@@ -16,10 +16,7 @@ import javafx.stage.WindowEvent
 internal class ActionsComponent {
 
     @FXML
-    lateinit var saveReload: Button
-
-    @FXML
-    lateinit var saveExit: Button
+    lateinit var save: HBox
 
     /* ------------------------- init ------------------------- */
 
@@ -27,15 +24,14 @@ internal class ActionsComponent {
     fun initialize() {
         // register closing
         Platform.runLater {
-            saveReload.scene.window.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent) // attached to save because it's one valid element
+            save.scene.window.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent) // attached to save because it's one valid element
         }
 
         // when data changes
         AppController.onChanges(setOf(
             ChangeEvent.EntryList, ChangeEvent.EntryContent, ChangeEvent.IssueContent
         )) {
-            saveReload.enabled = it.hasChanges
-            saveExit.enabled = it.hasChanges
+            save.enabled = it.hasChanges
         }
     }
 
