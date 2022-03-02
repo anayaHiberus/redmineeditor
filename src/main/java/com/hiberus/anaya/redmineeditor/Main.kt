@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor
 
+import com.hiberus.anaya.redmineeditor.dialogs.TITLE
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -16,7 +17,7 @@ class Main : Application() {
 
     override fun start(stage: Stage) = stage.run {
         // load and show
-        title = "Redmine editor, by Abel Naya (V 0.6.1 beta)"
+        title = TITLE
         scene = Scene(FXMLLoader(Resources.getLayout("parent")).load())
             .apply { stylize() }
         icons.add(Image(Resources.getImage("icon").openStream()))
