@@ -4,7 +4,6 @@ import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.dialogs.AppController
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.convert
 import com.hiberus.anaya.redmineeditor.utils.expectedHours

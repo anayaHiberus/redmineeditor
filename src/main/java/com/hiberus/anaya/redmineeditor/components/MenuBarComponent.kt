@@ -1,11 +1,12 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.Resources
-import com.hiberus.anaya.redmineeditor.dialogs.AppController
-import com.hiberus.anaya.redmineeditor.dialogs.BatchEditor
-import com.hiberus.anaya.redmineeditor.dialogs.DisplayEvidences
+import com.hiberus.anaya.redmineeditor.dialogs.ShowBatchEditorDialog
+import com.hiberus.anaya.redmineeditor.dialogs.ShowEvidencesDialog
 import com.hiberus.anaya.redmineeditor.dialogs.ShowFixMonthDialog
-import com.hiberus.anaya.redmineeditor.utils.*
+import com.hiberus.anaya.redmineeditor.dialogs.ShowSettingsDialog
+import com.hiberus.anaya.redmineeditor.utils.OpenSpecialDaysFile
+import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
@@ -44,16 +45,16 @@ internal class MenuBarComponent {
     }
 
     @FXML
-    fun settings() = AppController.showSettings()
+    fun settings() = ShowSettingsDialog()
 
     @FXML
     fun hours() = OpenSpecialDaysFile()
 
     @FXML
-    fun evidences() = DisplayEvidences()
+    fun evidences() = ShowEvidencesDialog()
 
     @FXML
-    fun batchEditor() = BatchEditor()
+    fun batchEditor() = ShowBatchEditorDialog()
 
     @FXML
     fun fixMonth() = ShowFixMonthDialog()

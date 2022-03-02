@@ -5,13 +5,13 @@
 <HBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.components.MenuBarComponent">
     <MenuBar maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
         <Menu text="_Tools">
-            <MenuItem onAction="#evidences" text="Generate _evidences"/>
-            <MenuItem onAction="#batchEditor" text="_Batch editor [beta]"/>
-            <MenuItem onAction="#fixMonth" text="_Month fixer"/>
+            <MenuItem onAction="#evidences" text="Generate _evidences..."/>
+            <MenuItem onAction="#batchEditor" text="_Batch editor [beta]..."/>
+            <MenuItem onAction="#fixMonth" text="_Month fixer..."/>
         </Menu>
         <Menu text="_Edit">
-            <MenuItem onAction="#settings" text="_Settings"/>
-            <MenuItem onAction="#hours" text="_Hours (holidays and default hours per day)"/>
+            <MenuItem onAction="#settings" text="_Settings..."/>
+            <MenuItem onAction="#hours" text="_Hours (holidays and default hours per day)..."/>
         </Menu>
         <Menu text="_Help">
             <MenuItem onAction="#readme" text="_Readme"/>

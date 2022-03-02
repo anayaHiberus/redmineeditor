@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
+import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.utils.ensureSuffix
 import com.hiberus.anaya.redmineeditor.utils.findFile
 import com.hiberus.anaya.redmineeditor.utils.formatHours
@@ -12,7 +13,7 @@ import java.util.*
 /**
  * Calculates and displays the evidences
  */
-fun DisplayEvidences() {
+fun ShowEvidencesDialog() {
     // init properties
     val strings = Properties().apply { findFile("conf/Evidences.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
     fun string(key: String, default: String? = null) = strings.getProperty(key, default ?: key)

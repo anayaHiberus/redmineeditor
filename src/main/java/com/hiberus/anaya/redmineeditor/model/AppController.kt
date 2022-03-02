@@ -1,9 +1,8 @@
-package com.hiberus.anaya.redmineeditor.dialogs
+package com.hiberus.anaya.redmineeditor.model
 
-import com.hiberus.anaya.redmineapi.READ_ONLY
-import com.hiberus.anaya.redmineeditor.model.AppSettings
-import com.hiberus.anaya.redmineeditor.model.ChangeEvent
-import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.dialogs.MyException
+import com.hiberus.anaya.redmineeditor.dialogs.ShowSettingsDialog
+import com.hiberus.anaya.redmineeditor.dialogs.convert
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.scene.control.Alert
@@ -151,9 +150,7 @@ class Controller {
                     title = "Missing configuration"
                     contentText = "No valid configuration found, do you want to open settings?"
                     stylize()
-                    addButton(ButtonType.OK) {
-                        AppController.showSettings()
-                    }
+                    addButton(ButtonType.OK) { ShowSettingsDialog() }
                 }.showAndWait()
             }
             if (specialDaysERROR) {
@@ -165,16 +162,6 @@ class Controller {
                 }.showAndWait()
             }
         }
-    }
-
-    /**
-     * Displays the settings dialog, and reloads if something changed
-     */
-    fun showSettings() {
-        val changes = SettingsController.show()
-        if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
-        if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
-        if (ReloadSettings intersects changes) reload()
     }
 
 }

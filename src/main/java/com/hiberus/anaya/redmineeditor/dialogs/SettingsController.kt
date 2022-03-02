@@ -1,8 +1,11 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
+import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.AppSettings
+import com.hiberus.anaya.redmineeditor.model.ReloadSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -19,28 +22,37 @@ import java.util.*
 import kotlin.concurrent.thread
 
 /**
+ * Displays the settings dialog, and reloads if something changed
+ */
+fun ShowSettingsDialog() {
+    val changes = ShowSettingsDialogInternal()
+    if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
+    if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
+    if (ReloadSettings intersects changes) AppController.reload()
+}
+
+/**
+ * Displays the settings configuration dialog, returns the changes
+ */
+private fun ShowSettingsDialogInternal(): Set<AppSettings> {
+    Stage().apply {
+        title = "Settings"
+        scene = Scene(FXMLLoader(Resources.getLayout("settings")).load())
+            .apply { stylize() }
+        initModality(Modality.APPLICATION_MODAL)
+
+        // show
+        showAndWait()
+
+        // return data
+        return (scene.window.userData as? Set<*>)?.filterIsInstance<AppSettings>()?.toSet() ?: emptySet()
+    }
+}
+
+/**
  * The settings controller
- * TODO: extract showSettings function and rename file
  */
 class SettingsController {
-
-    companion object {
-        /**
-         * Displays the settings configuration dialog
-         */
-        fun show(): Set<AppSettings> {
-            Stage().apply {
-                title = "Settings"
-                scene = Scene(FXMLLoader(Resources.getLayout("settings")).load())
-                    .apply { stylize() }
-                initModality(Modality.APPLICATION_MODAL)
-
-                showAndWait()
-
-                return (scene.window.userData as? Set<*>)?.filterIsInstance<AppSettings>()?.toSet() ?: emptySet()
-            }
-        }
-    }
 
     /* ------------------------- nodes ------------------------- */
 

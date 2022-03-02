@@ -16,7 +16,7 @@ class Main : Application() {
 
     override fun start(stage: Stage) = stage.run {
         // load and show
-        title = "Redmine editor, by Abel Naya (V 0.6 beta)"
+        title = "Redmine editor, by Abel Naya (V 0.6.1 beta)"
         scene = Scene(FXMLLoader(Resources.getLayout("parent")).load())
             .apply { stylize() }
         icons.add(Image(Resources.getImage("icon").openStream()))

@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.components.describe
+import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.days
@@ -25,7 +26,7 @@ private const val LB = "\n"
 /**
  * Show the batch editor dialog
  */
-fun BatchEditor() {
+fun ShowBatchEditorDialog() {
     Stage().apply {
         title = "Batch editor"
         initModality(Modality.APPLICATION_MODAL)
