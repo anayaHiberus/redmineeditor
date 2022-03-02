@@ -5,7 +5,6 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.enabled
 import com.hiberus.anaya.redmineeditor.utils.stylize
-import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.*
@@ -16,6 +15,10 @@ import javafx.scene.control.*
 internal class InsertComponent {
 
     /* ------------------------- views ------------------------- */
+
+    @FXML
+    lateinit var parent: Node // the parent element
+
     @FXML
     lateinit var choice: MenuButton // the issues choice box
 
@@ -25,9 +28,6 @@ internal class InsertComponent {
     @FXML
     lateinit var add: Button // the add button
 
-    @FXML
-    lateinit var parent: Node // the parent element
-
     /* ------------------------- reactions ------------------------- */
 
     @FXML
@@ -36,7 +36,7 @@ internal class InsertComponent {
         add.disableProperty().bind(input.textProperty().isEmpty) // TODO: Investigate this
 
         // when day issues change, add them all as menus
-        AppController.onChanges(setOf(ChangeEvent.DayIssues)) { model: Model ->
+        AppController.onChanges(setOf(ChangeEvent.DayIssues, ChangeEvent.Assigned)) { model: Model ->
 
             // clear existing
             choice.items.clear()
@@ -46,7 +46,7 @@ internal class InsertComponent {
                 .map { issue ->
                     // create a menu item for each issue
                     MenuItem(issue.toShortString()).apply {
-                        onAction = EventHandler {
+                        setOnAction {
                             // when selected, create a new entry for the issue
                             AppController.runBackground { it.createTimeEntry(issue) }
                         }
@@ -60,6 +60,16 @@ internal class InsertComponent {
                         items += issues.map { it.first }
                     }
                 }
+
+            // load assigned changes if not yet
+            if (model.loadedAssigned == false) {
+                choice.items += MenuItem("<Load assigned>").apply {
+                    setOnAction {
+                        AppController.runBackground { it.loadAssigned() }
+                    }
+                }
+            }
+
 
             // disable if no issues
             choice.enabled = choice.items.isNotEmpty()

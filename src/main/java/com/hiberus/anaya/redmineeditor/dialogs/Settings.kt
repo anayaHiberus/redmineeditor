@@ -53,6 +53,7 @@ private fun ShowSettingsDialogInternal(): Set<AppSettings> {
  * The settings controller
  */
 class SettingsController {
+    // TODO: somehow simplify the setters/getters of all settings
 
     /* ------------------------- nodes ------------------------- */
 
@@ -80,6 +81,9 @@ class SettingsController {
 
     @FXML
     lateinit var autoLoadTotal: CheckBox // autoload total hours setting
+
+    @FXML
+    lateinit var autoLoadAssigned: CheckBox // autoload assigned issues setting
 
     @FXML
     lateinit var prevDays: Spinner<Int> // number of previous days setting
@@ -135,6 +139,7 @@ class SettingsController {
         key.text = AppSettings.KEY.value
         allowGetOnly.isSelected = AppSettings.READ_ONLY.value.toBoolean()
         autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
+        autoLoadAssigned.isSelected = AppSettings.AUTO_LOAD_ASSIGNED.value.toBoolean()
         prevDays.valueFactory.value = AppSettings.PREV_DAYS.value.toInt()
         dark.isSelected = AppSettings.DARK_THEME.value.toBoolean()
 
@@ -155,6 +160,7 @@ class SettingsController {
                 key.textProperty(),
                 allowGetOnly.selectedProperty(),
                 autoLoadTotal.selectedProperty(),
+                autoLoadAssigned.selectedProperty(),
                 prevDays.valueProperty(),
                 dark.selectedProperty()
             ).forEach {
@@ -222,6 +228,7 @@ class SettingsController {
                     key.text = AppSettings.KEY.default
                     allowGetOnly.isSelected = AppSettings.READ_ONLY.default.toBoolean()
                     autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.default.toBoolean()
+                    autoLoadAssigned.isSelected = AppSettings.AUTO_LOAD_ASSIGNED.default.toBoolean()
                     prevDays.valueFactory.value = AppSettings.PREV_DAYS.default.toInt()
                     dark.isSelected = AppSettings.DARK_THEME.default.toBoolean()
                 }
@@ -251,6 +258,7 @@ class SettingsController {
             AppSettings.KEY to key.text,
             AppSettings.READ_ONLY to allowGetOnly.isSelected,
             AppSettings.AUTO_LOAD_TOTAL_HOURS to autoLoadTotal.isSelected,
+            AppSettings.AUTO_LOAD_ASSIGNED to autoLoadAssigned.isSelected,
             AppSettings.PREV_DAYS to prevDays.valueFactory.value,
             AppSettings.DARK_THEME to dark.isSelected,
         ).filter { (setting, value) ->

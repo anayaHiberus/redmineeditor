@@ -21,7 +21,7 @@
         </HBox.margin>
     </Label>
     <TextField fx:id="input" onAction="#onAdd" promptText="Enter issue id or url" HBox.hgrow="ALWAYS"/>
-    <Button fx:id="add" disable="true" onAction="#onAdd" text="_Add">
+    <Button fx:id="add" onAction="#onAdd" text="_Add">
         <tooltip>
             <Tooltip text="Parses input text and loads valid issues"/>
         </tooltip>

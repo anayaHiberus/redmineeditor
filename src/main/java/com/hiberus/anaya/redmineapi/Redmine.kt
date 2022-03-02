@@ -41,7 +41,8 @@ class Redmine {
     /**
      * if assigned issues are already loaded
      */
-    private var assignedLoaded = false
+    var assignedLoaded = false
+        private set
 
     /**
      * months that are already loaded and don't need to be again
@@ -88,7 +89,6 @@ class Redmine {
         // filter
         return loadedIssues.filter { it.assigned_to == (remote.userId ?: return emptyList()) }
     }
-
 
     /**
      * return entries of a specific date

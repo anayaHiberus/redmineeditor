@@ -28,6 +28,11 @@ enum class AppSettings(val default: String) {
     AUTO_LOAD_TOTAL_HOURS("true"),
 
     /**
+     * Automatically load assigned issues
+     */
+    AUTO_LOAD_ASSIGNED("true"),
+
+    /**
      * Number of days for 'past' computations
      */
     PREV_DAYS("7"),

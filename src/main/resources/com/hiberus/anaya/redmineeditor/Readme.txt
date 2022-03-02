@@ -33,6 +33,7 @@ Entries:
 
 Insertion:
 - Choose one of the already loaded issues to create a new entry.
+  If the "Autoload assigned issues" setting is disabled, an entry to load them will be shown at the bottom.
 - Enter the url (or its id) of one or multiple issues to load and add them.
 
 Actions:

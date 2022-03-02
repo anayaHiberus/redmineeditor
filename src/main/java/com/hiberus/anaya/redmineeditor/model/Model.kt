@@ -96,6 +96,12 @@ abstract class Model {
         get() = redmine?.loadedIssues?.toSet()
 
     /**
+     * Iff the assigned issues are already loaded
+     */
+    val loadedAssigned
+        get() = redmine?.assignedLoaded
+
+    /**
      * Return all entries from the current month
      */
     val monthEntries: List<TimeEntry>?
@@ -269,8 +275,37 @@ abstract class Model {
             }
         }
 
+        /**
+         * Load issues with [issuesIds]
+         */
         fun loadIssues(issuesIds: List<Int>) {
             if (redmine?.downloadIssues(issuesIds) == true) changes += ChangeEvent.DayIssues
+        }
+
+        /**
+         * Loads assigned issues
+         */
+        fun loadAssigned(autoCreate: Boolean = false) {
+            val redmine = redmine ?: return
+
+            // load
+            val assignedIssues = redmine.getAssignedIssues()
+            changes += ChangeEvent.Assigned
+
+            // stop if no need to create
+            if (!autoCreate) return
+
+            // add missing assigned issues for today
+            val date = date ?: return
+            val todayIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
+
+            // get issues assigned to us
+            assignedIssues
+                // not in today
+                .filterNot { it in todayIssues }
+                // and create empty entries
+                .map { createTimeEntry(issue = it, loadHours = false) }
+
         }
 
         /* ------------------------- private setters ------------------------- */
@@ -297,14 +332,8 @@ abstract class Model {
 
             AppController.fireChanges()
 
-            // add missing assigned issues for today
-            val todayIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
-            // get issues assigned to us
-            redmine.getAssignedIssues()
-                // not in today
-                .filterNot { it in todayIssues }
-                // and create empty entries
-                .map { createTimeEntry(issue = it, loadHours = false) }
+            // download assigned if required
+            if (AppSettings.AUTO_LOAD_ASSIGNED.value.toBoolean()) loadAssigned(autoCreate = true)
 
             AppController.fireChanges()
 
@@ -326,7 +355,7 @@ abstract class Model {
         fun reloadRedmine(clearOnly: Boolean = false) {
             redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, prevDays)
             READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
-            changes += setOf(ChangeEvent.DayIssues, ChangeEvent.EntryList, ChangeEvent.DayHours, ChangeEvent.MonthHours)
+            changes += setOf(ChangeEvent.DayIssues, ChangeEvent.EntryList, ChangeEvent.DayHours, ChangeEvent.MonthHours, ChangeEvent.Assigned)
         }
     }
 

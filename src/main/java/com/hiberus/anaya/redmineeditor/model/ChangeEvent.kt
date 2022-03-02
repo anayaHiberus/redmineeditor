@@ -51,4 +51,9 @@ enum class ChangeEvent {
      */
     DayIssues,
 
+    /**
+     * Assigned issues loaded
+     */
+    Assigned,
+
 }
