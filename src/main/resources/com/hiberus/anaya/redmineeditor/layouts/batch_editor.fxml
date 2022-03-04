@@ -4,13 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.BatchEditorController">
-    <Label maxWidth="1.7976931348623157E308" text="Instructions:" VBox.vgrow="ALWAYS">
-        <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-        </padding>
-    </Label>
-    <TextArea fx:id="editor" prefHeight="400.0" prefWidth="600.0"/>
-    <Label fx:id="info" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308">
+    <TextArea fx:id="editor" prefHeight="400.0" prefWidth="600.0" VBox.vgrow="ALWAYS"/>
+    <Label fx:id="info" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Press 'Test' to check if the input is valid, and 'Import' to import the changes. &#10;Note that after importing you can review the changes on the main screen before saving, &#10;or you can discard them as if nothing happened">
         <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </padding>

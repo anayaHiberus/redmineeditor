@@ -84,6 +84,12 @@ class BatchEditorController {
 
 /* ------------------------- export/import ------------------------- */
 
+val INSTRUCTIONS = """
+    | Instructions:
+    |  - Each non-empty line that doesn't start with '#' is considered an entry.
+    |  - You can modify existing ones by keeping the entry id, or create new ones by using '+' as the entry id
+""".trimMargin("|").split("\n").joinToString("\n") { "# $it" }
+
 /**
  * Exports data from the app model
  */
@@ -93,7 +99,9 @@ private fun exportData(model: Model): String {
     val month = model.month
 
     // header
-    return "# " + listOf("Entry id", "spent year", "spent month", "spent day", "spent hours", "issue id", "comment").joinToString(SEP) + LB +
+    return INSTRUCTIONS + LB +
+            LB +
+            "# " + listOf("Entry id", "spent year", "spent month", "spent day", "spent hours", "issue id", "comment").joinToString(SEP) + LB +
             LB +
             // for each day
             month.days()
@@ -226,7 +234,7 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
                 appendLine("Error on line $line: ${it.message}")
             }
         }
-    
+
     // reload everything
     if (!test) ChangeEvent.values().forEach { model.registerExternalChange(it) }
 }
