@@ -56,6 +56,7 @@ jlink {
         jdkHome = "${buildDir}/../../win-sdk/jdk-16.0.2.7"
         addExtraModulePath("${buildDir}/../../win-sdk/javafx-jmods-16")
     }
+    targetPlatform("personal") {/* Default settings */ }
     launcher {
         noConsole = true
     }
@@ -83,6 +84,10 @@ task copyConf(type: Copy) {
     }
     into("RedmineEditor-windows/conf") {
         from("${buildDir}/../conf")
+    }
+    into("RedmineEditor-personal/conf") {
+        from("${buildDir}/../conf")
+        from("${buildDir}/../conf_personal") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
     }
 
     into("RedmineEditor-linux") {
