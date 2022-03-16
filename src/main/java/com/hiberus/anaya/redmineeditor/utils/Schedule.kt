@@ -6,6 +6,7 @@ import java.security.InvalidParameterException
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 /**
  * the expected hours you were supposed to spend this day
@@ -62,31 +63,13 @@ fun LoadSpecialDays() = runCatching {
         .map { it.replace("#.*".toRegex(), "") }
         // skip empty
         .filter { it.isNotBlank() }
-        // split by comma
-        .map { line -> line.split(",").map { it.trim() } to line }
         // build valid to list
-        .mapNotNull { (data, line) ->
+        .mapNotNull { line ->
             runCatching {
-                when {
-                    data.size < 3 -> {
-                        // not enough
-                        throw InvalidParameterException("not enough data: $line")
-                    }
-                    data.size == 3 -> {
-                        // year, month and day. 0 hours
-                        Rule(data[0], data[1], data[2], 0.0)
-                    }
-                    else -> {
-                        if (data.size > 4) {
-                            // and other??
-                            throw InvalidParameterException("more than enough data: $line")
-                        }
-
-                        // year, month, day and hours
-                        Rule(data[0], data[1], data[2], data[3].toDouble())
-                    }
-                }
-            }.onFailure { System.err.println("Invalid entry in hours file: \"${it.message}\"") }.getOrNull()
+                Rule(line)
+            }.onFailure {
+                System.err.println("Invalid entry in hours file: \"${it.message}\"")
+            }.getOrNull()
         }.toList()
         // and save (reversed)
         .reversed().toCollection(RULES)
@@ -109,26 +92,71 @@ private val CACHE = mutableMapOf<LocalDate, Double>() // caching
 
 private val RULES = mutableListOf<Rule>() // save elements
 
-private class Rule(year: String, month: String, day: String, val hours: Double) {
-    private val year = if (year == "*") null else year.toInt()
-    private val month = if (month == "*") null else month.toInt()
-    private val day: Int?
-    private val week: DayOfWeek?
+private class Rule(var line: String) {
+    val year: Int?
+    val month: Int?
+    val day: Int?
+    val week: DayOfWeek?
+    val hours: Double
+    val startDate: LocalDate?
+    val endDate: LocalDate?
 
     init {
-        // converts the day into either a day or a day-of-week (THINK: allow both?)
-        val (d, w) = listOf("m", "t", "w", "th", "f", "sa", "su").indexOf(day).takeIf { it != -1 }
+
+        // parse date ranges
+        line.parseDate("<=").apply {
+            line = first
+            endDate = second
+        }
+
+        line.parseDate(">=").apply {
+            line = first
+            startDate = second
+        }
+
+        // split by comma
+        val data = line.split(" ").map { it.trim() }
+        // not enough
+        if (data.size < 3) throw InvalidParameterException("not enough data: $line")
+
+        // and other??
+        if (data.size > 4) throw InvalidParameterException("more than enough data: $line")
+
+        // year, month, day and hours
+        year = data[0].toNullableInt()
+        month = data[1].toNullableInt()
+        val (d, w) = listOf("m", "t", "w", "th", "f", "sa", "su").indexOf(data[2]).takeIf { it != -1 }
             ?.let { null to DayOfWeek.of(it + 1) } // day of week
-            ?: ((if (day == "*") null else day.toInt()) to null)  // normal day
-        this.day = d
-        this.week = w
+            ?: (data[2].toNullableInt() to null)  // normal day
+        day = d
+        week = w
+        hours = data.getOrNull(3)?.toDouble() ?: 0.0
+
     }
+
+    /**
+     * '*' -> null else toInt
+     */
+    fun String.toNullableInt() = if (this == "*") null else toInt()
+
+    /**
+     * Parses a tail dateformat from a separator (null if no separator is found), returns a pair
+     * "abc | 2020 02 02".parseDate("|") == ("abc", Date(2020,2,2))
+     */
+    fun String.parseDate(separator: String) = substringBeforeLast(separator).trimEnd() to
+            if (contains(separator)) {
+                LocalDate.parse(substringAfterLast(separator).trim(), DateTimeFormatter.ofPattern("yyyy M d"))
+            } else {
+                null
+            }
 
     /**
      * true if the given date matches this rule
      */
     fun matches(date: LocalDate) =
-        (year?.let { date.year == it } ?: true)
+        (startDate?.let { date >= it } ?: true)
+                && (endDate?.let { date <= it } ?: true)
+                && (year?.let { date.year == it } ?: true)
                 && (month?.let { date.monthValue == it } ?: true)
                 && (day?.let { date.dayOfMonth == it } ?: true)
                 && (week?.let { date.dayOfWeek == it } ?: true)
