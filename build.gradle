@@ -3,7 +3,7 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
     id 'org.beryx.jlink' version '2.24.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
 group 'com.hiberus.anaya'
@@ -34,8 +34,8 @@ javafx {
 
 //noinspection SpellCheckingInspection
 dependencies {
-    implementation "org.json:json:20210307"
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0'
+    implementation 'org.json:json:20211205'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10'
     // implementation 'com.taskadapter:redmine-java-api:4.0.0.rc4' // useless api, cant search using multiple filters
 }
 
