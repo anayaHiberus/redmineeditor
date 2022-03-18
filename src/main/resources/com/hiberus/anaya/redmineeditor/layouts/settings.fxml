@@ -129,6 +129,41 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
     </CheckBox>
+    <Separator layoutX="20.0" layoutY="416.0" prefWidth="200.0">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Separator>
+    <Label layoutX="25.0" layoutY="434.0" text="Check updates:">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Label>
+    <HBox alignment="CENTER_LEFT">
+        <Button onAction="#checkUpdate" text="Chec_k update now">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Button>
+        <ProgressIndicator fx:id="updateLoading" prefHeight="24.0" prefWidth="24.0">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </ProgressIndicator>
+        <Label fx:id="updateInfo" onMouseClicked="#downloadUpdate">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+            <padding>
+                <Insets left="5.0" right="5.0"/>
+            </padding>
+        </Label>
+    </HBox>
+    <CheckBox fx:id="checkUpdates" layoutX="25.0" layoutY="462.0" text="Automatically c_heck updates when the app starts">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </CheckBox>
     <Region maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
     <Separator>
         <VBox.margin>

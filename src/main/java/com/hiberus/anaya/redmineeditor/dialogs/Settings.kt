@@ -3,12 +3,15 @@ package com.hiberus.anaya.redmineeditor.dialogs
 import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.components.VERSION
+import com.hiberus.anaya.redmineeditor.components.getNewVersion
+import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.model.ReloadSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
-import javafx.beans.property.ReadOnlyProperty
+import javafx.beans.property.Property
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -53,7 +56,6 @@ private fun ShowSettingsDialogInternal(): Set<AppSettings> {
  * The settings controller
  */
 class SettingsController {
-    // TODO: somehow simplify the setters/getters of all settings
 
     /* ------------------------- nodes ------------------------- */
 
@@ -92,6 +94,15 @@ class SettingsController {
     lateinit var dark: CheckBox // dark theme setting
 
     @FXML
+    lateinit var updateLoading: ProgressIndicator // check update loading indicator
+
+    @FXML
+    lateinit var updateInfo: Label // check update info
+
+    @FXML
+    lateinit var checkUpdates: CheckBox // check updates checkbox
+
+    @FXML
     lateinit var save: Button // save button
 
     /* ------------------------- config ------------------------- */
@@ -99,24 +110,22 @@ class SettingsController {
     /**
      * Keeps data about an AppSetting and how to manage it
      */
-    private data class SettingMatch<T>(val setting: AppSettings, val nodeGetter: () -> T, val nodeSetter: (String) -> Unit, val nodeProperty: () -> ReadOnlyProperty<*>) {
-        fun init() = nodeSetter(setting.value)
-        fun default() = nodeSetter(setting.default)
-        val data get() = setting to nodeGetter()
-        val property get() = nodeProperty()
+    private data class SettingMatch<T>(val setting: AppSettings, private val nodeProperty: () -> Property<T>, val valueConverter: (String) -> T) {
+        val property get() = nodeProperty() // get property
     }
 
     /**
      * All the AppSetting configurations
      */
     private val matches = listOf(
-        SettingMatch(AppSettings.URL, { domain.text }, { domain.text = it }) { domain.textProperty() },
-        SettingMatch(AppSettings.KEY, { key.text }, { key.text = it }) { key.textProperty() },
-        SettingMatch(AppSettings.READ_ONLY, { allowGetOnly.isSelected }, { allowGetOnly.isSelected = it.toBoolean() }) { allowGetOnly.textProperty() },
-        SettingMatch(AppSettings.AUTO_LOAD_TOTAL_HOURS, { autoLoadTotal.isSelected }, { autoLoadTotal.isSelected = it.toBoolean() }) { autoLoadTotal.textProperty() },
-        SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.isSelected }, { autoLoadAssigned.isSelected = it.toBoolean() }) { autoLoadAssigned.textProperty() },
-        SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.value }, { prevDays.valueFactory.value = it.toInt() }) { prevDays.valueProperty() },
-        SettingMatch(AppSettings.DARK_THEME, { dark.isSelected }, { dark.isSelected = it.toBoolean() }) { dark.selectedProperty() },
+        SettingMatch(AppSettings.URL, { domain.textProperty() }) { it },
+        SettingMatch(AppSettings.KEY, { key.textProperty() }) { it },
+        SettingMatch(AppSettings.READ_ONLY, { allowGetOnly.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.AUTO_LOAD_TOTAL_HOURS, { autoLoadTotal.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
+        SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.CHECK_UPDATES, { checkUpdates.selectedProperty() }) { it.toBoolean() },
     )
 
     /* ------------------------- functions ------------------------- */
@@ -128,10 +137,10 @@ class SettingsController {
             window.setOnCloseRequest { closeWindowEvent() }
         }
 
-        // prepare testLoading
-        testLoading.run {
-            syncInvisible()
-            isVisible = false
+        // prepare loading spinners
+        listOf(testLoading, updateLoading).forEach {
+            it.syncInvisible()
+            it.isVisible = false
         }
 
         // syn dark setting with dark theme
@@ -160,7 +169,7 @@ class SettingsController {
         }
 
         // initialize properties
-        matches.forEach { it.init() }
+        matches.letEach { property.value = valueConverter(setting.value) }
 
         // intelligent save button
         with({
@@ -229,13 +238,40 @@ class SettingsController {
     }
 
     @FXML
+    fun checkUpdate() {
+        // check update now
+        updateLoading.isVisible = true
+        updateInfo.text = ""
+        updateInfo.backgroundColor = null
+
+        // run in background
+        daemonThread {
+            val (result, color) = runCatching {
+                // if ok,
+                getNewVersion()?.let { "Update found: $it. Click here to download." to Color.LIGHTGREEN }
+                    ?: ("No update found, using latest version: $VERSION. Click here to download anyway." to null)
+            }.getOrElse { "ERROR: Can't check update, unable to get remote version" to Color.INDIANRED }
+
+            // then notify in foreground
+            Platform.runLater {
+                updateInfo.text = result
+                updateInfo.backgroundColor = color
+                updateLoading.isVisible = false
+            }
+        }
+    }
+
+    @FXML
+    fun downloadUpdate() = openDownloadUpdatePage()
+
+    @FXML
     fun loadDefault() {
         // load default settings, but ask first
         Alert(Alert.AlertType.CONFIRMATION, "Do you want to discard all data and load all default settings?")
             .apply {
                 stylize(dark.isSelected)
                 addButton(ButtonType.OK) {
-                    matches.forEach { it.default() }
+                    matches.letEach { property.value = valueConverter(setting.default) }
                 }
             }.showAndWait()
     }
@@ -258,10 +294,13 @@ class SettingsController {
      * List of changes
      */
     private fun changes(apply: Boolean = false) =
-        matches.map { it.data }
+        // for all changes
+        matches.map { it.setting to it.property.value.toString() }
+            // keep those modified
             .filter { (setting, value) ->
-                if (apply) setting.modify(value)
-                else setting.value != value.toString()
+                if (apply) setting.modify(value) // save if required
+                else setting.value != value
+                // return modified settings
             }.map { it.first }.toSet()
 
     /**

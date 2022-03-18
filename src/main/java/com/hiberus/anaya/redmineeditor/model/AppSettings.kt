@@ -41,6 +41,11 @@ enum class AppSettings(val default: String) {
      * Dark theme
      */
     DARK_THEME("false"),
+
+    /**
+     * Check for updates on start
+     */
+    CHECK_UPDATES("true")
     ;
 
     /* ------------------------- properties functions ------------------------- */
@@ -58,10 +63,9 @@ enum class AppSettings(val default: String) {
     /**
      * Same as [setValue], but returns true if the new value is different
      */
-    fun modify(newValue: Any) = newValue.toString().let { (it != value).apply { value = it } }
+    fun modify(newValue: String) = newValue.let { (it != value).apply { value = it } }
 
 }
-
 
 /**
  * loaded settings preferences

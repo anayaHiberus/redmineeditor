@@ -28,7 +28,7 @@ fun Dialog<*>.stylize(asDark: Boolean = isDark) = dialogPane.scene.stylize(asDar
  * Stylize all displayed windows
  */
 fun stylizeDisplayed() = runInForeground {
-    Window.getWindows().map { it.scene }.distinct().forEach { it.stylize() }
+    Window.getWindows().map { it.scene }.distinct().letEach { stylize() }
 }
 
 /* ------------------------- property ------------------------- */

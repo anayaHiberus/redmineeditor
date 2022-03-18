@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
+import com.hiberus.anaya.redmineeditor.utils.letEach
 import com.hiberus.anaya.redmineeditor.utils.printStackTraceFix
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
@@ -41,7 +42,7 @@ class MyException(
      *
      * @param other other exceptions to add
      */
-    fun addDetails(other: Iterable<Throwable>) = other.forEach { details.add(it.message) }
+    fun addDetails(other: Iterable<Throwable>) = other.letEach { details.add(message) }
 
     /* ------------------------- properties ------------------------- */
 

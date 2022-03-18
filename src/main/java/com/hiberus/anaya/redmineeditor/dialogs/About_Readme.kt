@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.components.VERSION
 import com.hiberus.anaya.redmineeditor.utils.addButton
 import com.hiberus.anaya.redmineeditor.utils.clearButtons
 import com.hiberus.anaya.redmineeditor.utils.openInBrowser
@@ -14,7 +15,6 @@ import javafx.scene.control.ScrollPane
 
 const val NAME = "Redmine editor"
 const val AUTHOR = "Abel Naya"
-val VERSION = runCatching { Resources.getFile("version").readText() }.getOrDefault("?.?.?")
 val CONTRIBUTORS = listOf<String>()
 
 val TITLE = "$NAME, by $AUTHOR, V$VERSION"

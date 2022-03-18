@@ -32,3 +32,8 @@ infix fun <E> Set<E>.intersects(other: Set<E>) =
  * For some reason threads are not daemon by default
  */
 inline fun daemonThread(crossinline block: () -> Unit) = thread(isDaemon = true) { block() }
+
+/**
+ * list.forEach { it.set(it.run(it.get())) } is ugly, list.letEach { set(run(get())) } is better
+ */
+inline fun <T> Iterable<T>.letEach(action: T.() -> Unit) = forEach { it.action() }

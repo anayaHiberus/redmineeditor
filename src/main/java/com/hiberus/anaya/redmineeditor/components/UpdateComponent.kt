@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
-import com.hiberus.anaya.redmineeditor.dialogs.VERSION
+import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.daemonThread
 import com.hiberus.anaya.redmineeditor.utils.openInBrowser
 import com.hiberus.anaya.redmineeditor.utils.syncInvisible
@@ -10,7 +11,13 @@ import javafx.scene.layout.HBox
 import java.net.URL
 
 /**
- * A banner at the top that checks for updates, probably good idea to convert to a generic banner component
+ * The current app version (as the version file says)
+ */
+val VERSION = runCatching { Resources.getFile("version").readText() }.getOrDefault("?.?.?")
+
+/**
+ * A banner at the top that checks for updates
+ * TODO: convert to a generic banner component and extract updating logic to another file
  */
 internal class UpdateComponent {
 
@@ -30,14 +37,16 @@ internal class UpdateComponent {
         banner.syncInvisible()
         close()
 
-        // check new version in background
-        daemonThread {
-            runCatching {
-                getNewVersion()?.let {
-                    label.text = "New version found: $it. Press here to download it."
-                    banner.isVisible = true
-                }
-            }.onFailure { println("Can't get remote version, probably not permission, ignoring: $it") }
+        // check new version in background if allowed
+        if (AppSettings.CHECK_UPDATES.value.toBoolean()) {
+            daemonThread {
+                runCatching {
+                    getNewVersion()?.let {
+                        label.text = "New version found: $it. Press here to download it."
+                        banner.isVisible = true
+                    }
+                }.onFailure { println("Can't get remote version, probably not permission, ignoring: $it") }
+            }
         }
     }
 
@@ -48,10 +57,7 @@ internal class UpdateComponent {
     }
 
     @FXML
-    fun update() {
-        // open remote page
-        openInBrowser("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/tree/javafx/build")
-    }
+    fun update() = openDownloadUpdatePage() // open remote page
 
 }
 
@@ -63,3 +69,7 @@ internal class UpdateComponent {
 fun getNewVersion() = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/raw/javafx/src/main/resources/com/hiberus/anaya/redmineeditor/version").readText()
     .takeIf { it != VERSION }
 
+/**
+ * Opens the download page
+ */
+fun openDownloadUpdatePage() = openInBrowser("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/tree/javafx/build")
