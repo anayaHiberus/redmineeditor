@@ -26,7 +26,6 @@ import java.util.function.Consumer
 /**
  * One of the entries in the entries list
  */
-@Suppress("unused")
 class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell")) {
 
     /* ------------------------- views ------------------------- */

@@ -14,10 +14,10 @@ import javafx.scene.control.ScrollPane
 
 const val NAME = "Redmine editor"
 const val AUTHOR = "Abel Naya"
-const val VERSION = "0.6.1 (beta)"
+val VERSION = runCatching { Resources.getFile("version").readText() }.getOrDefault("?.?.?")
 val CONTRIBUTORS = listOf<String>()
 
-const val TITLE = "$NAME, by $AUTHOR, V$VERSION"
+val TITLE = "$NAME, by $AUTHOR, V$VERSION"
 
 /**
  * Show the 'about' dialog

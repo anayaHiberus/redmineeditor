@@ -3,7 +3,6 @@ package com.hiberus.anaya.redmineeditor.utils
 import java.awt.Desktop.*
 import java.io.File
 import java.net.URI
-import kotlin.concurrent.thread
 
 /**
  * Open this URI in the browser
@@ -15,7 +14,7 @@ fun URI.openInBrowser() =
         false
     } else runCatching {
         // browse
-        thread(isDaemon = true) { getDesktop().browse(this) }
+        daemonThread { getDesktop().browse(this) }
     }.onFailure { it.printStackTraceFix() }.isSuccess
 
 /**
@@ -31,5 +30,5 @@ fun File.openInApp() =
         false
     } else runCatching {
         // open
-        thread(isDaemon = true) { getDesktop().open(this) }
+        daemonThread { getDesktop().open(this) }
     }.onFailure { it.printStackTraceFix() }.isSuccess

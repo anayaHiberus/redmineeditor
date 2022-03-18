@@ -17,7 +17,6 @@ import java.net.URI
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import kotlin.DeprecationLevel.ERROR
-import kotlin.concurrent.thread
 
 /**
  * The background color of this region (null for no color)
@@ -141,7 +140,7 @@ fun Alert.addButton(button: ButtonType, listener: () -> Unit = {}): Button {
  * Tries to open an url in the browser, displays an alert if fails
  */
 fun openInBrowser(url: String) {
-    thread(isDaemon = true) {
+    daemonThread {
         URI(url).openInBrowser().ifNotOK {
             // on error, display alert
             Platform.runLater {

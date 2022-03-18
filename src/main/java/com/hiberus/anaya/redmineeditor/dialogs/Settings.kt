@@ -19,7 +19,6 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import java.util.*
-import kotlin.concurrent.thread
 
 /**
  * Displays the settings dialog, and reloads if something changed
@@ -203,7 +202,7 @@ class SettingsController {
         testInfo.backgroundColor = null
 
         // run in background
-        thread(isDaemon = true) {
+        daemonThread {
             val result = runCatching {
                 "OK: Valid settings found for user " + Redmine(domain.text, key.text, 0).getUserName(appendLogin = true)
             }.getOrNull()

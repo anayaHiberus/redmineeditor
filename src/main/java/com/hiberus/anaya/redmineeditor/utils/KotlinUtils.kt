@@ -1,5 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import kotlin.concurrent.thread
+
 /**
  * If this is true, run function (inline if/then)
  */
@@ -25,3 +27,8 @@ fun String.ensureSuffix(suffix: String) = removeSuffix(suffix) + suffix
  */
 infix fun <E> Set<E>.intersects(other: Set<E>) =
     (this intersect other).isNotEmpty()
+
+/**
+ * For some reason threads are not daemon by default
+ */
+inline fun daemonThread(crossinline block: () -> Unit) = thread(isDaemon = true) { block() }

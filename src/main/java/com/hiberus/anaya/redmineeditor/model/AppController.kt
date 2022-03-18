@@ -7,7 +7,6 @@ import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import kotlin.concurrent.thread
 
 // - Nooooo you need a whole 100TB of frameworks to use beans
 // - haha, static go brrrrr
@@ -53,7 +52,7 @@ class Controller {
         model.isLoading = true
         fireChanges()
 
-        thread(isDaemon = true) {
+        daemonThread {
             val error = runCatching {
                 // run in background
                 background(model)
