@@ -8,6 +8,7 @@ import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.model.ReloadSettings
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
+import javafx.beans.property.ReadOnlyProperty
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -93,6 +94,31 @@ class SettingsController {
     @FXML
     lateinit var save: Button // save button
 
+    /* ------------------------- config ------------------------- */
+
+    /**
+     * Keeps data about an AppSetting and how to manage it
+     */
+    private data class SettingMatch<T>(val setting: AppSettings, val nodeGetter: () -> T, val nodeSetter: (String) -> Unit, val nodeProperty: () -> ReadOnlyProperty<*>) {
+        fun init() = nodeSetter(setting.value)
+        fun default() = nodeSetter(setting.default)
+        val data get() = setting to nodeGetter()
+        val property get() = nodeProperty()
+    }
+
+    /**
+     * All the AppSetting configurations
+     */
+    private val matches = listOf(
+        SettingMatch(AppSettings.URL, { domain.text }, { domain.text = it }) { domain.textProperty() },
+        SettingMatch(AppSettings.KEY, { key.text }, { key.text = it }) { key.textProperty() },
+        SettingMatch(AppSettings.READ_ONLY, { allowGetOnly.isSelected }, { allowGetOnly.isSelected = it.toBoolean() }) { allowGetOnly.textProperty() },
+        SettingMatch(AppSettings.AUTO_LOAD_TOTAL_HOURS, { autoLoadTotal.isSelected }, { autoLoadTotal.isSelected = it.toBoolean() }) { autoLoadTotal.textProperty() },
+        SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.isSelected }, { autoLoadAssigned.isSelected = it.toBoolean() }) { autoLoadAssigned.textProperty() },
+        SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.value }, { prevDays.valueFactory.value = it.toInt() }) { prevDays.valueProperty() },
+        SettingMatch(AppSettings.DARK_THEME, { dark.isSelected }, { dark.isSelected = it.toBoolean() }) { dark.selectedProperty() },
+    )
+
     /* ------------------------- functions ------------------------- */
 
     @FXML
@@ -134,13 +160,7 @@ class SettingsController {
         }
 
         // initialize properties
-        domain.text = AppSettings.URL.value
-        key.text = AppSettings.KEY.value
-        allowGetOnly.isSelected = AppSettings.READ_ONLY.value.toBoolean()
-        autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
-        autoLoadAssigned.isSelected = AppSettings.AUTO_LOAD_ASSIGNED.value.toBoolean()
-        prevDays.valueFactory.value = AppSettings.PREV_DAYS.value.toInt()
-        dark.isSelected = AppSettings.DARK_THEME.value.toBoolean()
+        matches.forEach { it.init() }
 
         // intelligent save button
         with({
@@ -154,15 +174,7 @@ class SettingsController {
             save.enabled = changes.isNotEmpty()
         }) {
             // apply to all properties
-            listOf(
-                domain.textProperty(),
-                key.textProperty(),
-                allowGetOnly.selectedProperty(),
-                autoLoadTotal.selectedProperty(),
-                autoLoadAssigned.selectedProperty(),
-                prevDays.valueProperty(),
-                dark.selectedProperty()
-            ).forEach {
+            matches.map { it.property }.forEach {
                 it.addListener { _, _, _ -> this() }
             }
             this()
@@ -223,13 +235,7 @@ class SettingsController {
             .apply {
                 stylize(dark.isSelected)
                 addButton(ButtonType.OK) {
-                    domain.text = AppSettings.URL.default
-                    key.text = AppSettings.KEY.default
-                    allowGetOnly.isSelected = AppSettings.READ_ONLY.default.toBoolean()
-                    autoLoadTotal.isSelected = AppSettings.AUTO_LOAD_TOTAL_HOURS.default.toBoolean()
-                    autoLoadAssigned.isSelected = AppSettings.AUTO_LOAD_ASSIGNED.default.toBoolean()
-                    prevDays.valueFactory.value = AppSettings.PREV_DAYS.default.toInt()
-                    dark.isSelected = AppSettings.DARK_THEME.default.toBoolean()
+                    matches.forEach { it.default() }
                 }
             }.showAndWait()
     }
@@ -252,18 +258,11 @@ class SettingsController {
      * List of changes
      */
     private fun changes(apply: Boolean = false) =
-        listOf(
-            AppSettings.URL to domain.text,
-            AppSettings.KEY to key.text,
-            AppSettings.READ_ONLY to allowGetOnly.isSelected,
-            AppSettings.AUTO_LOAD_TOTAL_HOURS to autoLoadTotal.isSelected,
-            AppSettings.AUTO_LOAD_ASSIGNED to autoLoadAssigned.isSelected,
-            AppSettings.PREV_DAYS to prevDays.valueFactory.value,
-            AppSettings.DARK_THEME to dark.isSelected,
-        ).filter { (setting, value) ->
-            if (apply) setting.modify(value)
-            else setting.value != value.toString()
-        }.map { it.first }.toSet()
+        matches.map { it.data }
+            .filter { (setting, value) ->
+                if (apply) setting.modify(value)
+                else setting.value != value.toString()
+            }.map { it.first }.toSet()
 
     /**
      * On window closes, asks to lose changes if any
