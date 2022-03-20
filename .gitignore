@@ -1,4 +1,6 @@
 /build/*
 !/build/*.zip
 /.gradle/
+
 /conf_personal/
+/build/image-personal.zip
