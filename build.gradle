@@ -13,8 +13,8 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = '16'
-targetCompatibility = '16'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 mainClassName = "$moduleName/com.hiberus.anaya.redmineeditor.Main"
 
@@ -28,7 +28,7 @@ application {
 }
 
 javafx {
-    version = '16'
+    version = '17'
     modules = ['javafx.controls', 'javafx.web', 'javafx.fxml']
 }
 
@@ -53,8 +53,8 @@ jlink {
     targetPlatform("linux") {/* Default settings */ } // https://badass-jlink-plugin.beryx.org/releases/latest/
     targetPlatform("windows") {
         //noinspection GroovyAssignabilityCheck
-        jdkHome = "${buildDir}/../../win-sdk/jdk-16.0.2.7"
-        addExtraModulePath("${buildDir}/../../win-sdk/javafx-jmods-16")
+        jdkHome = "${buildDir}/../../win-sdk/jdk-17.0.2+8"
+        addExtraModulePath("${buildDir}/../../win-sdk/javafx-jmods-17.0.2")
     }
     targetPlatform("personal") {/* Default settings */ }
     launcher {
@@ -63,12 +63,12 @@ jlink {
 }
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "17"
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "17"
     }
 }
 
