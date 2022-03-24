@@ -4,10 +4,7 @@ import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
-import javafx.scene.control.Alert
-import javafx.scene.control.Button
-import javafx.scene.control.ButtonType
-import javafx.scene.control.Label
+import javafx.scene.control.*
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
@@ -41,7 +38,7 @@ inline var Region.backgroundColor: Color?
  * @param text initial label text
  * @return the created centered label
  */
-inline fun CenteredLabel(text: String) = Label(text).apply {
+fun CenteredLabel(text: String) = Label(text).apply {
     maxWidth = Double.MAX_VALUE
     alignment = Pos.CENTER
 }
@@ -49,7 +46,7 @@ inline fun CenteredLabel(text: String) = Label(text).apply {
 /**
  * Makes the node gone (no space) when invisible, otherwise it's just invisible
  */
-inline fun Node.syncInvisible() = managedProperty().bind(visibleProperty())
+fun Node.syncInvisible() = managedProperty().bind(visibleProperty())
 
 /**
  * The enable/disable state of a node.
@@ -120,7 +117,7 @@ fun confirmLoseChanges(message: String): Boolean {
 /**
  * Removes all buttons of this alert
  */
-inline fun Alert.clearButtons() = buttonTypes.clear()
+fun Alert.clearButtons() = buttonTypes.clear()
 
 /**
  * Adds and returns a button with a custom listener.
@@ -142,10 +139,12 @@ fun Alert.addButton(button: ButtonType, listener: () -> Unit = {}): Button {
 fun openInBrowser(url: String) {
     daemonThread {
         URI(url).openInBrowser().ifNotOK {
-            // on error, display alert
+            // on error, display alert for manual open
             Platform.runLater {
-                Alert(Alert.AlertType.ERROR).apply {
-                    contentText = "Couldn't open the browser. Can't open $url"
+                TextInputDialog(url).apply {
+                    title = "Browse url"
+                    headerText = "Couldn't open the browser automatically, here is the url for manual opening:"
+
                     stylize()
                 }.showAndWait()
             }
