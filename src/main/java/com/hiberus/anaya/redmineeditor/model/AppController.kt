@@ -103,8 +103,10 @@ class Controller {
             .filter { (lEvents, _) -> lEvents intersects events }
             // and notify them all in foreground
             .let {
-                runInForeground { // TODO: consider adding a try/catch here
-                    it.forEach { (_, listener) -> listener(model) }
+                if (it.isNotEmpty()) {
+                    runInForeground { // TODO: consider adding a try/catch here
+                        it.forEach { (_, listener) -> listener(model) }
+                    }
                 }
             }
 
@@ -134,12 +136,6 @@ class Controller {
             // reload data
             // TODO: don't reload when uploading, update internal state
             model.reloadRedmine(clearOnly = uninitializedSettings)
-
-            // notify so that the ui is updated at this step and everything is updated
-            AppController.fireChanges()
-
-            // load month
-            model.loadDate()
 
         }) {
             // after loading

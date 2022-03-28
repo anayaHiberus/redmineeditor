@@ -111,10 +111,6 @@ internal class CalendarComponent {
         // unselect the day
         day = null
 
-        AppController.fireChanges() // notify now to display month in UI
-
-        // and load month
-        loadDate()
     }
 
     /**

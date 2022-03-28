@@ -154,6 +154,7 @@ abstract class Model {
             set(value) {
                 field = value
                 changes += ChangeEvent.Month
+                loadMonth()
             }
 
         override var day: Int? = null
@@ -173,13 +174,14 @@ abstract class Model {
         }
 
         /**
-         * Loads the current month (if it is already loaded this does nothing)
+         * Loads a month [current by default] (if it is already loaded this does nothing)
          * Long operation
          *
          * @throws MyException on error
          */
         @Throws(MyException::class)
-        fun loadDate() {
+        fun loadMonth(month: YearMonth? = null) {
+            val month = month ?: this.month
             try {
                 // download (skip if not loaded)
                 (redmine ?: return).downloadEntriesFromMonth(month).let { (newEntries, newIssues, loaded) ->
@@ -194,10 +196,6 @@ abstract class Model {
                 throw MyException("Parsing error", "Unknown Redmine response. Try again later.", e)
             }
 
-            AppController.fireChanges()
-
-            // prepare day
-            prepareDay()
         }
 
         /**
@@ -217,7 +215,13 @@ abstract class Model {
         /**
          * Creates a new Time Entry for [issue] on [date], or the current day if null, with already [spent] hours and [comment], returns whether it was added or not
          */
-        fun createTimeEntry(issue: Issue, spent: Double = 0.0, comment: String = "", date: LocalDate? = null, loadHours: Boolean = true): Boolean {
+        fun createTimeEntry(
+            issue: Issue,
+            spent: Double = 0.0,
+            comment: String = "",
+            date: LocalDate? = null,
+            loadHours: Boolean = true
+        ): Boolean {
             val redmine = redmine ?: return false // skip if no api
             val spent_on = date ?: this.date ?: return false // skip if no date
 
@@ -265,10 +269,18 @@ abstract class Model {
                 when {
                     // missing single issue
                     missingIds.size == 1 ->
-                        throw MyException("Unknown issue", "The issue #${missingIds[0]} was not found or couldn't be loaded", warning = true)
+                        throw MyException(
+                            "Unknown issue",
+                            "The issue #${missingIds[0]} was not found or couldn't be loaded",
+                            warning = true
+                        )
                     // missing multiple issues
                     missingIds.size >= 2 ->
-                        throw MyException("Unknown issues", "The issues ${missingIds.joinToString(", ") { "#$it" }} were not found or couldn't be loaded", warning = true)
+                        throw MyException(
+                            "Unknown issues",
+                            "The issues ${missingIds.joinToString(", ") { "#$it" }} were not found or couldn't be loaded",
+                            warning = true
+                        )
                 }
             } catch (e: IOException) {
                 throw MyException("Error loading issues", "Can't load issues", e)
@@ -306,6 +318,14 @@ abstract class Model {
                 // and create empty entries
                 .map { createTimeEntry(issue = it, loadHours = false) }
 
+        }
+
+        /**
+         * Return the entries of a specified date (loads them if necessary)
+         */
+        fun getEntriesFromDate(date: LocalDate) = run {
+            loadMonth(date.yearMonth)
+            redmine?.getEntriesForDate(date) ?: emptyList()
         }
 
         /* ------------------------- private setters ------------------------- */
@@ -355,7 +375,19 @@ abstract class Model {
         fun reloadRedmine(clearOnly: Boolean = false) {
             redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, prevDays)
             READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
-            changes += setOf(ChangeEvent.DayIssues, ChangeEvent.EntryList, ChangeEvent.DayHours, ChangeEvent.MonthHours, ChangeEvent.Assigned)
+            changes += setOf(
+                ChangeEvent.DayIssues,
+                ChangeEvent.EntryList,
+                ChangeEvent.DayHours,
+                ChangeEvent.MonthHours,
+                ChangeEvent.Assigned
+            )
+
+            // reload data
+            AppController.fireChanges()
+            loadMonth()
+            AppController.fireChanges()
+            prepareDay()
         }
     }
 

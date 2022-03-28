@@ -84,17 +84,13 @@ class FixMonthController {
 
     @FXML
     fun run() = AppController.runBackground({ model ->
-        // get entries
-        val entries = model.monthEntries ?: return@runBackground
-
         // get days of week or month
-        // note: for week, this may 'fix' not loaded dates, but theoretically they should be empty
         (if (selectedWeek.isSelected) model.date?.weekDays() ?: return@runBackground else model.month.days())
             // excluding future (unless enabled)
             .filter { futureDays.isSelected || it <= LocalDate.now() }
             .forEach { day ->
                 // get data of that day
-                val dayEntries = entries.filter { it.spent_on == day }
+                val dayEntries = model.getEntriesFromDate(day)
                 val expected = day.expectedHours
                 val spent = dayEntries.sumOf { it.spent }
                 if (expected - spent > 0) {
