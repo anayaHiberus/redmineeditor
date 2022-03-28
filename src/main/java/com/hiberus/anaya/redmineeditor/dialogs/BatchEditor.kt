@@ -31,7 +31,7 @@ fun ShowBatchEditorDialog() {
         title = "Batch editor"
         initModality(Modality.APPLICATION_MODAL)
         scene = Scene(FXMLLoader(Resources.getLayout("batch_editor")).load())
-            .apply { stylize() }
+        scene.stylize()
     }.showAndWait()
 }
 
@@ -95,13 +95,22 @@ val INSTRUCTIONS = """
  */
 private fun exportData(model: Model): String {
     // get data
-    val entries = (model.monthEntries ?: return "Internal error: no data available").filter { it.id != null } // TODO: allow editing created entries
+    val entries = (model.monthEntries
+        ?: return "Internal error: no data available").filter { it.id != null } // TODO: allow editing created entries
     val month = model.month
 
     // header
     return INSTRUCTIONS + LB +
             LB +
-            "# " + listOf("Entry id", "spent year", "spent month", "spent day", "spent hours", "issue id", "comment").joinToString(SEP) + LB +
+            "# " + listOf(
+        "Entry id",
+        "spent year",
+        "spent month",
+        "spent day",
+        "spent hours",
+        "issue id",
+        "comment"
+    ).joinToString(SEP) + LB +
             LB +
             // for each day
             month.days()
@@ -168,13 +177,15 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
         .mapNotNull { (index, columns) ->
             runCatching {
                 ImportEntry(
-                    id = if (columns[0] == "+") null else (columns[0].toIntOrNull() ?: throw IllegalArgumentException("entry id must be an int (for existing entries) or '+' (for new entries)")),
+                    id = if (columns[0] == "+") null else (columns[0].toIntOrNull()
+                        ?: throw IllegalArgumentException("entry id must be an int (for existing entries) or '+' (for new entries)")),
                     spent_on = LocalDate.of(
                         columns[1].toIntOrNull() ?: throw IllegalArgumentException("year must be an int"),
                         columns[2].toIntOrNull() ?: throw IllegalArgumentException("month must be an int"),
                         columns[3].toIntOrNull() ?: throw IllegalArgumentException("day must be an int")
                     ),
-                    spent = columns[4].toDoubleOrNull()?.takeIf { it >= 0 } ?: throw IllegalArgumentException("spent time must be a non-negative double"),
+                    spent = columns[4].toDoubleOrNull()?.takeIf { it >= 0 }
+                        ?: throw IllegalArgumentException("spent time must be a non-negative double"),
                     issueId = columns[5].toIntOrNull() ?: throw IllegalArgumentException("issue_id must be an int"),
                     comment = columns[6],
                 )
@@ -192,7 +203,8 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
         .forEachIndexed { line, entryData ->
             runCatching {
                 // common data
-                val issue = model.loadedIssues?.firstOrNull { it.id == entryData.issueId } ?: throw IllegalArgumentException("No issue with id ${entryData.issueId} found")
+                val issue = model.loadedIssues?.firstOrNull { it.id == entryData.issueId }
+                    ?: throw IllegalArgumentException("No issue with id ${entryData.issueId} found")
                 val id = entryData.id
 
                 if (id == null) {

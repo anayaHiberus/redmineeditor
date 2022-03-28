@@ -37,3 +37,8 @@ inline fun daemonThread(crossinline block: () -> Unit) = thread(isDaemon = true)
  * list.forEach { it.set(it.run(it.get())) } is ugly, list.letEach { set(run(get())) } is better
  */
 inline fun <T> Iterable<T>.letEach(action: T.() -> Unit) = forEach { it.action() }
+
+/**
+ * Adds the element into the list, unless it already exists
+ */
+fun <E> MutableList<E>.put(item: E) = contains(item) or add(item)

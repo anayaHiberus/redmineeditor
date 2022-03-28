@@ -146,6 +146,7 @@ fun openInBrowser(url: String) {
                     headerText = "Couldn't open the browser automatically, here is the url for manual opening:"
 
                     stylize()
+                    dialogPane.buttonTypes.remove(ButtonType.CANCEL) // unused, we don't care for the result
                 }.showAndWait()
             }
         }

@@ -41,7 +41,7 @@ private fun ShowSettingsDialogInternal(): Set<AppSettings> {
     Stage().apply {
         title = "Settings"
         scene = Scene(FXMLLoader(Resources.getLayout("settings")).load())
-            .apply { stylize() }
+        scene.stylize()
         initModality(Modality.APPLICATION_MODAL)
 
         // show
@@ -110,7 +110,11 @@ class SettingsController {
     /**
      * Keeps data about an AppSetting and how to manage it
      */
-    private data class SettingMatch<T>(val setting: AppSettings, private val nodeProperty: () -> Property<T>, val valueConverter: (String) -> T) {
+    private data class SettingMatch<T>(
+        val setting: AppSettings,
+        private val nodeProperty: () -> Property<T>,
+        val valueConverter: (String) -> T
+    ) {
         val property get() = nodeProperty() // get property
     }
 
@@ -151,7 +155,9 @@ class SettingsController {
         // predefined options
         with(predefined) {
             // get from file, if exists
-            val options = Properties().apply { findFile("conf/predefined.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+            val options = Properties().apply {
+                findFile("conf/predefined.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+            }
             if (options.isEmpty) {
                 // no entries, hide button
                 syncInvisible()

@@ -5,7 +5,6 @@ import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
-import javafx.scene.image.Image
 import javafx.stage.Stage
 
 /**
@@ -19,8 +18,7 @@ class Main : Application() {
         // load and show
         title = TITLE
         scene = Scene(FXMLLoader(Resources.getLayout("parent")).load())
-            .apply { stylize() }
-        icons.add(Image(Resources.getImage("icon").openStream()))
+        scene.stylize()
         show()
     }
 

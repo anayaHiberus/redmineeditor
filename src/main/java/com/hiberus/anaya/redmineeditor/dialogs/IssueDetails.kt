@@ -27,7 +27,8 @@ fun Issue.showDetails() {
 
         // initialize scene
         val loader = FXMLLoader(Resources.getLayout("issue_description"))
-        scene = Scene(loader.load()).apply { stylize() }
+        scene = Scene(loader.load())
+        scene.stylize()
 
         // initialize now with the issue
         loader.getController<IssueDetailsController>().apply {

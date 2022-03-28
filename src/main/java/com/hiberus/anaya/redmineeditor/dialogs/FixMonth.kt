@@ -25,7 +25,7 @@ fun ShowFixMonthDialog() =
     Stage().run {
         title = "Fix month tool"
         scene = Scene(FXMLLoader(Resources.getLayout("fix_month")).load())
-            .apply { stylize() }
+        scene.stylize()
         initModality(Modality.APPLICATION_MODAL)
 
         showAndWait()
