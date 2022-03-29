@@ -2,8 +2,8 @@ package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.utils.ensureSuffix
-import com.hiberus.anaya.redmineeditor.utils.findFile
 import com.hiberus.anaya.redmineeditor.utils.formatHours
+import com.hiberus.anaya.redmineeditor.utils.getRelativeFile
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
 import javafx.scene.control.TextArea
@@ -15,7 +15,7 @@ import java.util.*
  */
 fun ShowEvidencesDialog() {
     // init properties
-    val strings = Properties().apply { findFile("conf/Evidences.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
+    val strings = Properties().apply { getRelativeFile("conf/Evidences.properties")?.inputStream()?.use { load(it) } }
     fun string(key: String, default: String? = null) = strings.getProperty(key, default ?: key)
 
     var text = string("error", "Can't load properties")

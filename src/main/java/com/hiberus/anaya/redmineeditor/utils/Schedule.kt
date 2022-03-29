@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.utils
 
 import javafx.scene.control.Alert
 import javafx.scene.paint.Color
+import java.io.FileNotFoundException
 import java.security.InvalidParameterException
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -56,9 +57,12 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
  * Load special days from the configuration file
  */
 fun LoadSpecialDays() = runCatching {
+    // clear first
     CACHE.clear()
     RULES.clear()
-    findFile(HOURS_FILE).readLines().asSequence()
+    // get file
+    (getRelativeFile(HOURS_FILE) ?: throw FileNotFoundException(HOURS_FILE))
+        .readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
         // skip empty
@@ -81,7 +85,7 @@ fun LoadSpecialDays() = runCatching {
 /**
  * Opens the special days file in an external app
  */
-fun OpenSpecialDaysFile() = findFile(HOURS_FILE).openInApp()
+fun OpenSpecialDaysFile() = (getRelativeFile(HOURS_FILE)?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open hours file").showAndWait() }
 
 /* ------------------------- internal ------------------------- */

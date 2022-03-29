@@ -156,7 +156,7 @@ class SettingsController {
         with(predefined) {
             // get from file, if exists
             val options = Properties().apply {
-                findFile("conf/predefined.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+                getRelativeFile("conf/predefined.properties")?.inputStream()?.use { load(it) }
             }
             if (options.isEmpty) {
                 // no entries, hide button
