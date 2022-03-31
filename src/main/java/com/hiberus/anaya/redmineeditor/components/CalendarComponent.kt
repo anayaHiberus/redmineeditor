@@ -202,7 +202,7 @@ internal class CalendarComponent {
     /**
      * select a specific day
      */
-    private fun selectDay(day: Int) = AppController.runBackground { model: Model.Editor ->
+    private fun selectDay(day: Int) = AppController.runBackground { model ->
         model.day = day
     }
 

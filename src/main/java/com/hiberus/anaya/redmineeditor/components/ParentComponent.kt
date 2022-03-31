@@ -1,8 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
-import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineeditor.model.AppController
-import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.utils.enabled
 import javafx.fxml.FXML
@@ -34,7 +32,6 @@ internal class ParentComponent {
         }
 
         // when app starts, initialize and reload
-        READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
         AppController.reload(askIfChanges = false, resetDay = true)
     }
 

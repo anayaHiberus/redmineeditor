@@ -221,11 +221,11 @@ abstract class Model {
             comment: String = "",
             date: LocalDate? = null,
             loadHours: Boolean = true
-        ): Boolean {
-            val redmine = redmine ?: return false // skip if no api
-            val spent_on = date ?: this.date ?: return false // skip if no date
+        ): TimeEntry? {
+            val redmine = redmine ?: return null // skip if no api
+            val spent_on = date ?: this.date ?: return null // skip if no date
 
-            redmine.createTimeEntry(issue = issue, spent_on = spent_on, spent = spent, comment = comment).also {
+            val entry = redmine.createTimeEntry(issue = issue, spent_on = spent_on, spent = spent, comment = comment).also {
                 // autoload if required, ignore errors
                 if (autoLoadTotalHours && loadHours) {
                     // TODO: move the autoloading to Redmine object
@@ -238,11 +238,11 @@ abstract class Model {
             changes += ChangeEvent.EntryList
             if (spent > 0 && spent_on == this.date) changes += ChangeEvent.DayHours
             if (spent > 0 && spent_on.yearMonth == month) changes += ChangeEvent.MonthHours
-            return true
+            return entry
         }
 
         /**
-         * Copies an existing entry to today, returns true if it was added
+         * Copies an existing entry to today, returns it
          */
         fun copyTimeEntry(entry: TimeEntry) = createTimeEntry(entry.issue, entry.spent, entry.comment)
 
@@ -316,7 +316,7 @@ abstract class Model {
                 // not in today
                 .filterNot { it in todayIssues }
                 // and create empty entries
-                .map { createTimeEntry(issue = it, loadHours = false) }
+                .forEach { createTimeEntry(issue = it, loadHours = false) }
 
         }
 
@@ -346,7 +346,7 @@ abstract class Model {
                 // then remove those from today
                 .filterNot { it.wasSpentOn(date) }
                 // and create entry
-                .map {
+                .forEach {
                     createTimeEntry(issue = it.issue, comment = it.comment, loadHours = false)
                 }
 

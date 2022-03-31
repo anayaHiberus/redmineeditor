@@ -7,7 +7,6 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.days
 import com.hiberus.anaya.redmineeditor.utils.expectedHours
-import com.hiberus.anaya.redmineeditor.utils.ifNotOK
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -216,7 +215,7 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
                             spent = entryData.spent,
                             issue = issue,
                             comment = entryData.comment,
-                        ).ifNotOK { throw IllegalArgumentException("Can't create entry with data $entryData") }
+                        ).let { if (it == null) throw IllegalArgumentException("Can't create entry with data $entryData") }
                     }
 
                 } else {

@@ -1,0 +1,32 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="run arguments" type="GradleRunConfiguration" factoryName="Gradle">
+    <selectedOptions>
+      <option name="external.system.vm.parameters.fragment" />
+    </selectedOptions>
+    <ExternalSystemSettings>
+      <option name="env">
+        <map>
+          <entry key="DEBUG" value="true" />
+        </map>
+      </option>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="--stacktrace" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value="run" />
+          <option value="--args='-read_only -fix future week --issue=240439'" />
+        </list>
+      </option>
+      <option name="vmOptions" value="-ea" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <method v="2" />
+  </configuration>
+</component>

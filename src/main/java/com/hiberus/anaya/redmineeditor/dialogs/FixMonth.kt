@@ -83,35 +83,7 @@ class FixMonthController {
     }
 
     @FXML
-    fun run() = AppController.runBackground({ model ->
-        // get days of week or month
-        (if (selectedWeek.isSelected) model.date?.weekDays() ?: return@runBackground else model.month.days())
-            // excluding future (unless enabled)
-            .filter { futureDays.isSelected || it <= LocalDate.now() }
-            .forEach { day ->
-                // get data of that day
-                val dayEntries = model.getEntriesFromDate(day)
-                val expected = day.expectedHours
-                val spent = dayEntries.sumOf { it.spent }
-                if (expected - spent > 0) {
-                    // pending hours, create entry
-                    model.createTimeEntry(
-                        issue = issue.selectionModel.selectedItem,
-                        comment = comment.text,
-                        spent = expected - spent,
-                        date = day
-                    )
-                } else if (expected - spent < 0) {
-                    // extra hours, remove time
-                    dayEntries.forEach {
-                        it.changeSpent(it.spent / spent * expected)
-                        model.registerExternalChange(ChangeEvent.EntryContent)
-                        model.registerExternalChange(ChangeEvent.DayHours)
-                        model.registerExternalChange(ChangeEvent.MonthHours)
-                    }
-                }
-            }
-    }) {
+    fun run() = FixMonthTool(issue.selectionModel.selectedItem, comment.text, selectedWeek.isSelected, futureDays.isSelected) {
         // when correctly finishes, exit
         if (it) cancel()
     }
@@ -123,3 +95,40 @@ class FixMonthController {
 
 }
 
+/**
+ * Fixes the selected month or [selectedWeek] optionally skipping [futureDays] adding new entries if required to an [issue] with a [comment]
+ */
+fun FixMonthTool(issue: Issue, comment: String = "", selectedWeek: Boolean = false, futureDays: Boolean = false, later: (Boolean) -> Unit) = AppController.runBackground({ model ->
+    // get days of week or month
+    (if (selectedWeek) model.date?.weekDays() ?: return@runBackground else model.month.days())
+        // excluding future (unless enabled)
+        .filter { futureDays || it <= LocalDate.now() }
+        .forEach { day ->
+            // get data of that day
+            val dayEntries = model.getEntriesFromDate(day)
+            val expected = day.expectedHours
+            val spent = dayEntries.sumOf { it.spent }
+            if (expected - spent > 0) {
+                // pending hours, create entry
+                val entry = model.createTimeEntry(
+                    issue = issue,
+                    comment = comment,
+                    spent = expected - spent,
+                    date = day
+                )
+                println(
+                    if (entry != null) "Created entry: $entry"
+                    else "Unable to create entry for $day"
+                )
+            } else if (expected - spent < 0) {
+                // extra hours, remove time
+                dayEntries.forEach {
+                    it.changeSpent(it.spent / spent * expected)
+                    model.registerExternalChange(ChangeEvent.EntryContent)
+                    model.registerExternalChange(ChangeEvent.DayHours)
+                    model.registerExternalChange(ChangeEvent.MonthHours)
+                    println("Updated entry: $it")
+                }
+            }
+        }
+}, later)

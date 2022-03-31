@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineapi
 
+import com.hiberus.anaya.redmineeditor.utils.formatHours
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.YearMonth
@@ -147,6 +148,10 @@ class TimeEntry {
         get() = !(changes.isEmpty // no changes, no upload
                 || (id == null && spent <= 0)) // no useful changes, no upload
 
+    /**
+     * String representation of this TimeEntry
+     */
+    override fun toString() = "TimeEntry@${id ?: "new"}{ ${spent.formatHours()} [$spent_on] ${issue.toShortString()} '$comment'}"
 }
 
 /* ------------------------- util ------------------------- */

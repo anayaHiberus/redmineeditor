@@ -19,7 +19,7 @@ fun Scene.stylize(asDark: Boolean = isDark) = stylesheets.run {
     else remove(DARK_STYLESHEET)
 
     // set icon
-    (window as? Stage)?.icons?.put(icon)
+    (window as? Stage)?.icons?.put(ICON)
 }
 
 /**
@@ -40,4 +40,4 @@ private val isDark get() = AppSettings.DARK_THEME.value.toBoolean() // the setti
 
 private val DARK_STYLESHEET = Resources.getFile("dark.css").toExternalForm() // the stylesheet file
 
-private val icon = Image(Resources.getImage("icon").openStream()) // the app icon
+private val ICON = Image(Resources.getImage("icon").openStream()) // the app icon
