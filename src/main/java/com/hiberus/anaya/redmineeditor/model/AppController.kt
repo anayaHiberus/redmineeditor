@@ -98,7 +98,7 @@ class Controller {
      * @param events events to fire, those from the model by default
      */
     fun fireChanges(events: Set<ChangeEvent> = model.getChanges()) =
-        listeners.also { println("Changes: $events") } // debug
+        listeners.also { if (System.getenv("DEBUG").toBoolean()) println("Changes: $events") } // debug
             // get those who need to be modified
             .filter { (lEvents, _) -> lEvents intersects events }
             // and notify them all in foreground

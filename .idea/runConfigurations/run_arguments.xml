@@ -6,7 +6,7 @@
     <ExternalSystemSettings>
       <option name="env">
         <map>
-          <entry key="DEBUG" value="true" />
+          <entry key="DEBUG" value="false" />
         </map>
       </option>
       <option name="executionName" />
@@ -19,7 +19,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-read_only -fix future week --issue=240439'" />
+          <option value="--args='-read_only -fix -future -week --issue=240439 -test'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />
