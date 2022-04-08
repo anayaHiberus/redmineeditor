@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="run (no debug)" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="run tool" type="GradleRunConfiguration" factoryName="Gradle">
     <selectedOptions>
       <option name="external.system.vm.parameters.fragment" />
     </selectedOptions>
@@ -14,9 +14,10 @@
       <option name="taskNames">
         <list>
           <option value="run" />
+          <option value="--args='-read_only -fix -future -week --issue=240439 -test'" />
         </list>
       </option>
-      <option name="vmOptions" value="" />
+      <option name="vmOptions" value="-ea" />
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>

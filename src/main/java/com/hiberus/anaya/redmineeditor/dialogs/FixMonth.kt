@@ -114,7 +114,7 @@ fun FixRunToolCommandLine(parameters: Application.Parameters) {
     // read parameters
     val issueId = parameters.named["issue"]?.toIntOrNull() ?: run {
         // issue is mandatory
-        System.err.println(if ("issue" in parameters.named) parameters.named["issue"] + " is not an integer" else "Missing issue parameter")
+        errorln(if ("issue" in parameters.named) parameters.named["issue"] + " is not an integer" else "Missing issue parameter")
         Platform.exit()
         return
     }
@@ -151,7 +151,7 @@ fun FixRunToolCommandLine(parameters: Application.Parameters) {
                 }
                 ?: run {
                     // no issue, exit
-                    System.err.println("No issue with id $issueId was found, exiting")
+                    errorln("No issue with id $issueId was found, exiting")
                     latch.countDown()
                 }
             // upload

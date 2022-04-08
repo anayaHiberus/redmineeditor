@@ -15,7 +15,7 @@ fun URI.openInBrowser() =
     } else runCatching {
         // browse
         daemonThread { getDesktop().browse(this) }
-    }.onFailure { it.printStackTraceFix() }.isSuccess
+    }.onFailure { debugln(it) }.isSuccess
 
 /**
  * Opens this file in an external app/editor
@@ -31,4 +31,4 @@ fun File.openInApp() =
     } else runCatching {
         // open
         daemonThread { getDesktop().open(this) }
-    }.onFailure { it.printStackTraceFix() }.isSuccess
+    }.onFailure { debugln(it) }.isSuccess

@@ -6,8 +6,8 @@ import java.nio.file.Path
  * Returns an existing file with the given path, relative to the executable directory; or null if not found
  */
 fun getRelativeFile(path: String) =
-    // in debug mode try first the personal folder
-    if (System.getenv("DEBUG").toBoolean() and path.startsWith("conf/")) findFile(path.replaceFirst("conf/", "conf_personal/")) else null
+    // try first the personal folder
+    findFile(path.replaceFirst("conf/", "conf_personal/"))
     // try then the normal path
         ?: findFile(path)
 
@@ -23,4 +23,4 @@ private fun findFile(path: String) =
 /**
  * Returns the file corresponding to this path only if it exists (logs it too)
  */
-private val Path.file get() = this.toFile().also { println("Accessing file ${it.absolutePath} -> ${if (it.exists()) "OK" else "INVALID"}") }.takeIf { it.exists() }
+private val Path.file get() = toFile().also { debugln("Accessing file ${it.absolutePath} -> ${if (it.exists()) "OK" else "INVALID"}") }.takeIf { it.exists() }

@@ -73,7 +73,7 @@ private fun URL.send(method: String, body: JSONObject?) =
         connect()
 
         // perform debug
-        println("$responseCode: $responseMessage")
+//        println("$responseCode: $responseMessage")
 
         // end
         disconnect()

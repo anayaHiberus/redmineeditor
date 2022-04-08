@@ -70,7 +70,7 @@ internal class Remote(
         rawParameters?.forEach { append("$it&") }
         // key
         append("key=$key")
-    }.also { println(if (System.getenv("DEBUG").toBoolean()) it else this) } // debug full url in 'DEBUG', else just the endpoint
+    }.also { log("Accessing $it") } // debug url
 
     /* ------------------------- properties ------------------------- */
 
@@ -122,7 +122,7 @@ internal class Remote(
                 when {
                     // new entry with hours, create
                     id == null && spent > 0 -> {
-                        println("Creating entry with data: $it")
+                        log("Creating entry with data: $it")
                         if (READ_ONLY) return
                         JSONObject().put("time_entry", it)
                             .postTo(Endpoint.TIME_ENTRIES.build().url)
@@ -136,7 +136,7 @@ internal class Remote(
 
                     // existing entry with hours, update
                     id != null && spent > 0 -> {
-                        println("Updating entry $id with data: $it")
+                        log("Updating entry $id with data: $it")
                         if (READ_ONLY) return
                         JSONObject().put("time_entry", it)
                             .putTo(Endpoint.TIME_ENTRIES.build(subdomain = id).url)
@@ -147,7 +147,7 @@ internal class Remote(
 
                     // existing entry without hours, delete
                     id != null && spent <= 0 -> {
-                        println("Deleting entry $id")
+                        log("Deleting entry $id")
                         if (READ_ONLY) return
                         Endpoint.TIME_ENTRIES.build(subdomain = id).url
                             .delete()
@@ -157,7 +157,7 @@ internal class Remote(
                     }
 
                     // should never happen, but if it does, do nothing
-                    else -> println("This should never happen! $id $spent")
+                    else -> log("This should never happen! $id $spent")
                 }
             }
         }
@@ -223,7 +223,7 @@ internal class Remote(
         issue.run {
             changes.takeUnless { it.isEmpty }?.let { // if there are changes
                 // update
-                println("Updating issue $id with data: $it")
+                log("Updating issue $id with data: $it")
                 if (READ_ONLY) return
                 JSONObject().put("issue", changes)
                     .putTo(Endpoint.ISSUES.build(subdomain = id).url)
@@ -296,4 +296,11 @@ private inline fun doWhile(thing: () -> Boolean) {
     while (thing()) {
         // nothing
     }
+}
+
+/**
+ * Prints a message if REMOTE=true environment variable was set
+ */
+private fun log(data: String) {
+    if (System.getenv("REMOTE").toBoolean()) println("<REMOTE> $data")
 }

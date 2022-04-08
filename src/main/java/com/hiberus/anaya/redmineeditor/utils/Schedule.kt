@@ -72,14 +72,13 @@ fun LoadSpecialDays() = runCatching {
             runCatching {
                 Rule(line)
             }.onFailure {
-                System.err.println("Invalid entry in hours file: \"${it.message}\"")
+                errorln("Invalid entry in hours file: \"${it.message}\"")
             }.getOrNull()
         }.toList()
         // and save (reversed)
         .reversed().toCollection(RULES)
 }.onFailure {
-    println(it)
-    System.err.println("Special days file error!")
+    debugln(it)
 }.isSuccess
 
 /**

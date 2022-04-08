@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.daemonThread
+import com.hiberus.anaya.redmineeditor.utils.debugln
 import com.hiberus.anaya.redmineeditor.utils.openInBrowser
 import com.hiberus.anaya.redmineeditor.utils.syncInvisible
 import javafx.fxml.FXML
@@ -45,7 +46,7 @@ internal class UpdateComponent {
                         label.text = "New version found: $it. Press here to download it."
                         banner.isVisible = true
                     }
-                }.onFailure { println("Can't get remote version, probably not permission, ignoring: $it") }
+                }.onFailure { debugln("Can't get remote version, probably not permission, ignoring: $it") }
             }
         }
     }

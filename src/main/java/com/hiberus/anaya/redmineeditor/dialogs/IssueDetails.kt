@@ -3,8 +3,8 @@ package com.hiberus.anaya.redmineeditor.dialogs
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineeditor.Resources
 import com.hiberus.anaya.redmineeditor.model.AppSettings
+import com.hiberus.anaya.redmineeditor.utils.debugln
 import com.hiberus.anaya.redmineeditor.utils.openInBrowser
-import com.hiberus.anaya.redmineeditor.utils.printStackTraceFix
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -119,7 +119,6 @@ class IssueDetailsController {
         runCatching {
             // get the parent div size
             val result: Any = webview.engine.executeScript("getSize()")
-            println(result)
             if (result is String) {
                 val (height, width) = result.split(" ").let { it[0].toDouble() to it[1].toDouble() }
 
@@ -135,7 +134,7 @@ class IssueDetailsController {
                 webview.scene.window.sizeToScene()
                 webview.scene.window.centerOnScreen()
             }
-        }.onFailure { it.printStackTraceFix() }
+        }.onFailure { debugln(it) }
     }
 
 

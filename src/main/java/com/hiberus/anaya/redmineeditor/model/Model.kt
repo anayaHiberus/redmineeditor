@@ -6,6 +6,7 @@ import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.convert
+import com.hiberus.anaya.redmineeditor.utils.errorln
 import com.hiberus.anaya.redmineeditor.utils.expectedHours
 import com.hiberus.anaya.redmineeditor.utils.ifOK
 import com.hiberus.anaya.redmineeditor.utils.yearMonth
@@ -231,7 +232,7 @@ abstract class Model {
                     // TODO: move the autoloading to Redmine object
                     runCatching { it.issue.downloadExtra().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
                         // warning
-                        System.err.println("Error when loading spent, ignoring: $it")
+                        errorln("Error when loading spent, ignoring: $it")
                     }
                 }
             }
@@ -363,7 +364,7 @@ abstract class Model {
                 (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct().forEach {
                     runCatching { it.downloadExtra().ifOK { changes += ChangeEvent.IssueContent } }.onFailure {
                         // warning
-                        System.err.println("Error when loading spent, ignoring: $it")
+                        errorln("Error when loading spent, ignoring: $it")
                     }
                 }
             }

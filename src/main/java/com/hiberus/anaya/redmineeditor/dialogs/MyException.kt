@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
+import com.hiberus.anaya.redmineeditor.utils.debugln
 import com.hiberus.anaya.redmineeditor.utils.letEach
-import com.hiberus.anaya.redmineeditor.utils.printStackTraceFix
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.ERROR
@@ -35,7 +35,7 @@ class MyException(
      *
      * @param other another exception to add
      */
-    fun addDetail(other: Throwable) = details.add(other.message).run { other.printStackTraceFix() }
+    fun addDetail(other: Throwable) = details.add(other.message).run { debugln(other) }
 
     /**
      * Adds exceptions whose message will be shown as a detail
@@ -54,7 +54,7 @@ class MyException(
             headerText = title
             contentText = "$message\n\n$details"
             cause?.let { cause ->
-                printStackTraceFix()
+                debugln(cause)
                 dialogPane.expandableContent = Label(cause.toString()) // show error details
             }
             stylize()
