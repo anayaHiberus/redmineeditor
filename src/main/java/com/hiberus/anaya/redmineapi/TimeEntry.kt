@@ -67,6 +67,7 @@ class TimeEntry {
 
     /**
      * Creates a new Time Entry for [issue] on [spent_on] with already [spent] hours and [comment]
+     * The issue is updated adding the spent hours
      */
     internal constructor(issue: Issue, spent_on: LocalDate, spent: Double, comment: String, remote: Remote) {
         this.remote = remote
@@ -75,6 +76,9 @@ class TimeEntry {
         this.spent_on = spent_on
         this.spent = spent
         this.comment = comment
+
+        // update issue hours
+        issue.addSpent(spent)
     }
 
     /* ------------------------- checks ------------------------- */

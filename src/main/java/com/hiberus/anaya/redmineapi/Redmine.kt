@@ -143,11 +143,30 @@ class Redmine {
                 + loadedIssues.runEachCatching { remote.upload(it) })
 
     /**
-     * Creates a new Time Entry for [issue] on [spent_on] with already [spent] hours and [comment], and returns it
+     * Creates a new Time Entry for [issue] on [spent_on] with already [spent] hours and [comment], and returns it.
+     * Note: if there is a replaceable entry, it is modified instead (and returned too)
      */
     fun createTimeEntry(issue: Issue, spent_on: LocalDate, spent: Double = 0.0, comment: String = "") =
-        TimeEntry(issue, spent_on, spent, comment, remote).also { loadedEntries += it }
-            .also { issue.addSpent(spent) } // update issue hours too
+        // check if a replaceable entry exists
+        loadedEntries.asSequence()
+            // should be a new entry
+            .filter { it.id == null }
+            // for that issue
+            .filter { it.issue == issue }
+            // and that date
+            .filter { it.spent_on == spent_on }
+            // without spent hours
+            .filter { it.spent == 0.0 }
+            // and no comment (or the required one already)
+            .filter { it.comment.isBlank() || it.comment == comment }
+            .firstOrNull()
+            // found, update
+            ?.apply {
+                changeSpent(spent)
+                this.comment = comment
+            }
+        //? // not found, create
+            ?: TimeEntry(issue, spent_on, spent, comment, remote).also { loadedEntries += it }
 
     /**
      * Downloads issues if required from their [ids]
