@@ -9,12 +9,13 @@ import java.net.URI
  * @return true if it was opened, false on error
  */
 fun URI.openInBrowser() =
-    if (!isDesktopSupported() || !getDesktop().isSupported(Action.BROWSE)) {
-        // not supported
-        false
-    } else runCatching {
-        // browse
+    if (isDesktopSupported() && getDesktop().isSupported(Action.BROWSE)) {
+        // browse using java (should work on Windows and gnome)
         daemonThread { getDesktop().browse(this) }
+        true
+    } else runCatching {
+        // browse using the linux command (should work on KDE)
+        Runtime.getRuntime().exec(arrayOf("xdg-open", this.toString())).waitFor() == 0
     }.onFailure { debugln(it) }.isSuccess
 
 /**
