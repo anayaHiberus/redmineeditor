@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceFile
 import com.hiberus.anaya.redmineeditor.components.VERSION
 import com.hiberus.anaya.redmineeditor.utils.addButton
 import com.hiberus.anaya.redmineeditor.utils.clearButtons
@@ -51,7 +51,7 @@ fun ShowAbout() {
 fun ShowReadme() {
     Alert(Alert.AlertType.INFORMATION).apply {
         headerText = "Readme"
-        dialogPane.content = ScrollPane(Label(Resources.getFile("Readme.txt").readText()))
+        dialogPane.content = ScrollPane(Label(ResourceFile("Readme.txt").readText()))
             .apply { maxWidth = 100.0; maxHeight = 50.0 }
         stylize()
     }.showAndWait()

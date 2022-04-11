@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.Issue
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.debugln
 import com.hiberus.anaya.redmineeditor.utils.openInBrowser
@@ -26,7 +26,7 @@ fun Issue.showDetails() {
         initModality(Modality.APPLICATION_MODAL)
 
         // initialize scene
-        val loader = FXMLLoader(Resources.getLayout("issue_description"))
+        val loader = FXMLLoader(ResourceLayout("issue_description"))
         scene = Scene(loader.load())
         scene.stylize()
 

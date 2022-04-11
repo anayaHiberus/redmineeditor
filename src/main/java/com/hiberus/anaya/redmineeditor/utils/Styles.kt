@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils
 
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceFile
+import com.hiberus.anaya.redmineeditor.ResourceImage
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import javafx.scene.Scene
 import javafx.scene.control.Dialog
@@ -38,6 +39,6 @@ fun stylizeDisplayed() = runInForeground {
 
 private val isDark get() = AppSettings.DARK_THEME.value.toBoolean() // the setting
 
-private val DARK_STYLESHEET = Resources.getFile("dark.css").toExternalForm() // the stylesheet file
+private val DARK_STYLESHEET = ResourceFile("dark.css").toExternalForm() // the stylesheet file
 
-private val ICON = Image(Resources.getImage("icon").openStream()) // the app icon
+private val ICON = Image(ResourceImage("icon").openStream()) // the app icon

@@ -3,27 +3,23 @@ package com.hiberus.anaya.redmineeditor
 import java.io.FileNotFoundException
 
 /**
- * Represents the app resources and how to find them
+ * An arbitrary resource file from its [filename]
  */
-class Resources {
-    companion object {
+fun ResourceFile(filename: String) = Resources::class.java.getResource(filename) ?: throw FileNotFoundException(filename)
 
-        /**
-         * Returns an arbitrary file from its [filename]
-         */
-        // Implementation notes: make sure this class/file is in the main directory, or at least make sure the subdirectories match
-        fun getFile(filename: String) = this::class.java.getResource(filename) ?: throw FileNotFoundException(filename)
+/**
+ * A layout file (same as [ResourceFile] with "layouts/[name].fxml")
+ */
+fun ResourceLayout(name: String) = ResourceFile("layouts/$name.fxml")
 
-        /**
-         * Gets a layout file (same as [getFile] with "layouts/[name].fxml"
-         */
-        fun getLayout(name: String) = getFile("layouts/$name.fxml")
+/**
+ * An image file (same as [ResourceFile] with "images/[name].png")
+ */
+fun ResourceImage(name: String) = ResourceFile("images/$name.png")
 
+/* ------------------------- internal ------------------------- */
 
-        /**
-         * Gets an image file (same as [getFile] with "images/[name].png"
-         */
-        fun getImage(name: String) = getFile("images/$name.png")
-
-    }
-}
+/**
+ * This class must be defined in the same package (directory) as the root of the resources
+ */
+private class Resources

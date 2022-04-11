@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.components.VERSION
 import com.hiberus.anaya.redmineeditor.components.getNewVersion
 import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
@@ -40,7 +40,7 @@ fun ShowSettingsDialog() {
 private fun ShowSettingsDialogInternal(): Set<AppSettings> {
     Stage().apply {
         title = "Settings"
-        scene = Scene(FXMLLoader(Resources.getLayout("settings")).load())
+        scene = Scene(FXMLLoader(ResourceLayout("settings")).load())
         scene.stylize()
         initModality(Modality.APPLICATION_MODAL)
 

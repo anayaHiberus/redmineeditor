@@ -41,7 +41,7 @@ class Main : Application() {
     override fun start(stage: Stage) = stage.run {
         // load and show
         title = TITLE
-        scene = Scene(FXMLLoader(Resources.getLayout("parent")).load())
+        scene = Scene(FXMLLoader(ResourceLayout("parent")).load())
         scene.stylize()
         show()
     }

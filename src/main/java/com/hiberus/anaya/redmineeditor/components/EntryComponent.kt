@@ -1,7 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.showDetails
 import com.hiberus.anaya.redmineeditor.model.AppController
@@ -26,7 +26,7 @@ import java.util.function.Consumer
 /**
  * One of the entries in the entries list
  */
-class EntryComponent : SimpleListCell<TimeEntry>(Resources.getLayout("entry_cell")) {
+class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     /* ------------------------- views ------------------------- */
 

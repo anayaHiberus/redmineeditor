@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.components.describe
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
@@ -29,7 +29,7 @@ fun ShowBatchEditorDialog() {
     Stage().apply {
         title = "Batch editor"
         initModality(Modality.APPLICATION_MODAL)
-        scene = Scene(FXMLLoader(Resources.getLayout("batch_editor")).load())
+        scene = Scene(FXMLLoader(ResourceLayout("batch_editor")).load())
         scene.stylize()
     }.showAndWait()
 }

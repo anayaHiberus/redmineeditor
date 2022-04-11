@@ -2,7 +2,7 @@ package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.TimeEntry
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
@@ -30,7 +30,7 @@ import java.util.concurrent.CountDownLatch
 fun ShowFixMonthDialog() =
     Stage().run {
         title = "Fix month tool"
-        scene = Scene(FXMLLoader(Resources.getLayout("fix_month")).load())
+        scene = Scene(FXMLLoader(ResourceLayout("fix_month")).load())
         scene.stylize()
         initModality(Modality.APPLICATION_MODAL)
 

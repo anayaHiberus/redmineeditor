@@ -1,6 +1,6 @@
 package com.hiberus.anaya.redmineeditor.components
 
-import com.hiberus.anaya.redmineeditor.Resources
+import com.hiberus.anaya.redmineeditor.ResourceFile
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.daemonThread
 import com.hiberus.anaya.redmineeditor.utils.debugln
@@ -14,7 +14,7 @@ import java.net.URL
 /**
  * The current app version (as the version file says)
  */
-val VERSION = runCatching { Resources.getFile("version").readText() }.getOrDefault("?.?.?")
+val VERSION = runCatching { ResourceFile("version").readText() }.getOrDefault("?.?.?")
 
 /**
  * A banner at the top that checks for updates
