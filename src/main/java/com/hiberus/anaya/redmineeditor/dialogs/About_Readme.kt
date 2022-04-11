@@ -23,10 +23,10 @@ val TITLE = "$NAME, by $AUTHOR, V$VERSION"
  * Show the 'about' dialog
  */
 fun ShowAbout() {
-    Alert(Alert.AlertType.INFORMATION).apply {
-        headerText = "About"
-        contentText = """
-            |$NAME.
+    Alert(Alert.AlertType.NONE).apply {
+        title = "About"
+        headerText = """
+            |===== $NAME =====
             |App made by $AUTHOR.
             |Current version: $VERSION.
             |
@@ -34,6 +34,14 @@ fun ShowAbout() {
             |Want to contribute? All help is welcomed!
             |${CONTRIBUTORS.takeIf { it.isNotEmpty() }?.joinToString("\n", prefix = "Contributors:\n") { "> $it" } ?: ""}
             |""".trimMargin()
+        dialogPane.content = ScrollPane(
+            Label(
+                """
+            |===== Changelog =====
+            |${ResourceFile("changelog.txt").readText()}
+            |""".trimMargin()
+            )
+        )
         stylize()
         clearButtons()
         addButton(ButtonType("Source code")) {

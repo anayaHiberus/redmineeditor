@@ -1,0 +1,8 @@
+V 1.1
+- Added Changelog
+- Allow manual url when open browser is not supported
+- Multiples improvements in the FixMonth tool
+- Minor style and internal improvements
+
+V 1.0
+- Initial stable release (lots of changes from beta versions)
