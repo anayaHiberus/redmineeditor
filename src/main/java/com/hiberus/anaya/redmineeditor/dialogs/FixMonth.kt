@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.dialogs
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.ResourceLayout
+import com.hiberus.anaya.redmineeditor.commandline.Command
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
@@ -106,72 +107,79 @@ class FixMonthController {
 /* ------------------------- command line ------------------------- */
 
 /**
- * Runs the fixRunTool from the command line
+ * Run this tool as a command line
  */
-fun FixRunToolCommandLine(parameters: Application.Parameters) {
-    println(" === Fix run tool ===")
+class FixMonthToolCommand : Command {
+    override val name = "Fix Month Tool as command line"
+    override val argument = "-fix"
+    override fun showHelp() = println("Command line variant of the FixMonthTool")
 
-    // read parameters
-    val issueId = parameters.named["issue"]?.toIntOrNull() ?: run {
-        // issue is mandatory
-        errorln(if ("issue" in parameters.named) parameters.named["issue"] + " is not an integer" else "Missing issue parameter")
-        Platform.exit()
-        return
-    }
-    val comment = parameters.named["comment"] ?: "".also { println("No comment provided, an empty string will be used") }
-    val week = ("-week" in parameters.unnamed).also { println("Fixing " + if (it) "week" else "month") }
-    val future = ("-future" in parameters.unnamed).also { println("Fixing " + if (it) "future days too" else "past days only") }
-    val test = ("-test" in parameters.unnamed).also { if (it) println("Testing mode, no changes will apply") }
+    override fun run(parameters: Application.Parameters) {
 
-    // start process
-    val latch = CountDownLatch(1)
-    var step = 1
-    AppController.onChanges(setOf(ChangeEvent.Loading)) { readOnlyModel ->
-        if (readOnlyModel.isLoading) return@onChanges
-        when (step) {
-            // first initialize (load)
-            1 -> {
-                println("Initializing")
-                AppController.reload(askIfChanges = false, resetDay = true)
-            }
-            // now load issue
-            2 -> {
-                println("Loading issue #$issueId")
-                AppController.runBackground { it.loadIssues(listOf(issueId)) }
-            }
-            // run tool
-            3 -> readOnlyModel.loadedIssues
-                ?.find { it.id == issueId }
-                ?.also { println("Loaded: $it") }
-                ?.let { issue ->
-                    println("Running:")
-                    AppController.runBackground { model ->
-                        FixMonthTool(model, issue, comment, week, future, test).onEach { println("    $it") }
+        // read parameters
+        val issueId = parameters.named["issue"]?.toIntOrNull() ?: run {
+            // issue is mandatory
+            errorln(if ("issue" in parameters.named) parameters.named["issue"] + " is not an integer" else "Missing issue parameter")
+            Platform.exit()
+            return
+        }
+        val comment = parameters.named["comment"] ?: "".also { println("> No comment provided, an empty string will be used") }
+        val week = ("-week" in parameters.unnamed).also { println("> Fixing " + if (it) "week" else "month") }
+        val future = ("-future" in parameters.unnamed).also { println("> Fixing " + if (it) "future days too" else "past days only") }
+        val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
+
+        // start process
+        val latch = CountDownLatch(1)
+        var step = 1
+        AppController.onChanges(setOf(ChangeEvent.Loading)) { readOnlyModel ->
+            if (readOnlyModel.isLoading) return@onChanges
+            when (step) {
+                // first initialize (load)
+                1 -> {
+                    println("Initializing")
+                    AppController.reload(askIfChanges = false, resetDay = true)
+                }
+                // now load issue
+                2 -> {
+                    println("Loading issue #$issueId")
+                    AppController.runBackground { it.loadIssues(listOf(issueId)) }
+                }
+                // run tool
+                3 -> readOnlyModel.loadedIssues
+                    ?.find { it.id == issueId }
+                    ?.also { println("Loaded: $it") }
+                    ?.let { issue ->
+                        println("Running:")
+                        AppController.runBackground { model ->
+                            FixMonthTool(model, issue, comment, week, future, test).onEach { println("    $it") }
+                        }
+                    }
+                    ?: run {
+                        // no issue, exit
+                        errorln("No issue with id $issueId was found, exiting")
+                        latch.countDown()
+                    }
+                // upload
+                4 -> AppController.runBackground {
+                    if (!test) {
+                        println("Uploading...")
+                        it.uploadAll()
                     }
                 }
-                ?: run {
-                    // no issue, exit
-                    errorln("No issue with id $issueId was found, exiting")
+                // notify
+                5 -> {
+                    println(if (test) "Testing completed, no changes uploaded" else "Uploaded changes")
                     latch.countDown()
                 }
-            // upload
-            4 -> AppController.runBackground {
-                if (!test) {
-                    println("Uploading...")
-                    it.uploadAll()
-                }
             }
-            // notify
-            5 -> {
-                println(if (test) "Testing completed, no changes uploaded" else "Uploaded changes")
-                latch.countDown()
-            }
+            step++
         }
-        step++
+        AppController.runBackground { /* start process */ }
+
+        // wait until everything ends
+        latch.await()
     }
 
-    AppController.runBackground { /* start process */ }
-    latch.await()
 }
 
 /* ------------------------- tool ------------------------- */
@@ -220,7 +228,8 @@ private fun FixMonthTool(model: Model.Editor, issue: Issue, comment: String = ""
                     // return
                     "[$day] Updated entry: #${it.issue.id} (${it.comment}) : ${oldSpent.formatHours()} -> ${newSpent.formatHours()}"
                 }
-            } else
-            // ok day
+            } else {
+                // ok day
                 emptyList()
+            }
         }

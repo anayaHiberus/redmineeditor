@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="run tool" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="run arguments" type="GradleRunConfiguration" factoryName="Gradle">
     <selectedOptions>
       <option name="external.system.vm.parameters.fragment" />
     </selectedOptions>
@@ -14,7 +14,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-read_only -fix -future -week --issue=240439 -test'" />
+          <option value="--args='-fix --issue=240439'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />
