@@ -110,9 +110,16 @@ class FixMonthController {
  * Run this tool as a command line
  */
 class FixMonthToolCommand : Command {
-    override val name = "Fix Month Tool as command line"
+    override val name = "Command line variant of the FixMonth tool"
     override val argument = "-fix"
-    override fun showHelp() = println("Command line variant of the FixMonthTool")
+    override val parameters = "--issue=123 [--comment=\"A comment\"] [-week] [-future] [-test]"
+    override val help = listOf(
+        "--issue=123 will create new entries assigned to the issue with id 123. This parameter is mandatory.",
+        "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used.",
+        "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
+        "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
+        "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
+    )
 
     override fun run(parameters: Application.Parameters) {
 

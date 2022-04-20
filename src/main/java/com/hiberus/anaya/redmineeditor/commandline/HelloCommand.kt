@@ -8,6 +8,6 @@ import javafx.application.Application
 class HelloCommand : Command {
     override val name = "Hello World"
     override val argument = "-hello"
-    override fun showHelp() = println("Run this command to display a nice 'Hello World' message!")
+    override val help = listOf("Run this command to display a nice 'Hello World' message!")
     override fun run(parameters: Application.Parameters) = println("Hello World")
 }

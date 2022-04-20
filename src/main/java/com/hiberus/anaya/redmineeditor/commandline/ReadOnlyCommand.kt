@@ -11,7 +11,7 @@ class ReadOnlyCommand : Command {
     override val argument = "-readOnly"
     override val skipUI = false // don't skip
 
-    override fun showHelp() = println("For testing purposes: Specify this flag to disable all put/post petitions, they will be skipped (but still logged)")
+    override val help = listOf("For testing purposes: Specify this flag to disable all put/post petitions, they will be skipped (but still logged)")
 
     override fun run(parameters: Application.Parameters) {
         READ_ONLY = true

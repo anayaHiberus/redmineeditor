@@ -30,16 +30,21 @@ interface Command {
     val argument: String
 
     /**
+     * Extra parameters that the command requires (for logging purposes)
+     */
+    val parameters: String
+        get() = ""
+
+    /**
      * If true will not show the UI afterwards (true by default)
      */
     val skipUI: Boolean
         get() = true
 
     /**
-     * Should show the related help of this command in the standard output
-     * Will be run when the user specifies the help command line argument
+     * help of this command. Each line will be displayed padded when the user specifies the help command line argument
      */
-    fun showHelp()
+    val help: List<String>
 
     /**
      * Should run the command

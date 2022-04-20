@@ -14,7 +14,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-fix --issue=240439'" />
+          <option value="--args='-h -fix --issue=240439'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />

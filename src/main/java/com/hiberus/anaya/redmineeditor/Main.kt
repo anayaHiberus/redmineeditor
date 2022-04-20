@@ -28,10 +28,16 @@ class Main : Application() {
         if (HELP_FLAG in parameters.raw) {
             // show all help
             println("These are the available commands:")
-            COMMANDS.forEach {
+            COMMANDS.forEach { command ->
                 println()
-                println("${it.name}: call with ${it.argument}${if (it.skipUI) " [will not run the UI afterwards]" else ""}")
-                it.showHelp()
+                println(buildString {
+                    append(command.name)
+                    append(": call as ")
+                    append(command.argument)
+                    if (command.parameters.isNotBlank()) append(" ").append(command.parameters)
+                    if (command.skipUI) append(" {will not run the UI afterwards}")
+                })
+                println(command.help.joinToString("\n") { "    $it" })
             }
             // and exit
             Platform.exit()
