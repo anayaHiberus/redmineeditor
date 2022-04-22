@@ -90,11 +90,7 @@ fun OpenSpecialDaysFile() = (getRelativeFile(getCalendarFile())?.openInApp() ?: 
 
 /* ------------------------- internal ------------------------- */
 
-private const val CALENDAR_DIR = "conf/calendars/"
-
-private const val CALENDAR_FORMAT = ".hours"
-
-private fun getCalendarFile() = CALENDAR_DIR + AppSettings.OFFICE_FILE.value.lowercase() + CALENDAR_FORMAT
+private fun getCalendarFile() = "conf/calendars/" + AppSettings.OFFICE_FILE.value.lowercase() + ".hours"
 
 private val CACHE = mutableMapOf<LocalDate, Double>() // caching
 
