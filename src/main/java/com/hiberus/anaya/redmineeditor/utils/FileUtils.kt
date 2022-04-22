@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import java.io.File
 import java.nio.file.Path
 
 /**
@@ -19,6 +20,16 @@ private fun findFile(path: String) =
         ?: Path.of(System.getProperty("java.home"), path).file // try from the executable
         ?: Path.of(System.getProperty("java.class.path"), path).file // try from the java executable
         ?: Path.of(System.getProperty("user.dir"), path).file // try from the user directory
+
+/**
+ * Returns all files from the given path
+ */
+
+fun getAllFiles(path: String): MutableList<String> {
+    val directoryPath = File(path)
+    val contents = directoryPath.list()
+    return if (contents != null) mutableListOf(*contents) else mutableListOf()
+}
 
 /**
  * Returns the file corresponding to this path only if it exists (logs it too)

@@ -45,7 +45,12 @@ enum class AppSettings(val default: String) {
     /**
      * Check for updates on start
      */
-    CHECK_UPDATES("true")
+    CHECK_UPDATES("true"),
+
+    /**
+     * Office of user (to obtain holidays)
+     */
+    OFFICE_FILE("Zaragoza")
     ;
 
     /* ------------------------- properties functions ------------------------- */

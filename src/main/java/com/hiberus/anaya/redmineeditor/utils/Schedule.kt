@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import javafx.scene.control.Alert
 import javafx.scene.paint.Color
 import java.io.FileNotFoundException
@@ -61,7 +62,7 @@ fun LoadSpecialDays() = runCatching {
     CACHE.clear()
     RULES.clear()
     // get file
-    (getRelativeFile(HOURS_FILE) ?: throw FileNotFoundException(HOURS_FILE))
+    (getRelativeFile(getCalendarFile()) ?: throw FileNotFoundException(getCalendarFile()))
         .readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
@@ -84,12 +85,16 @@ fun LoadSpecialDays() = runCatching {
 /**
  * Opens the special days file in an external app
  */
-fun OpenSpecialDaysFile() = (getRelativeFile(HOURS_FILE)?.openInApp() ?: false)
+fun OpenSpecialDaysFile() = (getRelativeFile(getCalendarFile())?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open hours file").showAndWait() }
 
 /* ------------------------- internal ------------------------- */
 
-private const val HOURS_FILE = "conf/hours.conf"
+private const val CALENDAR_DIR = "conf/calendars/"
+
+private const val CALENDAR_FORMAT = ".hours"
+
+private fun getCalendarFile() = CALENDAR_DIR + AppSettings.OFFICE_FILE.value.lowercase() + CALENDAR_FORMAT
 
 private val CACHE = mutableMapOf<LocalDate, Double>() // caching
 

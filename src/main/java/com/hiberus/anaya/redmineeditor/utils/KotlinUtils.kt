@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import java.util.*
 import kotlin.concurrent.thread
 
 /**
@@ -32,6 +33,10 @@ inline fun daemonThread(crossinline block: () -> Unit) = thread(isDaemon = true)
  * list.forEach { it.set(it.run(it.get())) } is ugly, list.letEach { set(run(get())) } is better
  */
 inline fun <T> Iterable<T>.letEach(action: T.() -> Unit) = forEach { it.action() }
+
+fun String.extractFileName() =
+    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }.substringBeforeLast('.')
+
 
 /**
  * Adds the element into the list, unless it already exists
