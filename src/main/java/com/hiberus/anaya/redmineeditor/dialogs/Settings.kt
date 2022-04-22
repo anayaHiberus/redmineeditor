@@ -181,7 +181,7 @@ class SettingsController {
         with(calendar) {
             // Get every file on folder
             val calendarFiles = getAllFiles("conf/calendars/"){ _, name -> name.endsWith(".hours") }
-            if (calendarFiles == null || calendarFiles.isEmpty()) {
+            if (calendarFiles.isEmpty()) {
                 // no entries, hide button
                 syncInvisible()
                 isVisible = false
