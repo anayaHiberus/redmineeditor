@@ -23,7 +23,6 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import java.util.*
-import com.hiberus.anaya.redmineeditor.utils.HoursFileFilter
 
 /**
  * Displays the settings dialog, and reloads if something changed
@@ -134,7 +133,7 @@ class SettingsController {
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.CHECK_UPDATES, { checkUpdates.selectedProperty() }) { it.toBoolean() },
-        SettingMatch(AppSettings.OFFICE_FILE, { calendar.textProperty() }) { it },
+        SettingMatch(AppSettings.SCHEDULE_FILE, { calendar.textProperty() }) { it },
     )
 
     /* ------------------------- functions ------------------------- */
@@ -181,8 +180,8 @@ class SettingsController {
 
         with(calendar) {
             // Get every file on folder
-            val calendarFiles = getAllFiles("conf/calendars/", HoursFileFilter())
-            if (calendarFiles.isEmpty()) {
+            val calendarFiles = getAllFiles("conf/calendars/"){ _, name -> name.endsWith(".hours") }
+            if (calendarFiles == null || calendarFiles.isEmpty()) {
                 // no entries, hide button
                 syncInvisible()
                 isVisible = false

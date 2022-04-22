@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
 import java.io.File
-import java.io.FilenameFilter
 import java.nio.file.Path
 
 /**
@@ -26,11 +25,7 @@ private fun findFile(path: String) =
  * Returns all files from the given path
  */
 
-fun getAllFiles(path: String, filter: FilenameFilter): MutableList<String> {
-    val directoryPath = File(path)
-    val contents = directoryPath.list(filter)
-    return if (contents != null) mutableListOf(*contents) else mutableListOf()
-}
+fun getAllFiles(path: String, filter: (File, String) -> Boolean) = File(path).list(filter)
 
 /**
  * Returns the file corresponding to this path only if it exists (logs it too)

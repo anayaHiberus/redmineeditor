@@ -166,5 +166,5 @@ class Controller {
 /**
  * Settings that will trigger a reload
  */
-val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS, AppSettings.OFFICE_FILE)
+val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS, AppSettings.SCHEDULE_FILE)
 

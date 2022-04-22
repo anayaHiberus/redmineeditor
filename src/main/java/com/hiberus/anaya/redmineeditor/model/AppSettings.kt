@@ -48,9 +48,9 @@ enum class AppSettings(val default: String) {
     CHECK_UPDATES("true"),
 
     /**
-     * Office of user (to obtain holidays)
+     * Schedule file of user (to obtain holidays)
      */
-    OFFICE_FILE("Zaragoza")
+    SCHEDULE_FILE("Zaragoza")
     ;
 
     /* ------------------------- properties functions ------------------------- */
