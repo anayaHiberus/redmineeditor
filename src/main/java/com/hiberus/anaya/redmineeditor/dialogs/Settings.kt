@@ -86,6 +86,9 @@ class SettingsController {
 
     @FXML
     lateinit var autoLoadAssigned: CheckBox // autoload assigned issues setting
+    
+    @FXML
+    lateinit var calendar: MenuButton // Office from which to extract public holidays
 
     @FXML
     lateinit var prevDays: Spinner<Int> // number of previous days setting
@@ -130,6 +133,7 @@ class SettingsController {
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.CHECK_UPDATES, { checkUpdates.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.SCHEDULE_FILE, { calendar.textProperty() }) { it },
     )
 
     /* ------------------------- functions ------------------------- */
@@ -168,6 +172,27 @@ class SettingsController {
                     MenuItem(name as String?).apply {
                         onAction = EventHandler {
                             domain.text = value as String?
+                        }
+                    }
+                }
+            }
+        }
+
+        with(calendar) {
+            // Get every file on folder
+            val calendarFiles = getAllFiles("conf/calendars/"){ _, name -> name.endsWith(".hours") }
+            if (calendarFiles.isEmpty()) {
+                // no entries, hide button
+                syncInvisible()
+                isVisible = false
+            } else {
+                calendarFiles.sort()
+                // entries, add as menus
+                items += calendarFiles.map { 
+                    val name = it.extractFileName()
+                    MenuItem(name).apply {
+                        onAction = EventHandler {
+                            calendar.text = name 
                         }
                     }
                 }

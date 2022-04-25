@@ -1,0 +1,49 @@
+######### general #########
+
+* * * 8.5 # 8.5 hours by default
+* * f 7 # except on fridays, 7 hours
+* 7 * 7 # and july, 7 hours too
+* 8 * 7 # same as august
+* * sa # saturdays is holiday
+* * su # sundays is holiday
+
+
+######### 2022 #########
+# https://sommos.online/hiberus/calendario-laboral/soria_2022.pdf
+
+# enero
+2022 1 6
+
+# febrero
+
+# marzo
+
+# abril
+2022 4 14
+2022 4 15
+
+# mayo
+2022 5 2
+
+# junio
+2022 6 29 6
+2022 6 30
+
+# julio
+
+# agosto
+2022 8 15
+
+# septiembre
+
+# octubre
+2022 10 3
+2022 10 12
+
+# noviembre
+2022 11 1
+
+# diciembre
+2022 12 6
+2022 12 8
+2022 12 26

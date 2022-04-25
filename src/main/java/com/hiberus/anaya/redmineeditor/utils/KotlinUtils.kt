@@ -34,6 +34,12 @@ inline fun daemonThread(crossinline block: () -> Unit) = thread(isDaemon = true)
 inline fun <T> Iterable<T>.letEach(action: T.() -> Unit) = forEach { it.action() }
 
 /**
+ * Extract and capitalize name of file
+ */
+fun String.extractFileName() = substringBeforeLast('.').replaceFirstChar { it.titlecase() }
+
+
+/**
  * Adds the element into the list, unless it already exists
  */
 fun <E> MutableList<E>.put(item: E) = contains(item) or add(item)

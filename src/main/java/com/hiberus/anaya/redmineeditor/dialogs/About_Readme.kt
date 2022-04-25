@@ -15,7 +15,7 @@ import javafx.scene.control.ScrollPane
 
 const val NAME = "Redmine editor"
 const val AUTHOR = "Abel Naya"
-val CONTRIBUTORS = listOf<String>()
+val CONTRIBUTORS = listOf("Fernando Belaza")
 
 val TITLE = "$NAME, by $AUTHOR, V$VERSION"
 

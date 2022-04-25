@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import java.io.File
 import java.nio.file.Path
 
 /**
@@ -19,6 +20,14 @@ private fun findFile(path: String) =
         ?: Path.of(System.getProperty("java.home"), path).file // try from the executable
         ?: Path.of(System.getProperty("java.class.path"), path).file // try from the java executable
         ?: Path.of(System.getProperty("user.dir"), path).file // try from the user directory
+
+/**
+ * Returns all files from the given path
+ */
+
+fun getAllFiles(path: String, filter: (File, String) -> Boolean = { _,_ -> true}): Array<String> = 
+    File(path).list(filter) ?: emptyArray<String>()
+        .also{ debugln ("Path [$path] not found or doesn't contain any files for filter")}
 
 /**
  * Returns the file corresponding to this path only if it exists (logs it too)
