@@ -24,11 +24,13 @@ inline var Region.backgroundColor: Color?
     set(value) {
         // create a background with that color and rounded borders
         background = value?.let {
-            Background(BackgroundFill(
-                Color(it.red, it.green, it.blue, 0.75),
-                CornerRadii(5.0),
-                Insets(1.0)
-            ))
+            Background(
+                BackgroundFill(
+                    Color(it.red, it.green, it.blue, 0.75),
+                    CornerRadii(5.0),
+                    Insets(1.0)
+                )
+            )
         }
     }
 

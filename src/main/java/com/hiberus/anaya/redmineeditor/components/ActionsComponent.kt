@@ -28,9 +28,11 @@ internal class ActionsComponent {
         }
 
         // when data changes
-        AppController.onChanges(setOf(
-            ChangeEvent.EntryList, ChangeEvent.EntryContent, ChangeEvent.IssueContent
-        )) {
+        AppController.onChanges(
+            setOf(
+                ChangeEvent.EntryList, ChangeEvent.EntryContent, ChangeEvent.IssueContent
+            )
+        ) {
             save.enabled = it.hasChanges
         }
     }

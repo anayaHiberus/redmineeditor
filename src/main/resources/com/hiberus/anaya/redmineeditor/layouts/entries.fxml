@@ -8,14 +8,14 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.hiberus.anaya.redmineeditor.components.EntriesComponent">
-   <HBox>
-      <TextField fx:id="filter" promptText="Filter issues"/>
-      <Button fx:id="clearFilter" mnemonicParsing="false" onAction="#clearFilter" text="&lt;">
-         <tooltip>
-            <Tooltip text="Reset filter"/>
-         </tooltip>
-      </Button>
-   </HBox>
-   <ListView fx:id="list" VBox.vgrow="ALWAYS">
-   </ListView>
+    <HBox>
+        <TextField fx:id="filter" promptText="Filter issues"/>
+        <Button fx:id="clearFilter" mnemonicParsing="false" onAction="#clearFilter" text="&lt;">
+            <tooltip>
+                <Tooltip text="Reset filter"/>
+            </tooltip>
+        </Button>
+    </HBox>
+    <ListView fx:id="list" VBox.vgrow="ALWAYS">
+    </ListView>
 </VBox>

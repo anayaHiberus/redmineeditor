@@ -49,9 +49,11 @@ internal class CalendarComponent {
         // create the header
         DayOfWeek.values().forEach {
             // append each day
-            calendar.add(CenteredLabel(
-                it.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-            ), it.value - 1, 0)
+            calendar.add(
+                CenteredLabel(
+                    it.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                ), it.value - 1, 0
+            )
         }
 
         // on new month, draw grid

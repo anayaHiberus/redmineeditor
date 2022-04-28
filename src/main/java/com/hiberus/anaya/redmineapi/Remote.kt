@@ -95,10 +95,12 @@ internal class Remote(
     @Throws(IOException::class)
     fun downloadTimeEntries(from: LocalDate, to: LocalDate, loadedIssues: Set<Issue>): Pair<List<TimeEntry>, MutableList<Issue>> {
         val newIssues = mutableListOf<Issue>()
-        val entries = Endpoint.TIME_ENTRIES.build(parameters = listOf(
-            Param("user_id", "=", "me"),
-            Param("spent_on", "between", listOf(from, to))
-        )).paginatedGet("time_entries")
+        val entries = Endpoint.TIME_ENTRIES.build(
+            parameters = listOf(
+                Param("user_id", "=", "me"),
+                Param("spent_on", "between", listOf(from, to))
+            )
+        ).paginatedGet("time_entries")
             .apply {
                 // fetch missing issues, and add them to loadedIssues
                 val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
@@ -191,9 +193,11 @@ internal class Remote(
         .ifEmpty { return emptyList<Issue>() }
         .run {
             // build url
-            Endpoint.ISSUES.build(parameters = listOf(
-                Param("issue_id", "=", joinToString("%2C"))
-            ))
+            Endpoint.ISSUES.build(
+                parameters = listOf(
+                    Param("issue_id", "=", joinToString("%2C"))
+                )
+            )
                 // get
                 .paginatedGet("issues")
                 // create issues
@@ -205,10 +209,12 @@ internal class Remote(
      */
     @Throws(IOException::class)
     fun downloadAssignedIssues() =
-        Endpoint.ISSUES.build(parameters = listOf(
-            Param("assigned_to_id", "=", "me"),
-            Param("updated_on", "lessThan", "31")
-        )).paginatedGet("issues")
+        Endpoint.ISSUES.build(
+            parameters = listOf(
+                Param("assigned_to_id", "=", "me"),
+                Param("updated_on", "lessThan", "31")
+            )
+        ).paginatedGet("issues")
             .apply {
                 // also initialize user id if not still
                 if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")

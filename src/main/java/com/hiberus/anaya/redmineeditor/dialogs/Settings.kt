@@ -86,7 +86,7 @@ class SettingsController {
 
     @FXML
     lateinit var autoLoadAssigned: CheckBox // autoload assigned issues setting
-    
+
     @FXML
     lateinit var calendar: MenuButton // Office from which to extract public holidays
 
@@ -180,7 +180,7 @@ class SettingsController {
 
         with(calendar) {
             // Get every file on folder
-            val calendarFiles = getAllFiles("conf/calendars/"){ _, name -> name.endsWith(".hours") }
+            val calendarFiles = getAllFiles("conf/calendars/") { _, name -> name.endsWith(".hours") }
             if (calendarFiles.isEmpty()) {
                 // no entries, hide button
                 syncInvisible()
@@ -188,11 +188,11 @@ class SettingsController {
             } else {
                 calendarFiles.sort()
                 // entries, add as menus
-                items += calendarFiles.map { 
+                items += calendarFiles.map {
                     val name = it.extractFileName()
                     MenuItem(name).apply {
                         onAction = EventHandler {
-                            calendar.text = name 
+                            calendar.text = name
                         }
                     }
                 }

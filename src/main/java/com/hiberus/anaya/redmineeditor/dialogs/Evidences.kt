@@ -23,9 +23,11 @@ fun ShowEvidencesDialog() {
         text = buildString {
 
             // common header
-            appendLine("${string("header.month")}: " + model.month.format(
-                DateTimeFormatter.ofPattern(string("header.date", "LLLL uuuu"), Locale.forLanguageTag(string("header.locale", "en")))
-            ))
+            appendLine(
+                "${string("header.month")}: " + model.month.format(
+                    DateTimeFormatter.ofPattern(string("header.date", "LLLL uuuu"), Locale.forLanguageTag(string("header.locale", "en")))
+                )
+            )
             appendLine("${string("header.worker")}: " + model.user)
             appendLine()
             appendLine()
