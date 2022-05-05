@@ -119,6 +119,7 @@ class FixMonthToolCommand : Command {
         "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
         "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
         "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
+        "Common usage: ./RedmineEditor(.bat) -fix --issue=123 --comment=\"development\""
     )
 
     override fun run(parameters: Application.Parameters) {
