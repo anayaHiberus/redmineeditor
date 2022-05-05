@@ -9,7 +9,6 @@ import javafx.application.Application
  */
 val COMMANDS = listOf(
     ReadOnlyCommand(),
-    HelloCommand(),
     FixMonthToolCommand()
 )
 
