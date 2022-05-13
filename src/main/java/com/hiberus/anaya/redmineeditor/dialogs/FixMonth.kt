@@ -209,18 +209,28 @@ private fun FixMonthTool(model: Model.Editor, issue: Issue, comment: String = ""
             val spent = dayEntries.sumOf { it.spent }
             val pending = expected - spent
             if (pending > 0) {
-                // pending hours, create entry
-                if (!test) {
-                    model.createTimeEntry(
-                        issue = issue,
-                        comment = comment,
-                        spent = pending,
-                        date = day
-                    ) ?: return@flatMap listOf("[$day] ERROR: unable to create entry, is Redmine working?")
+                // pending hours, find a matching entry first
+                dayEntries.firstOrNull { it.issue == issue && it.comment == comment }
+                    ?.let {
+                        // existing entry with the same data, update
+                        val oldSpent = it.spent
+                        val newSpent = oldSpent + pending
+                        if (!test) {
+                            it.changeSpent(newSpent)
+                        }
+                        listOf("[$day] Updated entry: #${issue.id} (${comment}) : ${oldSpent.formatHours()} -> ${newSpent.formatHours()}")
+                    } ?: run {
+                    // no entry with the data, create new one
+                    if (!test) {
+                        model.createTimeEntry(
+                            issue = issue,
+                            comment = comment,
+                            spent = pending,
+                            date = day
+                        ) ?: return@flatMap listOf("[$day] ERROR: unable to create entry, is Redmine working?")
+                    }
+                    listOf("[$day] Created entry #${issue.id} ($comment) : -> ${pending.formatHours()}")
                 }
-
-                // return
-                listOf("[$day] Created entry #${issue.id} ($comment) : -> ${pending.formatHours()}")
             } else if (pending < 0) {
                 // extra hours, remove time
                 dayEntries.map {
