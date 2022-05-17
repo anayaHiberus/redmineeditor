@@ -30,9 +30,10 @@ fun ShowAbout() {
             |App made by $AUTHOR.
             |Current version: $VERSION.
             |
+            |${CONTRIBUTORS.takeIf { it.isNotEmpty() }?.joinToString("\n", prefix = "Contributors:\n") { "> $it" } ?: ""}
+            |
             |Thanks to all testers and users!
             |Want to contribute? All help is welcomed!
-            |${CONTRIBUTORS.takeIf { it.isNotEmpty() }?.joinToString("\n", prefix = "Contributors:\n") { "> $it" } ?: ""}
             |""".trimMargin()
         dialogPane.content = ScrollPane(
             Label(
