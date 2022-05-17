@@ -4,6 +4,7 @@ APP_NAME=${SCRIPT_NAME%.sh}
 
 DIR="${0%/*}/bin"
 
-
+# EXTRA: allows running in cron
+DISPLAY=:0
 
 "$DIR/java" $CDS_JVM_OPTS  -p "$DIR/../app" -m com.hiberus.anaya.redmineeditor/com.hiberus.anaya.redmineeditor.Main  "$@"

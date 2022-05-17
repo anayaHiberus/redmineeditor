@@ -10,17 +10,16 @@ import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.beans.value.ObservableValue
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
-import javafx.scene.control.Alert
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ChoiceBox
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import java.time.LocalDate
+import java.time.temporal.ChronoField
 import java.util.concurrent.CountDownLatch
 
 /* ------------------------- window ------------------------- */
@@ -61,6 +60,12 @@ class FixMonthController {
     @FXML
     lateinit var selectedWeek: CheckBox
 
+    @FXML
+    lateinit var relative: CheckBox
+
+    @FXML
+    lateinit var selection: Label
+
     private val window get() = comment.scene.window // window
 
     /* ------------------------- functions ------------------------- */
@@ -87,6 +92,15 @@ class FixMonthController {
             selectedWeek.enabled = false
         }
 
+        // selected range
+        val function: (observable: ObservableValue<out Boolean>?, oldValue: Boolean?, newValue: Boolean?) -> Unit = { _, _, _ ->
+            selection.text = getSelectionRange(selectedWeek.isSelected, futureDays.isSelected, relative.isSelected, AppController.runForeground { it })
+                .let { if (it == null) "No days with selected properties" else "Run from ${it.first} to ${it.second}, both inclusive" }
+        }
+        selectedWeek.selectedProperty().addListener(function)
+        futureDays.selectedProperty().addListener(function)
+        relative.selectedProperty().addListener(function)
+        function(null, null, null)
     }
 
     @FXML
@@ -112,14 +126,16 @@ class FixMonthController {
 class FixMonthToolCommand : Command {
     override val name = "Command line variant of the FixMonth tool"
     override val argument = "-fix"
-    override val parameters = "--issue=123 [--comment=\"A comment\"] [-week] [-future] [-test]"
+    override val parameters = "[-test] [-week] [-future] [-relative] --issue=123 [--comment=\"A comment\"]"
     override val help = listOf(
-        "--issue=123 will create new entries assigned to the issue with id 123. This parameter is mandatory.",
-        "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used.",
+        "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
         "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
         "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
-        "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
-        "Common usage: ./RedmineEditor(.bat) -fix --issue=123 --comment=\"development\""
+        "-relative, if specified, the interval will be relative (past week/month). If not specified, interval will be absolute (current week/month). Recommended (in absolute mode, running this on day 1 or monday will not fix any past days).",
+        "--issue=123 will create new entries assigned to the issue with id 123. This parameter is mandatory.",
+        "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used.",
+        "Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment=\"development\"",
+        "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fix -week -relative --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1"
     )
 
     override fun run(parameters: Application.Parameters) {
@@ -133,6 +149,7 @@ class FixMonthToolCommand : Command {
         }
         val comment = parameters.named["comment"] ?: "".also { println("> No comment provided, an empty string will be used") }
         val week = ("-week" in parameters.unnamed).also { println("> Fixing " + if (it) "week" else "month") }
+        val relative = ("-relative" in parameters.unnamed).also { println("> Using " + (if (it) "relative" else "absolute") + " interval") }
         val future = ("-future" in parameters.unnamed).also { println("> Fixing " + if (it) "future days too" else "past days only") }
         val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
 
@@ -159,7 +176,7 @@ class FixMonthToolCommand : Command {
                     ?.let { issue ->
                         println("Running:")
                         AppController.runBackground { model ->
-                            FixMonthTool(model, issue, comment, week, future, test).onEach { println("    $it") }
+                            FixMonthTool(model, issue, comment, week, future, relative, test).onEach { println("    $it") }
                         }
                     }
                     ?: run {
@@ -197,11 +214,9 @@ class FixMonthToolCommand : Command {
  * Returns the changes
  * if [test] is true, no changes will be made (only logged)
  */
-private fun FixMonthTool(model: Model.Editor, issue: Issue, comment: String = "", selectedWeek: Boolean = false, futureDays: Boolean = false, test: Boolean = false) =
+private fun FixMonthTool(model: Model.Editor, issue: Issue, comment: String = "", selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false, test: Boolean = false) =
     // get days of week or month
-    (if (selectedWeek) (model.date ?: LocalDate.now()).weekDays() else model.month.days())
-        // excluding future (unless enabled)
-        .filter { futureDays || it <= LocalDate.now() }
+    getSelectionRange(selectedWeek, futureDays, relative, model).days
         .flatMap { day ->
             // get data of that day
             val dayEntries = model.getEntriesFromDate(day)
@@ -251,3 +266,53 @@ private fun FixMonthTool(model: Model.Editor, issue: Issue, comment: String = ""
                 emptyList()
             }
         }
+
+/**
+ * Returns the selected range
+ */
+private fun getSelectionRange(selectedWeek: Boolean, futureDays: Boolean, relative: Boolean, model: Model): Pair<LocalDate, LocalDate>? {
+    val now = LocalDate.now()
+
+    // init
+    val selectedDay = model.date ?: now
+    val selectedMonth = model.month
+
+    val start =
+        if (selectedWeek)
+            if (relative) selectedDay.minusWeeks(1) // relative week: 7 days in the past
+            else selectedDay.with(ChronoField.DAY_OF_WEEK, 1) // absolute week: start of current week
+        else
+            if (relative) selectedDay.minusMonths(1) // relative month: 1 month in the past
+            else selectedMonth.atDay(1) // absolute month: start of current month
+
+    var end =
+        if (selectedWeek)
+            if (relative) selectedDay // relative week: today
+            else selectedDay.with(ChronoField.DAY_OF_WEEK, 7) // absolute week: end of current week
+        else
+            if (relative) selectedDay // relative month: today
+            else selectedMonth.atEndOfMonth() // absolute month: end of current month
+
+    if (!futureDays) {
+        // remove future
+        if (start > now) return null
+        if (end > now) end = now
+    }
+
+    return start to end
+}
+
+/**
+ * Returns all days between two local dates (inclusive).
+ * If null or end < start, returns empty list
+ */
+private val Pair<LocalDate, LocalDate>?.days: List<LocalDate>
+    get() {
+        // check invalid
+        if (this == null) return emptyList()
+        if (first > second) return emptyList()
+        // generate
+        return mutableListOf(first).apply {
+            while (last() < second) add(last().plusDays(1))
+        }
+    }

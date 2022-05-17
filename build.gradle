@@ -99,6 +99,11 @@ task copyConf(type: Copy) {
         from("${buildDir}/../launcher")
         include("RedmineEditor.bat")
     }
+    into("RedmineEditor-personal") {
+        from("${buildDir}/../launcher")
+        include("RedmineEditor") // for some reason, both (include and exclude) are needed
+        exclude("RedmineEditor.bat")
+    }
 }
 
 task cleanImage(type: Delete) {
