@@ -25,7 +25,7 @@ private fun findFile(path: String) =
  * Returns all files from the given [path], optionally filtered by a custom [filter]
  */
 fun getAllFiles(path: String, filter: (File, String) -> Boolean = { _, _ -> true }): Array<String> =
-    File(path).list(filter) ?: emptyArray<String>()
+    getRelativeFile(path)?.list(filter) ?: emptyArray<String>()
         .also { debugln("Path [$path] not found or doesn't contain any files for filter") }
 
 /**

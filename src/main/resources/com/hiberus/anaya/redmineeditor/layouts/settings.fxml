@@ -97,7 +97,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
     </Label>
-    <HBox alignment="CENTER">
+    <HBox alignment="CENTER_LEFT">
         <Spinner fx:id="prevDays" editable="true" max="28" min="0" HBox.hgrow="NEVER">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>

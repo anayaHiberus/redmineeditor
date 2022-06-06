@@ -182,9 +182,8 @@ class SettingsController {
             // Get every file on folder
             val calendarFiles = getAllFiles("conf/calendars/") { _, name -> name.endsWith(".hours") }
             if (calendarFiles.isEmpty()) {
-                // no entries, hide button
-                syncInvisible()
-                isVisible = false
+                // no entries
+                items += MenuItem("<no files found>")
             } else {
                 calendarFiles.sort()
                 // entries, add as menus
