@@ -1,3 +1,6 @@
+V 1.2.1
+- Fix calendar selection not detected when running outside the main folder
+
 V 1.2
 - Calendar selection to choose holidays based on the region. Thanks to Fernando Belaza for the implementation!
 - Command line support, run with -h for help and details about available commands
