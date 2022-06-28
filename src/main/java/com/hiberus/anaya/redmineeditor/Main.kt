@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor
 
 import com.hiberus.anaya.redmineeditor.commandline.COMMANDS
 import com.hiberus.anaya.redmineeditor.dialogs.TITLE
+import com.hiberus.anaya.redmineeditor.utils.centerInMouseScreen
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Application
 import javafx.application.Platform
@@ -71,6 +72,7 @@ class Main : Application() {
         title = TITLE
         scene = Scene(FXMLLoader(ResourceLayout("parent")).load())
         scene.stylize()
+        centerInMouseScreen()
         show()
     }
 

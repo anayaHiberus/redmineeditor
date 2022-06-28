@@ -42,6 +42,7 @@ private fun ShowSettingsDialogInternal(): Set<AppSettings> {
         title = "Settings"
         scene = Scene(FXMLLoader(ResourceLayout("settings")).load())
         scene.stylize()
+        centerInMouseScreen()
         initModality(Modality.APPLICATION_MODAL)
 
         // show

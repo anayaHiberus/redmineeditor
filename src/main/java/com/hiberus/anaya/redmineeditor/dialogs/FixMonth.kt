@@ -32,6 +32,7 @@ fun ShowFixMonthDialog() =
         title = "Fix month tool"
         scene = Scene(FXMLLoader(ResourceLayout("fix_month")).load())
         scene.stylize()
+        centerInMouseScreen()
         initModality(Modality.APPLICATION_MODAL)
 
         showAndWait()

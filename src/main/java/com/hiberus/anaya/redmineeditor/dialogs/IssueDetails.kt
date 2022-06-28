@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.dialogs
 import com.hiberus.anaya.redmineapi.Issue
 import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.model.AppSettings
+import com.hiberus.anaya.redmineeditor.utils.centerInMouseScreen
 import com.hiberus.anaya.redmineeditor.utils.debugln
 import com.hiberus.anaya.redmineeditor.utils.openInBrowser
 import com.hiberus.anaya.redmineeditor.utils.stylize
@@ -29,6 +30,7 @@ fun Issue.showDetails() {
         val loader = FXMLLoader(ResourceLayout("issue_description"))
         scene = Scene(loader.load())
         scene.stylize()
+        centerInMouseScreen()
 
         // initialize now with the issue
         loader.getController<IssueDetailsController>().apply {

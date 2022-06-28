@@ -10,10 +10,15 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
+import javafx.stage.Screen
+import javafx.stage.Window
+import javafx.stage.WindowEvent
+import java.awt.MouseInfo
 import java.net.URI
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import kotlin.DeprecationLevel.ERROR
+import kotlin.math.min
 
 /**
  * The background color of this region (null for no color)
@@ -151,6 +156,24 @@ fun openInBrowser(url: String) {
                     dialogPane.buttonTypes.remove(ButtonType.CANCEL) // unused, we don't care for the result
                 }.showAndWait()
             }
+        }
+    }
+}
+
+/**
+ * Centers the window on the mouse screen, and reduces its size if it's bigger
+ * Coded as a callback, can be called before the window is shown
+ */
+fun Window.centerInMouseScreen() {
+    addEventHandler(WindowEvent.WINDOW_SHOWN) {
+        MouseInfo.getPointerInfo()?.location?.run {
+            Screen.getScreensForRectangle(x.toDouble(), y.toDouble(), 1.0, 1.0).getOrNull(0)?.bounds
+        }?.also {
+            width = min(width, it.width * 0.9)
+            height = min(height, it.height * 0.9)
+
+            x = (it.minX + it.maxX) / 2 - width / 2
+            y = (it.minY + it.maxY) / 2 - height / 2
         }
     }
 }

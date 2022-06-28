@@ -5,6 +5,7 @@ import com.hiberus.anaya.redmineeditor.components.describe
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.utils.centerInMouseScreen
 import com.hiberus.anaya.redmineeditor.utils.days
 import com.hiberus.anaya.redmineeditor.utils.expectedHours
 import com.hiberus.anaya.redmineeditor.utils.stylize
@@ -31,6 +32,7 @@ fun ShowBatchEditorDialog() {
         initModality(Modality.APPLICATION_MODAL)
         scene = Scene(FXMLLoader(ResourceLayout("batch_editor")).load())
         scene.stylize()
+        centerInMouseScreen()
     }.showAndWait()
 }
 
