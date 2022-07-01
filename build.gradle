@@ -72,37 +72,47 @@ compileTestKotlin {
     }
 }
 
-task copyConf(type: Copy) {
-    // copy configuration folder, hardcoded things
-    println("Copying Configuration files")
+task copyConf {
+    doLast {
+        // copy things, hardcoded paths
+        project.logger.lifecycle "Copying Configuration files"
 
-    into("${buildDir}/image")
-    include("**/*.*")
+        // configurations
+        copy {
+            from "${buildDir}/../conf"
+            into "$buildDir/image/RedmineEditor-linux/conf"
+        }
+        copy {
+            from "${buildDir}/../conf"
+            into "$buildDir/image/RedmineEditor-windows/conf"
+        }
+        copy {
+            from "${buildDir}/../conf"
+            from("${buildDir}/../conf_personal") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
+            into "$buildDir/image/RedmineEditor-personal/conf"
+        }
 
-    into("RedmineEditor-linux/conf") {
-        from("${buildDir}/../conf")
-    }
-    into("RedmineEditor-windows/conf") {
-        from("${buildDir}/../conf")
-    }
-    into("RedmineEditor-personal/conf") {
-        from("${buildDir}/../conf")
-        from("${buildDir}/../conf_personal") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
-    }
+        // launchers
+        copy {
+            from "${buildDir}/../launcher/RedmineEditor"
+            into "$buildDir/image/RedmineEditor-linux"
+        }
+        copy {
+            from "${buildDir}/../launcher/RedmineEditor.bat"
+            into "$buildDir/image/RedmineEditor-windows"
+        }
+        copy {
+            from "${buildDir}/../launcher/RedmineEditor"
+            into "$buildDir/image/RedmineEditor-personal"
+        }
 
-    into("RedmineEditor-linux") {
-        from("${buildDir}/../launcher")
-        include("RedmineEditor") // for some reason, both (include and exclude) are needed
-        exclude("RedmineEditor.bat")
-    }
-    into("RedmineEditor-windows") {
-        from("${buildDir}/../launcher")
-        include("RedmineEditor.bat")
-    }
-    into("RedmineEditor-personal") {
-        from("${buildDir}/../launcher")
-        include("RedmineEditor") // for some reason, both (include and exclude) are needed
-        exclude("RedmineEditor.bat")
+        // copy changelog
+        copy {
+            from "$sourceSets.main.output.resourcesDir/com/hiberus/anaya/redmineeditor/changelog.txt"
+            into buildDir
+            rename "changelog.txt", "Readme.md"
+        }
+
     }
 }
 
