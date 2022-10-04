@@ -227,7 +227,7 @@ class SettingsController {
         Alert(Alert.AlertType.INFORMATION).apply {
             title = "API key instructions"
             headerText = "Fill this value with your Redmine API key"
-            dialogPane.contentText = "You can find it in Redmine -> my page -> api key."
+            dialogPane.contentText = "You can find it in Redmine -> my account -> api key (or press the button below to show it directly)"
 
             // set buttons
             clearButtons()
