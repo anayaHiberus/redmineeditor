@@ -48,6 +48,11 @@ enum class AppSettings(val default: String) {
     CHECK_UPDATES("true"),
 
     /**
+     * Check for schedule updates on start
+     */
+    CHECK_SCHEDULE_UPDATES("true"),
+
+    /**
      * Schedule file of user (to obtain holidays)
      */
     SCHEDULE_FILE("Zaragoza")

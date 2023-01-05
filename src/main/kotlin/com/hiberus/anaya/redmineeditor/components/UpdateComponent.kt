@@ -1,11 +1,9 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.ResourceFile
+import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.AppSettings
-import com.hiberus.anaya.redmineeditor.utils.daemonThread
-import com.hiberus.anaya.redmineeditor.utils.debugln
-import com.hiberus.anaya.redmineeditor.utils.openInBrowser
-import com.hiberus.anaya.redmineeditor.utils.syncInvisible
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
@@ -30,6 +28,7 @@ internal class UpdateComponent {
     @FXML
     lateinit var label: Label // the label
 
+
     /* ------------------------- actions ------------------------- */
 
     @FXML
@@ -38,15 +37,35 @@ internal class UpdateComponent {
         banner.syncInvisible()
         close()
 
-        // check new version in background if allowed
-        if (AppSettings.CHECK_UPDATES.value.toBoolean()) {
+        // check new versions in background if allowed
+        if (AppSettings.CHECK_UPDATES.value.toBoolean() || AppSettings.CHECK_SCHEDULE_UPDATES.value.toBoolean()) {
             daemonThread {
-                runCatching {
+
+                // check updated app
+                if (AppSettings.CHECK_UPDATES.value.toBoolean()) runCatching {
                     getNewVersion()?.let {
-                        label.text = "New version found: $it. Press here to download it."
+                        label.text = "New app version found: $it. Press here to download it."
                         banner.isVisible = true
+                        action = { openDownloadUpdatePage() } // open remote page
+                        return@daemonThread
                     }
                 }.onFailure { debugln("Can't get remote version, probably not permission, ignoring: $it") }
+
+                // check schedule update
+                if (AppSettings.CHECK_SCHEDULE_UPDATES.value.toBoolean()) runCatching {
+                    getNewScheduleFile()?.let { content ->
+                        label.text = "Schedule file update found. Press here to update it."
+                        banner.isVisible = true
+                        action = {
+                            replaceScheduleContent(content) {
+                                close()
+                                AppController.reload()
+                            }
+                        }
+                        return@daemonThread
+                    }
+                }.onFailure { debugln("Can't get remote schedule file, either doesn't exists or not permission, ignoring: $it") }
+
             }
         }
     }
@@ -57,8 +76,11 @@ internal class UpdateComponent {
         banner.isVisible = false
     }
 
+
+    private var action: (() -> Unit)? = null // the new schedule
+
     @FXML
-    fun update() = openDownloadUpdatePage() // open remote page
+    fun onClick() = action?.let { it() } // run action
 
 }
 
@@ -69,6 +91,12 @@ internal class UpdateComponent {
  */
 fun getNewVersion() = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/raw/javafx/src/main/resources/com/hiberus/anaya/redmineeditor/version").readText()
     .takeIf { it != VERSION }
+
+/**
+ * Returns the new content of the calendars file, if different
+ */
+fun getNewScheduleFile() = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/raw/javafx/${getCalendarFile()}").readText()
+    .takeIf { it != getSpecialDaysFile()?.readText() }
 
 /**
  * Opens the download page

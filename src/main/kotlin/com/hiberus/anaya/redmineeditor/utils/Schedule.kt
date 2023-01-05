@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.utils
 
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.paint.Color
 import java.io.FileNotFoundException
 import java.security.InvalidParameterException
@@ -62,7 +63,7 @@ fun LoadSpecialDays() = runCatching {
     CACHE.clear()
     RULES.clear()
     // get file
-    (getRelativeFile(getCalendarFile()) ?: throw FileNotFoundException(getCalendarFile()))
+    (getSpecialDaysFile() ?: throw FileNotFoundException(getCalendarFile()))
         .readLines().asSequence()
         // remove comments
         .map { it.replace("#.*".toRegex(), "") }
@@ -85,12 +86,37 @@ fun LoadSpecialDays() = runCatching {
 /**
  * Opens the special days file in an external app
  */
-fun OpenSpecialDaysFile() = (getRelativeFile(getCalendarFile())?.openInApp() ?: false)
+fun OpenSpecialDaysFile() = (getSpecialDaysFile()?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open hours file").showAndWait() }
 
-/* ------------------------- internal ------------------------- */
+/**
+ * Returns the special days file (if present)
+ */
+fun getSpecialDaysFile() = getRelativeFile(getCalendarFile())
 
-private fun getCalendarFile() = "conf/calendars/" + AppSettings.SCHEDULE_FILE.value.lowercase() + ".hours"
+/**
+ * Replaces the special days file with [content] (asks first)
+ * runs [onReplaced] if replaced
+ */
+fun replaceScheduleContent(content: String, onReplaced: () -> Unit) {
+    // replace file content
+    Alert(Alert.AlertType.CONFIRMATION).apply {
+        title = "Replace file"
+        contentText = "This will replace the content of the file ${getSpecialDaysFile()} with the remote version. Do you want to continue?"
+        stylize()
+        addButton(ButtonType.OK) {
+            getSpecialDaysFile()?.writeText(content)
+            onReplaced()
+        }
+    }.showAndWait()
+}
+
+/**
+ * Returns the path of the currently selected calendar file
+ */
+fun getCalendarFile() = "conf/calendars/" + AppSettings.SCHEDULE_FILE.value.lowercase() + ".hours"
+
+/* ------------------------- internal ------------------------- */
 
 private val CACHE = mutableMapOf<LocalDate, Double>() // caching
 

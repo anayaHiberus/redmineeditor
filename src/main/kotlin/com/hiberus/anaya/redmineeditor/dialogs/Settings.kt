@@ -4,6 +4,7 @@ import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.components.VERSION
+import com.hiberus.anaya.redmineeditor.components.getNewScheduleFile
 import com.hiberus.anaya.redmineeditor.components.getNewVersion
 import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
 import com.hiberus.anaya.redmineeditor.model.AppController
@@ -92,19 +93,28 @@ class SettingsController {
     lateinit var calendar: MenuButton // Office from which to extract public holidays
 
     @FXML
+    lateinit var checkScheduleUpdates: CheckBox // check schedule update loading indicator
+
+    @FXML
+    lateinit var scheduleUpdateInfo: Label // check schedule update info
+
+    @FXML
+    lateinit var scheduleUpdateLoading: ProgressIndicator // check schedule update checkbox
+
+    @FXML
     lateinit var prevDays: Spinner<Int> // number of previous days setting
 
     @FXML
     lateinit var dark: CheckBox // dark theme setting
 
     @FXML
-    lateinit var updateLoading: ProgressIndicator // check update loading indicator
+    lateinit var appUpdateLoading: ProgressIndicator // check update loading indicator
 
     @FXML
-    lateinit var updateInfo: Label // check update info
+    lateinit var appUpdateInfo: Label // check update info
 
     @FXML
-    lateinit var checkUpdates: CheckBox // check updates checkbox
+    lateinit var checkAppUpdate: CheckBox // check updates checkbox
 
     @FXML
     lateinit var save: Button // save button
@@ -133,7 +143,8 @@ class SettingsController {
         SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
-        SettingMatch(AppSettings.CHECK_UPDATES, { checkUpdates.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.CHECK_UPDATES, { checkAppUpdate.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.CHECK_SCHEDULE_UPDATES, { checkScheduleUpdates.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.SCHEDULE_FILE, { calendar.textProperty() }) { it },
     )
 
@@ -147,7 +158,7 @@ class SettingsController {
         }
 
         // prepare loading spinners
-        listOf(testLoading, updateLoading).forEach {
+        listOf(testLoading, appUpdateLoading, scheduleUpdateLoading).forEach {
             it.syncInvisible()
             it.isVisible = false
         }
@@ -269,11 +280,11 @@ class SettingsController {
     }
 
     @FXML
-    fun checkUpdate() {
+    fun checkAppUpdate() {
         // check update now
-        updateLoading.isVisible = true
-        updateInfo.text = ""
-        updateInfo.backgroundColor = null
+        appUpdateLoading.isVisible = true
+        appUpdateInfo.text = ""
+        appUpdateInfo.backgroundColor = null
 
         // run in background
         daemonThread {
@@ -285,15 +296,50 @@ class SettingsController {
 
             // then notify in foreground
             Platform.runLater {
-                updateInfo.text = result
-                updateInfo.backgroundColor = color
-                updateLoading.isVisible = false
+                appUpdateInfo.text = result
+                appUpdateInfo.backgroundColor = color
+                appUpdateLoading.isVisible = false
             }
         }
     }
 
     @FXML
-    fun downloadUpdate() = openDownloadUpdatePage()
+    fun checkScheduleUpdate() {
+        // check update now
+        scheduleUpdateLoading.isVisible = true
+        scheduleUpdateInfo.text = ""
+        scheduleUpdateInfo.backgroundColor = null
+
+        // run in background
+        daemonThread {
+            val (result, color) = runCatching {
+                // if ok,
+                getNewScheduleFile()?.let { "Update found. Click here to replace local file." to Color.LIGHTGREEN }
+                    ?: ("No update found, using latest version." to null)
+            }.getOrElse { "ERROR: Can't check update, unable to get remote file" to Color.INDIANRED }
+
+            // then notify in foreground
+            Platform.runLater {
+                scheduleUpdateInfo.text = result
+                scheduleUpdateInfo.backgroundColor = color
+                scheduleUpdateLoading.isVisible = false
+            }
+        }
+    }
+
+    @FXML
+    fun downloadAppUpdate() = openDownloadUpdatePage()
+
+    @FXML
+    fun downloadScheduleUpdate() = scheduleUpdateInfo.text.contains("Click here").ifOK {
+        getNewScheduleFile()?.let {
+            replaceScheduleContent(it) {
+                scheduleUpdateInfo.text = "Replaced"
+                scheduleUpdateInfo.backgroundColor = Color.GREEN
+                scheduleUpdateLoading.isVisible = false
+            }
+        }
+    }
 
     @FXML
     fun loadDefault() {
@@ -319,7 +365,7 @@ class SettingsController {
     // pressing cancel is the same as pressing the 'x' close button
     fun cancel() = window.fireEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST))
 
-/* ------------------------- internal ------------------------- */
+    /* ------------------------- internal ------------------------- */
 
     /**
      * List of changes
