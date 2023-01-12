@@ -9,7 +9,6 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Application
-import javafx.application.Platform
 import javafx.beans.value.ObservableValue
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -106,7 +105,7 @@ class FixMonthController {
 
     @FXML
     fun run() = AppController.runBackground({
-        FixMonthTool(it, issue.selectionModel.selectedItem, comment.text, selectedWeek.isSelected, futureDays.isSelected)
+        FixMonthTool(it, listOf(issue.selectionModel.selectedItem to comment.text), selectedWeek.isSelected, futureDays.isSelected)
     }) {
         // when correctly finishes, exit
         if (it) cancel()
@@ -133,8 +132,8 @@ class FixMonthToolCommand : Command {
         "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
         "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
         "-relative, if specified, the interval will be relative (past week/month). If not specified, interval will be absolute (current week/month). Recommended (in absolute mode, running this on day 1 or monday will not fix any past days).",
-        "--issue=123 will create new entries assigned to the issue with id 123. This parameter is mandatory.",
-        "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used.",
+        "--issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.",
+        "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123=\"Specific issue\"",
         "Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment=\"development\"",
         "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fix -week -relative --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1"
     )
@@ -142,13 +141,14 @@ class FixMonthToolCommand : Command {
     override fun run(parameters: Application.Parameters) {
 
         // read parameters
-        val issueId = parameters.named["issue"]?.toIntOrNull() ?: run {
-            // issue is mandatory
-            errorln(if ("issue" in parameters.named) parameters.named["issue"] + " is not an integer" else "Missing issue parameter")
-            Platform.exit()
-            return
-        }
-        val comment = parameters.named["comment"] ?: "".also { println("> No comment provided, an empty string will be used") }
+        val issueIds = parameters.named["issue"]
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?.mapNotNull { it.toIntOrNull() }
+            ?.distinct()
+            ?: listOf() // list of ids separated by comma
+        if (issueIds.isEmpty() && "issue" in parameters.named) println(parameters.named["issue"] + " is not an integer or list of integers")
         val week = ("-week" in parameters.unnamed).also { println("> Fixing " + if (it) "week" else "month") }
         val relative = ("-relative" in parameters.unnamed).also { println("> Using " + (if (it) "relative" else "absolute") + " interval") }
         val future = ("-future" in parameters.unnamed).also { println("> Fixing " + if (it) "future days too" else "past days only") }
@@ -167,24 +167,31 @@ class FixMonthToolCommand : Command {
                 }
                 // now load issue
                 2 -> {
-                    println("Loading issue #$issueId")
-                    AppController.runBackground { it.loadIssues(listOf(issueId)) }
+                    println("Loading issues ${issueIds.joinToString(", ") { "#$it" }}")
+                    AppController.runBackground { it.loadIssues(issueIds) }
                 }
                 // run tool
-                3 -> readOnlyModel.loadedIssues
-                    ?.find { it.id == issueId }
-                    ?.also { println("Loaded: $it") }
-                    ?.let { issue ->
-                        println("Running:")
-                        AppController.runBackground { model ->
-                            FixMonthTool(model, issue, comment, week, future, relative, test).onEach { println("    $it") }
+                3 -> issueIds.map { issueId ->
+                    // convert issue id to issue object
+                    readOnlyModel.loadedIssues
+                        ?.find { it.id == issueId }
+                        ?.also { println(it.toString().lines().joinToString("\n        ", "Loaded: ")) }
+                        ?: run {
+                            // no issue, exit
+                            errorln("No issue with id $issueId was found, exiting")
+                            latch.countDown()
+                            return@onChanges
                         }
+                }.map { issue ->
+                    // attach comment for each issue
+                    issue to (parameters.named["comment${issue.id}"] ?: parameters.named["comment"] ?: "".also { println("> No specific nor default comment provided for issue ${issue.id}, an empty string will be used") })
+                }.let { issues ->
+                    // run
+                    println("Running:")
+                    AppController.runBackground { model ->
+                        FixMonthTool(model, issues, week, future, relative, test).onEach { println("    $it") }
                     }
-                    ?: run {
-                        // no issue, exit
-                        errorln("No issue with id $issueId was found, exiting")
-                        latch.countDown()
-                    }
+                }
                 // upload
                 4 -> AppController.runBackground {
                     if (!test) {
@@ -211,41 +218,49 @@ class FixMonthToolCommand : Command {
 /* ------------------------- tool ------------------------- */
 
 /**
- * Fixes the selected month or [selectedWeek] optionally skipping [futureDays] adding new entries if required to an [issue] with a [comment]
+ * Fixes the selected month or [selectedWeek] optionally skipping [futureDays] adding new entries if required to one or more [issues] with a specific comment each (if provided)
  * Returns the changes
  * if [test] is true, no changes will be made (only logged)
  */
-private fun FixMonthTool(model: Model.Editor, issue: Issue, comment: String = "", selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false, test: Boolean = false) =
+private fun FixMonthTool(model: Model.Editor, issues: List<Pair<Issue, String>>, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false, test: Boolean = false) =
     // get days of week or month
     getSelectionRange(selectedWeek, futureDays, relative, model).days
-        .flatMap { day ->
+        .flatMap parent@{ day ->
             // get data of that day
             val dayEntries = model.getEntriesFromDate(day)
             val expected = day.expectedHours
             val spent = dayEntries.sumOf { it.spent }
             val pending = expected - spent
             if (pending > 0) {
-                // pending hours, find a matching entry first
-                dayEntries.firstOrNull { it.issue == issue && it.comment == comment }
-                    ?.let {
-                        // existing entry with the same data, update
-                        val oldSpent = it.spent
-                        val newSpent = oldSpent + pending
-                        if (!test) {
-                            it.changeSpent(newSpent)
+                // pending hours
+                if (issues.isEmpty()) listOf("[$day] There are $pending pending hours, but no issues were specified, skipping")
+                else {
+                    // split between the issues
+                    val pendingEach = pending / issues.size
+                    issues.flatMap { (issue, comment) ->
+                        // find a matching entry first
+                        dayEntries.firstOrNull { it.issue == issue && it.comment == comment }
+                            ?.let {
+                                // existing entry with the same data, update
+                                val oldSpent = it.spent
+                                val newSpent = oldSpent + pendingEach
+                                if (!test) {
+                                    it.changeSpent(newSpent)
+                                }
+                                listOf("[$day] Updated entry: #${issue.id} (${comment}) : ${oldSpent.formatHours()} -> ${newSpent.formatHours()}")
+                            } ?: run {
+                            // no entry with the data, create new one
+                            if (!test) {
+                                model.createTimeEntry(
+                                    issue = issue,
+                                    comment = comment,
+                                    spent = pendingEach,
+                                    date = day
+                                ) ?: return@parent listOf("[$day] ERROR: unable to create entry, is Redmine working?")
+                            }
+                            listOf("[$day] Created entry #${issue.id} ($comment) : -> ${pendingEach.formatHours()}")
                         }
-                        listOf("[$day] Updated entry: #${issue.id} (${comment}) : ${oldSpent.formatHours()} -> ${newSpent.formatHours()}")
-                    } ?: run {
-                    // no entry with the data, create new one
-                    if (!test) {
-                        model.createTimeEntry(
-                            issue = issue,
-                            comment = comment,
-                            spent = pending,
-                            date = day
-                        ) ?: return@flatMap listOf("[$day] ERROR: unable to create entry, is Redmine working?")
                     }
-                    listOf("[$day] Created entry #${issue.id} ($comment) : -> ${pending.formatHours()}")
                 }
             } else if (pending < 0) {
                 // extra hours, remove time
