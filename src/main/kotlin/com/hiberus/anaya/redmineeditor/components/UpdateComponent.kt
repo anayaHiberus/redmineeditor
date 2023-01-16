@@ -8,6 +8,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import java.net.URL
+import java.util.*
 
 /**
  * The current app version (as the version file says)
@@ -90,7 +91,8 @@ internal class UpdateComponent {
  * Returns the new remote version, or null if no new version was detected
  */
 fun getNewVersion() = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/raw/javafx/src/main/resources/com/hiberus/anaya/redmineeditor/version").readText()
-    .takeIf { it != VERSION }
+    // compare versions based on the numbers ("2.1" < "2.2" but "2.1.1" > "2.1")
+    .takeIf { listOf(it, VERSION).map { it.split(".").map { it.toIntOrNull() ?: 0 }.toIntArray() }.let { (a, b) -> Arrays.compare(a, b) } > 0 }
 
 /**
  * Returns the new content of the calendars file, if different
