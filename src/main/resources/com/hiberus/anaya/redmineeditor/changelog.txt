@@ -1,3 +1,8 @@
+V 1.3.0
+- Improve position and size of some displayed windows
+- Fix command supports multiple issues
+- Internal cleanup
+
 V 1.2.1
 - Fix calendar selection not detected when running outside the main folder
 
