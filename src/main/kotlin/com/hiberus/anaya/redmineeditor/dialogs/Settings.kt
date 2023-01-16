@@ -190,6 +190,7 @@ class SettingsController {
             }
         }
 
+        // populate calendar selector
         with(calendar) {
             // Get every file on folder
             val calendarFiles = getAllFiles("conf/calendars/") { _, name -> name.endsWith(".hours") }
@@ -212,6 +213,21 @@ class SettingsController {
 
         // initialize properties
         matches.letEach { property.value = valueConverter(setting.value) }
+
+        // configure loading spinners
+        calendar.textProperty().addListener { _, _, _ ->
+            scheduleUpdateLoading.isVisible = false
+            scheduleUpdateInfo.text = ""
+            scheduleUpdateInfo.backgroundColor = null
+        }
+        listOf(domain, key).forEach {
+            it.textProperty().addListener { _, _, _ ->
+                testLoading.isVisible = false
+                testInfo.text = ""
+                testInfo.backgroundColor = null
+            }
+        }
+
 
         // intelligent save button
         with({
@@ -314,7 +330,7 @@ class SettingsController {
         daemonThread {
             val (result, color) = runCatching {
                 // if ok,
-                getNewScheduleFile()?.let { "Update found. Click here to replace local file." to Color.LIGHTGREEN }
+                getNewScheduleFile(calendar.text)?.let { "Update found. Click here to replace local file." to Color.LIGHTGREEN }
                     ?: ("No update found, using latest version." to null)
             }.getOrElse { "ERROR: Can't check update, unable to get remote file" to Color.INDIANRED }
 
@@ -332,8 +348,8 @@ class SettingsController {
 
     @FXML
     fun downloadScheduleUpdate() = scheduleUpdateInfo.text.contains("Click here").ifOK {
-        getNewScheduleFile()?.let {
-            replaceScheduleContent(it) {
+        getNewScheduleFile(calendar.text)?.let {
+            replaceScheduleContent(it, calendar.text) {
                 scheduleUpdateInfo.text = "Replaced"
                 scheduleUpdateInfo.backgroundColor = Color.GREEN
                 scheduleUpdateLoading.isVisible = false

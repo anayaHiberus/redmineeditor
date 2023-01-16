@@ -45,8 +45,8 @@ internal class UpdateComponent {
                 if (AppSettings.CHECK_UPDATES.value.toBoolean()) runCatching {
                     getNewVersion()?.let {
                         label.text = "New app version found: $it. Press here to download it."
-                        banner.isVisible = true
                         action = { openDownloadUpdatePage() } // open remote page
+                        banner.isVisible = true
                         return@daemonThread
                     }
                 }.onFailure { debugln("Can't get remote version, probably not permission, ignoring: $it") }
@@ -55,13 +55,13 @@ internal class UpdateComponent {
                 if (AppSettings.CHECK_SCHEDULE_UPDATES.value.toBoolean()) runCatching {
                     getNewScheduleFile()?.let { content ->
                         label.text = "Schedule file update found. Press here to update it."
-                        banner.isVisible = true
                         action = {
                             replaceScheduleContent(content) {
                                 close()
                                 AppController.reload()
                             }
                         }
+                        banner.isVisible = true
                         return@daemonThread
                     }
                 }.onFailure { debugln("Can't get remote schedule file, either doesn't exists or not permission, ignoring: $it") }
@@ -95,8 +95,8 @@ fun getNewVersion() = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/r
 /**
  * Returns the new content of the calendars file, if different
  */
-fun getNewScheduleFile() = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/raw/javafx/${getCalendarFile()}").readText()
-    .takeIf { it != getSpecialDaysFile()?.readText() }
+fun getNewScheduleFile(calendar: String? = null) = URL("https://gitlabdes.hiberus.com/anaya/redmineeditor/-/raw/javafx/${getCalendarFile(calendar)}").readText()
+    .takeIf { areNewerRules(it.lineSequence(), calendar) }
 
 /**
  * Opens the download page
