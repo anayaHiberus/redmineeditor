@@ -146,9 +146,8 @@ class Controller {
                     contentText = "No valid configuration found, do you want to open settings?"
                     stylize()
                     addButton(ButtonType.OK) { ShowSettingsDialog() }
-                }.showAndWait()
-            }
-            if (specialDaysERROR) {
+                }.show() // don't use showAndWait, seems to fail on first launch for some reason (the settings screen is empty)
+            } else if (specialDaysERROR) {
                 // invalid special days, warning
                 Alert(Alert.AlertType.WARNING).apply {
                     title = "Special days error"
