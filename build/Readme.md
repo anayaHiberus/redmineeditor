@@ -1,3 +1,7 @@
+V 1.3.1
+- Possible fix for empty settings screen on first launch
+- Fix command line usage on Windows
+
 V 1.3.0
 - Improve position and size of some displayed windows
 - Fix command supports multiple issues
