@@ -37,5 +37,6 @@ Insertion:
 - Enter the url (or its id) of one or multiple issues to load and add them.
 
 Actions:
-- Reload: press it to fetch data from Redmine
-- Save: press it to upload modified data to Redmine. Asks to exit or reload afterwards.
+- Discard and reload: Fetches remote data, overrides local changes.
+- Save and reload: Uploads modified data to Redmine. The app is kept open.
+- Save and exit: Uploads modified data to Redmine. Exits the app afterwards.
