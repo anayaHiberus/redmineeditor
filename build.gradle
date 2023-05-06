@@ -53,8 +53,8 @@ jlink {
     targetPlatform("linux") {/* Default settings */ } // https://badass-jlink-plugin.beryx.org/releases/latest/
     targetPlatform("windows") {
         //noinspection GroovyAssignabilityCheck
-        jdkHome = "${buildDir}/../../win-sdk/jdk-17.0.2+8"
-        addExtraModulePath("${buildDir}/../../win-sdk/javafx-jmods-17.0.2")
+        jdkHome = "${buildDir}/../win-sdk/jdk-17.0.2+8"
+        addExtraModulePath("${buildDir}/../win-sdk/javafx-jmods-17.0.2")
     }
     targetPlatform("personal") {/* Default settings */ }
     launcher {
