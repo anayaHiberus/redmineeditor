@@ -125,10 +125,12 @@ class Controller {
         // init
         val uninitializedSettings = AppSettings.URL.value.isBlank() || AppSettings.KEY.value.isBlank()
         var specialDaysERROR = false
+        var colorsERROR = false
         runBackground({ model ->
 
             // reload files
             specialDaysERROR = !LoadSpecialDays()
+            colorsERROR = !LoadColors()
 
             // set now
             if (resetDay) model.toNow()
@@ -147,13 +149,23 @@ class Controller {
                     stylize()
                     addButton(ButtonType.OK) { ShowSettingsDialog() }
                 }.show() // don't use showAndWait, seems to fail on first launch for some reason (the settings screen is empty)
-            } else if (specialDaysERROR) {
-                // invalid special days, warning
-                Alert(Alert.AlertType.WARNING).apply {
-                    title = "Special days error"
-                    contentText = "No valid special days data found, holidays won't be shown"
-                    stylize()
-                }.showAndWait()
+            } else {
+                if (specialDaysERROR) {
+                    // invalid special days, warning
+                    Alert(Alert.AlertType.WARNING).apply {
+                        title = "Special days error"
+                        contentText = "No valid special days data found, holidays won't be shown"
+                        stylize()
+                    }.showAndWait()
+                }
+                if (colorsERROR) {
+                    // invalid colors, warning
+                    Alert(Alert.AlertType.WARNING).apply {
+                        title = "Colors error"
+                        contentText = "No valid colors data found, colors may not be shown correctly"
+                        stylize()
+                    }.showAndWait()
+                }
             }
         }
     }
@@ -166,4 +178,3 @@ class Controller {
  * Settings that will trigger a reload
  */
 val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS, AppSettings.SCHEDULE_FILE)
-
