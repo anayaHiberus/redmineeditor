@@ -84,7 +84,8 @@ internal class CalendarComponent {
             // select new (if there is a selection)
             model.day?.let {
                 selected = it - 1
-                days[selected]?.border = Border(BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii(5.0), BorderWidths(1.0)))
+                days[selected]?.border =
+                    Border(BorderStroke(Color.DARKGRAY, BorderStrokeStyle.SOLID, CornerRadii(5.0), BorderWidths(1.0)))
             }
         }
     }
@@ -128,7 +129,15 @@ internal class CalendarComponent {
     private fun colorDay(day: Int, model: Model) =
         model.month.atDay(day).let { date ->
             days[day - 1]?.let { label ->
-                label.backgroundColor = model.getSpent(date)?.let { getColor(date.expectedHours, it, date) }
+                label.backgroundColor = model.getSpent(date)?.let {
+                    getColor(
+                        date.expectedHours,
+                        it,
+                        date,
+                        // average day color
+                        model.getLoadedEntriesFromDate(date)?.filter { it.spent > 0 }?.mapNotNull { it.issue.color ?: DEFAULT_ISSUE_COLOR }?.average
+                    )
+                }
             }
         }
 
@@ -150,9 +159,14 @@ internal class CalendarComponent {
             // loaded, append spent/expected and set color
             val expected = month.expectedHours
             label += " (${spent.formatHours()}/${expected.formatHours()})"
-            calendarLabel.backgroundColor = getColor(expected, spent,
-                // last non-holiday day
-                month.days().reversed().firstOrNull { it.expectedHours > 0 } ?: month.atDay(1)
+            calendarLabel.backgroundColor = getColor(
+                expected, spent,
+                // last/today/first
+                when {
+                    month == LocalDate.now().yearMonth -> LocalDate.now()
+                    month > LocalDate.now().yearMonth -> month.atDay(1)
+                    else -> month.atEndOfMonth()
+                }
             )
         } else {
             // not loaded, clear

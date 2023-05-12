@@ -31,7 +31,7 @@ inline var Region.backgroundColor: Color?
         background = value?.let {
             Background(
                 BackgroundFill(
-                    Color(it.red, it.green, it.blue, 0.75),
+                    it.multiplyOpacity(0.75),
                     CornerRadii(5.0),
                     Insets(1.0)
                 )
@@ -177,3 +177,19 @@ fun Window.centerInMouseScreen() {
         }
     }
 }
+
+/**
+ * average of a list of colors
+ */
+val List<Color>.average
+    get() = reduceIndexedOrNull { index, acc, color -> acc.interpolate(color, 1.0 / (index + 1)) }
+
+/**
+ * replaces the opacity of a color
+ */
+fun Color.withOpacity(newOpacity: Double) = Color(red, green, blue, newOpacity)
+
+/**
+ * multiplies the opacity of a color
+ */
+fun Color.multiplyOpacity(opacityFactor: Double) = withOpacity(opacity * opacityFactor)

@@ -98,6 +98,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
             // text
             txt_details.text = toString()
+            txt_details.backgroundColor = color?.withOpacity(0.5)
 
             // estimated
             txt_estimated.text = estimated?.formatHours() ?: "none"

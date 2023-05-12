@@ -3,7 +3,6 @@ package com.hiberus.anaya.redmineeditor.utils
 import com.hiberus.anaya.redmineeditor.model.AppSettings
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import javafx.scene.paint.Color
 import java.io.FileNotFoundException
 import java.security.InvalidParameterException
 import java.time.DayOfWeek
@@ -29,31 +28,6 @@ val LocalDate.expectedHours
 val YearMonth.expectedHours
     // just add all the hours of each day in month
     get() = days().sumOf { it.expectedHours }
-
-/**
- * Calculates the color based on the day, and hours
- *
- * @param expected expected hours that day, probably from [expectedHours]
- * @param spent    spent hours that day
- * @param day      the day
- * @return the color of that day (null for no color)
- */
-fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
-    // something to spend, and correctly spent, GOOD!
-    expected != 0.0 && expected == spent -> Color.LIGHTGREEN
-    // nothing to spend and nothing spent, HOLIDAY!
-    expected == 0.0 && spent == 0.0 -> Color.LIGHTGREY
-    // spent greater than expected, ERROR!
-    spent > expected -> Color.INDIANRED
-    // today, but still not all, WARNING!
-    day == LocalDate.now() -> Color.ORANGE
-    // past day and not all, ERROR!
-    day.isBefore(LocalDate.now()) -> Color.RED
-    // future day, but something spent, IN PROGRESS
-    spent > 0 -> Color.LIGHTBLUE
-    // future day, NOTHING!
-    else -> null // (null = no color)
-}
 
 /* ------------------------- Special days ------------------------- */
 

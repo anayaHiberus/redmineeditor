@@ -3,10 +3,7 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.backgroundColor
-import com.hiberus.anaya.redmineeditor.utils.expectedHours
-import com.hiberus.anaya.redmineeditor.utils.formatHours
-import com.hiberus.anaya.redmineeditor.utils.getColor
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.paint.Color

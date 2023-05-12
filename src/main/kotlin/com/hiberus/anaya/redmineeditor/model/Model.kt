@@ -88,7 +88,12 @@ abstract class Model {
      * the entries that should be displayed on the current day (null if no current day or not loaded)
      */
     val dayEntries
-        get() = date?.let { redmine?.getEntriesForDate(it) }
+        get() = date?.let { getLoadedEntriesFromDate(it) }
+
+    /**
+     * the loaded entries of a specific date
+     */
+    fun getLoadedEntriesFromDate(date: LocalDate) = redmine?.getEntriesForDate(date)
 
     /**
      * all distinct loaded issues (readonly), null if not loaded
