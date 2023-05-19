@@ -97,7 +97,7 @@ fun ShowEvidencesDialog() {
         }
     }) {
         Alert(Alert.AlertType.INFORMATION).apply {
-            headerText = "Evidences [beta]"
+            headerText = "Evidences template"
             dialogPane.content = TextArea(text).apply { isWrapText = true }
             stylize()
         }.showAndWait()

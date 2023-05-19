@@ -135,7 +135,8 @@ class FixMonthToolCommand : Command {
         "--issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.",
         "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123=\"Specific issue\"",
         "Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment=\"development\"",
-        "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fix -week -relative --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1"
+        "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fix -week -relative --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1",
+        "On windows, create a bat with the command (RedmineEditor.bat -fix -week -relative --issue=123 --comment=\"development\") and create a Basic Task on the Task Scheduler to run it",
     )
 
     override fun run(parameters: Application.Parameters) {
