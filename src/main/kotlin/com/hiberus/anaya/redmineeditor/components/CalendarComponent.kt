@@ -129,14 +129,22 @@ internal class CalendarComponent {
     private fun colorDay(day: Int, model: Model) =
         model.month.atDay(day).let { date ->
             days[day - 1]?.let { label ->
-                label.backgroundColor = model.getSpent(date)?.let {
+                // main color
+                val mainColor = model.getSpent(date)?.let {
                     getColor(
                         date.expectedHours,
                         it,
-                        date,
-                        // average day color
-                        model.getLoadedEntriesFromDate(date)?.filter { it.spent > 0 }?.mapNotNull { it.issue.color ?: DEFAULT_ISSUE_COLOR }?.average
+                        date
                     )
+                }
+                label.backgroundColor = mainColor
+
+                // special color
+                if (mainColor != null) {
+                    model.getLoadedEntriesFromDate(date)?.filter { it.spent > 0 }?.map { (it.issue.color ?: mainColor) to it.spent }?.average?.takeIf { it != mainColor }?.let {
+                        // set weighted average of issues colors if different
+                        label.radialColor(mainColor, it)
+                    }
                 }
             }
         }

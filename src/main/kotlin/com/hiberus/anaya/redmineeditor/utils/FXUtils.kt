@@ -10,6 +10,9 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
+import javafx.scene.paint.CycleMethod
+import javafx.scene.paint.RadialGradient
+import javafx.scene.paint.Stop
 import javafx.stage.Screen
 import javafx.stage.Window
 import javafx.stage.WindowEvent
@@ -28,16 +31,37 @@ inline var Region.backgroundColor: Color?
     @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException() // https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0
     set(value) {
         // create a background with that color and rounded borders
-        background = value?.let {
+        background = value?.let { color ->
             Background(
                 BackgroundFill(
-                    it.multiplyOpacity(0.75),
+                    color.multiplyOpacity(0.75),
                     CornerRadii(5.0),
                     Insets(1.0)
                 )
             )
         }
     }
+
+/**
+ * Sets the background color of this region with a small circle of a secondary color
+ * Setter only
+ */
+fun Region.radialColor(background: Color, circle: Color) {
+    // create a background with that color and rounded borders
+    this.background = Background(
+        BackgroundFill(
+            RadialGradient(
+                0.0, 0.0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE, listOf(
+                    Stop(0.0, background.multiplyOpacity(0.75)),
+                    Stop(0.25, circle.multiplyOpacity(0.75)),
+                    Stop(0.5, background.multiplyOpacity(0.75)),
+                )
+            ),
+            CornerRadii(5.0),
+            Insets(1.0)
+        )
+    )
+}
 
 /**
  * Creates a new Label that will have its content centered
@@ -177,19 +201,3 @@ fun Window.centerInMouseScreen() {
         }
     }
 }
-
-/**
- * average of a list of colors
- */
-val List<Color>.average
-    get() = reduceIndexedOrNull { index, acc, color -> acc.interpolate(color, 1.0 / (index + 1)) }
-
-/**
- * replaces the opacity of a color
- */
-fun Color.withOpacity(newOpacity: Double) = Color(red, green, blue, newOpacity)
-
-/**
- * multiplies the opacity of a color
- */
-fun Color.multiplyOpacity(opacityFactor: Double) = withOpacity(opacity * opacityFactor)
