@@ -143,7 +143,7 @@ internal class CalendarComponent {
                 if (mainColor != null) {
                     model.getLoadedEntriesFromDate(date)?.filter { it.spent > 0 }?.map { (it.issue.color ?: mainColor) to it.spent }?.average?.takeIf { it != mainColor }?.let {
                         // set weighted average of issues colors if different
-                        label.radialColor(mainColor, it)
+                        label.indicatorColor(mainColor, it)
                     }
                 }
             }

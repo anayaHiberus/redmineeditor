@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch
 import kotlin.DeprecationLevel.ERROR
 import kotlin.math.min
 
+
 /**
  * The background color of this region (null for no color)
  * Setter only
@@ -43,18 +44,16 @@ inline var Region.backgroundColor: Color?
     }
 
 /**
- * Sets the background color of this region with a small circle of a secondary color
- * Setter only
+ * Sets the background color of this region with a small indicator of a secondary color
  */
-fun Region.radialColor(background: Color, circle: Color) {
-    // create a background with that color and rounded borders
+fun Region.indicatorColor(background: Color, special: Color) {
+    // create a background with a color and a special indicator
     this.background = Background(
         BackgroundFill(
             RadialGradient(
-                0.0, 0.0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE, listOf(
-                    Stop(0.0, background.multiplyOpacity(0.75)),
-                    Stop(0.25, circle.multiplyOpacity(0.75)),
-                    Stop(0.5, background.multiplyOpacity(0.75)),
+                0.0, 0.0, 1.0, 1.0, 1.0, true, CycleMethod.NO_CYCLE, listOf(
+                    Stop(0.9, background.multiplyOpacity(0.75)),
+                    Stop(1.0, special.multiplyOpacity(0.75)),
                 )
             ),
             CornerRadii(5.0),
