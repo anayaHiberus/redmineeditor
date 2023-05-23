@@ -154,7 +154,7 @@ class Controller {
                     // invalid special days, warning
                     Alert(Alert.AlertType.WARNING).apply {
                         title = "Special days error"
-                        contentText = "No valid special days data found, holidays won't be shown"
+                        contentText = "There were some issues reading the calendar file, some days may have invalid required hours."
                         stylize()
                     }.showAndWait()
                 }
@@ -162,7 +162,7 @@ class Controller {
                     // invalid colors, warning
                     Alert(Alert.AlertType.WARNING).apply {
                         title = "Colors error"
-                        contentText = "No valid colors data found, colors may not be shown correctly"
+                        contentText = "There were some issues reading the colors file, some colors may not be shown correctly."
                         stylize()
                     }.showAndWait()
                 }

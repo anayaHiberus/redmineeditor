@@ -77,7 +77,7 @@ fun LoadColors() = runCatching {
         // parse lines
         .useLines { line ->
             // remove comments
-            line.map { it.replaceAfter('#', "") }
+            line.map { it.replace("#.*".toRegex(), "") }
                 // extract key=value
                 .map { it.split('=', limit = 2) }
                 .filter { it.size == 2 }

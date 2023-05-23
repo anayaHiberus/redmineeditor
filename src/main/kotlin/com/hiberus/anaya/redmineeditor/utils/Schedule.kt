@@ -38,19 +38,23 @@ fun LoadSpecialDays() = runCatching {
     // clear first
     CACHE.clear()
     RULES.clear()
+
     // get file
-    (getSpecialDaysFile() ?: throw FileNotFoundException(getCalendarFile()))
+    val (rules, valid) = (getSpecialDaysFile() ?: throw FileNotFoundException(getCalendarFile()))
         // parse lines
         .readLines().asSequence()
         .let { parseSpecialDays(it) }
-        // and save (reversed)
-        .reversed().toCollection(RULES)
+
+    // and save (reversed)
+    rules.reversed().toCollection(RULES)
+
+    valid
 }.onFailure {
     debugln(it)
-}.isSuccess
+}.getOrDefault(false)
 
 /**
- * Reads a calendar file and converts its content to a list of rules
+ * Reads a calendar file and converts its content to a list of rules, returns also a 'valid' boolean
  */
 private fun parseSpecialDays(lines: Sequence<String>) = lines
     // remove comments
@@ -58,13 +62,15 @@ private fun parseSpecialDays(lines: Sequence<String>) = lines
     // skip empty
     .filter { it.isNotBlank() }
     // build valid to list
-    .mapNotNull { line ->
+    .map { line ->
         runCatching {
             Rule(line)
         }.onFailure {
-            errorln("Invalid entry in hours file: \"${it.message}\"")
+            errorln("Invalid entry in hours file: \"${it.message}\"") // TODO: return this error to show in the dialog
         }.getOrNull()
-    }.toList()
+    }.toList().let { list ->
+        list.filterNotNull() to !list.contains(null)
+    }
 
 /**
  * Opens the special days file in an external app
@@ -103,7 +109,7 @@ fun getCalendarFile(calendar: String? = null) = "conf/calendars/" + (calendar ?:
 /**
  * Returns true iff there are rules in [lines] not present in the current rules
  */
-fun areNewerRules(lines: Sequence<String>, calendar: String? = null) = parseSpecialDays(lines).toMutableList().apply { removeAll(parseSpecialDays(getRelativeFile(getCalendarFile(calendar))?.readLines()?.asSequence() ?: throw Exception("Invalid calendar file"))) }.isNotEmpty()
+fun areNewerRules(lines: Sequence<String>, calendar: String? = null) = parseSpecialDays(lines).first.toMutableList().apply { removeAll(parseSpecialDays(getRelativeFile(getCalendarFile(calendar))?.readLines()?.asSequence() ?: throw Exception("Invalid calendar file")).first) }.isNotEmpty()
 
 /* ------------------------- internal ------------------------- */
 
