@@ -40,7 +40,7 @@ fun LoadSpecialDays() = runCatching {
     RULES.clear()
 
     // get file
-    val (rules, valid) = (getSpecialDaysFile() ?: throw FileNotFoundException(getCalendarFile()))
+    val (rules, errors) = (getSpecialDaysFile() ?: throw FileNotFoundException(getCalendarFile()))
         // parse lines
         .readLines().asSequence()
         .let { parseSpecialDays(it) }
@@ -48,10 +48,10 @@ fun LoadSpecialDays() = runCatching {
     // and save (reversed)
     rules.reversed().toCollection(RULES)
 
-    valid
-}.onFailure {
-    debugln(it)
-}.getOrDefault(false)
+    errors
+}.getOrElse {
+    it.message?.also { debugln(it) }
+}
 
 /**
  * Reads a calendar file and converts its content to a list of rules, returns also a 'valid' boolean
@@ -64,12 +64,13 @@ private fun parseSpecialDays(lines: Sequence<String>) = lines
     // build valid to list
     .map { line ->
         runCatching {
-            Rule(line)
-        }.onFailure {
-            errorln("Invalid entry in hours file: \"${it.message}\"") // TODO: return this error to show in the dialog
-        }.getOrNull()
+            Rule(line) to null
+        }.getOrElse {
+            null to it.message?.also { errorln("Invalid line in hours file: $it") }
+        }
     }.toList().let { list ->
-        list.filterNotNull() to !list.contains(null)
+        // zip rules and errors
+        list.mapNotNull { it.first } to list.mapNotNull { it.second }.takeIf { it.isNotEmpty() }?.joinToString("\n")
     }
 
 /**
@@ -142,10 +143,10 @@ private class Rule(var line: String) {
         // split by comma
         val data = line.split(" ").map { it.trim() }
         // not enough
-        if (data.size < 3) throw InvalidParameterException("not enough data: $line")
+        if (data.size < 3) throw InvalidParameterException("not enough data: \"$line\"")
 
         // and other??
-        if (data.size > 4) throw InvalidParameterException("more than enough data: $line")
+        if (data.size > 4) throw InvalidParameterException("more than enough data: \"$line\"")
 
         // year, month, day and hours
         year = data[0].toNullableInt()

@@ -71,8 +71,6 @@ fun LoadColors() = runCatching {
     COLORS.clear()
     CACHE.clear()
 
-    var valid = true
-
     // get file
     (getRelativeFile("conf/colors.properties") ?: throw FileNotFoundException("conf/colors.properties"))
         // parse lines
@@ -81,12 +79,12 @@ fun LoadColors() = runCatching {
             lines.map { it.replace("#.*".toRegex(), "") }
                 // skip empty
                 .filter { it.isNotBlank() }
-                .forEach { line ->
+                .mapNotNull { line ->
                     runCatching {
 
                         // extract key=value
                         val parts = line.split('=', limit = 2)
-                        if (parts.size != 2) throw InvalidParameterException("Lines must be in the format key=value. Invalid line: $line")
+                        if (parts.size != 2) throw InvalidParameterException("Lines must be in the format key=value. Found: \"$line\"")
                         val (k, v) = parts.map { it.trim() }
 
                         Regex("project\\.\"(.*)\"").matchEntire(k)?.let {
@@ -99,17 +97,16 @@ fun LoadColors() = runCatching {
                             debugln("Color found: $k = $v")
                             COLORS[k] = Color.web(v)
                         }
-                    }.onFailure {
-                        errorln("Invalid entry in colors file: \"${it.message}\"") // TODO: return this error to show in the dialog
-                        valid = false
-                    }
-                }
-        }
 
-    valid
-}.onFailure {
-    debugln(it)
-}.getOrDefault(false)
+                        null
+                    }.getOrElse {
+                        it.message.also { debugln("Invalid line in colors file: $it") }
+                    }
+                }.toList()
+        }.takeIf { it.isNotEmpty() }?.joinToString("\n")
+}.getOrElse {
+    it.message.also { debugln("Error while reading colors file: $it")}
+}
 
 
 /* ------------------------- containers ------------------------- */

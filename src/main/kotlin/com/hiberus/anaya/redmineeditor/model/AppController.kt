@@ -124,13 +124,13 @@ class Controller {
 
         // init
         val uninitializedSettings = AppSettings.URL.value.isBlank() || AppSettings.KEY.value.isBlank()
-        var specialDaysERROR = false
-        var colorsERROR = false
+        var specialDaysERROR:String? = null
+        var colorsERROR: String? = null
         runBackground({ model ->
 
             // reload files
-            specialDaysERROR = !LoadSpecialDays()
-            colorsERROR = !LoadColors()
+            specialDaysERROR = LoadSpecialDays()
+            colorsERROR = LoadColors()
 
             // set now
             if (resetDay) model.toNow()
@@ -150,19 +150,19 @@ class Controller {
                     addButton(ButtonType.OK) { ShowSettingsDialog() }
                 }.show() // don't use showAndWait, seems to fail on first launch for some reason (the settings screen is empty)
             } else {
-                if (specialDaysERROR) {
+                if (specialDaysERROR != null) {
                     // invalid special days, warning
                     Alert(Alert.AlertType.WARNING).apply {
                         title = "Special days error"
-                        contentText = "There were some issues reading the calendar file, some days may have invalid required hours."
+                        contentText = "There were some issues reading the calendar file, some days may have invalid required hours:\n\n$specialDaysERROR"
                         stylize()
                     }.showAndWait()
                 }
-                if (colorsERROR) {
+                if (colorsERROR != null) {
                     // invalid colors, warning
                     Alert(Alert.AlertType.WARNING).apply {
                         title = "Colors error"
-                        contentText = "There were some issues reading the colors file, some colors may not be shown correctly."
+                        contentText = "There were some issues reading the colors file, some colors may not be shown correctly:\n\n$colorsERROR"
                         stylize()
                     }.showAndWait()
                 }
