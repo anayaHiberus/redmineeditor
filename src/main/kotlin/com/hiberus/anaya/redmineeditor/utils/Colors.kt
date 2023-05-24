@@ -3,6 +3,7 @@ package com.hiberus.anaya.redmineeditor.utils
 import com.hiberus.anaya.redmineapi.Issue
 import javafx.scene.paint.Color
 import java.io.FileNotFoundException
+import java.security.InvalidParameterException
 import java.time.LocalDate
 
 
@@ -75,15 +76,19 @@ fun LoadColors() = runCatching {
     // get file
     (getRelativeFile("conf/colors.properties") ?: throw FileNotFoundException("conf/colors.properties"))
         // parse lines
-        .useLines { line ->
+        .useLines { lines ->
             // remove comments
-            line.map { it.replace("#.*".toRegex(), "") }
-                // extract key=value
-                .map { it.split('=', limit = 2) }
-                .filter { it.size == 2 }
-                .map { it.map { it.trim() } }
-                .forEach { (k, v) ->
+            lines.map { it.replace("#.*".toRegex(), "") }
+                // skip empty
+                .filter { it.isNotBlank() }
+                .forEach { line ->
                     runCatching {
+
+                        // extract key=value
+                        val parts = line.split('=', limit = 2)
+                        if (parts.size != 2) throw InvalidParameterException("Lines must be in the format key=value. Invalid line: $line")
+                        val (k, v) = parts.map { it.trim() }
+
                         Regex("project\\.\"(.*)\"").matchEntire(k)?.let {
                             // a project
                             val project = it.groupValues[1]
@@ -94,7 +99,10 @@ fun LoadColors() = runCatching {
                             debugln("Color found: $k = $v")
                             COLORS[k] = Color.web(v)
                         }
-                    }.onFailure { valid = false }
+                    }.onFailure {
+                        errorln("Invalid entry in colors file: \"${it.message}\"") // TODO: return this error to show in the dialog
+                        valid = false
+                    }
                 }
         }
 
