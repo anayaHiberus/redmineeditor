@@ -6,13 +6,13 @@ Kotlin+JavaFX app for edit redmine time entries and issues in a fast and easy wa
 
 ## ~~Installation~~ Download
 
-Download the latest version from the [build](build) folder (linux/windows zip). Extract anywhere.
+Download the [latest version](https://github.com/anayaHiberus/redmineeditor/releases/latest) zip (linux or windows). Extract anywhere.
 
-No need to install anything else! (it requires a JVM, but it is included, that's why the zip is relatively large).
+That's it! No need to install anything else! (it requires a JVM, but it is included, that's why the zip is quite large).
 
 ## Run
 
-Launch the Redmine(.bat) shortcut from the main folder.
+Launch the RedmineEditor(.bat) shortcut inside the main folder.
 
 
 ## Setup (first config)

@@ -34,7 +34,7 @@ javafx {
 
 //noinspection SpellCheckingInspection
 dependencies {
-    implementation 'org.json:json:20211205'
+    implementation 'org.json:json:20220320'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10'
     // implementation 'com.taskadapter:redmine-java-api:4.0.0.rc4' // useless api, cant search using multiple filters
 }
@@ -43,20 +43,18 @@ jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages',
                '--add-modules', 'jdk.crypto.ec,jdk.localedata' // crypto: fixes handshake error, localedata: allows non-english locales (for evidences)
     ]
+
+    var appName = 'RedmineEditor'
+    imageDir = file("$buildDir/$appName")
+    imageZip = file("$buildDir/$appName-${org.gradle.internal.os.OperatingSystem.current().isWindows() ? 'windows' : 'linux'}.zip")
     launcher {
-        name = 'RedmineEditor'
+        name = appName
     }
+
     mergedModule {
         additive = true
         forceMerge "kotlin" // https://issueexplorer.com/issue/beryx/badass-jlink-plugin/165
     }
-    targetPlatform("linux") {/* Default settings */ } // https://badass-jlink-plugin.beryx.org/releases/latest/
-    targetPlatform("windows") {
-        //noinspection GroovyAssignabilityCheck
-        jdkHome = "${buildDir}/../win-sdk/jdk-17.0.2+8"
-        addExtraModulePath("${buildDir}/../win-sdk/javafx-jmods-17.0.2")
-    }
-    targetPlatform("personal") {/* Default settings */ }
     launcher {
         noConsole = true
     }
@@ -72,58 +70,35 @@ compileTestKotlin {
     }
 }
 
-task copyConf {
-    doLast {
-        // copy things, hardcoded paths
-        project.logger.lifecycle "Copying Configuration files"
+tasks.jlink.doLast {
+    project.logger.lifecycle "Patching output folder"
+    var imageDir = jlink.imageDir.get()
 
-        // configurations
-        copy {
-            from "${buildDir}/../conf"
-            into "$buildDir/image/RedmineEditor-linux/conf"
-        }
-        copy {
-            from "${buildDir}/../conf"
-            into "$buildDir/image/RedmineEditor-windows/conf"
-        }
-        copy {
-            from "${buildDir}/../conf"
-            from("${buildDir}/../conf_personal") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
-            into "$buildDir/image/RedmineEditor-personal/conf"
-        }
+    // copy configurations
+    copy {
+        from "$buildDir/../conf"
+        from("${buildDir}/../conf_personal") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
+        into "$imageDir/conf"
+    }
 
-        // launchers
+    // fix launchers
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        // windows
         copy {
-            from "${buildDir}/../launcher/RedmineEditor"
-            into "$buildDir/image/RedmineEditor-linux"
+            from "$buildDir/../launcher/RedmineEditor.bat"
+            into imageDir
         }
+        delete files(
+                "$imageDir/bin/RedmineEditor",
+        )
+    } else {
+        // linux
         copy {
-            from "${buildDir}/../launcher/RedmineEditor.bat"
-            into "$buildDir/image/RedmineEditor-windows"
+            from "$buildDir/../launcher/RedmineEditor"
+            into imageDir
         }
-        copy {
-            from "${buildDir}/../launcher/RedmineEditor"
-            into "$buildDir/image/RedmineEditor-personal"
-        }
-
-        // copy changelog
-        copy {
-            from "$sourceSets.main.output.resourcesDir/com/hiberus/anaya/redmineeditor/changelog.txt"
-            into buildDir
-            rename "changelog.txt", "Readme.md"
-        }
-
+        delete files(
+                "$imageDir/bin/RedmineEditor.bat"
+        )
     }
 }
-
-task cleanImage(type: Delete) {
-    // delete invalid launchers
-    delete files(
-            "${buildDir}/image/RedmineEditor-windows/bin/RedmineEditor",
-            "${buildDir}/image/RedmineEditor-linux/bin/RedmineEditor.bat"
-    )
-}
-
-// https://handstandsam.com/2021/06/07/run-custom-gradle-task-after-build/
-tasks.named("jlink") { finalizedBy("copyConf", "cleanImage") }
-tasks.named("jlinkZip") { dependsOn("copyConf", "cleanImage") }

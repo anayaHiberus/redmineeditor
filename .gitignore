@@ -1,7 +1,4 @@
-/build/*
-!/build/*.md
-!/build/*.zip
-/build/image-personal.zip
+/build/
 
 /.gradle/
 
