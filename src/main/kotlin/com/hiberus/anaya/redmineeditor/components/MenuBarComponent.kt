@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.dialogs.*
+import com.hiberus.anaya.redmineeditor.utils.OpenColorsFile
 import com.hiberus.anaya.redmineeditor.utils.OpenSpecialDaysFile
 import javafx.fxml.FXML
 
@@ -22,6 +23,9 @@ internal class MenuBarComponent {
 
     @FXML
     fun hours() = OpenSpecialDaysFile()
+
+    @FXML
+    fun colors() = OpenColorsFile()
 
     @FXML
     fun evidences() = ShowEvidencesDialog()

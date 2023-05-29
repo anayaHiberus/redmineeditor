@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils
 
 import com.hiberus.anaya.redmineapi.Issue
+import javafx.scene.control.Alert
 import javafx.scene.paint.Color
 import java.io.FileNotFoundException
 import java.security.InvalidParameterException
@@ -57,7 +58,7 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     // past day and not all, ERROR!
     day.isBefore(LocalDate.now()) -> COLORS.getValue("past_error")
     // future day, and something (not all) spent, IN PROGRESS
-    spent > 0 -> COLORS.getValue("good").desaturate()
+    spent > 0 -> COLORS.getValue("good").multiplyOpacity(0.25)
     // future day, NOTHING!
     else -> null // (null = no color)
 }
@@ -72,7 +73,7 @@ fun LoadColors() = runCatching {
     CACHE.clear()
 
     // get file
-    (getRelativeFile("conf/colors.properties") ?: throw FileNotFoundException("conf/colors.properties"))
+    (colorsFile ?: throw FileNotFoundException("conf/colors.properties"))
         // parse lines
         .useLines { lines ->
             // remove comments
@@ -108,6 +109,16 @@ fun LoadColors() = runCatching {
     it.message.also { debugln("Error while reading colors file: $it")}
 }
 
+/**
+ * the colors file
+ */
+private val colorsFile = getRelativeFile("conf/colors.properties")
+
+/**
+ * Opens the colors file in an external app
+ */
+fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
+    .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open colors file").showAndWait() }
 
 /* ------------------------- containers ------------------------- */
 

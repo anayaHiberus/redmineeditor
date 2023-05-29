@@ -6,12 +6,13 @@
     <MenuBar maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
         <Menu text="_Tools">
             <MenuItem onAction="#evidences" text="Generate _evidences..."/>
-            <MenuItem onAction="#batchEditor" text="_Batch editor [beta]..."/>
+            <MenuItem onAction="#batchEditor" text="_Batch editor..."/>
             <MenuItem onAction="#fixMonth" text="_Month fixer..."/>
         </Menu>
         <Menu text="_Edit">
             <MenuItem onAction="#settings" text="_Settings..."/>
             <MenuItem onAction="#hours" text="_Hours (holidays and default hours per day)..."/>
+            <MenuItem onAction="#colors" text="_Colors..."/>
         </Menu>
         <Menu text="_Help">
             <MenuItem onAction="#readme" text="_Readme"/>
