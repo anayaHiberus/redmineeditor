@@ -46,7 +46,7 @@ fun ShowAbout() {
         stylize()
         clearButtons()
         addButton(ButtonType("Source code")) {
-            openInBrowser("https://gitlabdes.hiberus.com/anaya/redmineeditor")
+            openInBrowser("https://github.com/anayaHiberus/redmineeditor")
         }
         addButton(ButtonType.CLOSE)
     }.showAndWait()
