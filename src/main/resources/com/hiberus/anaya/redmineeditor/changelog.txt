@@ -1,3 +1,9 @@
+V 1.4
+- Colored tasks (Hiberus by default)
+- Allow to change app colors
+- Updated calendars files
+- Migrated to GitHub
+
 V 1.3.1
 - Possible fix for empty settings screen on first launch
 - Fix command line usage on Windows
