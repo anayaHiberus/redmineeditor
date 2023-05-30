@@ -152,6 +152,9 @@ class TimeEntry {
         get() = !(changes.isEmpty // no changes, no upload
                 || (id == null && spent <= 0)) // no useful changes, no upload
 
+    val changedSpent get() = changes.has("hours") && !(id == null && spent <= 0)
+    val changedComment get() = changes.has("comments") && !(id == null && spent <= 0)
+
     /**
      * String representation of this TimeEntry
      */

@@ -31,9 +31,6 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
     /* ------------------------- views ------------------------- */
 
     @FXML
-    lateinit var box_issue: HBox
-
-    @FXML
     lateinit var txt_details: Label
 
     @FXML
@@ -59,9 +56,6 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     @FXML
     lateinit var sub_realization: HBox
-
-    @FXML
-    lateinit var box_entry: HBox
 
     @FXML
     lateinit var txt_spent: Label
@@ -90,6 +84,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
      * Updates the content of issue or entry
      */
     fun partialUpdate(updateIssue: Boolean = false, updateEntry: Boolean = false) {
+
         // sets the cell data
         // TODO: mark each individual modified setting, or show a dialog when pressing save with option to revert (maybe even checkboxes)
 
@@ -103,6 +98,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             // estimated
             txt_estimated.text = estimated?.formatHours() ?: "none"
             sub_estimated.enabled = estimated != null
+            txt_estimated.bold = changedEstimation
 
             // spent
             btn_total.isVisible = spent == null
@@ -127,20 +123,8 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             txt_realization.backgroundColor = spent_realization?.let { if (it > realization) Color.ORANGE else null }
             add_realization.enabled = realization < 100
             sub_realization.enabled = realization > 0
+            txt_realization.bold = changedRealization
 
-        }
-
-        // issue container opacity (depends on entry too)
-        if (updateEntry || updateIssue) {
-            item?.let { entry ->
-                entry.issue.let { issue ->
-                    box_issue.opacity = when {
-                        issue.requiresUpload -> 1.0 // need to upload
-                        entry.spent > 0 -> 0.75 // entry used today
-                        else -> 0.5 // other
-                    }
-                }
-            }
         }
 
         // --- entry ---
@@ -150,16 +134,14 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             txt_spent.text = spent.formatHours()
             max_spent.enabled = AppController.runForeground { model -> model.getPending()?.let { it > 0 } ?: false }
             sub_spent.enabled = spent > 0
+            txt_spent.bold = changedSpent
 
             // comment
             comment.takeIf { it != edTxt_comment.text }?.let { edTxt_comment.text = it } // don't update if the same, to avoid moving the caret
+            edTxt_comment.bold = changedComment
 
-            // container
-            box_entry.opacity = when {
-                requiresUpload -> 1.0 // need to upload
-                spent > 0 -> 1.0 // used today
-                else -> 0.5 // other
-            }
+            // mark entries if they have spent time
+            this@EntryComponent.style = if (spent > 0) "-fx-control-inner-background: #A0A0A0;" else null
 
         }
 

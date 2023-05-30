@@ -213,6 +213,8 @@ class Issue {
      * iff this entry requires upload, false otherwise
      */
     val requiresUpload get() = !changes.isEmpty
+    val changedEstimation get() = changes.has("estimated_hours")
+    val changedRealization get() = changes.has("done_ratio")
 
 }
 

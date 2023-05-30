@@ -30,6 +30,7 @@ abstract class SimpleListCell<T>(fxml: URL) : ListCell<T>() {
             // empty cell
             text = null
             setContentDisplay(ContentDisplay.TEXT_ONLY)
+            style = null // clear style
         } else {
             // cell with content
             update()

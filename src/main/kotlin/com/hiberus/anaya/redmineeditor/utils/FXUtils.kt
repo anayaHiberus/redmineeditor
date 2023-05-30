@@ -63,6 +63,16 @@ fun Region.indicatorColor(background: Color, special: Color) {
 }
 
 /**
+ * Bold style of a region (for its text)
+ */
+var Region.bold: Boolean
+    get() = BOLD_STYLE in (style ?: "")
+    set(value) {
+        style = if (value) BOLD_STYLE else null
+    }
+private val BOLD_STYLE = "-fx-font-weight: bold;"
+
+/**
  * Creates a new Label that will have its content centered
  *
  * @param text initial label text
