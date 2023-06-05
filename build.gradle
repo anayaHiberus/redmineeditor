@@ -41,7 +41,11 @@ dependencies {
 
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages',
-               '--add-modules', 'jdk.crypto.ec,jdk.localedata' // crypto: fixes handshake error, localedata: allows non-english locales (for evidences)
+               '--add-modules', [
+                       'jdk.crypto.ec',  // crypto: fixes handshake error,
+                       'jdk.localedata',  // localedata: allows non-english locales (for evidences)
+                       'jdk.accessibility' // accessibility: to avoid exception when using accesibility modules
+               ].join(',')
     ]
 
     var appName = 'RedmineEditor'

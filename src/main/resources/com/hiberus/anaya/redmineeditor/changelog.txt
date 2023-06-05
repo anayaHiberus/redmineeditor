@@ -1,3 +1,6 @@
+V 1.4.1
+- Fix exception with accessibility enabled
+
 V 1.4
 - Colored tasks (Hiberus by default)
 - Allow to change app colors

@@ -25,6 +25,7 @@ jobs:
         name: Create draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: ${{ github.ref_name != 'main' && '--prerelease' || '' }}
         run: |
           # prepare files
           VERSION=`cat src/main/resources/com/hiberus/anaya/redmineeditor/version`
@@ -37,7 +38,7 @@ jobs:
           gh release delete $TAG --cleanup-tag --yes || true
           
           # create draft release
-          gh release create $TAG --draft --title "Version $VERSION" --notes "$CHANGELOG"
+          gh release create $TAG --draft --title "Version $VERSION" --notes "$CHANGELOG" $PRERELEASE
           
           # output tag for next steps
           echo "tag=$TAG" >> $GITHUB_OUTPUT
