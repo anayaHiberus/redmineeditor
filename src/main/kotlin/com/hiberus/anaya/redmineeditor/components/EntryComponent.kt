@@ -274,7 +274,16 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
         FixMonthTool(it, listOf(item.issue to item.comment), selectedWeek = false, futureDays = true)
     }
 
-    // TODO: add a 'delete' entry, think about what to do if the entry exists
+    @FXML
+    fun clear() {
+        // clear hours and comment
+        item.changeSpent(0.0)
+        edTxt_comment.text = ""
+        item.comment = ""
+
+        // and notify
+        AppController.fireChanges(setOf(ChangeEvent.EntryContent, ChangeEvent.DayHours))
+    }
 
 }
 

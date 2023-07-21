@@ -191,6 +191,7 @@
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#copyToToday" text="Copy to today" />
                     <MenuItem mnemonicParsing="false" onAction="#fixMonth" text="Fix current month with this entry" />
+                    <MenuItem mnemonicParsing="false" onAction="#clear" text="Clear current entry" />
                 </items>
                 <font>
                     <Font />
