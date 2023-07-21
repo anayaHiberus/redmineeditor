@@ -247,6 +247,9 @@ private fun FixMonthTool(model: Model.Editor, issues: List<Pair<Issue, String>>,
                                 val newSpent = oldSpent + pendingEach
                                 if (!test) {
                                     it.changeSpent(newSpent)
+                                    model.registerExternalChange(ChangeEvent.EntryContent)
+                                    model.registerExternalChange(ChangeEvent.DayHours)
+                                    model.registerExternalChange(ChangeEvent.MonthHours)
                                 }
                                 listOf("[$day] Updated entry: #${issue.id} (${comment}) : ${oldSpent.formatHours()} -> ${newSpent.formatHours()}")
                             } ?: run {
