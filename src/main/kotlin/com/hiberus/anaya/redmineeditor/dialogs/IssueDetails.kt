@@ -33,9 +33,7 @@ fun Issue.showDetails() {
         centerInMouseScreen()
 
         // initialize now with the issue
-        loader.getController<IssueDetailsController>().apply {
-            initialize(this@showDetails)
-        }
+        loader.getController<IssueDetailsController>().initialize(this@showDetails)
 
     }.showAndWait()
 }

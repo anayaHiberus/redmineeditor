@@ -1,7 +1,6 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
 import com.hiberus.anaya.redmineapi.Issue
-import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.commandline.Command
 import com.hiberus.anaya.redmineeditor.model.AppController
@@ -27,18 +26,14 @@ import java.util.concurrent.CountDownLatch
  * Displays the Fix Month tool dialog
  */
 fun ShowFixMonthDialog() =
-    Stage().run {
+    Stage().apply {
         title = "Fix month tool"
         scene = Scene(FXMLLoader(ResourceLayout("fix_month")).load())
         scene.stylize()
         centerInMouseScreen()
         initModality(Modality.APPLICATION_MODAL)
 
-        showAndWait()
-
-        // return
-        scene.window.userData as? TimeEntry
-    }
+    }.showAndWait()
 
 
 /**
@@ -223,7 +218,7 @@ class FixMonthToolCommand : Command {
  * Returns the changes
  * if [test] is true, no changes will be made (only logged)
  */
-private fun FixMonthTool(model: Model.Editor, issues: List<Pair<Issue, String>>, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false, test: Boolean = false) =
+fun FixMonthTool(model: Model.Editor, issues: List<Pair<Issue, String>>, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false, test: Boolean = false) =
     // get days of week or month
     getSelectionRange(selectedWeek, futureDays, relative, model).days
         .flatMap parent@{ day ->

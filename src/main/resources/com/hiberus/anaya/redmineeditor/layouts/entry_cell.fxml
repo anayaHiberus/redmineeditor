@@ -190,6 +190,7 @@
             <MenuButton contentDisplay="GRAPHIC_ONLY" ellipsisString="" graphicTextGap="0.0" maxWidth="24.0" minWidth="24.0" mnemonicParsing="false" prefWidth="24.0" textOverrun="CLIP">
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#copyToToday" text="Copy to today" />
+                    <MenuItem mnemonicParsing="false" onAction="#fixMonth" text="Fix current month with this entry" />
                 </items>
                 <font>
                     <Font />

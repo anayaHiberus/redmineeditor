@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.ResourceLayout
+import com.hiberus.anaya.redmineeditor.dialogs.FixMonthTool
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.showDetails
 import com.hiberus.anaya.redmineeditor.model.AppController
@@ -143,7 +144,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             // mark entries if they have spent time
             this@EntryComponent.style = if (spent > 0) "-fx-control-inner-background: #A0A0A0;" else null
 
-        }
+    }
 
     }
 
@@ -266,6 +267,11 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             model.toNow()
             model.copyTimeEntry(it)
         }
+    }
+
+    @FXML
+    fun fixMonth() = AppController.runBackground {
+        FixMonthTool(it, listOf(item.issue to item.comment), selectedWeek = false, futureDays = true)
     }
 
     // TODO: add a 'delete' entry, think about what to do if the entry exists
