@@ -12,13 +12,14 @@ import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.control.TextInputDialog
 import javafx.scene.input.KeyEvent
-import javafx.scene.layout.HBox
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import java.io.IOException
 import java.util.function.Consumer
@@ -142,10 +143,14 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             edTxt_comment.bold = changedComment
 
             // mark entries if they have spent time
-            this@EntryComponent.style = if (spent > 0) "-fx-control-inner-background: #A0A0A0;" else null
+            this@EntryComponent.border = Border(BorderStroke(if (spent > 0) Color.BLACK else Color.TRANSPARENT, BorderStrokeStyle.DASHED, CornerRadii(5.0), BorderWidths.DEFAULT, Insets(5.0)))
+
+        }
 
     }
 
+    override fun updateEmpty() {
+        border = null
     }
 
     /* ------------------------- actions ------------------------- */
