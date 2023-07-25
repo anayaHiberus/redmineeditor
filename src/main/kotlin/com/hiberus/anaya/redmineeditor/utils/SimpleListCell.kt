@@ -30,6 +30,7 @@ abstract class SimpleListCell<T>(fxml: URL) : ListCell<T>() {
             // empty cell
             text = null
             setContentDisplay(ContentDisplay.TEXT_ONLY)
+            style = null // clear style
         } else {
             // cell with content
             update()
@@ -41,10 +42,5 @@ abstract class SimpleListCell<T>(fxml: URL) : ListCell<T>() {
      * Update here the content of the cell
      */
     protected abstract fun update()
-
-    /**
-     * Update here the content of an empty cell (do nothing by default)
-     */
-    protected open fun updateEmpty() = Unit
 
 }
