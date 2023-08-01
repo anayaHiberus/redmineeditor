@@ -7,9 +7,7 @@ import com.hiberus.anaya.redmineeditor.components.VERSION
 import com.hiberus.anaya.redmineeditor.components.getNewScheduleFile
 import com.hiberus.anaya.redmineeditor.components.getNewVersion
 import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
-import com.hiberus.anaya.redmineeditor.model.AppController
-import com.hiberus.anaya.redmineeditor.model.AppSettings
-import com.hiberus.anaya.redmineeditor.model.ReloadSettings
+import com.hiberus.anaya.redmineeditor.model.*
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.beans.property.Property
@@ -31,6 +29,7 @@ import java.util.*
 fun ShowSettingsDialog() {
     val changes = ShowSettingsDialogInternal()
     if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
+    if (AppSettings.MARK_USED in changes) AppController.fireChanges(setOf(ChangeEvent.EntryContent))
     if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
     if (ReloadSettings intersects changes) AppController.reload()
 }
@@ -108,6 +107,9 @@ class SettingsController {
     lateinit var dark: CheckBox // dark theme setting
 
     @FXML
+    lateinit var mark_used: MenuButton // mark used spinner
+
+    @FXML
     lateinit var appUpdateLoading: ProgressIndicator // check update loading indicator
 
     @FXML
@@ -143,6 +145,7 @@ class SettingsController {
         SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.MARK_USED, { mark_used.textProperty() }) { it.lowercase() },
         SettingMatch(AppSettings.CHECK_UPDATES, { checkAppUpdate.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.CHECK_SCHEDULE_UPDATES, { checkScheduleUpdates.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.SCHEDULE_FILE, { calendar.textProperty() }) { it },
@@ -166,6 +169,17 @@ class SettingsController {
         // syn dark setting with dark theme
         dark.selectedProperty().addListener { _, _, isDark ->
             parent.scene?.stylize(isDark)
+        }
+
+        // mark used enum
+        with(mark_used) {
+            items += MarkUsed.values().map {
+                MenuItem(it.name.lowercase()).apply {
+                    onAction = EventHandler {
+                        mark_used.text = text
+                    }
+                }
+            }
         }
 
         // predefined options
@@ -201,10 +215,9 @@ class SettingsController {
                 calendarFiles.sort()
                 // entries, add as menus
                 items += calendarFiles.map {
-                    val name = it.extractFileName()
-                    MenuItem(name).apply {
+                    MenuItem(it.extractFileName()).apply {
                         onAction = EventHandler {
-                            calendar.text = name
+                            calendar.text = text
                         }
                     }
                 }

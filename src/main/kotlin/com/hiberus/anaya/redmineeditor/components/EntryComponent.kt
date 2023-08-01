@@ -5,9 +5,7 @@ import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.dialogs.FixMonthTool
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.showDetails
-import com.hiberus.anaya.redmineeditor.model.AppController
-import com.hiberus.anaya.redmineeditor.model.ChangeEvent
-import com.hiberus.anaya.redmineeditor.model.Model
+import com.hiberus.anaya.redmineeditor.model.*
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.Event
 import javafx.event.EventHandler
@@ -38,6 +36,9 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
     lateinit var txt_estimated: Label
 
     @FXML
+    lateinit var txt_estimated_label: Label
+
+    @FXML
     lateinit var sub_estimated: HBox
 
     @FXML
@@ -46,11 +47,18 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
     @FXML
     lateinit var txt_total: Label
 
+
+    @FXML
+    lateinit var txt_total_label: Label
+
     @FXML
     lateinit var btn_sync: Button
 
     @FXML
     lateinit var txt_realization: Label
+
+    @FXML
+    lateinit var txt_realization_label: Label
 
     @FXML
     lateinit var add_realization: HBox
@@ -60,6 +68,9 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     @FXML
     lateinit var txt_spent: Label
+
+    @FXML
+    lateinit var txt_spent_label: Label
 
     @FXML
     lateinit var max_spent: Button
@@ -141,10 +152,41 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             comment.takeIf { it != edTxt_comment.text }?.let { edTxt_comment.text = it } // don't update if the same, to avoid moving the caret
             edTxt_comment.bold = changedComment
 
-            // mark entries if they have spent time
-            this@EntryComponent.style = if (spent > 0) "-fx-control-inner-background: #A0A0A0;" else null
+            // entry elements background color
+            this@EntryComponent.style = if (MarkUsedSetting == MarkUsed.COLOR && spent > 0) "-fx-control-inner-background: \"${GetColor("mark_used")}\";" else null
 
-    }
+            // entry elements opacity
+            when {
+                MarkUsedSetting != MarkUsed.OPACITY -> 1.0 // other setting
+                requiresUpload -> 1.0 // need to upload ->
+                spent > 0 -> 1.0 // used today
+                else -> 0.5 // other
+            }.let { opacity ->
+                // not the parent, so that the buttons are still shown 100%
+                listOf(txt_spent, txt_spent_label, edTxt_comment)
+                    .forEach { it.opacity = opacity }
+            }
+        }
+
+        // issue elements opacity (depends on entry too)
+        if (updateEntry || updateIssue) {
+            item?.let { entry ->
+                entry.issue.let { issue ->
+                    when {
+                        MarkUsedSetting != MarkUsed.OPACITY -> 1.0 // other setting
+                        issue.requiresUpload -> 1.0 // need to upload issue -> issue is important
+                        entry.spent > 0 -> 0.75 // entry used today -> issue is important, but not as much as entry
+                        else -> 0.5 // other -> as background
+                    }.let { opacity ->
+                        // not the parent, so that the buttons are still shown 100%
+                        listOf(txt_details, txt_estimated, txt_estimated_label, txt_total, txt_total_label, txt_realization, txt_realization_label)
+                            .forEach { it.opacity = opacity }
+                    }
+
+
+                }
+            }
+        }
 
     }
 

@@ -48,17 +48,17 @@ val Issue.color
  */
 fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     // something to spend, and correctly spent, GOOD!
-    expected != 0.0 && expected == spent -> COLORS.getValue("good")
+    expected != 0.0 && expected == spent -> GetColor("good")
     // nothing to spend and nothing spent, HOLIDAY!
-    expected == 0.0 && spent == 0.0 -> COLORS.getValue("holiday")
+    expected == 0.0 && spent == 0.0 -> GetColor("holiday")
     // spent greater than expected, ERROR!
-    spent > expected -> COLORS.getValue("spend_error")
+    spent > expected -> GetColor("spend_error")
     // today, but still not all, WARNING!
-    day == LocalDate.now() -> COLORS.getValue("warning")
+    day == LocalDate.now() -> GetColor("warning")
     // past day and not all, ERROR!
-    day.isBefore(LocalDate.now()) -> COLORS.getValue("past_error")
+    day.isBefore(LocalDate.now()) -> GetColor("past_error")
     // future day, and something (not all) spent, IN PROGRESS
-    spent > 0 -> COLORS.getValue("good").multiplyOpacity(0.25)
+    spent > 0 -> GetColor("good").multiplyOpacity(0.25)
     // future day, NOTHING!
     else -> null // (null = no color)
 }
@@ -106,7 +106,7 @@ fun LoadColors() = runCatching {
                 }.toList()
         }.takeIf { it.isNotEmpty() }?.joinToString("\n")
 }.getOrElse {
-    it.message.also { debugln("Error while reading colors file: $it")}
+    it.message.also { debugln("Error while reading colors file: $it") }
 }
 
 /**
@@ -119,6 +119,11 @@ private val colorsFile = getRelativeFile("conf/colors.properties")
  */
 fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open colors file").showAndWait() }
+
+/**
+ * Returns a color by key
+ */
+fun GetColor(key: String) = COLORS.getValue(key)
 
 /* ------------------------- containers ------------------------- */
 

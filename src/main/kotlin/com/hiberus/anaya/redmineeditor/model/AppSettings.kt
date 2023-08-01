@@ -55,7 +55,12 @@ enum class AppSettings(val default: String) {
     /**
      * Schedule file of user (to obtain holidays)
      */
-    SCHEDULE_FILE("Zaragoza")
+    SCHEDULE_FILE("Zaragoza"),
+
+    /**
+     * How to mark used entries
+     */
+    MARK_USED(MarkUsed.OPACITY.name)
     ;
 
     /* ------------------------- properties functions ------------------------- */
@@ -76,6 +81,27 @@ enum class AppSettings(val default: String) {
     fun modify(newValue: String) = newValue.let { (it != value).apply { value = it } }
 
 }
+
+
+/* ------------------------- specific ------------------------- */
+
+/**
+ * For MARK_USED setting
+ */
+enum class MarkUsed {
+    OPACITY,
+    COLOR,
+    NONE,
+    ;
+}
+
+/**
+ * Return the Mark_USED Setting as enum
+ */
+val MarkUsedSetting get() = MarkUsed.valueOf(AppSettings.MARK_USED.value.uppercase())
+
+
+/* ------------------------- internal ------------------------- */
 
 /**
  * loaded settings preferences
