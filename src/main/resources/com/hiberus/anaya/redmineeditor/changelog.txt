@@ -1,3 +1,9 @@
+V 1.5
+- Improve transparency for 0h entries, and allow using colored background (or nothing)
+- New entry action: fix current month with this
+- New entry action: clear current entry
+- Fix exception with accessibility enabled
+
 V 1.4
 - Colored tasks (Hiberus by default)
 - Allow to change app colors
