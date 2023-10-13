@@ -102,6 +102,28 @@
             <Insets bottom="10.0" top="10.0"/>
         </VBox.margin>
     </Separator>
+    <Label layoutX="25.0" layoutY="170.0" text="Ignore old assigned:">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </Label>
+    <HBox alignment="CENTER_LEFT">
+        <Spinner fx:id="ignoreOldAssigned" editable="true" min="0" max="2147483647" HBox.hgrow="NEVER">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Spinner>
+        <Label maxWidth="1.7976931348623157E308" text="Assigned issues with an update time older than these many days will be ignored.&#10;Set to 0 to load all.&#10;365 (1 year) by default." wrapText="true">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </HBox.margin>
+        </Label>
+    </HBox>
+    <Separator layoutX="20.0" layoutY="162.0" prefWidth="200.0">
+        <VBox.margin>
+            <Insets bottom="10.0" top="10.0"/>
+        </VBox.margin>
+    </Separator>
     <Label layoutX="25.0" layoutY="170.0" text="Previous days for suggestions:">
         <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>

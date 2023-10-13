@@ -20,10 +20,7 @@ internal class Remote(
      * Implemented API endpoints
      */
     private enum class Endpoint {
-        TIME_ENTRIES,
-        ISSUES,
-        USERS,
-        PROJECTS,
+        TIME_ENTRIES, ISSUES, USERS, PROJECTS,
     }
 
     /**
@@ -97,17 +94,15 @@ internal class Remote(
         val newIssues = mutableListOf<Issue>()
         val entries = Endpoint.TIME_ENTRIES.build(
             parameters = listOf(
-                Param("user_id", "=", "me"),
-                Param("spent_on", "between", listOf(from, to))
+                Param("user_id", "=", "me"), Param("spent_on", "between", listOf(from, to))
             )
-        ).paginatedGet("time_entries")
-            .apply {
-                // fetch missing issues, and add them to loadedIssues
-                val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
-                newIssues += downloadIssues(this.map { it.getIssueId() }.distinct().filter { it !in loadedIssuesIds })
-                // also initialize user id if not still
-                if (userId == null && isNotEmpty()) userId = first().getJSONObject("user").getInt("id")
-            }.map { TimeEntry(it, loadedIssues + newIssues, this) }
+        ).paginatedGet("time_entries").apply {
+            // fetch missing issues, and add them to loadedIssues
+            val loadedIssuesIds = loadedIssues.map { it.id } // as variable to avoid calculating each iteration...does kotlin simplify this?
+            newIssues += downloadIssues(this.map { it.getIssueId() }.distinct().filter { it !in loadedIssuesIds })
+            // also initialize user id if not still
+            if (userId == null && isNotEmpty()) userId = first().getJSONObject("user").getInt("id")
+        }.map { TimeEntry(it, loadedIssues + newIssues, this) }
 
         return entries to newIssues
     }
@@ -126,11 +121,9 @@ internal class Remote(
                     id == null && spent > 0 -> {
                         log("Creating entry with data: $it")
                         if (READ_ONLY) return
-                        JSONObject().put("time_entry", it)
-                            .postTo(Endpoint.TIME_ENTRIES.build().url)
-                            .ifNot(201) {
-                                throw IOException("Error when creating entry with data: $it")
-                            }
+                        JSONObject().put("time_entry", it).postTo(Endpoint.TIME_ENTRIES.build().url).ifNot(201) {
+                            throw IOException("Error when creating entry with data: $it")
+                        }
                     }
 
                     // new entry without hours, ignore
@@ -140,22 +133,18 @@ internal class Remote(
                     id != null && spent > 0 -> {
                         log("Updating entry $id with data: $it")
                         if (READ_ONLY) return
-                        JSONObject().put("time_entry", it)
-                            .putTo(Endpoint.TIME_ENTRIES.build(subdomain = id).url)
-                            .ifNot(200) {
-                                throw IOException("Error when updating entry $id with data: $it")
-                            }
+                        JSONObject().put("time_entry", it).putTo(Endpoint.TIME_ENTRIES.build(subdomain = id).url).ifNot(200) {
+                            throw IOException("Error when updating entry $id with data: $it")
+                        }
                     }
 
                     // existing entry without hours, delete
                     id != null && spent <= 0 -> {
                         log("Deleting entry $id")
                         if (READ_ONLY) return
-                        Endpoint.TIME_ENTRIES.build(subdomain = id).url
-                            .delete()
-                            .ifNot(200) {
-                                throw IOException("Error when deleting entry $id")
-                            }
+                        Endpoint.TIME_ENTRIES.build(subdomain = id).url.delete().ifNot(200) {
+                            throw IOException("Error when deleting entry $id")
+                        }
                     }
 
                     // should never happen, but if it does, do nothing
@@ -190,8 +179,7 @@ internal class Remote(
     @Throws(IOException::class)
     fun downloadIssues(ids: List<Int>) = ids
         // return empty if no issues
-        .ifEmpty { return emptyList<Issue>() }
-        .run {
+        .ifEmpty { return emptyList<Issue>() }.run {
             // build url
             Endpoint.ISSUES.build(
                 parameters = listOf(
@@ -205,21 +193,18 @@ internal class Remote(
         }
 
     /**
-     * Return assigned issues
+     * Return assigned issues, optionally filtering by updated_on < [updatedOnLessThanDays]
      */
     @Throws(IOException::class)
-    fun downloadAssignedIssues() =
-        Endpoint.ISSUES.build(
-            parameters = listOf(
-                Param("assigned_to_id", "=", "me"),
-                Param("updated_on", "lessThan", "31")
-            )
-        ).paginatedGet("issues")
-            .apply {
-                // also initialize user id if not still
-                if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
-            }
-            .map { Issue(it, this) }
+    fun downloadAssignedIssues(updatedOnLessThanDays: Int? = null) = Endpoint.ISSUES.build(
+        parameters = listOfNotNull(
+            Param("assigned_to_id", "=", "me"),
+            updatedOnLessThanDays?.let { Param("updated_on", "lessThan", it) },
+        )
+    ).paginatedGet("issues").apply {
+        // also initialize user id if not still
+        if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
+    }.map { Issue(it, this) }
 
     /**
      * Uploads an [issue] to redmine (unless not needed)
@@ -231,9 +216,7 @@ internal class Remote(
                 // update
                 log("Updating issue $id with data: $it")
                 if (READ_ONLY) return
-                JSONObject().put("issue", changes)
-                    .putTo(Endpoint.ISSUES.build(subdomain = id).url)
-                    .ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }
+                JSONObject().put("issue", changes).putTo(Endpoint.ISSUES.build(subdomain = id).url).ifNot(200) { throw IOException("Error when updating issue $id with data: $it") }
             }
         }
     }
@@ -242,15 +225,13 @@ internal class Remote(
      * Returns user data as: "firstName lastName (login)"
      */
     @Throws(IOException::class)
-    fun getUserName(appendLogin: Boolean) = Endpoint.USERS.build("current").url
-        .getJSON().getJSONObject("user")
-        .apply {
-            // get user id just in case
-            if (userId == null) userId = getInt("id")
-        }.run {
-            // return name
-            "${getString("firstname")} ${getString("lastname")}" + if (appendLogin) " (${getString("login")})" else ""
-        }
+    fun getUserName(appendLogin: Boolean) = Endpoint.USERS.build("current").url.getJSON().getJSONObject("user").apply {
+        // get user id just in case
+        if (userId == null) userId = getInt("id")
+    }.run {
+        // return name
+        "${getString("firstname")} ${getString("lastname")}" + if (appendLogin) " (${getString("login")})" else ""
+    }
 
     /* ------------------------- project ------------------------- */
 
@@ -259,12 +240,10 @@ internal class Remote(
      */
     @Throws(IOException::class)
     fun getProjectOT(projectId: Int): String {
-        val fields = Endpoint.PROJECTS.build(subdomain = projectId).url
-            .getJSON().getJSONObject("project").getJSONArray("custom_fields")
+        val fields = Endpoint.PROJECTS.build(subdomain = projectId).url.getJSON().getJSONObject("project").getJSONArray("custom_fields")
         for (i in 0..fields.length()) {
             val data = fields.getJSONObject(i)
-            if (data.getString("name").equals("OT(Sólo para sincro con ADN)"))
-                return data.getString("value")
+            if (data.getString("name").equals("OT(Sólo para sincro con ADN)")) return data.getString("value")
         }
         return ""
     }
@@ -283,17 +262,16 @@ private inline val String.url get() = URL(this)
  * returns all entries from a paginated result
  */
 @Throws(IOException::class)
-private fun String.paginatedGet(key: String) =
-    ArrayList<JSONObject>().apply {
-        doWhile {
-            // get page
-            URL("${this@paginatedGet}&limit=100&offset=$size").getJSON()
-                // add to returned list
-                .also { addAll(it.getJSONArray(key).mapAsObjects()) }
-                // continue to next page if still not all
-                .getInt("total_count") > size
-        }
+private fun String.paginatedGet(key: String) = ArrayList<JSONObject>().apply {
+    doWhile {
+        // get page
+        URL("${this@paginatedGet}&limit=100&offset=$size").getJSON()
+            // add to returned list
+            .also { addAll(it.getJSONArray(key).mapAsObjects()) }
+            // continue to next page if still not all
+            .getInt("total_count") > size
     }
+}
 
 /**
  * Run while it returns false (compact while)

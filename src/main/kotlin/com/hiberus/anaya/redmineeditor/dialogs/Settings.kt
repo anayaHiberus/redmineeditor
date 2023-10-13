@@ -101,7 +101,10 @@ class SettingsController {
     lateinit var scheduleUpdateLoading: ProgressIndicator // check schedule update checkbox
 
     @FXML
-    lateinit var prevDays: Spinner<Int> // number of previous days setting
+    lateinit var ignoreOldAssigned: Spinner<Any> // ignore old assigned number selector
+
+    @FXML
+    lateinit var prevDays: Spinner<Int> // number of previous days number selector
 
     @FXML
     lateinit var dark: CheckBox // dark theme setting
@@ -143,6 +146,7 @@ class SettingsController {
         SettingMatch(AppSettings.READ_ONLY, { allowGetOnly.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.AUTO_LOAD_TOTAL_HOURS, { autoLoadTotal.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.IGNORE_OLD_ASSIGNED, { ignoreOldAssigned.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.MARK_USED, { mark_used.textProperty() }) { it.lowercase() },

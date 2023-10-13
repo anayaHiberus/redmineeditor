@@ -307,7 +307,7 @@ abstract class Model {
             val redmine = redmine ?: return
 
             // load
-            val assignedIssues = redmine.getAssignedIssues()
+            val assignedIssues = redmine.getAssignedIssues(AppSettings.IGNORE_OLD_ASSIGNED.value.toInt().takeIf { it > 0 })
             changes += ChangeEvent.Assigned
 
             // stop if no need to create

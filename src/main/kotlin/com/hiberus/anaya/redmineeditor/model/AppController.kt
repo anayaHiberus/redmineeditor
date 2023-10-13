@@ -124,7 +124,7 @@ class Controller {
 
         // init
         val uninitializedSettings = AppSettings.URL.value.isBlank() || AppSettings.KEY.value.isBlank()
-        var specialDaysERROR:String? = null
+        var specialDaysERROR: String? = null
         var colorsERROR: String? = null
         runBackground({ model ->
 
@@ -177,4 +177,4 @@ class Controller {
 /**
  * Settings that will trigger a reload
  */
-val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS, AppSettings.SCHEDULE_FILE)
+val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS, AppSettings.SCHEDULE_FILE, AppSettings.IGNORE_OLD_ASSIGNED)

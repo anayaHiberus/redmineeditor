@@ -38,6 +38,11 @@ enum class AppSettings(val default: String) {
     PREV_DAYS("7"),
 
     /**
+     * Assigned issues with update_time older than [this] days are ignored.
+     */
+    IGNORE_OLD_ASSIGNED("365"),
+
+    /**
      * Dark theme
      */
     DARK_THEME("false"),

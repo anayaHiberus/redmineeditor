@@ -75,14 +75,14 @@ class Redmine {
     /* ------------------------- getters ------------------------- */
 
     /**
-     * return assigned issues
+     * return assigned issues, optionally filtering by updated_on < [updatedOnLessThanDays] (for newly loaded)
      */
     @Throws(IOException::class)
-    fun getAssignedIssues(): List<Issue> {
+    fun getAssignedIssues(updatedOnLessThanDays: Int? = null): List<Issue> {
         // download if not yet
         if (!assignedLoaded) {
             val loadedIssuesIds = loadedIssues.map { it.id } // temp
-            loadedIssues += remote.downloadAssignedIssues().filter { it.id !in loadedIssuesIds } // skip already loaded
+            loadedIssues += remote.downloadAssignedIssues(updatedOnLessThanDays).filter { it.id !in loadedIssuesIds } // skip already loaded
             assignedLoaded = true
         }
 
