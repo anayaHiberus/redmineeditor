@@ -1,0 +1,70 @@
+# MA
+
+######### general #########
+
+* * * 9 # 9 hours by default
+* * f 7 # except on fridays, 7 hours
+* 7 * 7 # and july, 7 hours too
+* 8 * 7 # same as august
+* * sa # saturdays is holiday
+* * su # sundays is holiday
+
+
+######### 2023 #########
+# https://sommos.online/hiberus/calendario-laboral/morocco_2023.pdf
+
+# enero
+2023 1 11
+
+# febrero
+
+# marzo
+2023 3 23 6
+2023 3 24 6
+2023 3 27 6
+2023 3 28 6
+2023 3 29 6
+2023 3 30 6
+2023 3 31 6
+
+# abril
+2023 4 3 6
+2023 4 4 6
+2023 4 5 6
+2023 4 6 6
+2023 4 7 6
+2023 4 10 6
+2023 4 11 6
+2023 4 12 6
+2023 4 13 6
+2023 4 14 6
+2023 4 17 6
+2023 4 18 6
+2023 4 19 6
+2023 4 20 6
+2023 4 21 6
+
+# mayo
+2023 5 1
+
+# junio
+2023 6 29
+2023 6 30
+
+# julio
+2023 7 19
+
+# agosto
+2023 8 14
+2023 8 21
+
+# septiembre
+2023 9 28
+2023 9 29
+
+# octubre
+
+# noviembre
+2023 11 6
+
+# diciembre
