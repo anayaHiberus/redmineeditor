@@ -8,7 +8,7 @@ import java.nio.file.Path
  */
 fun getRelativeFile(path: String) =
     // try first the personal folder
-    findFile(path.replaceFirst("conf/", "conf_personal/"))
+    findFile(path.personalFolder)
     // try then the normal path
         ?: findFile(path)
 
@@ -24,11 +24,19 @@ private fun findFile(path: String) =
 /**
  * Returns all files from the given [path], optionally filtered by a custom [filter]
  */
-fun getAllFiles(path: String, filter: (File, String) -> Boolean = { _, _ -> true }): Array<String> =
-    getRelativeFile(path)?.list(filter) ?: emptyArray<String>()
-        .also { debugln("Path [$path] not found or doesn't contain any files for filter") }
+fun getAllFiles(path: String, filter: (File, String) -> Boolean = { _, _ -> true }) =
+    listOf(path.personalFolder, path)
+        .mapNotNull { findFile(it) }
+        .mapNotNull { it.list(filter) }
+        .ifEmpty {
+            debugln("Path [$path] not found or doesn't contain any files for filter")
+            listOf(emptyArray<String>())
+        }.flatMap { it.toList() }
 
 /**
  * Returns the file corresponding to this path only if it exists (logs it too)
  */
 private val Path.file get() = toFile().also { debugln("Accessing file ${it.absolutePath} -> ${if (it.exists()) "OK" else "INVALID"}") }.takeIf { it.exists() }
+
+/** Replaces the config folder with the personal one. */
+private val String.personalFolder get() = replaceFirst("conf/", "conf_personal/")

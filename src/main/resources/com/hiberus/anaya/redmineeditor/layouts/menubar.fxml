@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.HBox?>
 <HBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.components.MenuBarComponent">
     <MenuBar maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
@@ -8,6 +10,7 @@
             <MenuItem onAction="#evidences" text="Generate _evidences..."/>
             <MenuItem onAction="#batchEditor" text="_Batch editor..."/>
             <MenuItem onAction="#fixMonth" text="_Month fixer..."/>
+            <MenuItem onAction="#calendarStatistics" text="_Calendar statistics..."/>
         </Menu>
         <Menu text="_Edit">
             <MenuItem onAction="#settings" text="_Settings..."/>

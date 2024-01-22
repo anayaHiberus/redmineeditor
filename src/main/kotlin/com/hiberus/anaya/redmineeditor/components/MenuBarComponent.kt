@@ -36,4 +36,7 @@ internal class MenuBarComponent {
     @FXML
     fun fixMonth() = ShowFixMonthDialog()
 
+    @FXML
+    fun calendarStatistics() = ShowCalendarStatisticsDialog()
+
 }

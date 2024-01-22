@@ -10,11 +10,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-
+/** Manages a Calendar. */
+// TODO: rename to calendar (and make usages consistent)
 class Schedule(val calendar: String? = null) {
     private val cache = mutableMapOf<LocalDate, Double>() // caching
     private val rules = mutableListOf<Rule>() // save elements
 
+    /** Loads the file. Returns errors, if any */
     fun load() = runCatching {
         // clear first
         cache.clear()
@@ -34,6 +36,7 @@ class Schedule(val calendar: String? = null) {
         it.message?.also { debugln(it) }
     }
 
+    /** Returns the expected hours you were supposed to spend a specific date. */
     fun expectedHours(date: LocalDate) = cache.getOrPut(date) {
         // get first match, 0 if none
         rules.firstOrNull { it.matches(date) }?.hours ?: 0.0
@@ -101,7 +104,10 @@ fun replaceScheduleContent(content: String, calendar: String? = null, onReplaced
 /**
  * Returns the path of a calendar file (current by default)
  */
-fun getCalendarFile(calendar: String? = null) = "conf/calendars/" + (calendar ?: AppSettings.SCHEDULE_FILE.value).lowercase() + ".hours"
+fun getCalendarFile(calendar: String? = null) = CALENDARS_FOLDER + (calendar ?: AppSettings.SCHEDULE_FILE.value).lowercase() + CALENDARS_EXTENSION
+
+/** Returns all calendar paths. */
+fun getAllCalendars() = getAllFiles(CALENDARS_FOLDER) { _, name -> name.endsWith(CALENDARS_EXTENSION) }.map { it.extractFileName() }.sorted()
 
 /**
  * Returns true iff there are rules in [lines] not present in the current rules
@@ -110,6 +116,10 @@ fun areNewerRules(lines: Sequence<String>, calendar: String? = null) = parseSpec
 
 
 /* ------------------------- internal ------------------------- */
+
+private const val CALENDARS_FOLDER = "conf/calendars/"
+
+private const val CALENDARS_EXTENSION = ".hours"
 
 /**
  * Reads a calendar file and converts its content to a list of rules, returns also a 'valid' boolean
@@ -131,6 +141,7 @@ private fun parseSpecialDays(lines: Sequence<String>) = lines
         list.mapNotNull { it.first } to list.mapNotNull { it.second }.takeIf { it.isNotEmpty() }?.joinToString("\n")
     }
 
+/** A calendar rule container. */
 private class Rule(var line: String) {
     val year: Int?
     val month: Int?

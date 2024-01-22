@@ -211,15 +211,14 @@ class SettingsController {
         // populate calendar selector
         with(calendar) {
             // Get every file on folder
-            val calendarFiles = getAllFiles("conf/calendars/") { _, name -> name.endsWith(".hours") }
+            val calendarFiles = getAllCalendars()
             if (calendarFiles.isEmpty()) {
                 // no entries
                 items += MenuItem("<no files found>")
             } else {
-                calendarFiles.sort()
                 // entries, add as menus
                 items += calendarFiles.map {
-                    MenuItem(it.extractFileName()).apply {
+                    MenuItem(it).apply {
                         onAction = EventHandler {
                             calendar.text = text
                         }
