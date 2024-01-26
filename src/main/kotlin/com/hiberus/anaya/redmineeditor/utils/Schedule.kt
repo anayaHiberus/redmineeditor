@@ -10,17 +10,53 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-// TODO: cleanup and sort/group of functions from this file
+
+class Schedule(val calendar: String? = null) {
+    private val cache = mutableMapOf<LocalDate, Double>() // caching
+    private val rules = mutableListOf<Rule>() // save elements
+
+    fun load() = runCatching {
+        // clear first
+        cache.clear()
+        rules.clear()
+
+        // get file
+        val (rules, errors) = (getSpecialDaysFile(calendar) ?: throw FileNotFoundException(getCalendarFile(calendar)))
+            // parse lines
+            .readLines().asSequence()
+            .let { parseSpecialDays(it) }
+
+        // and save (reversed)
+        rules.reversed().toCollection(this.rules)
+
+        errors
+    }.getOrElse {
+        it.message?.also { debugln(it) }
+    }
+
+    fun expectedHours(date: LocalDate) = cache.getOrPut(date) {
+        // get first match, 0 if none
+        rules.firstOrNull { it.matches(date) }?.hours ?: 0.0
+    }
+
+}
+
+
+/* ------------------------- current schedule ------------------------- */
+
+private val SELECTED_SCHEDULE = Schedule()
+
+/**
+ * Load special days from the configuration file
+ */
+fun LoadSpecialDays() = SELECTED_SCHEDULE.load()
 
 /**
  * the expected hours you were supposed to spend this day
  */
 val LocalDate.expectedHours
     // tries caching value, otherwise calculates it
-    get() = CACHE.getOrPut(this) {
-        // get first match, 0 if none
-        RULES.firstOrNull { it.matches(this) }?.hours ?: 0.0
-    }
+    get() = SELECTED_SCHEDULE.expectedHours(this)
 
 /**
  * the expected hours you were supposed to spend this month
@@ -29,49 +65,9 @@ val YearMonth.expectedHours
     // just add all the hours of each day in month
     get() = days().sumOf { it.expectedHours }
 
-/* ------------------------- Special days ------------------------- */
 
-/**
- * Load special days from the configuration file
- */
-fun LoadSpecialDays() = runCatching {
-    // clear first
-    CACHE.clear()
-    RULES.clear()
+/* ------------------------- Special days file ------------------------- */
 
-    // get file
-    val (rules, errors) = (getSpecialDaysFile() ?: throw FileNotFoundException(getCalendarFile()))
-        // parse lines
-        .readLines().asSequence()
-        .let { parseSpecialDays(it) }
-
-    // and save (reversed)
-    rules.reversed().toCollection(RULES)
-
-    errors
-}.getOrElse {
-    it.message?.also { debugln(it) }
-}
-
-/**
- * Reads a calendar file and converts its content to a list of rules, returns also a 'valid' boolean
- */
-private fun parseSpecialDays(lines: Sequence<String>) = lines
-    // remove comments
-    .map { it.replace("#.*".toRegex(), "") }
-    // skip empty
-    .filter { it.isNotBlank() }
-    // build valid to list
-    .map { line ->
-        runCatching {
-            Rule(line) to null
-        }.getOrElse {
-            null to it.message?.also { errorln("Invalid line in hours file: $it") }
-        }
-    }.toList().let { list ->
-        // zip rules and errors
-        list.mapNotNull { it.first } to list.mapNotNull { it.second }.takeIf { it.isNotEmpty() }?.joinToString("\n")
-    }
 
 /**
  * Opens the special days file in an external app
@@ -82,7 +78,7 @@ fun OpenSpecialDaysFile() = (getSpecialDaysFile()?.openInApp() ?: false)
 /**
  * Returns the special days file for a calendar (current if unspecified) (if present)
  */
-fun getSpecialDaysFile(calendar: String? = null) = getRelativeFile(getCalendarFile(calendar))
+private fun getSpecialDaysFile(calendar: String? = null) = getRelativeFile(getCalendarFile(calendar))
 
 /**
  * Replaces the special days of a calendar (current if unspecified) file with [content] (asks first)
@@ -112,11 +108,28 @@ fun getCalendarFile(calendar: String? = null) = "conf/calendars/" + (calendar ?:
  */
 fun areNewerRules(lines: Sequence<String>, calendar: String? = null) = parseSpecialDays(lines).first.toMutableList().apply { removeAll(parseSpecialDays(getRelativeFile(getCalendarFile(calendar))?.readLines()?.asSequence() ?: throw Exception("Invalid calendar file")).first) }.isNotEmpty()
 
+
 /* ------------------------- internal ------------------------- */
 
-private val CACHE = mutableMapOf<LocalDate, Double>() // caching
-
-private val RULES = mutableListOf<Rule>() // save elements
+/**
+ * Reads a calendar file and converts its content to a list of rules, returns also a 'valid' boolean
+ */
+private fun parseSpecialDays(lines: Sequence<String>) = lines
+    // remove comments
+    .map { it.replace("#.*".toRegex(), "") }
+    // skip empty
+    .filter { it.isNotBlank() }
+    // build valid to list
+    .map { line ->
+        runCatching {
+            Rule(line) to null
+        }.getOrElse {
+            null to it.message?.also { errorln("Invalid line in hours file: $it") }
+        }
+    }.toList().let { list ->
+        // zip rules and errors
+        list.mapNotNull { it.first } to list.mapNotNull { it.second }.takeIf { it.isNotEmpty() }?.joinToString("\n")
+    }
 
 private class Rule(var line: String) {
     val year: Int?
