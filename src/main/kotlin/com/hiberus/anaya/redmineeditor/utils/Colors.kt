@@ -48,17 +48,19 @@ val Issue.color
  */
 fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     // something to spend, and correctly spent, GOOD!
-    expected != 0.0 && expected == spent -> GetColor("good")
+    expected != 0.0 && expected == spent -> GetColor(ColorKey.GOOD)
     // nothing to spend and nothing spent, HOLIDAY!
-    expected == 0.0 && spent == 0.0 -> GetColor("holiday")
+    expected == 0.0 && spent == 0.0 -> GetColor(ColorKey.HOLIDAY)
+    // Need to spent less than 8 hours and nothing spent, future intensive day!
+    expected < 8.0 && spent == 0.0 -> GetColor(ColorKey.INTENSIVE)
     // spent greater than expected, ERROR!
-    spent > expected -> GetColor("spend_error")
+    spent > expected -> GetColor(ColorKey.SPEND_ERROR)
     // today, but still not all, WARNING!
-    day == LocalDate.now() -> GetColor("warning")
+    day == LocalDate.now() -> GetColor(ColorKey.WARNING)
     // past day and not all, ERROR!
-    day.isBefore(LocalDate.now()) -> GetColor("past_error")
+    day.isBefore(LocalDate.now()) -> GetColor(ColorKey.PAST_ERROR)
     // future day, and something (not all) spent, IN PROGRESS
-    spent > 0 -> GetColor("good").multiplyOpacity(0.25)
+    spent > 0 -> GetColor(ColorKey.GOOD).multiplyOpacity(0.25)
     // future day, NOTHING!
     else -> null // (null = no color)
 }
@@ -123,10 +125,14 @@ fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
 /**
  * Returns a color by key
  */
-fun GetColor(key: String) = COLORS.getValue(key)
+fun GetColor(key: ColorKey) = COLORS.getValue(key.name.lowercase())
 
 /* ------------------------- containers ------------------------- */
 
 private val PROJECTS = mutableListOf<Pair<Regex, Color>>()
 private val COLORS = mutableMapOf<String, Color>().withDefault { Color.GREY }
 private val CACHE = mutableMapOf<String, Color?>()
+
+enum class ColorKey {
+    GOOD, WARNING, INTENSIVE, PAST_ERROR, SPEND_ERROR, HOLIDAY, MARK_USED
+}
