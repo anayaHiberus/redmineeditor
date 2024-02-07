@@ -48,19 +48,19 @@ val Issue.color
  */
 fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     // something to spend, and correctly spent, GOOD!
-    expected != 0.0 && expected == spent -> GetColor(ColorKey.GOOD)
+    expected != 0.0 && expected == spent -> Colors.GOOD.value
     // nothing to spend and nothing spent, HOLIDAY!
-    expected == 0.0 && spent == 0.0 -> GetColor(ColorKey.HOLIDAY)
+    expected == 0.0 && spent == 0.0 -> Colors.HOLIDAY.value
     // Need to spent less than 8 hours and nothing spent, future intensive day!
-    expected < 8.0 && spent == 0.0 -> GetColor(ColorKey.INTENSIVE)
+    expected < 8.0 && spent == 0.0 -> Colors.INTENSIVE.value
     // spent greater than expected, ERROR!
-    spent > expected -> GetColor(ColorKey.SPEND_ERROR)
+    spent > expected -> Colors.SPEND_ERROR.value
     // today, but still not all, WARNING!
-    day == LocalDate.now() -> GetColor(ColorKey.WARNING)
+    day == LocalDate.now() -> Colors.WARNING.value
     // past day and not all, ERROR!
-    day.isBefore(LocalDate.now()) -> GetColor(ColorKey.PAST_ERROR)
+    day.isBefore(LocalDate.now()) -> Colors.PAST_ERROR.value
     // future day, and something (not all) spent, IN PROGRESS
-    spent > 0 -> GetColor(ColorKey.GOOD).multiplyOpacity(0.25)
+    spent > 0 -> Colors.GOOD.value.multiplyOpacity(0.25)
     // future day, NOTHING!
     else -> null // (null = no color)
 }
@@ -122,17 +122,21 @@ private val colorsFile = getRelativeFile("conf/colors.properties")
 fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open colors file").showAndWait() }
 
-/**
- * Returns a color by key
- */
-fun GetColor(key: ColorKey) = COLORS.getValue(key.name.lowercase())
-
 /* ------------------------- containers ------------------------- */
 
 private val PROJECTS = mutableListOf<Pair<Regex, Color>>()
 private val COLORS = mutableMapOf<String, Color>().withDefault { Color.GREY }
 private val CACHE = mutableMapOf<String, Color?>()
 
-enum class ColorKey {
-    GOOD, WARNING, INTENSIVE, PAST_ERROR, SPEND_ERROR, HOLIDAY, MARK_USED
+enum class Colors {
+    GOOD,
+    WARNING,
+    INTENSIVE,
+    PAST_ERROR,
+    SPEND_ERROR,
+    HOLIDAY,
+    MARK_USED,
+    ;
+
+    val value get() = COLORS.getValue(name.lowercase())
 }
