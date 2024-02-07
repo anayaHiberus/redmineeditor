@@ -153,7 +153,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             edTxt_comment.bold = changedComment
 
             // entry elements background color
-            this@EntryComponent.style = if (MarkUsedSetting == MarkUsed.COLOR && spent > 0) "-fx-control-inner-background: \"${GetColor("mark_used")}\";" else null
+            this@EntryComponent.style = if (MarkUsedSetting == MarkUsed.COLOR && spent > 0) "-fx-control-inner-background: \"${Colors.MARK_USED.value}\";" else null
 
             // entry elements opacity
             when {
