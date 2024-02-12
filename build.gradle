@@ -1,9 +1,10 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.10'
-    id 'org.beryx.jlink' version '2.24.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.beryx.jlink' version '2.26.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
+    id 'org.javamodularity.moduleplugin' version '1.8.12'
 }
 
 group 'com.hiberus.anaya'
@@ -13,12 +14,7 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
-
-mainClassName = "$moduleName/com.hiberus.anaya.redmineeditor.Main"
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
@@ -27,15 +23,18 @@ application {
     mainClass = 'com.hiberus.anaya.redmineeditor.Main'
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 javafx {
-    version = '17'
+    version = '21'
     modules = ['javafx.controls', 'javafx.web', 'javafx.fxml']
 }
 
-//noinspection SpellCheckingInspection
 dependencies {
-    implementation 'org.json:json:20220320'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10'
+    implementation 'org.json:json:20240205'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
     // implementation 'com.taskadapter:redmine-java-api:4.0.0.rc4' // useless api, cant search using multiple filters
 }
 
@@ -63,15 +62,8 @@ jlink {
         noConsole = true
     }
 }
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+jlinkZip {
+    group = 'distribution'
 }
 
 tasks.jlink.doLast {
