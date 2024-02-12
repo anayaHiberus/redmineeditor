@@ -177,7 +177,7 @@ class SettingsController {
 
         // mark used enum
         with(mark_used) {
-            items += MarkUsed.values().map {
+            items += MarkUsed.entries.map {
                 MenuItem(it.name.lowercase()).apply {
                     onAction = EventHandler {
                         mark_used.text = text

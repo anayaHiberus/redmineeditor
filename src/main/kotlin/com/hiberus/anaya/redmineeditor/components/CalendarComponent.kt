@@ -47,7 +47,7 @@ internal class CalendarComponent {
     @FXML
     private fun initialize() {
         // create the header
-        DayOfWeek.values().forEach {
+        DayOfWeek.entries.forEach {
             // append each day
             calendar.add(
                 CenteredLabel(

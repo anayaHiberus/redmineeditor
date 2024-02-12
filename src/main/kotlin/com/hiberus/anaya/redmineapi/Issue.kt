@@ -39,7 +39,7 @@ class Issue {
      * Estimated hours, greater than 0
      * null if unset
      */
-    var estimated: Double?
+    var estimated: Double? = null
         set(value) {
             field = value?.coerceAtLeast(0.0)
         }

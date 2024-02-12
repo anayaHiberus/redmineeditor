@@ -186,8 +186,7 @@ abstract class Model {
          * @throws MyException on error
          */
         @Throws(MyException::class)
-        fun loadMonth(month: YearMonth? = null) {
-            val month = month ?: this.month
+        fun loadMonth(month: YearMonth = this.month) {
             try {
                 // download (skip if not loaded)
                 (redmine ?: return).downloadEntriesFromMonth(month).let { (newEntries, newIssues, loaded) ->

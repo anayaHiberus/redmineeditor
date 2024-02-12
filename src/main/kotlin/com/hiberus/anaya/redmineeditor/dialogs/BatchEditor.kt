@@ -249,7 +249,7 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
         }
 
     // reload everything
-    if (!test) ChangeEvent.values().forEach { model.registerExternalChange(it) }
+    if (!test) ChangeEvent.entries.forEach { model.registerExternalChange(it) }
 }
 
 /**
