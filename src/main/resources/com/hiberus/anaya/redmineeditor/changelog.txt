@@ -1,3 +1,10 @@
+V 1.6
+- Mark intensive days on calendar with different color (configurable)
+- New command -settings: view/modify settings from command line
+- New tool+command: calendar statistics
+- Increased 'Ignore old assigned issue' from 30 days to 1 year (configurable)
+- Internal update to latest versions
+
 V 1.5
 - Improve transparency for 0h entries, and allow using colored background (or nothing)
 - New entry action: fix current month with this
