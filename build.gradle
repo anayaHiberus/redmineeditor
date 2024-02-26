@@ -1,10 +1,10 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.13'
-    id 'org.beryx.jlink' version '2.26.0'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'org.beryx.jlink' version '3.0.1'
     id 'org.jetbrains.kotlin.jvm' version '1.9.22'
-    id 'org.javamodularity.moduleplugin' version '1.8.12'
+    id 'org.javamodularity.moduleplugin' version '1.8.14'
 }
 
 group 'com.hiberus.anaya'
@@ -39,11 +39,11 @@ dependencies {
 }
 
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages',
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages',
                '--add-modules', [
                        'jdk.crypto.ec',  // crypto: fixes handshake error,
                        'jdk.localedata',  // localedata: allows non-english locales (for evidences)
-                       'jdk.accessibility' // accessibility: to avoid exception when using accesibility modules
+                       'jdk.accessibility' // accessibility: to avoid exception when using accessibility modules
                ].join(',')
     ]
 
