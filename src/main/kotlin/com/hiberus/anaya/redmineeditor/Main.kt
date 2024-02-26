@@ -27,9 +27,12 @@ class Main : Application() {
 
         // help flag
         if (HELP_FLAG in parameters.raw) {
-            // show all help
-            println("These are the available commands:")
-            COMMANDS.forEach { command ->
+            // get requested commands
+            COMMANDS.filter { it.argument in parameters.raw }.ifEmpty {
+                // show all help
+                println("These are all the available commands:")
+                COMMANDS
+            }.forEach { command ->
                 println()
                 println(buildString {
                     append(command.name)
