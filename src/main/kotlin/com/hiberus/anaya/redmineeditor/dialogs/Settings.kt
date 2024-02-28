@@ -3,12 +3,14 @@ package com.hiberus.anaya.redmineeditor.dialogs
 import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.ResourceLayout
+import com.hiberus.anaya.redmineeditor.commandline.Command
 import com.hiberus.anaya.redmineeditor.components.VERSION
 import com.hiberus.anaya.redmineeditor.components.getNewScheduleFile
 import com.hiberus.anaya.redmineeditor.components.getNewVersion
 import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
 import com.hiberus.anaya.redmineeditor.model.*
 import com.hiberus.anaya.redmineeditor.utils.*
+import javafx.application.Application
 import javafx.application.Platform
 import javafx.beans.property.Property
 import javafx.event.EventHandler
@@ -417,6 +419,41 @@ class SettingsController {
      */
     private fun closeWindowEvent() {
         if (changes().isNotEmpty() && !confirmLoseChanges("exit")) window.hide()
+    }
+
+}
+
+/** Command to manage settings. */
+class SettingsCommand : Command {
+    override val name = "View/Modify settings from the command line"
+    override val argument = "-settings"
+    override val parameters = "[--name=value]* [-list]"
+    override val help = listOf(
+        "-list : will display all settings with their values",
+        "--name=value : will set <value> for the property <name>",
+        "WARNING! values will not be checked for correctness, if the app doesn't load afterwards, restore the original value",
+    )
+
+    override fun run(parameters: Application.Parameters) {
+        // list values
+        if (parameters.unnamed.contains("-list")) {
+            println("All Settings:")
+            AppSettings.entries.map { entry ->
+                println("${entry.name}=${entry.value} [default: '${entry.default}']")
+            }
+        }
+
+        // set values
+        parameters.named.forEach { (name, value) ->
+            runCatching { AppSettings.valueOf(name.uppercase()) }
+                .onSuccess { appSetting ->
+                    val previous = appSetting.value
+                    appSetting.value = value
+                    println("Replaced $name from '$previous' to '$value' (default value is '${appSetting.default}')")
+                }.onFailure {
+                    println("There is no setting with name '$name'")
+                }
+        }
     }
 
 }

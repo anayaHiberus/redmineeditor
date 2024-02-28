@@ -74,7 +74,7 @@ enum class AppSettings(val default: String) {
      * this setting entry value
      */
     var value: String
-        get() = PREFS.get(name, default)
+        get() = PREFS[name, default]
         set(value) {
             if (value != default) PREFS.put(name, value)
             else PREFS.remove(name) // don't save default
@@ -83,7 +83,7 @@ enum class AppSettings(val default: String) {
     /**
      * Same as [setValue], but returns true if the new value is different
      */
-    fun modify(newValue: String) = newValue.let { (it != value).apply { value = it } }
+    fun modify(newValue: String) = (newValue != value).also { value = newValue }
 
 }
 
