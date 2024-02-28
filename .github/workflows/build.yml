@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'prerelease'
     paths:
       - 'src/main/resources/com/hiberus/anaya/redmineeditor/version'
 
