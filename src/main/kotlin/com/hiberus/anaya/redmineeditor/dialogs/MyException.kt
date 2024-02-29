@@ -1,6 +1,8 @@
 package com.hiberus.anaya.redmineeditor.dialogs
 
+import com.hiberus.anaya.redmineeditor.HEADLESS
 import com.hiberus.anaya.redmineeditor.utils.debugln
+import com.hiberus.anaya.redmineeditor.utils.errorln
 import com.hiberus.anaya.redmineeditor.utils.letEach
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.scene.control.Alert
@@ -47,18 +49,31 @@ class MyException(
     /* ------------------------- properties ------------------------- */
 
     /**
-     * Displays an error dialog with this exception details
+     * Displays an error dialog with this exception details (or just print to console in headless)
      */
     fun showAndWait() {
-        Alert(if (warning) WARNING else ERROR).apply {
-            headerText = title
-            contentText = "$message\n\n$details"
-            cause?.let { cause ->
-                debugln(cause)
-                dialogPane.expandableContent = Label(cause.toString()) // show error details
+        if (!HEADLESS) {
+            // show dialog
+            Alert(if (warning) WARNING else ERROR).apply {
+                headerText = title
+                contentText = "$message\n\n$details"
+                cause?.let { cause ->
+                    debugln(cause)
+                    dialogPane.expandableContent = Label(cause.toString()) // show error details
+                }
+                stylize()
+            }.showAndWait()
+        } else {
+            // headless mode, print to console
+            if(warning){
+                println("<WARNING> $title: $message")
+                println(details.toString())
+            }else{
+                errorln("<ERROR> $title: $message")
+                errorln(details.toString())
             }
-            stylize()
-        }.showAndWait()
+            cause?.let { debugln(it) }
+        }
     }
 
 }

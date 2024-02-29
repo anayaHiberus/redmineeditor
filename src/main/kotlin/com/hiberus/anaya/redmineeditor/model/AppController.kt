@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.model
 
+import com.hiberus.anaya.redmineeditor.HEADLESS
 import com.hiberus.anaya.redmineeditor.dialogs.MyException
 import com.hiberus.anaya.redmineeditor.dialogs.ShowSettingsDialog
 import com.hiberus.anaya.redmineeditor.dialogs.convert
@@ -65,13 +66,13 @@ class Controller {
             model.isLoading = false
             fireChanges()
 
-            // then in foreground
-            Platform.runLater {
+            // then in foreground (or not if headless)
+            ({
                 // show error
                 error?.showAndWait()
                 // notify for later
                 later(error == null)
-            }
+            }).let { if (HEADLESS) it() else Platform.runLater(it) }
         }
     }
 

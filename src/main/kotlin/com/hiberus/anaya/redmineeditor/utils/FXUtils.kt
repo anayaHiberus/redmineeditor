@@ -1,5 +1,6 @@
 package com.hiberus.anaya.redmineeditor.utils
 
+import com.hiberus.anaya.redmineeditor.HEADLESS
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -110,8 +111,8 @@ inline var Node.enabled
  * @param function code to run in foreground before this function ends
  */
 fun runInForeground(function: () -> Unit) =
-    if (Platform.isFxApplicationThread()) {
-        // already in foreground, run directly
+    if (HEADLESS or Platform.isFxApplicationThread()) {
+        // headless mode or already in foreground, run directly
         function()
     } else {
         // in background, schedule and wait
