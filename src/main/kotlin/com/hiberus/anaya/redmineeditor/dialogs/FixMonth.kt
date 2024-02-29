@@ -190,14 +190,16 @@ class FixMonthToolCommand : Command {
                 }
                 // upload
                 4 -> AppController.runBackground {
-                    if (!test) {
-                        println("Uploading...")
-                        it.uploadAll()
-                    }
+                    if (it.hasChanges) {
+                        if (!test) {
+                            println("Uploading...")
+                            it.uploadAll()
+                        } else println("Testing mode, changes have not being uploaded")
+                    } else println("No changes")
                 }
                 // notify
                 5 -> {
-                    println(if (test) "Testing completed, no changes uploaded" else "Uploaded changes")
+                    println(if (test) "Testing completed" else "Completed")
                     latch.countDown()
                 }
             }
