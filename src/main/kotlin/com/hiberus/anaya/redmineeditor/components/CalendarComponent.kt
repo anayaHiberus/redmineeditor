@@ -190,7 +190,7 @@ internal class CalendarComponent {
      */
     private fun drawGrid(model: Model) {
         // clear
-        calendar.children.removeAll(days)
+        calendar.children.removeAll(days.toSet())
         days.fill(null)
         unselectDay()
 

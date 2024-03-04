@@ -23,7 +23,7 @@ class Issue {
      * The name of its project
      */
     val project: String
-    val projectId: Int // TODO: move to a Project class
+    private val projectId: Int // TODO: move to a Project class
 
     /**
      * The subject (title)

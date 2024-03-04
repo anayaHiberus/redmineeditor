@@ -145,6 +145,6 @@ class IssueDetailsController {
     }
 
     @FXML
-    fun close() = webview.scene.window.apply { fireEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSE_REQUEST)) }
+    fun close() = webview.scene.window.run { fireEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSE_REQUEST)) }
 
 }

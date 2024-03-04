@@ -39,4 +39,4 @@ Insertion:
 Actions:
 - Discard and reload: Fetches remote data, overrides local changes.
 - Save and reload: Uploads modified data to Redmine. The app is kept open.
-- Save and exit: Uploads modified data to Redmine. Exits the app afterwards.
+- Save and exit: Uploads modified data to Redmine. Exits the app afterward.

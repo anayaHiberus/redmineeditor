@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <HBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.components.ActionsComponent">
-    <Button cancelButton="true" maxWidth="1.7976931348623157E308" onAction="#reload" text="Discard and _Reload" HBox.hgrow="ALWAYS">
+    <Button fx:id="reload" cancelButton="true" maxWidth="1.7976931348623157E308" onAction="#reload" text="Discard and _Reload" HBox.hgrow="ALWAYS">
         <tooltip>
             <Tooltip text="Reload settings and Redmine data"/>
         </tooltip>

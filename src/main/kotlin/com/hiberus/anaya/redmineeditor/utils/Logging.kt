@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.utils;
+package com.hiberus.anaya.redmineeditor.utils
 
 /**
  * true iff we are in debug mode (environment DEBUG=true)

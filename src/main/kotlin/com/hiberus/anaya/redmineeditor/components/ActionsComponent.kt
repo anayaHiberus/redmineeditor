@@ -6,6 +6,7 @@ import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.Alert
+import javafx.scene.control.Button
 import javafx.scene.control.ButtonType
 import javafx.scene.layout.HBox
 import javafx.stage.WindowEvent
@@ -17,6 +18,9 @@ internal class ActionsComponent {
 
     @FXML
     lateinit var save: HBox
+
+    @FXML
+    lateinit var reload: Button
 
     /* ------------------------- init ------------------------- */
 
@@ -34,6 +38,7 @@ internal class ActionsComponent {
             )
         ) {
             save.enabled = it.hasChanges
+            reload.text = if (it.hasChanges) "Discard and _Reload" else "_Reload"
         }
     }
 

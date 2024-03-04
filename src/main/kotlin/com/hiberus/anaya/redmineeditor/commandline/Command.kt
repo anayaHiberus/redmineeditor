@@ -39,7 +39,7 @@ interface Command {
         get() = ""
 
     /**
-     * If true will not show the UI afterwards (true by default)
+     * If true will not show the UI afterward (true by default)
      */
     val skipUI: Boolean
         get() = true

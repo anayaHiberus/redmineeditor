@@ -79,7 +79,7 @@ class BatchEditorController {
     }
 
     @FXML
-    fun close() = editor.scene.window.apply { fireEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSE_REQUEST)) }
+    fun close() = editor.scene.window.run { fireEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSE_REQUEST)) }
 
 }
 

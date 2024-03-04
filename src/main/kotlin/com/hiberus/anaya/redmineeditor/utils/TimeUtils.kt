@@ -2,7 +2,6 @@ package com.hiberus.anaya.redmineeditor.utils
 
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.temporal.ChronoField
 import kotlin.math.roundToInt
 
 /**
@@ -43,11 +42,6 @@ fun Double.formatHours() =
 fun YearMonth.days() = (1..lengthOfMonth()).map { atDay(it) }
 
 /**
- * List of days of the date week (as LocalDates)
- */
-fun LocalDate.weekDays() = (1..7).map { with(ChronoField.DAY_OF_WEEK, it.toLong()) }
-
-/**
  * YearMoth of a full date
  */
-val LocalDate.yearMonth get() = YearMonth.from(this)
+val LocalDate.yearMonth get() = YearMonth.from(this)!!

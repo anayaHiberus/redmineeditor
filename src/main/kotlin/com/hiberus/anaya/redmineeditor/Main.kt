@@ -47,9 +47,9 @@ class Main {
 
             // run valid commands
             COMMANDS.filter { it.argument in args }
-                .onEach {
-                    println("Running ${it.name} (${it.argument} found)${if (it.skipUI) " [the UI won't be shown afterwards]" else ""}:")
-                    it.run(object : Application.Parameters() {
+                .onEach { command ->
+                    println("Running ${command.name} (${command.argument} found)${if (command.skipUI) " [the UI won't be shown afterwards]" else ""}:")
+                    command.run(object : Application.Parameters() {
                         override fun getRaw() = args.toList()
 
                         override fun getUnnamed() = args.filter { !it.startsWith("--") }.filter { it.startsWith("-") }

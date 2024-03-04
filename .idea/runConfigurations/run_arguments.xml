@@ -19,7 +19,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-fix -week -test -relative --issue=312185 --comment=&quot;Roche development&quot;'" />
+          <option value="--args='-calStats'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />

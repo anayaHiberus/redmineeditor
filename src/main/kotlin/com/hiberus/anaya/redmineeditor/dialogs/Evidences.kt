@@ -57,8 +57,8 @@ fun ShowEvidencesDialog() {
                                 .sortedBy { it.spent_on } // sort by date
                                 .map { it.comment }
                                 .reversed().distinct().reversed() // remove duplicates, but keep the last element
-                                .filter { it.isNotBlank() }.map { it.trim().ensureSuffix(".") }
-                                .joinToString(" ")
+                                .filter { it.isNotBlank() }
+                                .joinToString(" ") { it.trim().ensureSuffix(".") }
                     )
                     appendLine()
 

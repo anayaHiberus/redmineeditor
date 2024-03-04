@@ -29,12 +29,12 @@ abstract class SimpleListCell<T>(fxml: URL) : ListCell<T>() {
         if (empty || item == null) {
             // empty cell
             text = null
-            setContentDisplay(ContentDisplay.TEXT_ONLY)
+            contentDisplay = ContentDisplay.TEXT_ONLY
             style = null // clear style
         } else {
             // cell with content
             update()
-            setContentDisplay(ContentDisplay.GRAPHIC_ONLY)
+            contentDisplay = ContentDisplay.GRAPHIC_ONLY
         }
     }
 

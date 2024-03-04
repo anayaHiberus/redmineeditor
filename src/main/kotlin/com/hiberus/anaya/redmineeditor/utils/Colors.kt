@@ -102,13 +102,13 @@ fun LoadColors() = runCatching {
                         }
 
                         null
-                    }.getOrElse {
-                        it.message.also { debugln("Invalid line in colors file: $it") }
+                    }.getOrElse { exception ->
+                        exception.message.also { debugln("Invalid line in colors file: $it") }
                     }
                 }.toList()
         }.takeIf { it.isNotEmpty() }?.joinToString("\n")
-}.getOrElse {
-    it.message.also { debugln("Error while reading colors file: $it") }
+}.getOrElse { exception ->
+    exception.message.also { debugln("Error while reading colors file: $it") }
 }
 
 /**

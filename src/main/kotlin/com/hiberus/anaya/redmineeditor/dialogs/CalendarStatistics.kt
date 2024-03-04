@@ -93,7 +93,7 @@ class CalendarStatisticsController {
     }
 
     @FXML
-    fun close() = logs.scene.window.apply { fireEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSE_REQUEST)) }
+    fun close() = logs.scene.window.run { fireEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSE_REQUEST)) }
 }
 
 /* ------------------------- Command line ------------------------- */
@@ -132,9 +132,16 @@ private fun calculateStatistics(from: LocalDate, to: LocalDate): String {
     }
     data class HoursByScheduleDate(val schedule: Schedule, val date: LocalDate, val hours: Double)
 
-    val expectedHours = getAllCalendars().map { Schedule(it) }.filter { it.load() == null }.flatMap { schedule ->
-        generateSequence(from) { it.plusDays(1).takeIf { it <= to } }.map { HoursByScheduleDate(schedule, it, schedule.expectedHours(it)) }.toList()
-    }
+    // load all calendars
+    val expectedHours = getAllCalendars()
+        .map { Schedule(it) }
+        .filter { it.load() == null }
+        .flatMap { schedule ->
+            // and for each day in the range
+            generateSequence(from) { date -> date.plusDays(1).takeIf { it <= to } }
+                // generate an entry (the schedule at that date requires those hours)
+                .map { date -> HoursByScheduleDate(schedule, date, schedule.expectedHours(date)) }
+        }
 
     val matrix = mutableListOf<List<String>?>()
 

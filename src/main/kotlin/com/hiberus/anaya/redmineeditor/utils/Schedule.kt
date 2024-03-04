@@ -32,8 +32,8 @@ class Schedule(val calendar: String? = null) {
         rules.reversed().toCollection(this.rules)
 
         errors
-    }.getOrElse {
-        it.message?.also { debugln(it) }
+    }.getOrElse { exception ->
+        exception.message?.also { debugln(it) }
     }
 
     /** Returns the expected hours you were supposed to spend a specific date. */
@@ -133,8 +133,8 @@ private fun parseSpecialDays(lines: Sequence<String>) = lines
     .map { line ->
         runCatching {
             Rule(line) to null
-        }.getOrElse {
-            null to it.message?.also { errorln("Invalid line in hours file: $it") }
+        }.getOrElse { exception ->
+            null to exception.message?.also { errorln("Invalid line in hours file: $it") }
         }
     }.toList().let { list ->
         // zip rules and errors

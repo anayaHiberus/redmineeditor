@@ -93,7 +93,14 @@ internal class UpdateComponent {
  */
 fun getNewVersion() = JSONObject(URL("https://api.github.com/repos/anayaHiberus/redmineeditor/releases/latest").readText()).getString("tag_name").drop(1)
     // compare versions based on the numbers ("2.1" < "2.2" but "2.1.1" > "2.1")
-    .takeIf { listOf(it, VERSION).map { it.split(".").map { it.toIntOrNull() ?: 0 }.toIntArray() }.let { (a, b) -> Arrays.compare(a, b) } > 0 }
+    .takeIf { remoteVersion ->
+        listOf(remoteVersion, VERSION)
+            .map { version ->
+                version.split(".")
+                    .map { it.toIntOrNull() ?: 0 }
+                    .toIntArray()
+            }.let { (r, c) -> Arrays.compare(r, c) > 0 }
+    }
 
 /**
  * Returns the new content of the calendars file, if different

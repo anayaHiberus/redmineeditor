@@ -71,7 +71,7 @@ var Region.bold: Boolean
     set(value) {
         style = if (value) BOLD_STYLE else null
     }
-private val BOLD_STYLE = "-fx-font-weight: bold;"
+private const val BOLD_STYLE = "-fx-font-weight: bold;"
 
 /**
  * Creates a new Label that will have its content centered
