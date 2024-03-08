@@ -125,7 +125,7 @@ fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
 /* ------------------------- containers ------------------------- */
 
 private val PROJECTS = mutableListOf<Pair<Regex, Color>>()
-private val COLORS = mutableMapOf<String, Color>().withDefault { Color.GREY }
+private val COLORS = mutableMapOf<String, Color>().withDefault { Color.TRANSPARENT }
 private val CACHE = mutableMapOf<String, Color?>()
 
 enum class Colors {
@@ -136,7 +136,9 @@ enum class Colors {
     SPEND_ERROR,
     HOLIDAY,
     MARK_USED,
+    MARK_UNUSED
     ;
 
     val value get() = COLORS.getValue(name.lowercase())
+    val nonTransparentValue get() = value.takeUnless { it == Color.TRANSPARENT }
 }
