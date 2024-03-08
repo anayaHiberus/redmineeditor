@@ -1,3 +1,6 @@
+V 1.6.1
+- Added mark_unused color
+
 V 1.6
 - Mark intensive days on calendar with different color (configurable)
 - New command -settings: view/modify settings from command line
