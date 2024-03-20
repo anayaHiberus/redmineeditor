@@ -1,4 +1,4 @@
-# CC : ES33
+# CC: ES33
 
 ######### general #########
 
@@ -8,6 +8,91 @@
 * 8 * 7 # same as august
 * * sa # saturdays is holiday
 * * su # sundays is holiday
+
+
+######### 2022 #########
+# https://sommos.online/hiberus/calendario-laboral/oviedo_2022.pdf
+
+# enero
+2022 1 6
+
+# febrero
+
+# marzo
+
+# abril
+2022 4 14
+2022 4 15
+
+# mayo
+2022 5 2
+
+# junio
+2022 6 7
+
+# julio
+
+# agosto
+2022 8 15
+
+# septiembre
+2022 9 1 7
+2022 9 8
+2022 9 21
+
+# octubre
+2022 10 12
+2022 10 13 7
+
+# noviembre
+2022 11 1
+
+# diciembre
+2022 12 6
+2022 12 8
+2022 12 26
+
+
+######## 2023 ########
+# https://sommos.online/hiberus/calendario-laboral/oviedo_2023.pdf
+
+# enero
+2023 1 2
+2023 1 6
+
+# febrero
+
+# marzo
+
+# abril
+2023 4 6
+2023 4 7
+
+# mayo
+2023 5 1
+2023 5 30
+
+# junio
+
+# julio
+
+# agosto
+2023 8 15
+
+# septiembre
+2023 9 8
+2023 9 21
+
+# octubre
+2023 10 12
+
+# noviembre
+2023 11 1
+
+# diciembre
+2023 12 6
+2023 12 8
+2023 12 25
 
 
 ######## 2024 ########

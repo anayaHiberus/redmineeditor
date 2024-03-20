@@ -23,7 +23,7 @@ class Schedule(val calendar: String? = null) {
         rules.clear()
 
         // get file
-        val (rules, errors) = (getSpecialDaysFile(calendar) ?: throw FileNotFoundException(getCalendarFile(calendar)))
+        val (rules, errors) = (getSpecialDaysFile(calendar) ?: throw FileNotFoundException("Calendar ${getCalendarFile(calendar)} not found, maybe it was renamed?\nPlease choose another one from the settings."))
             // parse lines
             .readLines().asSequence()
             .let { parseSpecialDays(it) }
