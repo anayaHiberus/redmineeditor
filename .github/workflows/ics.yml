@@ -1,0 +1,62 @@
+# Create ICS files
+name: Generate ICS files
+
+on:
+  # run on each push
+  push:
+    branches:
+      - 'main'
+
+  # allow manual too
+  workflow_dispatch:
+
+
+# Cancel running actions if new commits are added
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+# parameters
+env:
+  TAG: ics
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: jlink
+
+      - name: Run script
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # generate ICS files
+          FROM=$(date -d "-1 year" +%Y)-01-01
+          TO=$(date +%Y)-12-31
+          
+          find ./build/RedmineEditor/conf/calendars -iname "*.hours" -exec basename {} .hours ';' | while read CALENDAR; do
+            echo Running for $CALENDAR
+            ./build/RedmineEditor/RedmineEditor -ics --from=$FROM --to=$TO --calendar="$CALENDAR"
+            echo
+          done
+          
+          # update tag
+          git tag --force ${{ env.TAG }}
+          git push --force origin tag ${{ env.TAG }}
+          
+          # upload
+          gh release upload ${{ env.TAG }} *.ics --clobber
