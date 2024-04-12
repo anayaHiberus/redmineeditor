@@ -19,7 +19,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-calStats'" />
+          <option value="--args='-ics'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />

@@ -212,7 +212,7 @@ private class Rule(var line: String) {
                 && (week?.let { date.dayOfWeek == it } ?: true)
 
 
-    /* ------------------------- EQUALS & HASCODE ------------------------- */
+    /* ------------------------- EQUALS & HASHCODE ------------------------- */
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

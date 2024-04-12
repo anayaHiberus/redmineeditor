@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.json:json:20240205'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
     // implementation 'com.taskadapter:redmine-java-api:4.0.0.rc4' // useless api, cant search using multiple filters
+    // implementation 'org.mnode.ical4j:ical4j:4.0.0-rc5' // older versions can't be used due to 'ClassNotFoundException: org.slf4j.LoggerFactory' error. Newer versions can't be used due to 'does not declares uses' error
 }
 
 jlink {
