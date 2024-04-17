@@ -1,5 +1,6 @@
 package com.hiberus.anaya.tools
 
+import com.hiberus.anaya.icsapi.FullDay
 import com.hiberus.anaya.icsapi.ICS
 import com.hiberus.anaya.redmineeditor.commandline.Command
 import com.hiberus.anaya.redmineeditor.model.AppSettings
@@ -47,7 +48,7 @@ class IcsCreator : Command {
         println("Generating ICS file ($fileName) for calendar $calendar between $from and $to")
 
         // generate ranges
-        class Range(var from: LocalDate, var to: LocalDate, var message: String)
+        class Range(var from: LocalDate, var to: LocalDate)
 
         val ranges = mutableListOf<Range>()
         // for all days
@@ -57,21 +58,20 @@ class IcsCreator : Command {
             // that don't require hours
             .filter { schedule.expectedHours(it) == 0.0 }
             .forEach { date ->
-                val message = "Holiday"
 
                 // check previous
-                ranges.lastOrNull()?.takeIf { it.to == date.minusDays(1) && it.message == message }?.let {
+                ranges.lastOrNull()?.takeIf { it.to == date.minusDays(1) }?.let {
                     // extend previous range
                     it.to = date
                 } ?: run {
                     // start a new range
-                    ranges += Range(date, date, message)
+                    ranges += Range(date, date)
                 }
             }
 
         // generate events
         val ics = ICS(calendar)
-        ranges.forEach { ics.addFullDaysRange(it.from, it.to, it.message) }
+        ranges.forEach { ics.addFullDaysRange(FullDay(it.from, it.to, "Holiday", outOfOffice = true)) }
 
         // create file
         ics.generateFile(fileName)
