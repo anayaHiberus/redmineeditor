@@ -17,33 +17,44 @@ class ICS(val name: String) {
 
     /** Generates an ICS file. */
     fun generateFile(fileName: String) = File(fileName).printWriter().use { out ->
-        out.println("BEGIN:VCALENDAR")
-        out.println("VERSION:2.0")
-        out.println("PRODID:-//$name//RedmineEditor")
-        out.println("NAME:Calendar $name")
+        fun write(line: String) = out.print(line + "\r\n")
+
+        write("BEGIN:VCALENDAR")
+        write("VERSION:2.0")
+        write("PRODID:-//$name//RedmineEditor")
+        write("NAME:Calendar $name")
         fullDays.forEach { fullDay ->
-            out.println("BEGIN:VEVENT")
-            out.println("DTSTAMP:" + ISO_COMPACT.format(LocalDateTime.now()))
-            out.println("UID:" + fullDay.id)
-            out.println("DTSTART;VALUE=DATE:" + fullDay.fromAsISO)
-            out.println("DTEND;VALUE=DATE:" + fullDay.toAsISO)
-            out.println("SUMMARY:" + fullDay.summary.replace("\n", "\\n"))
-//            out.println("DESCRIPTION:description_description")
+            write("BEGIN:VEVENT")
+            write("DTSTAMP:" + ISO_COMPACT.format(LocalDateTime.now()))
+            write("UID:" + fullDay.id)
+            write("DTSTART;VALUE=DATE:" + fullDay.fromAsISO)
+            write("DTEND;VALUE=DATE:" + fullDay.toAsISO)
+            write("SUMMARY:" + fullDay.summary.encoded)
+            write("DESCRIPTION:" + fullDay.description.encoded)
             if (fullDay.outOfOffice) {
                 // this sets the Out-of-Office flag, but only works for outlook. There is no standard yet.
-                out.println("X-MICROSOFT-CDO-BUSYSTATUS:OOF")
+                write("X-MICROSOFT-CDO-BUSYSTATUS:OOF")
             }
-            out.println("END:VEVENT")
+            write("END:VEVENT")
         }
-        out.println("END:VCALENDAR")
+        write("END:VCALENDAR")
     }
 }
 
 /** A FullDay for ICS calendar. */
-class FullDay(val from: LocalDate, val to: LocalDate, val summary: String, val outOfOffice: Boolean = false) {
+class FullDay(
+    val from: LocalDate,
+    val to: LocalDate,
+    val summary: String,
+    val description: String = "",
+    val outOfOffice: Boolean = false
+) {
     val fromAsISO get() = BASIC_ISO_DATE.format(from)
     val toAsISO get() = BASIC_ISO_DATE.format(to)
     val id get() = UUID.nameUUIDFromBytes("$from$to$summary".toByteArray())
 }
 
 private val ISO_COMPACT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
+
+// this needs a proper encoding
+private val String.encoded get() = replace("\n", "\\n")

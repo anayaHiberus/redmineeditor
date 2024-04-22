@@ -71,7 +71,17 @@ class IcsCreator : Command {
 
         // generate events
         val ics = ICS(calendar)
-        ranges.forEach { ics.addFullDaysRange(FullDay(it.from, it.to, "Holiday", outOfOffice = true)) }
+        ranges.forEach {
+            ics.addFullDaysRange(
+                FullDay(
+                    from = it.from,
+                    to = it.to,
+                    summary = "Holiday ($calendar)",
+                    description = "Generated with RedmineEditor (https://github.com/anayaHiberus/redmineeditor/releases/tag/ics)",
+                    outOfOffice = true,
+                )
+            )
+        }
 
         // create file
         ics.generateFile(fileName)
