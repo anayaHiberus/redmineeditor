@@ -51,14 +51,14 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     expected != 0.0 && expected == spent -> Colors.GOOD.value
     // nothing to spend and nothing spent, HOLIDAY!
     expected == 0.0 && spent == 0.0 -> Colors.HOLIDAY.value
-    // Need to spent less than 8 hours and nothing spent, future intensive day!
-    expected < 8.0 && spent == 0.0 -> Colors.INTENSIVE.value
     // spent greater than expected, ERROR!
     spent > expected -> Colors.SPEND_ERROR.value
     // today, but still not all, WARNING!
     day == LocalDate.now() -> Colors.WARNING.value
     // past day and not all, ERROR!
     day.isBefore(LocalDate.now()) -> Colors.PAST_ERROR.value
+    // Need to spent less than 8 hours and nothing spent, future intensive day!
+    expected < 8.0 && spent == 0.0 -> Colors.INTENSIVE.value
     // future day, and something (not all) spent, IN PROGRESS
     spent > 0 -> Colors.GOOD.value.multiplyOpacity(0.25)
     // future day, NOTHING!
