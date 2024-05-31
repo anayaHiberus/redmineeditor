@@ -87,7 +87,7 @@ fun LoadColors() = runCatching {
 
                         // extract key=value
                         val parts = line.split('=', limit = 2)
-                        if (parts.size != 2) throw InvalidParameterException("Lines must be in the format key=value. Found: \"$line\"")
+                        if (parts.size != 2) throw InvalidParameterException("Lines must be in the format key=value.")
                         val (k, v) = parts.map { it.trim() }
 
                         Regex("project\\.\"(.*)\"").matchEntire(k)?.let {
@@ -103,12 +103,16 @@ fun LoadColors() = runCatching {
 
                         null
                     }.getOrElse { exception ->
-                        exception.message.also { debugln("Invalid line in colors file: $it") }
+                        debugln("Error reading colors file '$colorsFile' line '$line': $exception")
+                        exception.debugPrintStackTrace()
+                        "Error on line: '$line': ${exception.message}"
                     }
                 }.toList()
         }.takeIf { it.isNotEmpty() }?.joinToString("\n")
 }.getOrElse { exception ->
-    exception.message.also { debugln("Error while reading colors file: $it") }
+    debugln("Error reading colors file '$colorsFile': $exception")
+    exception.debugPrintStackTrace()
+    "Generic error: ${exception.message}"
 }
 
 /**
