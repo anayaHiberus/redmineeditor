@@ -11,6 +11,7 @@ import javafx.application.Application
  * Registered commands
  */
 val COMMANDS = listOf(
+    DebugCommand(),
     SettingsCommand(),
     ReadOnlyCommand(),
     FixMonthToolCommand(),
