@@ -1,3 +1,7 @@
+V 1.7.1
+- Fix issue with color file
+- New debug command
+
 V 1.7
 - Added mark_unused color
 - New command: ICS calendar creator
