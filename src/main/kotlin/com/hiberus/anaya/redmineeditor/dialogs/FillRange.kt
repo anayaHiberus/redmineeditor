@@ -89,8 +89,8 @@ class FixMonthController {
 
         // selected range
         val function: (observable: ObservableValue<out Boolean>?, oldValue: Boolean?, newValue: Boolean?) -> Unit = { _, _, _ ->
-            selection.text = getSelectionRange(selectedWeek.isSelected, futureDays.isSelected, relative.isSelected, AppController.runForeground { it })
-                .let { if (it == null) "No days with selected properties" else "Run from ${it.first} to ${it.second}, both inclusive" }
+            selection.text = getSelectionRange(AppController.runForeground { it }, selectedWeek.isSelected, futureDays.isSelected, relative.isSelected)
+                .let { if (it == null) "No days with selected properties" else "Run from ${it.fromDate} to ${it.toDate}, both inclusive" }
         }
         selectedWeek.selectedProperty().addListener(function)
         futureDays.selectedProperty().addListener(function)
@@ -100,7 +100,7 @@ class FixMonthController {
 
     @FXML
     fun run() = AppController.runBackground({
-        FixMonthTool(it, listOf(issue.selectionModel.selectedItem to comment.text), selectedWeek.isSelected, futureDays.isSelected)
+        FillRangeTool(it, listOf(issue.selectionModel.selectedItem to comment.text), getSelectionRange(it, selectedWeek.isSelected, futureDays.isSelected))
     }) {
         // when correctly finishes, exit
         if (it) cancel()
@@ -185,7 +185,7 @@ class FixMonthToolCommand : Command {
                     // run
                     println("Running:")
                     AppController.runBackground { model ->
-                        FixMonthTool(model, issues, week, future, relative, test).onEach { println("    $it") }
+                        FillRangeTool(model, issues, getSelectionRange(model, week, future, relative), test).onEach { println("    $it") }
                     }
                 }
                 // upload
@@ -216,13 +216,13 @@ class FixMonthToolCommand : Command {
 /* ------------------------- tool ------------------------- */
 
 /**
- * Fixes the selected month or [selectedWeek] optionally skipping [futureDays] adding new entries if required to one or more [issues] with a specific comment each (if provided)
+ * Fills a date [range] adding new entries if required to one or more [issues] with a specific comment each (if provided)
  * Returns the changes
  * if [test] is true, no changes will be made (only logged)
  */
-fun FixMonthTool(model: Model.Editor, issues: List<Pair<Issue, String>>, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false, test: Boolean = false) =
+fun FillRangeTool(model: Model.Editor, issues: List<Pair<Issue, String>>, range: LocalDateRange?, test: Boolean = false) =
     // get days of week or month
-    getSelectionRange(selectedWeek, futureDays, relative, model).days
+    range.days
         .flatMap parent@{ day ->
             // get data of that day
             val dayEntries = model.getEntriesFromDate(day)
@@ -287,7 +287,7 @@ fun FixMonthTool(model: Model.Editor, issues: List<Pair<Issue, String>>, selecte
 /**
  * Returns the selected range
  */
-private fun getSelectionRange(selectedWeek: Boolean, futureDays: Boolean, relative: Boolean, model: Model): Pair<LocalDate, LocalDate>? {
+private fun getSelectionRange(model: Model, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false): LocalDateRange? {
     val now = LocalDate.now()
 
     // init
@@ -316,20 +316,23 @@ private fun getSelectionRange(selectedWeek: Boolean, futureDays: Boolean, relati
         if (end > now) end = now
     }
 
-    return start to end
+    return LocalDateRange(start, end)
 }
 
+
+class LocalDateRange(val fromDate: LocalDate, val toDate: LocalDate)
+
 /**
- * Returns all days between two local dates (inclusive).
- * If null or end < start, returns empty list
+ * Returns all days between the two local dates (inclusive).
+ * If null, or start > end, returns empty list
  */
-private val Pair<LocalDate, LocalDate>?.days: List<LocalDate>
+private val LocalDateRange?.days: List<LocalDate>
     get() {
         // check invalid
         if (this == null) return emptyList()
-        if (first > second) return emptyList()
+        if (fromDate > toDate) return emptyList()
         // generate
-        return mutableListOf(first).apply {
-            while (last() < second) add(last().plusDays(1))
+        return mutableListOf(fromDate).apply {
+            while (last() < toDate) add(last().plusDays(1))
         }
     }
