@@ -9,7 +9,7 @@
         <Menu text="_Tools">
             <MenuItem onAction="#evidences" text="Generate _evidences..."/>
             <MenuItem onAction="#batchEditor" text="_Batch editor..."/>
-            <MenuItem onAction="#fixMonth" text="_Month fixer..."/>
+            <MenuItem onAction="#fillRange" text="_Fill range..."/>
             <MenuItem onAction="#calendarStatistics" text="_Calendar statistics..."/>
         </Menu>
         <Menu text="_Edit">

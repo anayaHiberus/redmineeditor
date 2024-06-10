@@ -34,7 +34,7 @@ internal class MenuBarComponent {
     fun batchEditor() = ShowBatchEditorDialog()
 
     @FXML
-    fun fixMonth() = ShowFixMonthDialog()
+    fun fillRange() = ShowFillRangeDialog()
 
     @FXML
     fun calendarStatistics() = ShowCalendarStatisticsDialog()

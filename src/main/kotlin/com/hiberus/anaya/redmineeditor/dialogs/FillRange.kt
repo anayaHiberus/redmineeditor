@@ -8,7 +8,6 @@ import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.application.Application
-import javafx.beans.value.ObservableValue
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
@@ -16,17 +15,20 @@ import javafx.scene.control.*
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.WindowEvent
+import java.time.DayOfWeek.MONDAY
+import java.time.DayOfWeek.SUNDAY
 import java.time.LocalDate
+import java.time.LocalDate.now
 import java.time.temporal.ChronoField
 import java.util.concurrent.CountDownLatch
 
 /* ------------------------- window ------------------------- */
 
-/** Displays the Fix Month tool dialog */
-fun ShowFixMonthDialog() =
+/** Displays the Fill Range tool dialog */
+fun ShowFillRangeDialog() =
     Stage().apply {
-        title = "Fix month tool"
-        scene = Scene(FXMLLoader(ResourceLayout("fix_month")).load())
+        title = "Fill range tool"
+        scene = Scene(FXMLLoader(ResourceLayout("fill_range")).load())
         scene.stylize()
         centerInMouseScreen()
         initModality(Modality.APPLICATION_MODAL)
@@ -34,28 +36,25 @@ fun ShowFixMonthDialog() =
     }.showAndWait()
 
 
-/** The fix month controller */
-class FixMonthController {
+/** The fill range controller */
+class FillRangeController {
 
     /* ------------------------- nodes ------------------------- */
+
+    @FXML
+    lateinit var presets: MenuButton
+
+    @FXML
+    lateinit var toDate: DatePicker
+
+    @FXML
+    lateinit var fromDate: DatePicker
 
     @FXML
     lateinit var comment: TextField
 
     @FXML
     lateinit var issue: ChoiceBox<Issue>
-
-    @FXML
-    lateinit var futureDays: CheckBox
-
-    @FXML
-    lateinit var selectedWeek: CheckBox
-
-    @FXML
-    lateinit var relative: CheckBox
-
-    @FXML
-    lateinit var selection: Label
 
     private val window get() = comment.scene.window // window
 
@@ -78,25 +77,51 @@ class FixMonthController {
         issue.items += issues.sortedByDescending { it.spent }
         issue.selectionModel.select(0)
 
-        // disable week if no day is selected
-        if (AppController.runForeground { it.date } == null) {
-            selectedWeek.enabled = false
+        // fill presets
+        val currentDate = now()
+        val currentMonth = currentDate.yearMonth
+        val (selectedDate, selectedMonth) = AppController.runForeground { it.date to it.month }
+
+        presets.items.addAll(
+            MenuItem("last 30/31 days").apply { setOnAction { fromDate.value = currentDate.minusMonths(1); toDate.value = currentDate } },
+            MenuItem("last 7 days").apply { setOnAction { fromDate.value = currentDate.minusDays(7); toDate.value = currentDate } },
+        )
+
+        if (currentMonth != selectedMonth) {
+            // different selected/current months
+            presets.items.addAll(
+                MenuItem("full current month").apply { setOnAction { fromDate.value = currentMonth.atDay(1); toDate.value = currentMonth.atEndOfMonth() } },
+                MenuItem("full selected month").apply { setOnAction { fromDate.value = selectedMonth.atDay(1); toDate.value = selectedMonth.atEndOfMonth() } },
+            )
+        } else {
+            // same selected/current month
+            presets.items.add(
+                MenuItem("full current/selected month").apply { setOnAction { fromDate.value = currentMonth.atDay(1); toDate.value = currentMonth.atEndOfMonth() } }
+            )
+        }
+        if (selectedDate == null) {
+            // no selected date (only current)
+            presets.items.add(
+                MenuItem("full current week").apply { setOnAction { fromDate.value = currentDate.withDayOfWeek(MONDAY); toDate.value = currentDate.withDayOfWeek(SUNDAY) } },
+            )
+        } else if (selectedDate != currentDate) {
+            // selected && different selected/current date
+            presets.items.addAll(
+                MenuItem("full current week").apply { setOnAction { fromDate.value = currentDate.withDayOfWeek(MONDAY); toDate.value = currentDate.withDayOfWeek(SUNDAY) } },
+                MenuItem("full selected week").apply { setOnAction { fromDate.value = selectedDate.withDayOfWeek(MONDAY); toDate.value = selectedDate.withDayOfWeek(SUNDAY) } },
+            )
+        } else {
+            // selected && same selected/current date
+            presets.items.add(
+                MenuItem("full current/selected week").apply { setOnAction { fromDate.value = currentDate.withDayOfWeek(MONDAY); toDate.value = currentDate.withDayOfWeek(SUNDAY) } }
+            )
         }
 
-        // selected range
-        val function: (observable: ObservableValue<out Boolean>?, oldValue: Boolean?, newValue: Boolean?) -> Unit = { _, _, _ ->
-            selection.text = getSelectionRange(AppController.runForeground { it }, selectedWeek.isSelected, futureDays.isSelected, relative.isSelected)
-                .let { if (it == null) "No days with selected properties" else "Run from ${it.fromDate} to ${it.toDate}, both inclusive" }
-        }
-        selectedWeek.selectedProperty().addListener(function)
-        futureDays.selectedProperty().addListener(function)
-        relative.selectedProperty().addListener(function)
-        function(null, null, null)
     }
 
     @FXML
     fun run() = AppController.runBackground({
-        FillRangeTool(it, listOf(issue.selectionModel.selectedItem to comment.text), getSelectionRange(it, selectedWeek.isSelected, futureDays.isSelected))
+        FillRangeTool(it, listOf(issue.selectionModel.selectedItem to comment.text), LocalDateRange(fromDate.value, toDate.value))
     }) {
         // when correctly finishes, exit
         if (it) cancel()

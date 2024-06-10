@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.FillRangeController">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </padding>
+    <Label layoutX="20.0" layoutY="20.0" style="-fx-background-color: #00ff0030;" text="New! You can now run this tool directly from the command line, useful for automatization with scripts.&#10;Run the app with the flag -h for the details and syntax.    $./RedmineEditor(.bat) -h" />
+    <Separator layoutX="20.0" layoutY="274.0">
+        <VBox.margin>
+            <Insets bottom="20.0" top="20.0" />
+        </VBox.margin>
+    </Separator>
+    <Label layoutX="20.0" layoutY="20.0" text="With this tool you can fill any date range in just a few seconds:&#10;- Any day where spent hours is the same (=) as the expected will not be changed&#10;- Any day where spent hours is less (&lt;) than expected, a new entry for the selected issue &#10;    with the selected message will be created with the required hours&#10;- Any day where spent hours is greater (&gt;) than expected, all its entries will be reduced equally &#10;    (If you should have spent 8 hours but you spent [2, 6, 2] = 10 then 2 hours will be reduced &#10;    accordingly -&gt; [1.6, 4.8, 1.6] = 8)&#10;&#10;After the tool runs you need to press upload to save the changes. In other words, you can run &#10;this tool and then reload without modifying anything, for testing.">
+        <VBox.margin>
+            <Insets />
+        </VBox.margin>
+    </Label>
+    <Separator layoutX="20.0" layoutY="294.0">
+        <VBox.margin>
+            <Insets bottom="20.0" top="20.0" />
+        </VBox.margin>
+    </Separator>
+    <Label fx:id="selection" text="Range:" />
+    <HBox alignment="CENTER_LEFT">
+        <DatePicker fx:id="fromDate" promptText="Initial date (inclusive)"/>
+        <DatePicker fx:id="toDate" promptText="Final date (inclusive)"/>
+        <MenuButton fx:id="presets" mnemonicParsing="false" text="Presets">
+            <items>
+            </items>
+        </MenuButton>
+    </HBox>
+    <Separator layoutX="20.0" layoutY="220.0">
+        <VBox.margin>
+            <Insets bottom="20.0" top="20.0" />
+        </VBox.margin>
+    </Separator>
+    <Label text="Issue for new entries:&#10;Note: if the issue you want is not here, close and add it using the main screen, &#10;then reopen this tool." />
+    <ChoiceBox fx:id="issue">
+        <VBox.margin>
+            <Insets bottom="20.0" />
+        </VBox.margin>
+    </ChoiceBox>
+    <Label layoutX="25.0" layoutY="25.0" text="Message for new entries:">
+        <VBox.margin>
+            <Insets />
+        </VBox.margin>
+    </Label>
+    <TextField fx:id="comment">
+        <VBox.margin>
+            <Insets />
+        </VBox.margin>
+    </TextField>
+    <Region VBox.vgrow="ALWAYS" />
+    <Separator>
+        <VBox.margin>
+            <Insets bottom="10.0" top="10.0" />
+        </VBox.margin>
+    </Separator>
+    <HBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button cancelButton="true" onAction="#cancel" text="_Cancel">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </HBox.margin>
+        </Button>
+        <Button defaultButton="true" onAction="#run" text="_Run">
+            <HBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </HBox.margin>
+        </Button>
+    </HBox>
+</VBox>

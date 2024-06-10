@@ -8,9 +8,7 @@ import com.hiberus.anaya.tools.IcsCreator
 import javafx.application.Application
 
 
-/**
- * Registered commands
- */
+/** Registered commands */
 val COMMANDS = listOf(
     DebugCommand(),
     SettingsCommand(),

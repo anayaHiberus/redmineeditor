@@ -2,7 +2,9 @@ package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineapi.TimeEntry
 import com.hiberus.anaya.redmineeditor.ResourceLayout
-import com.hiberus.anaya.redmineeditor.dialogs.*
+import com.hiberus.anaya.redmineeditor.dialogs.FillRangeTool
+import com.hiberus.anaya.redmineeditor.dialogs.MyException
+import com.hiberus.anaya.redmineeditor.dialogs.showDetails
 import com.hiberus.anaya.redmineeditor.model.*
 import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.event.Event
@@ -312,7 +314,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
     }
 
     @FXML
-    fun fixMonth() = AppController.runBackground {
+    fun fillRange() = AppController.runBackground {
         val now = LocalDate.now()
         FillRangeTool(it, listOf(item.issue to item.comment), LocalDateRange(now.withDayOfMonth(1), now.atEndOfMonth() ))
     }

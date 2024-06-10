@@ -16,10 +16,11 @@ import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import javafx.util.StringConverter
 import java.time.DayOfWeek
+import java.time.DayOfWeek.MONDAY
+import java.time.DayOfWeek.SUNDAY
 import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter
-import java.time.temporal.WeekFields
 
 /**
  * Show the calendar statistics dialog
@@ -68,10 +69,10 @@ class CalendarStatisticsController {
         // fill presets
         presets.items.addAll(
             MenuItem("current day").apply { setOnAction { fromDate.value = now(); toDate.value = now() } },
-            MenuItem("current week").apply { setOnAction { fromDate.value = now().with(WeekFields.ISO.dayOfWeek(), 1); toDate.value = now().with(WeekFields.ISO.dayOfWeek(), 7) } },
+            MenuItem("current week").apply { setOnAction { fromDate.value = now().withDayOfWeek(MONDAY); toDate.value = now().withDayOfWeek(SUNDAY) } },
             MenuItem("current month").apply { setOnAction { fromDate.value = now().withDayOfMonth(1); toDate.value = now().atEndOfMonth() } },
             MenuItem("last month").apply { setOnAction { fromDate.value = now().minusMonths(1).withDayOfMonth(1); toDate.value = now().minusMonths(1).atEndOfMonth() } },
-            MenuItem("current year").apply { setOnAction { fromDate.value = now().withDayOfYear(1); toDate.value = now().withDayOfYear(now().lengthOfYear()) } }
+            MenuItem("current year").apply { setOnAction { fromDate.value = now().withDayOfYear(1); toDate.value = now().atEndOfYear() } }
                 // apply this preset
                 .apply { onAction.handle(null) },
         )
@@ -98,6 +99,7 @@ class CalendarStatisticsController {
 
 /* ------------------------- Command line ------------------------- */
 
+// TODO: use the new CustomFormat for the dates
 class CalendarStatisticsCommand : Command {
     override val name = "Command line variant of the CalendarStatistics tool"
     override val argument = "-calStats"

@@ -142,41 +142,7 @@ And fill the variable accordingly.
 
 ## Command line usage
 
-The app has some command line tools. You can launch the app with `-h` to show the full list:
-
-```txt
-These are all the available commands:
-
-View/Modify settings from the command line: call as -settings [--name=value]* [-list] {will not run the UI afterwards}
-    -list : will display all settings with their values
-    --name=value : will set <value> for the property <name>
-    WARNING! values will not be checked for correctness, if the app doesn't load afterwards, restore the original value
-
-Read only flag: call as -readOnly
-    For testing purposes: Specify this flag to disable all put/post petitions, they will be skipped (but still logged)
-
-Command line variant of the FixMonth tool: call as -fix [-test] [-week] [-future] [-relative] --issue=123 [--comment="A comment"] {will not run the UI afterwards}
-    -test, if specified, nothing will be uploaded (but changes that would have happened will be logged).
-    -week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.
-    -future, if specified, days after today will also be considered. If not specified, only past and today will be checked.
-    -relative, if specified, the interval will be relative (past week/month). If not specified, interval will be absolute (current week/month). Recommended (in absolute mode, running this on day 1 or monday will not fix any past days).
-    --issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.
-    --comment="A comment" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123="Specific issue"
-    Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment="development"
-    On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fix -week -relative --issue=123 --comment="development" >> ~/logs/cron/imputation 2>&1
-    On windows, create a bat with the command (RedmineEditor.bat -fix -week -relative --issue=123 --comment="development") and create a Basic Task on the Task Scheduler to run it
-
-Command line variant of the CalendarStatistics tool: call as -calStats [--from=1997-01-01] [--to=1997-12-31] {will not run the UI afterwards}
-    --from=1997-01-01, start of the range, inclusive. Must be a valid ISO java format. If not specified, today will be used.
-    --to=1997-12-31, end of the range, inclusive. Must be a valid ISO java format. If not specified, today will be used.
-    The output will be a 'table-like' string with the information
-
-ICS creator: call as -ics [--from=1997-01-01] [--to=1997-12-31] [--calendar=zaragoza] [--file=zaragoza.ics] {will not run the UI afterwards}
-    --from=1997-01-01, start of the range, inclusive. Must be a valid ISO java format. If not specified, the start of the current year will be used.
-    --to=1997-12-31, end of the range, inclusive. Must be a valid ISO java format. If not specified, the end of the current year will be used.
-    --calendar=zaragoza, the name of the calendar to use. If not specified, the user-configured calendar will be used.
-    --file=zaragoza.ics, the name of the output file. If not specified, it will have the same name as the calendar with the '.ics' extension added.
-```
+The app has some command line tools. You can launch the app with `-h` to show the full documentation.
 
 ## ICS calendars
 
@@ -184,15 +150,15 @@ You can create an ics calendar file with the holidays of a specific calendar. Se
 
 Alternatively you can subscribe to the automatically generated files from the official Hiberus calendars, available here: https://github.com/anayaHiberus/redmineeditor/releases/tag/ics
 
-## Tools -> Month Fixer
+## Tools -> Fill range
 
-Auto-spents hours for all missing days in a month/week.
+Auto-spents hours for all missing days in a period.
 
 You can quickly fix a full month by pressing the right arrow on any issue. The month will be fixed with that particular issue+comment.
 
 Alternatively, run it from the command line (see the autoimputation and the command line usage sections).
 
-![monthFixer](docs/monthFixer.png)
+![monthFixer](docs/monthFixer.png) $$ TODO: update
 
 ## Tools -> Batch Editor
 
