@@ -69,8 +69,8 @@ class CalendarStatisticsController {
         presets.items.addAll(
             MenuItem("current day").apply { setOnAction { fromDate.value = now(); toDate.value = now() } },
             MenuItem("current week").apply { setOnAction { fromDate.value = now().with(WeekFields.ISO.dayOfWeek(), 1); toDate.value = now().with(WeekFields.ISO.dayOfWeek(), 7) } },
-            MenuItem("current month").apply { setOnAction { fromDate.value = now().withDayOfMonth(1); toDate.value = now().withDayOfMonth(now().lengthOfMonth()) } },
-            MenuItem("last month").apply { setOnAction { fromDate.value = now().minusMonths(1).withDayOfMonth(1); toDate.value = now().minusMonths(1).run { withDayOfMonth(lengthOfMonth()) } } },
+            MenuItem("current month").apply { setOnAction { fromDate.value = now().withDayOfMonth(1); toDate.value = now().atEndOfMonth() } },
+            MenuItem("last month").apply { setOnAction { fromDate.value = now().minusMonths(1).withDayOfMonth(1); toDate.value = now().minusMonths(1).atEndOfMonth() } },
             MenuItem("current year").apply { setOnAction { fromDate.value = now().withDayOfYear(1); toDate.value = now().withDayOfYear(now().lengthOfYear()) } }
                 // apply this preset
                 .apply { onAction.handle(null) },

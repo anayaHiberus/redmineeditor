@@ -19,7 +19,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-h'" />
+          <option value="--args='-fix -test'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />

@@ -45,3 +45,5 @@ fun YearMonth.days() = (1..lengthOfMonth()).map { atDay(it) }
  * YearMoth of a full date
  */
 val LocalDate.yearMonth get() = YearMonth.from(this)!!
+
+fun LocalDate.atEndOfMonth() = withDayOfMonth(lengthOfMonth())

@@ -2,6 +2,7 @@ package com.hiberus.anaya.redmineeditor
 
 import com.hiberus.anaya.redmineeditor.commandline.COMMANDS
 import com.hiberus.anaya.redmineeditor.dialogs.TITLE
+import com.hiberus.anaya.redmineeditor.utils.SimpleParameters
 import com.hiberus.anaya.redmineeditor.utils.centerInMouseScreen
 import com.hiberus.anaya.redmineeditor.utils.stylize
 import javafx.application.Application
@@ -47,13 +48,7 @@ class Main {
             COMMANDS.filter { it.argument in args }
                 .onEach { command ->
                     println("Running ${command.name} (${command.argument} found)${if (command.skipUI) " [the UI won't be shown afterwards]" else ""}:")
-                    command.run(object : Application.Parameters() {
-                        override fun getRaw() = args.toList()
-
-                        override fun getUnnamed() = args.filter { !it.startsWith("--") }.filter { it.startsWith("-") }
-
-                        override fun getNamed() = args.filter { it.startsWith("--") }.map { it.removePrefix("--").split(Regex("="), 2)  }.associate { (l, r) -> l to r }
-                    })
+                    command.run(SimpleParameters(args))
                     println()
                 }.run {
                     if (any { it.skipUI }) {

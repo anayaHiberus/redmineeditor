@@ -115,18 +115,53 @@ class FixMonthController {
 
 /* ------------------------- command line ------------------------- */
 
-/**
- * Run this tool as a command line
- */
+/** Old command */
 class FixMonthToolCommand : Command {
-    override val name = "Command line variant of the FixMonth tool"
+    override val name = "[DEPRECATED: Use FillRangeTool] Command line variant of the old FixMonth tool."
     override val argument = "-fix"
     override val parameters = "[-test] [-week] [-future] [-relative] --issue=123 [--comment=\"A comment\"]"
     override val help = listOf(
-        "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
+        "DEPRECATED: Use the replacement FillRangeTool. Running this command will tell you the replacement command.",
         "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
         "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
         "-relative, if specified, the interval will be relative (past week/month). If not specified, interval will be absolute (current week/month). Recommended (in absolute mode, running this on day 1 or monday will not fix any past days).",
+        "The rest of the parameters are explained in the FillRangeTool."
+    )
+
+    override fun run(parameters: Application.Parameters) {
+
+        // read parameters
+        val test = "-test" in parameters.unnamed
+        val week = "-week" in parameters.unnamed
+        val relative = "-relative" in parameters.unnamed
+        val future = "-future" in parameters.unnamed
+
+        val newParameters = listOfNotNull(
+            "-fill",
+            "-test".takeIf { test },
+            "--fromDate=+0/${mapOf("truetrue" to "+0/-7", "truefalse" to "+0/+0/mon", "falsetrue" to "-1/+0", "falsefalse" to "+0/1")["$week$relative"]}",
+            "--toDate=+0/${if (week) "+0/+0/sun" else "+0/end"}".takeIf { future && !relative },
+            parameters.named["issue"]?.let { "--issue=$it" },
+            *parameters.named.filterKeys { it.startsWith("comment") }.map { (key, value) -> "--$key=\"$value\"" }.toTypedArray()
+        )
+        println("Deprecated. Replace this command with the following: ./RedmineEditor " + newParameters.joinToString(" "))
+
+        FillRangeToolCommand().run(SimpleParameters(newParameters.toTypedArray()))
+    }
+
+}
+
+/**
+ * Run this tool as a command line
+ */
+class FillRangeToolCommand : Command {
+    override val name = "Command line variant of the FillRange tool"
+    override val argument = "-fill"
+    override val parameters = "[-test] [-fromDate=~0] [-toDate=~0] --issue=123 [--comment=\"A comment\"]"
+    override val help = listOf(
+        "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
+        "fromDate, first day (inclusive) to fill. Either a date in format '2020/12/31' where each element can be a fixed value or an offset ('1', '+1' or '-1') with an optional day of week (mon,tue,wed,thu,fri,sat,sun) extension (+0/+0/+0/mon). The day can also be 'end' meaning 'end of month' (+0/+0/end). Today (+0/+0/+0) by default",
+        "toDate, first day (inclusive) to fill. Either a date in format '2020/12/31' where each element can be a fixed value or an offset ('1', '+1' or '-1') with an optional day of week (mon,tue,wed,thu,fri,sat,sun) extension (+0/+0/+0/mon). The day can also be 'end' meaning 'end of month' (+0/+0/end). Today (+0/+0/+0) by default",
         "--issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.",
         "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123=\"Specific issue\"",
         "Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment=\"development\"",
@@ -145,10 +180,17 @@ class FixMonthToolCommand : Command {
             ?.distinct()
             ?: listOf() // list of ids separated by comma
         if (issueIds.isEmpty() && "issue" in parameters.named) println(parameters.named["issue"] + " is not an integer or list of integers")
-        val week = ("-week" in parameters.unnamed).also { println("> Fixing " + if (it) "week" else "month") }
-        val relative = ("-relative" in parameters.unnamed).also { println("> Using " + (if (it) "relative" else "absolute") + " interval") }
-        val future = ("-future" in parameters.unnamed).also { println("> Fixing " + if (it) "future days too" else "past days only") }
         val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
+
+        val fromDate = runCatching { parameters.named["fromDate"]?.parseCustomDate() ?: LocalDate.now() }.getOrElse {
+            println("the fromDate parameter is invalid. Refer to the documentation for the exact format required.")
+            return
+        }
+        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDate() ?: LocalDate.now() }.getOrElse {
+            println("the toDate parameter is invalid. Refer to the documentation for the exact format required.")
+            return
+        }
+        println("Filling range: [$fromDate, $toDate]")
 
         // start process
         val latch = CountDownLatch(1)
@@ -185,7 +227,7 @@ class FixMonthToolCommand : Command {
                     // run
                     println("Running:")
                     AppController.runBackground { model ->
-                        FillRangeTool(model, issues, getSelectionRange(model, week, future, relative), test).onEach { println("    $it") }
+                        FillRangeTool(model, issues, LocalDateRange(fromDate, toDate), test).onEach { println("    $it") }
                     }
                 }
                 // upload
@@ -336,3 +378,39 @@ private val LocalDateRange?.days: List<LocalDate>
             while (last() < toDate) add(last().plusDays(1))
         }
     }
+
+private fun String.parseCustomDate(): LocalDate? {
+    var date = LocalDate.now()
+    val parts = split("/")
+    if (parts.size < 3 || parts.size > 4) {
+        println("Invalid date $this")
+        return null
+    }
+    parts[0].let {
+        date = when {
+            it.startsWith("+") -> date.plusYears(it.removePrefix("+").toLong())
+            it.startsWith("-") -> date.minusYears(it.removePrefix("-").toLong())
+            else -> date.withYear(it.toInt())
+        }
+    }
+    parts[1].let {
+        date = when {
+            it.startsWith("+") -> date.plusMonths(it.removePrefix("+").toLong())
+            it.startsWith("-") -> date.minusMonths(it.removePrefix("-").toLong())
+            else -> date.withMonth(it.toInt())
+        }
+    }
+    parts[2].let {
+        date = when {
+            it == "end" -> date.atEndOfMonth()
+            it.startsWith("+") -> date.plusDays(it.removePrefix("+").toLong())
+            it.startsWith("-") -> date.minusDays(it.removePrefix("-").toLong())
+            else -> date.withDayOfMonth(it.toInt())
+        }
+    }
+    parts.getOrNull(3)?.let {
+        date = date.with(ChronoField.DAY_OF_WEEK, listOf("mon", "tue", "wed", "thu", "fri", "sat", "sun").indexOf(it).toLong())
+    }
+
+    return date
+}
