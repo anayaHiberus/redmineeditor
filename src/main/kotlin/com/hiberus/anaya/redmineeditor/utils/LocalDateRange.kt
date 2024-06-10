@@ -29,8 +29,7 @@ fun String.parseCustomDateFormat(): LocalDate? {
     var date = LocalDate.now()
     val parts = split("/")
     if (parts.size < 3 || parts.size > 4) {
-        println("Invalid date $this")
-        return null
+        throw RuntimeException("Invalid date $this")
     }
     parts[0].let {
         date = when {

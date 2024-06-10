@@ -151,14 +151,14 @@ class FixMonthToolCommand : Command {
 class FillRangeToolCommand : Command {
     override val name = "Command line variant of the FillRange tool"
     override val argument = "-fill"
-    override val parameters = "[-test] [-fromDate=~0] [-toDate=~0] --issue=123 [--comment=\"A comment\"]"
+    override val parameters = "[-test] [-fromDate=+0/+0/+0] [-toDate=+0/+0/+0] --issue=123 [--comment=\"A comment\"]"
     override val help = listOf(
         "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
         "--fromDate, first day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
-        "--toDate, first day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
+        "--toDate, last day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
         "--issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.",
         "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123=\"Specific issue\"",
-        "Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment=\"development\"",
+        "Common usage: ./RedmineEditor(.bat) -fill --fromDate=+0/+0/-7 --issue=123 --comment=\"development\"",
         "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fill --fromDate=+0/+0/-7 --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1",
         "On windows, create a bat with the command (RedmineEditor.bat -fill --fromDate=+0/+0/-7 --issue=123 --comment=\"development\") and create a Basic Task on the Task Scheduler to run it",
     )
@@ -166,25 +166,38 @@ class FillRangeToolCommand : Command {
     override fun run(parameters: Application.Parameters) {
 
         // read parameters
+        val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
+
+        var errors = false
         val issueIds = parameters.named["issue"]
             ?.split(",")
             ?.map { it.trim() }
             ?.filter { it.isNotEmpty() }
             ?.mapNotNull { it.toIntOrNull() }
             ?.distinct()
+            ?.also {
+                if (it.isEmpty()) {
+                    errorln("the issue parameter (${parameters.named["issue"]}) is not an integer or list of integers")
+                    errors = true
+                }
+            }
             ?: listOf() // list of ids separated by comma
-        if (issueIds.isEmpty() && "issue" in parameters.named) println(parameters.named["issue"] + " is not an integer or list of integers")
-        val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
 
-        val fromDate = runCatching { parameters.named["fromDate"]?.parseCustomDateFormat() ?: LocalDate.now() }.getOrElse {
-            println("the fromDate parameter is invalid. Refer to the documentation for the exact format required.")
+        val fromDate = runCatching { parameters.named["fromDate"]?.parseCustomDateFormat() }.onFailure {
+            errorln("the fromDate parameter (${parameters.named["fromDate"]}) is invalid. $CUSTOM_DATE_FORMAT_EXPLANATION.")
+            errors = true
+        }.getOrNull() ?: LocalDate.now()
+        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDateFormat() ?: LocalDate.now() }.onFailure {
+            errorln("the toDate parameter (${parameters.named["toDate"]}) is invalid. $CUSTOM_DATE_FORMAT_EXPLANATION.")
+            errors = true
+        }.getOrNull() ?: LocalDate.now()
+
+        if (errors) {
+            println("Fix the errors and try again")
             return
         }
-        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDateFormat() ?: LocalDate.now() }.getOrElse {
-            println("the toDate parameter is invalid. Refer to the documentation for the exact format required.")
-            return
-        }
-        println("Filling range: [$fromDate, $toDate]")
+
+        println("> Filling range: [$fromDate, $toDate]")
 
         // start process
         val latch = CountDownLatch(1)

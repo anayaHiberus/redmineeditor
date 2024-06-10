@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.commandline
 
 import com.hiberus.anaya.redmineeditor.dialogs.CalendarStatisticsCommand
+import com.hiberus.anaya.redmineeditor.dialogs.FillRangeToolCommand
 import com.hiberus.anaya.redmineeditor.dialogs.FixMonthToolCommand
 import com.hiberus.anaya.redmineeditor.dialogs.SettingsCommand
 import com.hiberus.anaya.tools.IcsCreator
@@ -15,6 +16,7 @@ val COMMANDS = listOf(
     SettingsCommand(),
     ReadOnlyCommand(),
     FixMonthToolCommand(),
+    FillRangeToolCommand(),
     CalendarStatisticsCommand(),
     IcsCreator(),
 )
