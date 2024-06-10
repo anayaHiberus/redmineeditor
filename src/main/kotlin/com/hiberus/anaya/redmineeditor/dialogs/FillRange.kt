@@ -22,9 +22,7 @@ import java.util.concurrent.CountDownLatch
 
 /* ------------------------- window ------------------------- */
 
-/**
- * Displays the Fix Month tool dialog
- */
+/** Displays the Fix Month tool dialog */
 fun ShowFixMonthDialog() =
     Stage().apply {
         title = "Fix month tool"
@@ -36,9 +34,7 @@ fun ShowFixMonthDialog() =
     }.showAndWait()
 
 
-/**
- * The fix month controller
- */
+/** The fix month controller */
 class FixMonthController {
 
     /* ------------------------- nodes ------------------------- */
@@ -151,22 +147,20 @@ class FixMonthToolCommand : Command {
 
 }
 
-/**
- * Run this tool as a command line
- */
+/** Run this tool as a command line */
 class FillRangeToolCommand : Command {
     override val name = "Command line variant of the FillRange tool"
     override val argument = "-fill"
     override val parameters = "[-test] [-fromDate=~0] [-toDate=~0] --issue=123 [--comment=\"A comment\"]"
     override val help = listOf(
         "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
-        "fromDate, first day (inclusive) to fill. Either a date in format '2020/12/31' where each element can be a fixed value or an offset ('1', '+1' or '-1') with an optional day of week (mon,tue,wed,thu,fri,sat,sun) extension (+0/+0/+0/mon). The day can also be 'end' meaning 'end of month' (+0/+0/end). Today (+0/+0/+0) by default",
-        "toDate, first day (inclusive) to fill. Either a date in format '2020/12/31' where each element can be a fixed value or an offset ('1', '+1' or '-1') with an optional day of week (mon,tue,wed,thu,fri,sat,sun) extension (+0/+0/+0/mon). The day can also be 'end' meaning 'end of month' (+0/+0/end). Today (+0/+0/+0) by default",
+        "--fromDate, first day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
+        "--toDate, first day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
         "--issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.",
         "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123=\"Specific issue\"",
         "Common usage: ./RedmineEditor(.bat) -fix -week -relative --issue=123 --comment=\"development\"",
-        "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fix -week -relative --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1",
-        "On windows, create a bat with the command (RedmineEditor.bat -fix -week -relative --issue=123 --comment=\"development\") and create a Basic Task on the Task Scheduler to run it",
+        "On linux, add and adapt this to your cron for automatic imputation: 0 15 * * * ~/RedmineEditor -fill --fromDate=+0/+0/-7 --issue=123 --comment=\"development\" >> ~/logs/cron/imputation 2>&1",
+        "On windows, create a bat with the command (RedmineEditor.bat -fill --fromDate=+0/+0/-7 --issue=123 --comment=\"development\") and create a Basic Task on the Task Scheduler to run it",
     )
 
     override fun run(parameters: Application.Parameters) {
@@ -182,11 +176,11 @@ class FillRangeToolCommand : Command {
         if (issueIds.isEmpty() && "issue" in parameters.named) println(parameters.named["issue"] + " is not an integer or list of integers")
         val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
 
-        val fromDate = runCatching { parameters.named["fromDate"]?.parseCustomDate() ?: LocalDate.now() }.getOrElse {
+        val fromDate = runCatching { parameters.named["fromDate"]?.parseCustomDateFormat() ?: LocalDate.now() }.getOrElse {
             println("the fromDate parameter is invalid. Refer to the documentation for the exact format required.")
             return
         }
-        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDate() ?: LocalDate.now() }.getOrElse {
+        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDateFormat() ?: LocalDate.now() }.getOrElse {
             println("the toDate parameter is invalid. Refer to the documentation for the exact format required.")
             return
         }
@@ -326,9 +320,7 @@ fun FillRangeTool(model: Model.Editor, issues: List<Pair<Issue, String>>, range:
             }
         }
 
-/**
- * Returns the selected range
- */
+/** Returns the selected range */
 private fun getSelectionRange(model: Model, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false): LocalDateRange? {
     val now = LocalDate.now()
 
@@ -362,55 +354,3 @@ private fun getSelectionRange(model: Model, selectedWeek: Boolean = false, futur
 }
 
 
-class LocalDateRange(val fromDate: LocalDate, val toDate: LocalDate)
-
-/**
- * Returns all days between the two local dates (inclusive).
- * If null, or start > end, returns empty list
- */
-private val LocalDateRange?.days: List<LocalDate>
-    get() {
-        // check invalid
-        if (this == null) return emptyList()
-        if (fromDate > toDate) return emptyList()
-        // generate
-        return mutableListOf(fromDate).apply {
-            while (last() < toDate) add(last().plusDays(1))
-        }
-    }
-
-private fun String.parseCustomDate(): LocalDate? {
-    var date = LocalDate.now()
-    val parts = split("/")
-    if (parts.size < 3 || parts.size > 4) {
-        println("Invalid date $this")
-        return null
-    }
-    parts[0].let {
-        date = when {
-            it.startsWith("+") -> date.plusYears(it.removePrefix("+").toLong())
-            it.startsWith("-") -> date.minusYears(it.removePrefix("-").toLong())
-            else -> date.withYear(it.toInt())
-        }
-    }
-    parts[1].let {
-        date = when {
-            it.startsWith("+") -> date.plusMonths(it.removePrefix("+").toLong())
-            it.startsWith("-") -> date.minusMonths(it.removePrefix("-").toLong())
-            else -> date.withMonth(it.toInt())
-        }
-    }
-    parts[2].let {
-        date = when {
-            it == "end" -> date.atEndOfMonth()
-            it.startsWith("+") -> date.plusDays(it.removePrefix("+").toLong())
-            it.startsWith("-") -> date.minusDays(it.removePrefix("-").toLong())
-            else -> date.withDayOfMonth(it.toInt())
-        }
-    }
-    parts.getOrNull(3)?.let {
-        date = date.with(ChronoField.DAY_OF_WEEK, listOf("mon", "tue", "wed", "thu", "fri", "sat", "sun").indexOf(it).toLong())
-    }
-
-    return date
-}
