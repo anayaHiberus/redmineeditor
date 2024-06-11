@@ -17,9 +17,7 @@ import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import java.time.DayOfWeek.MONDAY
 import java.time.DayOfWeek.SUNDAY
-import java.time.LocalDate
 import java.time.LocalDate.now
-import java.time.temporal.ChronoField
 import java.util.concurrent.CountDownLatch
 
 /* ------------------------- window ------------------------- */
@@ -84,7 +82,9 @@ class FillRangeController {
 
         presets.items.addAll(
             MenuItem("last 30/31 days").apply { setOnAction { fromDate.value = currentDate.minusMonths(1); toDate.value = currentDate } },
-            MenuItem("last 7 days").apply { setOnAction { fromDate.value = currentDate.minusDays(7); toDate.value = currentDate } },
+            MenuItem("last 7 days").apply { setOnAction { fromDate.value = currentDate.minusDays(7); toDate.value = currentDate } }
+                // init with this
+                .apply { onAction.handle(null) },
         )
 
         if (currentMonth != selectedMonth) {
@@ -136,42 +136,6 @@ class FillRangeController {
 
 /* ------------------------- command line ------------------------- */
 
-/** Old command */
-class FixMonthToolCommand : Command {
-    override val name = "[DEPRECATED: Use FillRangeTool] Command line variant of the old FixMonth tool."
-    override val argument = "-fix"
-    override val parameters = "[-test] [-week] [-future] [-relative] --issue=123 [--comment=\"A comment\"]"
-    override val help = listOf(
-        "DEPRECATED: Use the replacement FillRangeTool. Running this command will tell you the replacement command.",
-        "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
-        "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
-        "-relative, if specified, the interval will be relative (past week/month). If not specified, interval will be absolute (current week/month). Recommended (in absolute mode, running this on day 1 or monday will not fix any past days).",
-        "The rest of the parameters are explained in the FillRangeTool."
-    )
-
-    override fun run(parameters: Application.Parameters) {
-
-        // read parameters
-        val test = "-test" in parameters.unnamed
-        val week = "-week" in parameters.unnamed
-        val relative = "-relative" in parameters.unnamed
-        val future = "-future" in parameters.unnamed
-
-        val newParameters = listOfNotNull(
-            "-fill",
-            "-test".takeIf { test },
-            "--fromDate=+0/${mapOf("truetrue" to "+0/-7", "truefalse" to "+0/+0/mon", "falsetrue" to "-1/+0", "falsefalse" to "+0/1")["$week$relative"]}",
-            "--toDate=+0/${if (week) "+0/+0/sun" else "+0/end"}".takeIf { future && !relative },
-            parameters.named["issue"]?.let { "--issue=$it" },
-            *parameters.named.filterKeys { it.startsWith("comment") }.map { (key, value) -> "--$key=\"$value\"" }.toTypedArray()
-        )
-        println("Deprecated. Replace this command with the following: ./RedmineEditor " + newParameters.joinToString(" "))
-
-        FillRangeToolCommand().run(SimpleParameters(newParameters.toTypedArray()))
-    }
-
-}
-
 /** Run this tool as a command line */
 class FillRangeToolCommand : Command {
     override val name = "Command line variant of the FillRange tool"
@@ -202,20 +166,20 @@ class FillRangeToolCommand : Command {
             ?.distinct()
             ?.also {
                 if (it.isEmpty()) {
-                    errorln("the issue parameter (${parameters.named["issue"]}) is not an integer or list of integers")
+                    errorln("The issue parameter (${parameters.named["issue"]}) is not an integer or list of integers")
                     errors = true
                 }
             }
             ?: listOf() // list of ids separated by comma
 
         val fromDate = runCatching { parameters.named["fromDate"]?.parseCustomDateFormat() }.onFailure {
-            errorln("the fromDate parameter (${parameters.named["fromDate"]}) is invalid. $CUSTOM_DATE_FORMAT_EXPLANATION.")
+            errorln("The fromDate parameter (${parameters.named["fromDate"]}) is invalid. $CUSTOM_DATE_FORMAT_EXPLANATION.")
             errors = true
-        }.getOrNull() ?: LocalDate.now()
-        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDateFormat() ?: LocalDate.now() }.onFailure {
-            errorln("the toDate parameter (${parameters.named["toDate"]}) is invalid. $CUSTOM_DATE_FORMAT_EXPLANATION.")
+        }.getOrNull() ?: now()
+        val toDate = runCatching { parameters.named["toDate"]?.parseCustomDateFormat() ?: now() }.onFailure {
+            errorln("The toDate parameter (${parameters.named["toDate"]}) is invalid. $CUSTOM_DATE_FORMAT_EXPLANATION.")
             errors = true
-        }.getOrNull() ?: LocalDate.now()
+        }.getOrNull() ?: now()
 
         if (errors) {
             println("Fix the errors and try again")
@@ -285,6 +249,40 @@ class FillRangeToolCommand : Command {
         latch.await()
     }
 
+}
+
+/** Old deprecated command */
+class FixMonthToolCommand : Command {
+    override val name = "[DEPRECATED: Use FillRangeTool] Command line variant of the old FixMonth tool."
+    override val argument = "-fix"
+    override val parameters = "[-test] [-week] [-future] [-relative] --issue=123 [--comment=\"A comment\"]"
+    override val help = listOf(
+        "DEPRECATED: Use the replacement FillRangeTool. Running this command will tell you the replacement command.",
+        "-week, if specified, will run the tool on the current week only. If not specified, the tool wil run on the current month.",
+        "-future, if specified, days after today will also be considered. If not specified, only past and today will be checked.",
+        "-relative, if specified, the interval will be relative (past week/month). If not specified, interval will be absolute (current week/month). Recommended (in absolute mode, running this on day 1 or monday will not fix any past days).",
+        "The rest of the parameters are explained in the FillRangeTool."
+    )
+
+    override fun run(parameters: Application.Parameters) {
+        // read parameters
+        val test = "-test" in parameters.unnamed
+        val week = "-week" in parameters.unnamed
+        val relative = "-relative" in parameters.unnamed
+        val future = "-future" in parameters.unnamed
+
+        val newParameters = listOfNotNull(
+            "-fill",
+            "-test".takeIf { test },
+            "--fromDate=+0/${mapOf("truetrue" to "+0/-7", "truefalse" to "+0/+0/mon", "falsetrue" to "-1/+0", "falsefalse" to "+0/1")["$week$relative"]}",
+            "--toDate=+0/${if (week) "+0/+0/sun" else "+0/end"}".takeIf { future && !relative },
+            parameters.named["issue"]?.let { "--issue=$it" },
+            *parameters.named.filterKeys { it.startsWith("comment") }.map { (key, value) -> "--$key=\"$value\"" }.toTypedArray()
+        )
+        println("Deprecated. Replace this command with the following: ./RedmineEditor " + newParameters.joinToString(" "))
+
+        FillRangeToolCommand().run(SimpleParameters(newParameters.toTypedArray()))
+    }
 }
 
 /* ------------------------- tool ------------------------- */
@@ -357,38 +355,3 @@ fun FillRangeTool(model: Model.Editor, issues: List<Pair<Issue, String>>, range:
                 emptyList()
             }
         }
-
-/** Returns the selected range */
-private fun getSelectionRange(model: Model, selectedWeek: Boolean = false, futureDays: Boolean = false, relative: Boolean = false): LocalDateRange? {
-    val now = LocalDate.now()
-
-    // init
-    val selectedDay = model.date ?: now
-    val selectedMonth = model.month
-
-    val start =
-        if (selectedWeek)
-            if (relative) selectedDay.minusWeeks(1) // relative week: 7 days in the past
-            else selectedDay.with(ChronoField.DAY_OF_WEEK, 1) // absolute week: start of current week
-        else
-            if (relative) selectedDay.minusMonths(1) // relative month: 1 month in the past
-            else selectedMonth.atDay(1) // absolute month: start of current month
-
-    var end =
-        if (selectedWeek)
-            if (relative) selectedDay // relative week: today
-            else selectedDay.with(ChronoField.DAY_OF_WEEK, 7) // absolute week: end of current week
-        else
-            if (relative) selectedDay // relative month: today
-            else selectedMonth.atEndOfMonth() // absolute month: end of current month
-
-    if (!futureDays) {
-        // remove future
-        if (start > now) return null
-        if (end > now) end = now
-    }
-
-    return LocalDateRange(start, end)
-}
-
-

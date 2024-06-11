@@ -47,7 +47,7 @@ val LocalDate.yearMonth get() = YearMonth.from(this)!!
 /** Current date at the end of the month. */
 fun LocalDate.atEndOfMonth() = withDayOfMonth(lengthOfMonth())
 
-/** Current date at the end of the month. */
+/** Current date at the end of the year. */
 fun LocalDate.atEndOfYear() = withDayOfYear(lengthOfYear())
 
 /** Current date with a specific day of week. */
