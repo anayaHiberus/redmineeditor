@@ -78,11 +78,9 @@ class IssueDetailsController {
             // if no data
             .ifEmpty { "<p>no description nor journals to display</p>" }
 
-        webview.engine.loadContent(
-            // html data
-            """
+        val html = """
                 <head>
-                  <base href="${AppSettings.URL.value}" target="_blank">
+                  <base href="${AppSettings.URL.value}">
                 </head>
                 <body>
                     <div>
@@ -101,7 +99,20 @@ class IssueDetailsController {
                     </script>
                 </body>
             """.trimIndent()
-        )
+
+        webview.engine.run {
+            loadContent(html)
+            // for some reason, external links are not opened externally (even with _blank)
+            // this 'hack' reacts to the url changing, and if it does, it opens the link externally
+            // then reloads the content again
+            locationProperty().addListener { _, _, newValue ->
+                newValue?.takeIf { it.isNotBlank() }?.let {
+                    openInBrowser(it)
+                    loadContent(html)
+                }
+            }
+        }
+
         resize()
     }
 
