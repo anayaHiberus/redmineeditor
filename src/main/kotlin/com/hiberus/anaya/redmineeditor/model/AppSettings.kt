@@ -22,6 +22,9 @@ enum class AppSettings(val default: String) {
      */
     READ_ONLY("false"),
 
+    /** Ignores SSL errors */
+    IGNORE_SSL_ERRORS("false"),
+
     /**
      * Automatically load total hours
      */

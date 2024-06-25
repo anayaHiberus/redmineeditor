@@ -77,6 +77,11 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </VBox.margin>
     </CheckBox>
+    <CheckBox fx:id="ignoreSSLErrors" layoutX="25.0" layoutY="157.0" text="[WARNING] Ignore SSL errors. You may be connecting to a man-in-the-middle!&#10;But some VPNs are just that so perhaps that's what you want.&#10;This may require to restart the app.">
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </CheckBox>
     <Separator prefWidth="200.0">
         <VBox.margin>
             <Insets bottom="10.0" top="10.0"/>
@@ -108,7 +113,7 @@
         </VBox.margin>
     </Label>
     <HBox alignment="CENTER_LEFT">
-        <Spinner fx:id="ignoreOldAssigned" editable="true" min="0" max="2147483647" HBox.hgrow="NEVER">
+        <Spinner fx:id="ignoreOldAssigned" editable="true" max="2147483647" min="0" HBox.hgrow="NEVER">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </HBox.margin>

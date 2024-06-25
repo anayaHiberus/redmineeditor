@@ -5,12 +5,14 @@ import com.hiberus.anaya.redmineeditor.dialogs.FillRangeToolCommand
 import com.hiberus.anaya.redmineeditor.dialogs.FixMonthToolCommand
 import com.hiberus.anaya.redmineeditor.dialogs.SettingsCommand
 import com.hiberus.anaya.tools.IcsCreator
+import com.hiberus.anaya.tools.IgnoreSSLErrorsCommand
 import javafx.application.Application
 
 
 /** Registered commands */
 val COMMANDS = listOf(
     DebugCommand(),
+    IgnoreSSLErrorsCommand(),
     SettingsCommand(),
     ReadOnlyCommand(),
     FixMonthToolCommand(),

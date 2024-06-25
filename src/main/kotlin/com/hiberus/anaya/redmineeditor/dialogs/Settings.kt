@@ -10,6 +10,7 @@ import com.hiberus.anaya.redmineeditor.components.getNewVersion
 import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
 import com.hiberus.anaya.redmineeditor.model.*
 import com.hiberus.anaya.redmineeditor.utils.*
+import com.hiberus.anaya.tools.IgnoreSSLErrors
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.beans.property.Property
@@ -33,6 +34,7 @@ fun ShowSettingsDialog() {
     if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
     if (AppSettings.MARK_USED in changes) AppController.fireChanges(setOf(ChangeEvent.EntryContent))
     if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
+    if (AppSettings.IGNORE_SSL_ERRORS in changes) IgnoreSSLErrors() // this will not 'turn off' when disabled, but that's currently not possible
     if (ReloadSettings intersects changes) AppController.reload()
 }
 
@@ -83,6 +85,9 @@ class SettingsController {
 
     @FXML
     lateinit var allowGetOnly: CheckBox // allow get only setting
+
+    @FXML
+    lateinit var ignoreSSLErrors: CheckBox // ignore ssl errors
 
     @FXML
     lateinit var autoLoadTotal: CheckBox // autoload total hours setting
@@ -146,6 +151,7 @@ class SettingsController {
         SettingMatch(AppSettings.URL, { domain.textProperty() }) { it },
         SettingMatch(AppSettings.KEY, { key.textProperty() }) { it },
         SettingMatch(AppSettings.READ_ONLY, { allowGetOnly.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.IGNORE_SSL_ERRORS, { ignoreSSLErrors.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.AUTO_LOAD_TOTAL_HOURS, { autoLoadTotal.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.IGNORE_OLD_ASSIGNED, { ignoreOldAssigned.valueFactory.valueProperty() }) { it.toInt() },

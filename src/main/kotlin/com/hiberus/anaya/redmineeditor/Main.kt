@@ -2,9 +2,11 @@ package com.hiberus.anaya.redmineeditor
 
 import com.hiberus.anaya.redmineeditor.commandline.COMMANDS
 import com.hiberus.anaya.redmineeditor.dialogs.TITLE
+import com.hiberus.anaya.redmineeditor.model.AppSettings
 import com.hiberus.anaya.redmineeditor.utils.SimpleParameters
 import com.hiberus.anaya.redmineeditor.utils.centerInMouseScreen
 import com.hiberus.anaya.redmineeditor.utils.stylize
+import com.hiberus.anaya.tools.IgnoreSSLErrors
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
@@ -21,6 +23,10 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+
+            // SSL fix
+            if (AppSettings.IGNORE_SSL_ERRORS.value.toBoolean()) IgnoreSSLErrors()
+
 
             // help flag
             if (HELP_FLAG in args) {

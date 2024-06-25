@@ -42,13 +42,13 @@ fun Double.formatHours() =
 fun YearMonth.days() = (1..lengthOfMonth()).map { atDay(it) }
 
 /** YearMoth of a full date */
-val LocalDate.yearMonth get() = YearMonth.from(this)!!
+val LocalDate.yearMonth: YearMonth get() = YearMonth.from(this)
 
 /** Current date at the end of the month. */
-fun LocalDate.atEndOfMonth() = withDayOfMonth(lengthOfMonth())
+fun LocalDate.atEndOfMonth(): LocalDate = withDayOfMonth(lengthOfMonth())
 
 /** Current date at the end of the year. */
-fun LocalDate.atEndOfYear() = withDayOfYear(lengthOfYear())
+fun LocalDate.atEndOfYear(): LocalDate = withDayOfYear(lengthOfYear())
 
 /** Current date with a specific day of week. */
-fun LocalDate.withDayOfWeek(day: DayOfWeek) = with(WeekFields.ISO.dayOfWeek(), day.value.toLong())
+fun LocalDate.withDayOfWeek(day: DayOfWeek): LocalDate = with(WeekFields.ISO.dayOfWeek(), day.value.toLong())
