@@ -68,7 +68,11 @@ enum class AppSettings(val default: String) {
     /**
      * How to mark used entries
      */
-    MARK_USED(MarkUsed.OPACITY.name)
+    MARK_USED(MarkUsed.OPACITY.name),
+
+    /** Issues that will always appear. */
+    FIXED_ISSUES(""),
+
     ;
 
     /* ------------------------- properties functions ------------------------- */

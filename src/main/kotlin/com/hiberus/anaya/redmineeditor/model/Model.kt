@@ -345,7 +345,7 @@ abstract class Model {
 
             // add copy of past issues from previous days
             // for all entries in previous days (sorted by date)
-            (0L..prevDays).flatMap { redmine.getEntriesForDate(date.minusDays(it)) ?: return } // skip if not loaded yet
+            (0L..prevDays).flatMap { redmine.getEntriesForDate(date.minusDays(it)) ?: emptyList() } // skip if not loaded yet
                 // keep one for each issue
                 .distinctBy { it.issue }
                 // then remove those from today
@@ -354,6 +354,11 @@ abstract class Model {
                 .forEach {
                     createTimeEntry(issue = it.issue, comment = it.comment, loadHours = false)
                 }
+
+            AppController.fireChanges()
+
+            // load fixed
+            loadFixed()
 
             AppController.fireChanges()
 
@@ -393,6 +398,29 @@ abstract class Model {
             loadMonth()
             AppController.fireChanges()
             prepareDay()
+        }
+
+        /** Loads fixed issues, and adds them to today if not yet */
+        private fun loadFixed() {
+            val redmine = redmine ?: return
+
+            val ids = AppSettings.FIXED_ISSUES.value.split(",").mapNotNull { it.toIntOrNull() }
+
+            // load
+            redmine.downloadIssues(ids)
+
+            // add missing assigned issues for today
+            val date = date ?: return
+            val todayIssues = (redmine.getEntriesForDate(date) ?: return).map { it.issue }.distinct() // temp variable
+
+            // get issues
+            loadedIssues
+                ?.filter { it.id in ids }
+                // not in today already
+                ?.filterNot { it in todayIssues }
+                // and create empty entries
+                ?.forEach { createTimeEntry(issue = it, loadHours = false) }
+
         }
     }
 

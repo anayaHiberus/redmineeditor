@@ -96,6 +96,9 @@ class SettingsController {
     lateinit var autoLoadAssigned: CheckBox // autoload assigned issues setting
 
     @FXML
+    lateinit var fixedIssues: TextField // issues to always load
+
+    @FXML
     lateinit var calendar: MenuButton // Office from which to extract public holidays
 
     @FXML
@@ -154,6 +157,7 @@ class SettingsController {
         SettingMatch(AppSettings.IGNORE_SSL_ERRORS, { ignoreSSLErrors.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.AUTO_LOAD_TOTAL_HOURS, { autoLoadTotal.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.AUTO_LOAD_ASSIGNED, { autoLoadAssigned.selectedProperty() }) { it.toBoolean() },
+        SettingMatch(AppSettings.FIXED_ISSUES, { fixedIssues.textProperty() }) { it },
         SettingMatch(AppSettings.IGNORE_OLD_ASSIGNED, { ignoreOldAssigned.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
