@@ -13,4 +13,4 @@ REM running from command line, run here
 set JAVA_EXEC="%DIR:"=%\java"
 
 : launch
-pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS%  -p "%~dp0/../app" -m com.hiberus.anaya.redmineeditor/com.hiberus.anaya.redmineeditor.Main  %* & popd
+pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -Djava.net.useSystemProxies=true -p "%~dp0/../app" -m com.hiberus.anaya.redmineeditor/com.hiberus.anaya.redmineeditor.Main %* & popd
