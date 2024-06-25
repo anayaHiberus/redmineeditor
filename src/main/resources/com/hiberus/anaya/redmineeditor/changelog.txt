@@ -1,3 +1,10 @@
+V 1.8
+- Replaced FixMonthTool with FillRangeTool
+- Improve commands descriptions and error logging
+- Fix issue links not opening externally
+- Allow to ignore SSL errors
+- Use system proxies
+
 V 1.7.1
 - Fix issue with color file
 - New debug command
