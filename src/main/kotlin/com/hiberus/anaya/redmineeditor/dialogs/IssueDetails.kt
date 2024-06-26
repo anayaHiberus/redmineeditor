@@ -45,10 +45,7 @@ class IssueDetailsController {
 
     /* ------------------------- nodes ------------------------- */
 
-    @FXML
     lateinit var description: Label
-
-    @FXML
     lateinit var webview: WebView
 
     /* ------------------------- functions ------------------------- */

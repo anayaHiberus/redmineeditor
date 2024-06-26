@@ -19,7 +19,6 @@ internal class SummaryComponent {
 
     /* ------------------------- views ------------------------- */
 
-    @FXML
     lateinit var summary: Label // the label
 
     /* ------------------------- actions ------------------------- */

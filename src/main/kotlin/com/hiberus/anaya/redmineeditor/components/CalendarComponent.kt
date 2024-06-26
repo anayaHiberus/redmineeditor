@@ -30,10 +30,7 @@ internal class CalendarComponent {
 
     /* ------------------------- views ------------------------- */
 
-    @FXML
     lateinit var calendarLabel: Label // month/year label
-
-    @FXML
     lateinit var calendar: GridPane // grid
 
     /* ------------------------- init ------------------------- */

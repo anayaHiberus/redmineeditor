@@ -14,10 +14,7 @@ import javafx.stage.WindowEvent
 /** A list of action buttons */
 internal class ActionsComponent {
 
-    @FXML
     lateinit var save: HBox
-
-    @FXML
     lateinit var reload: Button
 
     /* ------------------------- init ------------------------- */

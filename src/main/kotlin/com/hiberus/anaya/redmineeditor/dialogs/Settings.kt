@@ -58,74 +58,30 @@ class SettingsController {
 
     /* ------------------------- nodes ------------------------- */
 
-    @FXML
     lateinit var parent: Node // parent node
     private val window get() = parent.scene.window // window
 
-    @FXML
     lateinit var domain: TextField // domain setting
-
-    @FXML
     lateinit var predefined: MenuButton
-
-    @FXML
     lateinit var key: PasswordField // key setting
-
-    @FXML
     lateinit var testLoading: ProgressIndicator // loading indicator for testing api
-
-    @FXML
     lateinit var testInfo: Label // info about api test
-
-    @FXML
     lateinit var allowGetOnly: CheckBox // allow get only setting
-
-    @FXML
     lateinit var ignoreSSLErrors: CheckBox // ignore ssl errors
-
-    @FXML
     lateinit var autoLoadTotal: CheckBox // autoload total hours setting
-
-    @FXML
     lateinit var autoLoadAssigned: CheckBox // autoload assigned issues setting
-
-    @FXML
     lateinit var fixedIssues: TextField // issues to always load
-
-    @FXML
     lateinit var calendar: MenuButton // Office from which to extract public holidays
-
-    @FXML
     lateinit var checkScheduleUpdates: CheckBox // check schedule update loading indicator
-
-    @FXML
     lateinit var scheduleUpdateInfo: Label // check schedule update info
-
-    @FXML
     lateinit var scheduleUpdateLoading: ProgressIndicator // check schedule update checkbox
-
-    @FXML
     lateinit var ignoreOldAssigned: Spinner<Any> // ignore old assigned number selector
-
-    @FXML
     lateinit var prevDays: Spinner<Int> // number of previous days number selector
-
-    @FXML
     lateinit var dark: CheckBox // dark theme setting
-
-    @FXML
     lateinit var mark_used: MenuButton // mark used spinner
-
-    @FXML
     lateinit var appUpdateLoading: ProgressIndicator // check update loading indicator
-
-    @FXML
     lateinit var appUpdateInfo: Label // check update info
-
-    @FXML
     lateinit var checkAppUpdate: CheckBox // check updates checkbox
-
-    @FXML
     lateinit var save: Button // save button
 
     /* ------------------------- config ------------------------- */

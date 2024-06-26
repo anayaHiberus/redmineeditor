@@ -28,56 +28,22 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     /* ------------------------- views ------------------------- */
 
-    @FXML
     lateinit var txt_details: Label
-
-    @FXML
     lateinit var txt_estimated: Label
-
-    @FXML
     lateinit var txt_estimated_label: Label
-
-    @FXML
     lateinit var sub_estimated: HBox
-
-    @FXML
     lateinit var btn_total: Button
-
-    @FXML
     lateinit var txt_total: Label
-
-
-    @FXML
     lateinit var txt_total_label: Label
-
-    @FXML
     lateinit var btn_sync: Button
-
-    @FXML
     lateinit var txt_realization: Label
-
-    @FXML
     lateinit var txt_realization_label: Label
-
-    @FXML
     lateinit var add_realization: HBox
-
-    @FXML
     lateinit var sub_realization: HBox
-
-    @FXML
     lateinit var txt_spent: Label
-
-    @FXML
     lateinit var txt_spent_label: Label
-
-    @FXML
     lateinit var max_spent: Button
-
-    @FXML
     lateinit var sub_spent: HBox
-
-    @FXML
     lateinit var edTxt_comment: TextField
 
     /* ------------------------- init ------------------------- */

@@ -14,16 +14,9 @@ internal class InsertComponent {
 
     /* ------------------------- views ------------------------- */
 
-    @FXML
     lateinit var parent: Node // the parent element
-
-    @FXML
     lateinit var choice: MenuButton // the issues choice box
-
-    @FXML
     lateinit var input: TextField // where to paste to create issues
-
-    @FXML
     lateinit var add: Button // the add button
 
     /* ------------------------- reactions ------------------------- */

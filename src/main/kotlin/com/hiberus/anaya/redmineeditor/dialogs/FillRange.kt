@@ -39,19 +39,10 @@ class FillRangeController {
 
     /* ------------------------- nodes ------------------------- */
 
-    @FXML
     lateinit var presets: MenuButton
-
-    @FXML
     lateinit var toDate: DatePicker
-
-    @FXML
     lateinit var fromDate: DatePicker
-
-    @FXML
     lateinit var comment: TextField
-
-    @FXML
     lateinit var issue: ChoiceBox<Issue>
 
     private val window get() = comment.scene.window // window

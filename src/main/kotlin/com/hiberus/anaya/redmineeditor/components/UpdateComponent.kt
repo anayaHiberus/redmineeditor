@@ -22,12 +22,8 @@ internal class UpdateComponent {
 
     /* ------------------------- views ------------------------- */
 
-    @FXML
     lateinit var banner: HBox // the banner parent
-
-    @FXML
     lateinit var label: Label // the label
-
 
     /* ------------------------- actions ------------------------- */
 

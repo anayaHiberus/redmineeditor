@@ -39,10 +39,7 @@ class BatchEditorController {
 
     /* ------------------------- elements ------------------------- */
 
-    @FXML
     lateinit var editor: TextArea
-
-    @FXML
     lateinit var info: Label
 
     /* ------------------------- utils ------------------------- */

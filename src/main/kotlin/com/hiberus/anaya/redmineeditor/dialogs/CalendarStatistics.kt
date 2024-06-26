@@ -39,16 +39,9 @@ class CalendarStatisticsController {
 
     /* ------------------------- elements ------------------------- */
 
-    @FXML
     lateinit var logs: TextArea
-
-    @FXML
     lateinit var toDate: DatePicker
-
-    @FXML
     lateinit var fromDate: DatePicker
-
-    @FXML
     lateinit var presets: MenuButton
 
     @FXML

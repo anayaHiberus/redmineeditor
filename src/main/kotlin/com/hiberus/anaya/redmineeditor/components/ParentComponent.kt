@@ -13,10 +13,7 @@ internal class ParentComponent {
 
     /* ------------------------- elements ------------------------- */
 
-    @FXML
     lateinit var progress: ProgressIndicator  // that circular thingy
-
-    @FXML
     lateinit var parent: Node // the main app, disabled while loading
 
     /* ------------------------- init ------------------------- */

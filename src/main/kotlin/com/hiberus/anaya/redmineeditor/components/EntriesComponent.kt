@@ -18,13 +18,8 @@ internal class EntriesComponent {
 
     /* ------------------------- views ------------------------- */
 
-    @FXML
     lateinit var list: ListView<TimeEntry> // list view for displayed entries
-
-    @FXML
     lateinit var filter: TextField // textbox to filter list
-
-    @FXML
     lateinit var clearFilter: Button // button to clear filter
 
     /* ------------------------- data ------------------------- */
