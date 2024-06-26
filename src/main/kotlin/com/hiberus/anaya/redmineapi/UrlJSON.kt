@@ -54,9 +54,7 @@ fun URL.delete(): Int = send("DELETE", null)
 
 /* ------------------------- private ------------------------- */
 
-/**
- * performs a 'send' to an url
- */
+/** performs a 'send' to an url */
 @Throws(IOException::class)
 private fun URL.send(method: String, body: JSONObject?) =
     (openConnection() as HttpURLConnection).run {
@@ -84,14 +82,10 @@ private fun URL.send(method: String, body: JSONObject?) =
 
 /* ------------------------- utils ------------------------- */
 
-/**
- * Compare value with another one, if different execute function
- */
+/** Compare value with another one, if different execute function */
 inline fun <T> T.ifNot(compareTo: T, execute: () -> Unit) {
     if (this != compareTo) execute()
 }
 
-/**
- * Map a JSONArray as a list of JSONObject
- */
+/** Map a JSONArray as a list of JSONObject */
 internal fun JSONArray.mapAsObjects() = List(length()) { i -> getJSONObject(i) }

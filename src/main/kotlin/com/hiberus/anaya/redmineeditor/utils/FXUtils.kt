@@ -44,9 +44,7 @@ inline var Region.backgroundColor: Color?
         }
     }
 
-/**
- * Sets the background color of this region with a small indicator of a secondary color
- */
+/** Sets the background color of this region with a small indicator of a secondary color */
 fun Region.indicatorColor(background: Color, special: Color) {
     // create a background with a color and a special indicator
     this.background = Background(
@@ -63,9 +61,7 @@ fun Region.indicatorColor(background: Color, special: Color) {
     )
 }
 
-/**
- * Bold style of a region (for its text)
- */
+/** Bold style of a region (for its text) */
 var Region.bold: Boolean
     get() = BOLD_STYLE in (style ?: "")
     set(value) {
@@ -84,9 +80,7 @@ fun CenteredLabel(text: String) = Label(text).apply {
     alignment = Pos.CENTER
 }
 
-/**
- * Makes the node gone (no space) when invisible, otherwise it's just invisible
- */
+/** Makes the node gone (no space) when invisible, otherwise it's just invisible */
 fun Node.syncInvisible() = managedProperty().bind(visibleProperty())
 
 /**
@@ -129,9 +123,7 @@ fun runInForeground(function: () -> Unit) =
         latch.await()
     }
 
-/**
- * The result button, null if not present
- */
+/** The result button, null if not present */
 inline val Optional<ButtonType>.resultButton
     get() = this.takeIf { it.isPresent }?.get()
 
@@ -155,9 +147,7 @@ fun confirmLoseChanges(message: String): Boolean {
         .resultButton == ButtonType.YES
 }
 
-/**
- * Removes all buttons of this alert
- */
+/** Removes all buttons of this alert */
 fun Alert.clearButtons() = buttonTypes.clear()
 
 /**
@@ -174,9 +164,7 @@ fun Alert.addButton(button: ButtonType, listener: () -> Unit = {}): Button {
     }
 }
 
-/**
- * Tries to open an url in the browser, displays an alert if fails
- */
+/** Tries to open an url in the browser, displays an alert if fails */
 fun openInBrowser(url: String) {
     daemonThread {
         URI(url).openInBrowser().ifNotOK {

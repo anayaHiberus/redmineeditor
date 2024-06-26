@@ -6,9 +6,7 @@ import java.io.IOException
 import java.net.URL
 import java.time.LocalDate
 
-/**
- * Manages connections with the api on a [domain] using an api [key].
- */
+/** Manages connections with the api on a [domain] using an api [key]. */
 internal class Remote(
     private val domain: String,
     private val key: String,
@@ -16,23 +14,17 @@ internal class Remote(
 
     /* ------------------------- Endpoint builder ------------------------- */
 
-    /**
-     * Implemented API endpoints
-     */
+    /** Implemented API endpoints */
     private enum class Endpoint {
         TIME_ENTRIES, ISSUES, USERS, PROJECTS,
     }
 
-    /**
-     * url parameter: [field] [operation] [values]/value
-     */
+    /** url parameter: [field] [operation] [values]/value */
     private data class Param(val field: String, val operation: String, val values: List<Any>) {
         constructor(field: String, operation: String, value: Any) : this(field, operation, listOf(value))
     }
 
-    /**
-     * The url of this endpoint, from a specific [subdomain] if not empty, and with a list of [parameters] if supplied (set to null for user url)
-     */
+    /** The url of this endpoint, from a specific [subdomain] if not empty, and with a list of [parameters] if supplied (set to null for user url) */
     private fun Endpoint.build(subdomain: Any? = null, parameters: List<Param>? = listOf(), rawParameters: List<String>? = listOf()) = buildString {
         // domain
         append(domain.ensureSuffix("/"))
@@ -156,14 +148,10 @@ internal class Remote(
 
     /* ------------------------- issues ------------------------- */
 
-    /**
-     * returns the url to externally view this issue details
-     */
+    /** returns the url to externally view this issue details */
     fun getIssueDetailsUrl(issue: Issue) = Endpoint.ISSUES.build(subdomain = issue.id, parameters = null)
 
-    /**
-     * Returns the raw details of an issue, for internal use
-     */
+    /** Returns the raw details of an issue, for internal use */
     @Throws(IOException::class)
     internal fun downloadRawIssueDetails(id: Int) = Endpoint.ISSUES.build(subdomain = id, rawParameters = listOf("include=journals")).url.getJSON().run {
         getJSONObject("issue")
@@ -192,9 +180,7 @@ internal class Remote(
                 .map { Issue(it, this@Remote) }
         }
 
-    /**
-     * Return assigned issues, optionally filtering by updated_on < [updatedOnLessThanDays]
-     */
+    /** Return assigned issues, optionally filtering by updated_on < [updatedOnLessThanDays] */
     @Throws(IOException::class)
     fun downloadAssignedIssues(updatedOnLessThanDays: Int? = null) = Endpoint.ISSUES.build(
         parameters = listOfNotNull(
@@ -206,9 +192,7 @@ internal class Remote(
         if (userId == null && isNotEmpty()) userId = first().getJSONObject("assigned_to").getInt("id")
     }.map { Issue(it, this) }
 
-    /**
-     * Uploads an [issue] to redmine (unless not needed)
-     */
+    /** Uploads an [issue] to redmine (unless not needed) */
     @Throws(IOException::class)
     fun upload(issue: Issue) {
         issue.run {
@@ -221,9 +205,7 @@ internal class Remote(
         }
     }
 
-    /**
-     * Returns user data as: "firstName lastName (login)"
-     */
+    /** Returns user data as: "firstName lastName (login)" */
     @Throws(IOException::class)
     fun getUserName(appendLogin: Boolean) = Endpoint.USERS.build("current").url.getJSON().getJSONObject("user").apply {
         // get user id just in case
@@ -235,9 +217,7 @@ internal class Remote(
 
     /* ------------------------- project ------------------------- */
 
-    /**
-     * returns the OT code of a project with [projectId]
-     */
+    /** returns the OT code of a project with [projectId] */
     @Throws(IOException::class)
     fun getProjectOT(projectId: Int): String {
         val fields = Endpoint.PROJECTS.build(subdomain = projectId).url.getJSON().getJSONObject("project").getJSONArray("custom_fields")
@@ -253,14 +233,10 @@ internal class Remote(
 
 /* ------------------------- private ------------------------- */
 
-/**
- * Functional way to convert a string to an url: "http".url instead of URL("http")
- */
+/** Functional way to convert a string to an url: "http".url instead of URL("http") */
 private inline val String.url get() = URL(this)
 
-/**
- * returns all entries from a paginated result
- */
+/** returns all entries from a paginated result */
 @Throws(IOException::class)
 private fun String.paginatedGet(key: String) = ArrayList<JSONObject>().apply {
     doWhile {
@@ -273,18 +249,14 @@ private fun String.paginatedGet(key: String) = ArrayList<JSONObject>().apply {
     }
 }
 
-/**
- * Run while it returns false (compact while)
- */
+/** Run while it returns false (compact while) */
 private inline fun doWhile(thing: () -> Boolean) {
     while (thing()) {
         // nothing
     }
 }
 
-/**
- * Prints a message if REMOTE=true environment variable was set
- */
+/** Prints a message if REMOTE=true environment variable was set */
 private fun log(data: String) {
     if (System.getenv("REMOTE").toBoolean()) println("<REMOTE> $data")
 }

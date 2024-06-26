@@ -3,7 +3,10 @@ package com.hiberus.anaya.redmineeditor.components
 import com.hiberus.anaya.redmineeditor.model.AppController
 import com.hiberus.anaya.redmineeditor.model.ChangeEvent
 import com.hiberus.anaya.redmineeditor.model.Model
-import com.hiberus.anaya.redmineeditor.utils.*
+import com.hiberus.anaya.redmineeditor.utils.backgroundColor
+import com.hiberus.anaya.redmineeditor.utils.expectedHours
+import com.hiberus.anaya.redmineeditor.utils.formatHours
+import com.hiberus.anaya.redmineeditor.utils.getColor
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.paint.Color
@@ -11,9 +14,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-/**
- * A simple label with info of the current selected day
- */
+/** A simple label with info of the current selected day */
 internal class SummaryComponent {
 
     /* ------------------------- views ------------------------- */
@@ -47,17 +48,13 @@ internal class SummaryComponent {
         }
     }
 
-    /**
-     * Just for easier setters
-     */
+    /** Just for easier setters */
     fun set(label: String, color: Color? = null) = summary.apply { text = label; backgroundColor = color }
 
 }
 
 
-/**
- * Get the description of a [date] with [spent] and [expected] hours
- */
+/** Get the description of a [date] with [spent] and [expected] hours */
 fun describe(date: LocalDate, spent: Double, expected: Double) =
     date.formatLong() +
             " --- Time: ${spent.formatHours()} / ${expected.formatHours()}" +
@@ -68,7 +65,5 @@ fun describe(date: LocalDate, spent: Double, expected: Double) =
                 else -> "" // spent=expected=0
             }
 
-/**
- * Format LocalDate as LONG
- */
+/** Format LocalDate as LONG */
 private fun LocalDate.formatLong() = format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))

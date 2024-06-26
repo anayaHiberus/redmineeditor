@@ -22,9 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter
 
-/**
- * Show the calendar statistics dialog
- */
+/** Show the calendar statistics dialog */
 fun ShowCalendarStatisticsDialog() {
     Stage().apply {
         title = "Calendar Statistics"
@@ -36,9 +34,7 @@ fun ShowCalendarStatisticsDialog() {
 }
 
 
-/**
- * The calendar statistics dialog controller
- */
+/** The calendar statistics dialog controller */
 class CalendarStatisticsController {
 
     /* ------------------------- elements ------------------------- */

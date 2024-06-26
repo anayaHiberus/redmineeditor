@@ -6,54 +6,34 @@ package com.hiberus.anaya.redmineeditor.model
  */
 enum class ChangeEvent {
 
-    /**
-     * The loading state changed
-     */
+    /** The loading state changed */
     Loading,
 
-    /**
-     * The displayed month changed
-     */
+    /** The displayed month changed */
     Month,
 
-    /**
-     * The displayed day changed
-     */
+    /** The displayed day changed */
     Day,
 
-    /**
-     * Entries for the displayed day changed (not its content)
-     */
+    /** Entries for the displayed day changed (not its content) */
     EntryList,
 
-    /**
-     * Content for any entry changed
-     */
+    /** Content for any entry changed */
     EntryContent,
 
-    /**
-     * Content for any issue changed
-     */
+    /** Content for any issue changed */
     IssueContent,
 
-    /**
-     * Hours from displayed day were changed
-     */
+    /** Hours from displayed day were changed */
     DayHours,
 
-    /**
-     * Hours from displayed month were changed
-     */
+    /** Hours from displayed month were changed */
     MonthHours,
 
-    /**
-     * List of issues of current day changed
-     */
+    /** List of issues of current day changed */
     DayIssues,
 
-    /**
-     * Assigned issues loaded
-     */
+    /** Assigned issues loaded */
     Assigned,
 
 }

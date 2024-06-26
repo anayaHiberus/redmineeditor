@@ -3,9 +3,7 @@ package com.hiberus.anaya.redmineapi
 import org.json.JSONObject
 import java.io.IOException
 
-/**
- * A redmine issue
- */
+/** A redmine issue */
 class Issue {
 
     /* ------------------------- manager ------------------------- */
@@ -14,25 +12,17 @@ class Issue {
 
     /* ------------------------- data ------------------------- */
 
-    /**
-     * The identifier
-     */
+    /** The identifier */
     val id: Int
 
-    /**
-     * The name of its project
-     */
+    /** The name of its project */
     val project: String
     private val projectId: Int // TODO: move to a Project class
 
-    /**
-     * The subject (title)
-     */
+    /** The subject (title) */
     val subject: String
 
-    /**
-     * The description, may probably be empty
-     */
+    /** The description, may probably be empty */
     val description: String
 
     /**
@@ -44,9 +34,7 @@ class Issue {
             field = value?.coerceAtLeast(0.0)
         }
 
-    /**
-     * Ratio of realization (percentage)
-     */
+    /** Ratio of realization (percentage) */
     var realization: Int
         private set
 
@@ -67,19 +55,13 @@ class Issue {
             return ((spent?.takeIf { it >= 0 } ?: return null) / (estimated?.takeIf { it > 0 } ?: return null) * 100).toInt()
         }
 
-    /**
-     * ID of the assigned user
-     */
+    /** ID of the assigned user */
     val assigned_to: Int?
 
-    /**
-     * Journal entries (non-empty)
-     */
+    /** Journal entries (non-empty) */
     var journals: List<String> = emptyList()
 
-    /**
-     * the original raw object, if any, for diff purposes
-     */
+    /** the original raw object, if any, for diff purposes */
     private val original: JSONObject?
 
     /* ------------------------- constructors ------------------------- */
@@ -101,9 +83,7 @@ class Issue {
 
     /* ------------------------- properties ------------------------- */
 
-    /**
-     * the url to see this issue details
-     */
+    /** the url to see this issue details */
     val url get() = remote.getIssueDetailsUrl(this)
 
     /**
@@ -157,9 +137,7 @@ class Issue {
         realization = (realization + amount).coerceIn(0, 100) // don't subtract what can't be subtracted, and don't add what can be added
     }
 
-    /**
-     * Sets the realization to the spent/estimated percentage, if loaded
-     */
+    /** Sets the realization to the spent/estimated percentage, if loaded */
     fun syncRealization() {
         realization = spent_realization?.coerceIn(0, 100) ?: return
     }
@@ -184,18 +162,14 @@ class Issue {
         return true
     }
 
-    /**
-     * returns this issue's project OT code
-     */
+    /** returns this issue's project OT code */
     @Throws(IOException::class)
     fun getProjectOT(): String = remote.getProjectOT(projectId)
 
 
     /* ------------------------- uploading ------------------------- */
 
-    /**
-     * a list of changes made to this issue, as an object (empty means no changes)
-     */
+    /** a list of changes made to this issue, as an object (empty means no changes) */
     internal val changes
         get() = JSONObject().apply {
             // TODO: maybe use a JSON as container so this can be a simple foreach diff
@@ -209,9 +183,7 @@ class Issue {
             }
         }
 
-    /**
-     * iff this entry requires upload, false otherwise
-     */
+    /** iff this entry requires upload, false otherwise */
     val requiresUpload get() = !changes.isEmpty
     val changedEstimation get() = changes.has("estimated_hours")
     val changedRealization get() = changes.has("done_ratio")

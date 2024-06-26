@@ -5,9 +5,7 @@ import com.hiberus.anaya.redmineeditor.utils.OpenColorsFile
 import com.hiberus.anaya.redmineeditor.utils.OpenSpecialDaysFile
 import javafx.fxml.FXML
 
-/**
- * the top menubar with actions
- */
+/** the top menubar with actions */
 internal class MenuBarComponent {
 
     /* ------------------------- actions ------------------------- */

@@ -23,9 +23,7 @@ import java.time.LocalDate
 import java.util.function.Consumer
 
 
-/**
- * One of the entries in the entries list
- */
+/** One of the entries in the entries list */
 class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     /* ------------------------- views ------------------------- */
@@ -93,9 +91,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     override fun update() = partialUpdate(updateIssue = true, updateEntry = true)
 
-    /**
-     * Updates the content of issue or entry
-     */
+    /** Updates the content of issue or entry */
     fun partialUpdate(updateIssue: Boolean = false, updateEntry: Boolean = false) {
 
         // sets the cell data
@@ -202,9 +198,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
         AppController.fireChanges(setOf(ChangeEvent.EntryContent))
     }
 
-    /**
-     * increase or decrease this entry hours
-     */
+    /** increase or decrease this entry hours */
     @FXML
     private fun changeSpent(node: Event) =
         item?.run {
@@ -221,9 +215,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             AppController.fireChanges(setOf(ChangeEvent.EntryContent, ChangeEvent.DayHours))
         }
 
-    /**
-     * edits the entry hours with an editor
-     */
+    /** edits the entry hours with an editor */
     @FXML
     private fun editSpent() =
         item?.run {
@@ -238,9 +230,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             AppController.fireChanges(setOf(ChangeEvent.EntryContent, ChangeEvent.DayHours))
         }
 
-    /**
-     * increase or decrease the issue estimated hours
-     */
+    /** increase or decrease the issue estimated hours */
     @FXML
     private fun changeEstimated(node: Event) =
         item?.issue?.run {
@@ -250,9 +240,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             AppController.fireChanges(setOf(ChangeEvent.IssueContent))
         }
 
-    /**
-     * edits the estimated hours with an editor
-     */
+    /** edits the estimated hours with an editor */
     @FXML
     private fun editEstimated() =
         item?.issue?.run {
@@ -267,9 +255,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             AppController.fireChanges(setOf(ChangeEvent.IssueContent))
         }
 
-    /**
-     * increase, decrease or sync the issue realization percentage
-     */
+    /** increase, decrease or sync the issue realization percentage */
     @FXML
     private fun changeRealization(node: Event) =
         item?.issue?.run {
@@ -286,9 +272,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
     @FXML
     private fun loadTotal() = loadExtra { }
 
-    /**
-     * load spent hours and journal
-     */
+    /** load spent hours and journal */
     private fun loadExtra(later: (Boolean) -> Unit) = AppController.runBackground({ model: Model.Editor ->
         item?.issue?.run {
             try {
@@ -334,15 +318,11 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
 /* ------------------------- utils ------------------------- */
 
-/**
- * Get the userdata of the target node
- */
+/** Get the userdata of the target node */
 private val Event.targetData: String
     get() = (target as Node).userData.toString()
 
-/**
- * Displays an editor to change an hours entry
- */
+/** Displays an editor to change an hours entry */
 private fun showHoursEditor(label: String, ifEmpty: String, initialValue: String, onResult: Consumer<in String>) {
     TextInputDialog(initialValue).apply {
         title = "Hours raw editor"

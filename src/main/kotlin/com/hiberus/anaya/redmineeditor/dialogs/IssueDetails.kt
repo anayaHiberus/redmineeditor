@@ -18,9 +18,7 @@ import javafx.stage.Stage
 import javafx.stage.WindowEvent
 
 
-/**
- * Show an issue details as a dialog
- */
+/** Show an issue details as a dialog */
 fun Issue.showDetails() {
     Stage().apply {
         title = toShortString()
@@ -38,9 +36,7 @@ fun Issue.showDetails() {
     }.showAndWait()
 }
 
-/**
- * The controller of the issue details dialog
- */
+/** The controller of the issue details dialog */
 class IssueDetailsController {
 
     /* ------------------------- variables ------------------------- */

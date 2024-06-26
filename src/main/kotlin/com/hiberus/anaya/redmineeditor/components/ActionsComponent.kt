@@ -11,9 +11,7 @@ import javafx.scene.control.ButtonType
 import javafx.scene.layout.HBox
 import javafx.stage.WindowEvent
 
-/**
- * A list of action buttons
- */
+/** A list of action buttons */
 internal class ActionsComponent {
 
     @FXML
@@ -44,15 +42,11 @@ internal class ActionsComponent {
 
     /* ------------------------- buttons ------------------------- */
 
-    /**
-     * press the refresh button to reload the data, asks if there are changes
-     */
+    /** press the refresh button to reload the data, asks if there are changes */
     @FXML
     private fun reload() = AppController.reload()
 
-    /**
-     * Uploads the data, then exits (if [exit]=true) or reloads otherwise
-     */
+    /** Uploads the data, then exits (if [exit]=true) or reloads otherwise */
     private fun upload(exit: Boolean) = AppController.runBackground(
         { it.uploadAll() }, // let it upload
         { correct ->
@@ -87,9 +81,7 @@ internal class ActionsComponent {
 
     /* ------------------------- internal ------------------------- */
 
-    /**
-     * On window closes, asks to lose changes if any
-     */
+    /** On window closes, asks to lose changes if any */
     private fun closeWindowEvent(event: WindowEvent) = AppController.runForeground { model ->
         if (model.hasChanges && !confirmLoseChanges("exit")) event.consume()
     }

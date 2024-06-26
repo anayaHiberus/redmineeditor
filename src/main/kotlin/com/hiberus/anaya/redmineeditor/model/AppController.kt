@@ -13,16 +13,12 @@ import javafx.scene.control.ButtonType
 // - haha, static go brrrrr
 val AppController = Controller()
 
-/**
- * The main application controller
- */
+/** The main application controller */
 class Controller {
 
     /* ------------------------- model management ------------------------- */
 
-    /**
-     * the model used
-     */
+    /** the model used */
     private val model = Model.Editor()
 
     /**
@@ -78,9 +74,7 @@ class Controller {
 
     /* ------------------------- changes management ------------------------- */
 
-    /**
-     * saved list of listeners and its data
-     */
+    /** saved list of listeners and its data */
     private val listeners = mutableListOf<Pair<Set<ChangeEvent>, (Model) -> Unit>>()
 
     /**
@@ -175,7 +169,5 @@ class Controller {
 
 /* ------------------------- public utils ------------------------- */
 
-/**
- * Settings that will trigger a reload
- */
+/** Settings that will trigger a reload */
 val ReloadSettings = setOf(AppSettings.URL, AppSettings.KEY, AppSettings.PREV_DAYS, AppSettings.SCHEDULE_FILE, AppSettings.IGNORE_OLD_ASSIGNED, AppSettings.IGNORE_SSL_ERRORS)

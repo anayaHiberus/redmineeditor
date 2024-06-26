@@ -8,9 +8,7 @@ import javafx.scene.Node
 import javafx.scene.control.ProgressIndicator
 
 
-/**
- * Component for the parent app. Manages the loading indicator
- */
+/** Component for the parent app. Manages the loading indicator */
 internal class ParentComponent {
 
     /* ------------------------- elements ------------------------- */

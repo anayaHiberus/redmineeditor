@@ -6,9 +6,7 @@ import java.time.YearMonth
 
 /* ------------------------- Global settings ------------------------- */
 
-/**
- * if true, put/post petitions will be skipped (but still logged)
- */
+/** if true, put/post petitions will be skipped (but still logged) */
 var READ_ONLY = false
 
 /* ------------------------- Main ------------------------- */
@@ -33,50 +31,34 @@ class Redmine {
 
     /* ------------------------- private data ------------------------- */
 
-    /**
-     * The remote
-     */
+    /** The remote */
     private var remote: Remote
 
-    /**
-     * if assigned issues are already loaded
-     */
+    /** if assigned issues are already loaded */
     var assignedLoaded = false
         private set
 
-    /**
-     * months that are already loaded and don't need to be again
-     */
+    /** months that are already loaded and don't need to be again */
     private val monthsLoaded = mutableSetOf<YearMonth>()
 
-    /**
-     * Number of days for 'past' computations
-     */
+    /** Number of days for 'past' computations */
     private var prevDays: Long
 
     /* ------------------------- public data ------------------------- */
 
-    /**
-     * loaded time entries
-     */
+    /** loaded time entries */
     private val loadedEntries = mutableListOf<TimeEntry>()
 
-    /**
-     * Loaded issues
-     */
+    /** Loaded issues */
     val loadedIssues = mutableSetOf<Issue>()
 
-    /**
-     * iff there is at least something that was modified (and should be uploaded)
-     */
+    /** iff there is at least something that was modified (and should be uploaded) */
     val hasChanges
         get() = loadedEntries.any { it.requiresUpload } || loadedIssues.any { it.requiresUpload }
 
     /* ------------------------- getters ------------------------- */
 
-    /**
-     * return assigned issues, optionally filtering by updated_on < [updatedOnLessThanDays] (for newly loaded)
-     */
+    /** return assigned issues, optionally filtering by updated_on < [updatedOnLessThanDays] (for newly loaded) */
     @Throws(IOException::class)
     fun getAssignedIssues(updatedOnLessThanDays: Int? = null): List<Issue> {
         // download if not yet
@@ -90,15 +72,11 @@ class Redmine {
         return loadedIssues.filter { it.assigned_to == (remote.userId ?: return emptyList()) }
     }
 
-    /**
-     * return entries of a specific date
-     */
+    /** return entries of a specific date */
     fun getEntriesForDate(date: LocalDate) =
         date.takeIf { it.yearMonth in monthsLoaded || it.plusDays(prevDays).yearMonth in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
 
-    /**
-     * return entries of a specific month
-     */
+    /** return entries of a specific month */
     fun getEntriesForMonth(month: YearMonth) =
         month.takeIf { it in monthsLoaded }?.run { loadedEntries.filter { it.wasSpentOn(this) } }
 
@@ -134,9 +112,7 @@ class Redmine {
         }
     }
 
-    /**
-     * Uploads all needed data
-     */
+    /** Uploads all needed data */
     @Throws(IOException::class)
     fun uploadAll() =
         (loadedEntries.runEachCatching { remote.upload(it) }
@@ -183,9 +159,7 @@ class Redmine {
         }
     }
 
-    /**
-     * Returns the username, can be used as a way to check if the settings are ok
-     */
+    /** Returns the username, can be used as a way to check if the settings are ok */
     @Throws(IOException::class)
     fun getUserName(appendLogin: Boolean = false) = remote.getUserName(appendLogin)
 
@@ -193,15 +167,11 @@ class Redmine {
 
 /* ------------------------- utils ------------------------- */
 
-/**
- * If check is true, apply and return then, else keep this
- */
+/** If check is true, apply and return then, else keep this */
 private inline fun <T> T.ifCheck(check: Boolean, then: T.() -> T) = if (check) then() else this
 
 
-/**
- * Runs [function] on each element, returns a list of all the exceptions thrown
- */
+/** Runs [function] on each element, returns a list of all the exceptions thrown */
 private fun <T> Iterable<T>.runEachCatching(function: (T) -> Unit) =
     mapNotNull {
         runCatching {
@@ -209,7 +179,5 @@ private fun <T> Iterable<T>.runEachCatching(function: (T) -> Unit) =
         }.exceptionOrNull()
     }
 
-/**
- * YearMoth of a full date
- */
+/** YearMoth of a full date */
 private val LocalDate.yearMonth get() = YearMonth.from(this)

@@ -23,9 +23,7 @@ import java.time.LocalDate
 private const val SEP = ", "
 private const val LB = "\n"
 
-/**
- * Show the batch editor dialog
- */
+/** Show the batch editor dialog */
 fun ShowBatchEditorDialog() {
     Stage().apply {
         title = "Batch editor"
@@ -36,9 +34,7 @@ fun ShowBatchEditorDialog() {
     }.showAndWait()
 }
 
-/**
- * The batch editor dialog controller
- */
+/** The batch editor dialog controller */
 class BatchEditorController {
 
     /* ------------------------- elements ------------------------- */
@@ -51,9 +47,7 @@ class BatchEditorController {
 
     /* ------------------------- utils ------------------------- */
 
-    /**
-     * set the text info
-     */
+    /** set the text info */
     private fun setInfo(text: String) = Platform.runLater { info.text = text }
 
     /* ------------------------- callbacks ------------------------- */
@@ -91,9 +85,7 @@ val INSTRUCTIONS = """
     |  - You can modify existing ones by keeping the entry id, or create new ones by using '+' as the entry id
 """.trimMargin("|").split("\n").joinToString("\n") { "# $it" }
 
-/**
- * Exports data from the app model
- */
+/** Exports data from the app model */
 private fun exportData(model: Model): String {
     // get data
     val entries = (model.monthEntries
@@ -252,14 +244,10 @@ private fun importData(data: String, model: Model.Editor, test: Boolean = false)
     if (!test) ChangeEvent.entries.forEach { model.registerExternalChange(it) }
 }
 
-/**
- * Temporal dataClass for evaluated lines
- */
+/** Temporal dataClass for evaluated lines */
 class ImportEntry(val id: Int?, val spent_on: LocalDate, val spent: Double, val issueId: Int, val comment: String)
 
-/**
- * Custom CSV line parser. Don't do this, kids.
- */
+/** Custom CSV line parser. Don't do this, kids. */
 private fun lineParser(line: String) = mutableListOf<String>().apply {
     var column = "" // current building column
     var spaces = 0 // spaces found

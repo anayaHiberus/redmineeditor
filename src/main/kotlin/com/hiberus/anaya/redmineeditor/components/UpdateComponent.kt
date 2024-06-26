@@ -11,9 +11,7 @@ import org.json.JSONObject
 import java.net.URL
 import java.util.*
 
-/**
- * The current app version (as the version file says)
- */
+/** The current app version (as the version file says) */
 val VERSION = runCatching { ResourceFile("version").readText().trim() }.getOrDefault("?.?.?")
 
 /**
@@ -88,9 +86,7 @@ internal class UpdateComponent {
 
 /* ------------------------- remote ------------------------- */
 
-/**
- * Returns the new remote version, or null if no new version was detected
- */
+/** Returns the new remote version, or null if no new version was detected */
 fun getNewVersion() = JSONObject(URL("https://api.github.com/repos/anayaHiberus/redmineeditor/releases/latest").readText()).getString("tag_name").drop(1)
     // compare versions based on the numbers ("2.1" < "2.2" but "2.1.1" > "2.1")
     .takeIf { remoteVersion ->
@@ -102,13 +98,9 @@ fun getNewVersion() = JSONObject(URL("https://api.github.com/repos/anayaHiberus/
             }.let { (r, c) -> Arrays.compare(r, c) > 0 }
     }
 
-/**
- * Returns the new content of the calendars file, if different
- */
+/** Returns the new content of the calendars file, if different */
 fun getNewScheduleFile(calendar: String? = null) = URL("https://raw.githubusercontent.com/anayaHiberus/redmineeditor/main/${getCalendarFile(calendar)}").readText()
     .takeIf { areNewerRules(it.lineSequence(), calendar) }
 
-/**
- * Opens the download page
- */
+/** Opens the download page */
 fun openDownloadUpdatePage() = openInBrowser("https://github.com/anayaHiberus/redmineeditor/releases/latest")

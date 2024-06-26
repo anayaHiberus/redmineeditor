@@ -19,9 +19,7 @@ val CONTRIBUTORS = listOf("Fernando Belaza")
 
 val TITLE = "$NAME, by $AUTHOR, V$VERSION"
 
-/**
- * Show the 'about' dialog
- */
+/** Show the 'about' dialog */
 fun ShowAbout() {
     Alert(Alert.AlertType.NONE).apply {
         title = "About"
@@ -54,9 +52,7 @@ fun ShowAbout() {
 
 /* ------------------------- readme ------------------------- */
 
-/**
- * Show the readme dialog
- */
+/** Show the readme dialog */
 fun ShowReadme() {
     Alert(Alert.AlertType.INFORMATION).apply {
         headerText = "Readme"

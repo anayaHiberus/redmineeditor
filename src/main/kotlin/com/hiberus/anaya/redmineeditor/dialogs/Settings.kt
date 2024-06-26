@@ -26,9 +26,7 @@ import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import java.util.*
 
-/**
- * Displays the settings dialog, and reloads if something changed
- */
+/** Displays the settings dialog, and reloads if something changed */
 fun ShowSettingsDialog() {
     val changes = ShowSettingsDialogInternal()
     if (AppSettings.DARK_THEME in changes) stylizeDisplayed()
@@ -38,9 +36,7 @@ fun ShowSettingsDialog() {
     if (ReloadSettings intersects changes) AppController.reload()
 }
 
-/**
- * Displays the settings configuration dialog, returns the changes
- */
+/** Displays the settings configuration dialog, returns the changes */
 private fun ShowSettingsDialogInternal(): Set<AppSettings> {
     Stage().apply {
         title = "Settings"
@@ -57,9 +53,7 @@ private fun ShowSettingsDialogInternal(): Set<AppSettings> {
     }
 }
 
-/**
- * The settings controller
- */
+/** The settings controller */
 class SettingsController {
 
     /* ------------------------- nodes ------------------------- */
@@ -136,9 +130,7 @@ class SettingsController {
 
     /* ------------------------- config ------------------------- */
 
-    /**
-     * Keeps data about an AppSetting and how to manage it
-     */
+    /** Keeps data about an AppSetting and how to manage it */
     private data class SettingMatch<T>(
         val setting: AppSettings,
         private val nodeProperty: () -> Property<T>,
@@ -147,9 +139,7 @@ class SettingsController {
         val property get() = nodeProperty() // get property
     }
 
-    /**
-     * All the AppSetting configurations
-     */
+    /** All the AppSetting configurations */
     private val matches = listOf(
         SettingMatch(AppSettings.URL, { domain.textProperty() }) { it },
         SettingMatch(AppSettings.KEY, { key.textProperty() }) { it },
@@ -411,9 +401,7 @@ class SettingsController {
 
     /* ------------------------- internal ------------------------- */
 
-    /**
-     * List of changes
-     */
+    /** List of changes */
     private fun changes(apply: Boolean = false) =
         // for all changes
         matches.map { it.setting to it.property.value.toString() }
@@ -424,9 +412,7 @@ class SettingsController {
                 // return modified settings
             }.map { it.first }.toSet()
 
-    /**
-     * On window closes, asks to lose changes if any
-     */
+    /** On window closes, asks to lose changes if any */
     private fun closeWindowEvent() {
         if (changes().isNotEmpty() && !confirmLoseChanges("exit")) window.hide()
     }

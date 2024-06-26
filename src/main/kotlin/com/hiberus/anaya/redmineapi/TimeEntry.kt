@@ -5,9 +5,7 @@ import org.json.JSONObject
 import java.time.LocalDate
 import java.time.YearMonth
 
-/**
- * 'You spent X hours into an issue with a message' object
- */
+/** 'You spent X hours into an issue with a message' object */
 class TimeEntry {
 
     /* ------------------------- manager ------------------------- */
@@ -16,35 +14,23 @@ class TimeEntry {
 
     /* ------------------------- data ------------------------- */
 
-    /**
-     * the entry id in the database, null if this is a new entry without an associated id
-     */
+    /** the entry id in the database, null if this is a new entry without an associated id */
     val id: Int?
 
-    /**
-     * the issue id
-     */
+    /** the issue id */
     var issue: Issue
 
-    /**
-     * date it was spent
-     */
+    /** date it was spent */
     var spent_on: LocalDate
 
-    /**
-     * the spent hours of this entry
-     */
+    /** the spent hours of this entry */
     var spent: Double
         private set
 
-    /**
-     * the comment of this entry
-     */
+    /** the comment of this entry */
     var comment: String
 
-    /**
-     * the original raw object, for diff purposes. Null if there is no original
-     */
+    /** the original raw object, for diff purposes. Null if there is no original */
     private var original: JSONObject? = null
 
 
@@ -101,9 +87,7 @@ class TimeEntry {
 
     /* ------------------------- modifiers ------------------------- */
 
-    /**
-     * @param amount new hours to add to this entry (negative to subtract)
-     */
+    /** @param amount new hours to add to this entry (negative to subtract) */
     fun addSpent(amount: Double) =
         // don't subtract what can't be subtracted
         ((spent + amount).coerceAtLeast(0.0) - spent).let {
@@ -111,16 +95,12 @@ class TimeEntry {
             issue.addSpent(it)
         }
 
-    /**
-     * changes the spent hours to any [amount]
-     */
+    /** changes the spent hours to any [amount] */
     fun changeSpent(amount: Double) = addSpent(amount - spent)
 
     /* ------------------------- uploading ------------------------- */
 
-    /**
-     * a list of changes made to this entry, as an object (empty means no changes)
-     */
+    /** a list of changes made to this entry, as an object (empty means no changes) */
     internal val changes
         get() = JSONObject().apply {
             if (spent != original?.getDouble("hours")) {
@@ -145,9 +125,7 @@ class TimeEntry {
             }
         }
 
-    /**
-     * iff this entry requires upload, false otherwise
-     */
+    /** iff this entry requires upload, false otherwise */
     val requiresUpload
         get() = !(changes.isEmpty // no changes, no upload
                 || (id == null && spent <= 0)) // no useful changes, no upload
@@ -155,9 +133,7 @@ class TimeEntry {
     val changedSpent get() = changes.has("hours") && !(id == null && spent <= 0)
     val changedComment get() = changes.has("comments") && !(id == null && spent <= 0)
 
-    /**
-     * String representation of this TimeEntry
-     */
+    /** String representation of this TimeEntry */
     override fun toString() = "TimeEntry@${id ?: "new"}{ ${spent.formatHours()} [$spent_on] ${issue.toShortString()} '$comment'}"
 }
 

@@ -38,9 +38,7 @@ abstract class SimpleListCell<T>(fxml: URL) : ListCell<T>() {
         }
     }
 
-    /**
-     * Update here the content of the cell
-     */
+    /** Update here the content of the cell */
     protected abstract fun update()
 
 }

@@ -3,9 +3,7 @@ package com.hiberus.anaya.redmineeditor.commandline
 import com.hiberus.anaya.redmineapi.READ_ONLY
 import javafx.application.Application
 
-/**
- * Command to set the [READ_ONLY] parameter to true
- */
+/** Command to set the [READ_ONLY] parameter to true */
 class ReadOnlyCommand : Command {
     override val name = "Read only flag"
     override val argument = "-readOnly"

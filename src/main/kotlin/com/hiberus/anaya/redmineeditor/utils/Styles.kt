@@ -11,9 +11,7 @@ import javafx.stage.Window
 
 /* ------------------------- functions ------------------------- */
 
-/**
- * Sets the light/dark theme and icon
- */
+/** Sets the light/dark theme and icon */
 fun Scene.stylize(asDark: Boolean = isDark) = stylesheets.run {
     // set theme
     if (asDark) put(DARK_STYLESHEET)
@@ -23,14 +21,10 @@ fun Scene.stylize(asDark: Boolean = isDark) = stylesheets.run {
     (window as? Stage)?.icons?.put(ICON)
 }
 
-/**
- * Sets the light/dark theme and icon
- */
+/** Sets the light/dark theme and icon */
 fun Dialog<*>.stylize(asDark: Boolean = isDark) = dialogPane.scene.stylize(asDark)
 
-/**
- * Stylize all displayed windows
- */
+/** Stylize all displayed windows */
 fun stylizeDisplayed() = runInForeground {
     Window.getWindows().map { it.scene }.distinct().letEach { stylize() }
 }

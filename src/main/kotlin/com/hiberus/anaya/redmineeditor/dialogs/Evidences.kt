@@ -10,9 +10,7 @@ import javafx.scene.control.TextArea
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-/**
- * Calculates and displays the evidences
- */
+/** Calculates and displays the evidences */
 fun ShowEvidencesDialog() {
     // init properties
     val strings = Properties().apply { getRelativeFile("conf/Evidences.properties")?.inputStream()?.use { load(it) } }

@@ -9,9 +9,7 @@ import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.*
 
-/**
- * Options for create (insert) a new entry
- */
+/** Options for create (insert) a new entry */
 internal class InsertComponent {
 
     /* ------------------------- views ------------------------- */
@@ -82,9 +80,7 @@ internal class InsertComponent {
         }
     }
 
-    /**
-     * Add the input entries
-     */
+    /** Add the input entries */
     @FXML
     private fun onAdd() {
         // get all sequential numbers

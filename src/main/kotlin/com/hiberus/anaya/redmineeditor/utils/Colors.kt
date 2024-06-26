@@ -10,20 +10,14 @@ import java.time.LocalDate
 
 /* ------------------------- static ------------------------- */
 
-/**
- * average of a list of colors
- */
+/** average of a list of colors */
 val List<Pair<Color, Double>>.average
     get() = reduceOrNull { (accColor, accWeight), (color, weight) -> accColor.interpolate(color, weight / (weight + accWeight)) to weight + accWeight }?.first
 
-/**
- * replaces the opacity of a color
- */
+/** replaces the opacity of a color */
 fun Color.withOpacity(newOpacity: Double) = Color(red, green, blue, newOpacity)
 
-/**
- * multiplies the opacity of a color
- */
+/** multiplies the opacity of a color */
 fun Color.multiplyOpacity(opacityFactor: Double) = withOpacity(opacity * opacityFactor)
 
 
@@ -65,9 +59,7 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     else -> null // (null = no color)
 }
 
-/**
- * Load colors from the configuration file
- */
+/** Load colors from the configuration file */
 fun LoadColors() = runCatching {
     // clear first
     PROJECTS.clear()
@@ -115,14 +107,10 @@ fun LoadColors() = runCatching {
     "Generic error: ${exception.message}"
 }
 
-/**
- * the colors file
- */
+/** the colors file */
 private val colorsFile = getRelativeFile("conf/colors.properties")
 
-/**
- * Opens the colors file in an external app
- */
+/** Opens the colors file in an external app */
 fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open colors file").showAndWait() }
 

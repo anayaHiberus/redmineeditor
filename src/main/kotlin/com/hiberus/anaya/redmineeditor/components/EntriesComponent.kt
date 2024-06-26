@@ -13,9 +13,7 @@ import javafx.scene.control.ListView
 import javafx.scene.control.TextField
 import javafx.util.Callback
 
-/**
- * A list of entries that you can edit
- */
+/** A list of entries that you can edit */
 internal class EntriesComponent {
 
     /* ------------------------- views ------------------------- */
@@ -31,9 +29,7 @@ internal class EntriesComponent {
 
     /* ------------------------- data ------------------------- */
 
-    /**
-     * items in listview
-     */
+    /** items in listview */
     private val itemsList = FXCollections.observableArrayList<TimeEntry>()
     private val filteredList = FilteredList(itemsList) { true }
 

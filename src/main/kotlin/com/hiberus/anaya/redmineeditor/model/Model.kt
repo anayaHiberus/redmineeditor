@@ -17,105 +17,71 @@ import java.time.YearMonth
 
 /* ------------------------- settings ------------------------- */
 
-/**
- * set to true to auto-download today issues
- */
+/** set to true to auto-download today issues */
 private val autoLoadTotalHours get() = AppSettings.AUTO_LOAD_TOTAL_HOURS.value.toBoolean()
 
-/**
- * Number of days for 'past' computations
- */
+/** Number of days for 'past' computations */
 private val prevDays get() = runCatching { AppSettings.PREV_DAYS.value.toLong().coerceIn(0, 28) }.getOrDefault(0)
 
 /* ------------------------- model ------------------------- */
 
-/**
- * The data of the app
- */
+/** The data of the app */
 abstract class Model {
 
     /* ------------------------- display data ------------------------- */
 
-    /**
-     * the loading state
-     */
+    /** the loading state */
     abstract var isLoading: Boolean
 
-    /**
-     * the current month
-     */
+    /** the current month */
     abstract var month: YearMonth
 
-    /**
-     * the current day (null if there is no current day)
-     */
+    /** the current day (null if there is no current day) */
     abstract var day: Int?
 
     /* ------------------------- redmine data ------------------------- */
 
-    /**
-     * interactions with the api. Initialized in [Editor.reloadRedmine]
-     */
+    /** interactions with the api. Initialized in [Editor.reloadRedmine] */
     protected var redmine: Redmine? = null
 
     /* ------------------------- compound data ------------------------- */
 
-    /**
-     * the current date: [month]+[day] (null if there is no current day)
-     */
+    /** the current date: [month]+[day] (null if there is no current day) */
     val date
         get() = day?.let { month.atDay(it) }
 
-    /**
-     * calculates the hours spent in a [date], null if the date is not loaded
-     */
+    /** calculates the hours spent in a [date], null if the date is not loaded */
     fun getSpent(date: LocalDate) =
         redmine?.getEntriesForDate(date)?.sumOf { it.spent }
 
-    /**
-     * calculates the hours spent in a [month], null if the month is not loaded
-     */
+    /** calculates the hours spent in a [month], null if the month is not loaded */
     fun getSpent(month: YearMonth) =
         redmine?.getEntriesForMonth(month)?.sumOf { it.spent }
 
-    /**
-     * gets the pending hours from the current day (if negative, it means the user spent more than necessary)
-     */
+    /** gets the pending hours from the current day (if negative, it means the user spent more than necessary) */
     fun getPending() =
         date?.run { getSpent(this)?.let { expectedHours - it } }
 
-    /**
-     * the entries that should be displayed on the current day (null if no current day or not loaded)
-     */
+    /** the entries that should be displayed on the current day (null if no current day or not loaded) */
     val dayEntries
         get() = date?.let { getLoadedEntriesFromDate(it) }
 
-    /**
-     * the loaded entries of a specific date
-     */
+    /** the loaded entries of a specific date */
     fun getLoadedEntriesFromDate(date: LocalDate) = redmine?.getEntriesForDate(date)
 
-    /**
-     * all distinct loaded issues (readonly), null if not loaded
-     */
+    /** all distinct loaded issues (readonly), null if not loaded */
     val loadedIssues
         get() = redmine?.loadedIssues?.toSet()
 
-    /**
-     * Iff the assigned issues are already loaded
-     */
+    /** Iff the assigned issues are already loaded */
     val loadedAssigned
         get() = redmine?.assignedLoaded
 
-    /**
-     * Return all entries from the current month
-     */
+    /** Return all entries from the current month */
     val monthEntries: List<TimeEntry>?
         get() = redmine?.getEntriesForMonth(month)
 
-    /**
-     * iff there is at least something that was modified (and should be uploaded), null if not loaded
-     */
+    /** iff there is at least something that was modified (and should be uploaded), null if not loaded */
     val hasChanges get() = redmine?.hasChanges ?: false
 
     /* ------------------------- setters ------------------------- */
@@ -124,14 +90,10 @@ abstract class Model {
 
         /* ------------------------- changes ------------------------- */
 
-        /**
-         * list of changes
-         */
+        /** list of changes */
         private val changes = mutableSetOf<ChangeEvent>()
 
-        /**
-         * @return changes made to this model since last call (or initialization)
-         */
+        /** @return changes made to this model since last call (or initialization) */
         fun getChanges() =
             changes.toSet().also { changes.clear() }
 
@@ -171,9 +133,7 @@ abstract class Model {
                 prepareDay() // prepare day
             }
 
-        /**
-         * Sets the date to now
-         */
+        /** Sets the date to now */
         fun toNow() {
             day = LocalDate.now().dayOfMonth
             month = YearMonth.now()
@@ -217,9 +177,7 @@ abstract class Model {
             }?.let { throw it }
         }
 
-        /**
-         * Creates a new Time Entry for [issue] on [date], or the current day if null, with already [spent] hours and [comment], returns whether it was added or not
-         */
+        /** Creates a new Time Entry for [issue] on [date], or the current day if null, with already [spent] hours and [comment], returns whether it was added or not */
         fun createTimeEntry(
             issue: Issue,
             spent: Double = 0.0,
@@ -246,9 +204,7 @@ abstract class Model {
             return entry
         }
 
-        /**
-         * Copies an existing entry to today, returns it
-         */
+        /** Copies an existing entry to today, returns it */
         fun copyTimeEntry(entry: TimeEntry) = createTimeEntry(entry.issue, entry.spent, entry.comment)
 
         /**
@@ -292,16 +248,12 @@ abstract class Model {
             }
         }
 
-        /**
-         * Load issues with [issuesIds]
-         */
+        /** Load issues with [issuesIds] */
         fun loadIssues(issuesIds: List<Int>) {
             if (redmine?.downloadIssues(issuesIds) == true) changes += ChangeEvent.DayIssues
         }
 
-        /**
-         * Loads assigned issues
-         */
+        /** Loads assigned issues */
         fun loadAssigned(autoCreate: Boolean = false) {
             val redmine = redmine ?: return
 
@@ -325,9 +277,7 @@ abstract class Model {
 
         }
 
-        /**
-         * Return the entries of a specified date (loads them if necessary)
-         */
+        /** Return the entries of a specified date (loads them if necessary) */
         fun getEntriesFromDate(date: LocalDate) = run {
             loadMonth(date.yearMonth)
             redmine?.getEntriesForDate(date) ?: emptyList()
@@ -335,9 +285,7 @@ abstract class Model {
 
         /* ------------------------- private setters ------------------------- */
 
-        /**
-         * prepares the current day
-         */
+        /** prepares the current day */
         @Throws(MyException::class)
         private fun prepareDay() {
             val redmine = redmine ?: return // skip if no api
@@ -379,9 +327,7 @@ abstract class Model {
             }
         }
 
-        /**
-         * Clears and initializes (unless [clearOnly] is true) the redmine data
-         */
+        /** Clears and initializes (unless [clearOnly] is true) the redmine data */
         fun reloadRedmine(clearOnly: Boolean = false) {
             redmine = if (clearOnly) null else Redmine(AppSettings.URL.value, AppSettings.KEY.value, prevDays)
             READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()

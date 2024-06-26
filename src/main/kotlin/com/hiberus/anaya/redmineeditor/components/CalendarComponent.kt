@@ -17,21 +17,15 @@ import java.time.format.TextStyle
 import java.time.temporal.ChronoField
 import java.util.*
 
-/**
- * A calendar view with colored days
- */
+/** A calendar view with colored days */
 internal class CalendarComponent {
 
     /* ------------------------- properties ------------------------- */
 
-    /**
-     * the currently displayed labels
-     */
+    /** the currently displayed labels */
     private val days = arrayOfNulls<Label>(31)
 
-    /**
-     * the selected day index from [days]
-     */
+    /** the selected day index from [days] */
     private var selected = -1
 
     /* ------------------------- views ------------------------- */
@@ -116,16 +110,12 @@ internal class CalendarComponent {
 
     }
 
-    /**
-     * color all days of current month
-     */
+    /** color all days of current month */
     private fun colorDays(model: Model) =
         (1..model.month.lengthOfMonth())
             .forEach { colorDay(it, model) }
 
-    /**
-     * color a single day of current month
-     */
+    /** color a single day of current month */
     private fun colorDay(day: Int, model: Model) =
         model.month.atDay(day).let { date ->
             days[day - 1]?.let { label ->
@@ -149,9 +139,7 @@ internal class CalendarComponent {
             }
         }
 
-    /**
-     * Updates the month/year label and color
-     */
+    /** Updates the month/year label and color */
     private fun updateLabel(model: Model) {
         val month = model.month
         // month info
@@ -185,9 +173,7 @@ internal class CalendarComponent {
         calendarLabel.text = label
     }
 
-    /**
-     * recreates the days grid
-     */
+    /** recreates the days grid */
     private fun drawGrid(model: Model) {
         // clear
         calendar.children.removeAll(days.toSet())
@@ -223,16 +209,12 @@ internal class CalendarComponent {
         }
     }
 
-    /**
-     * select a specific day
-     */
+    /** select a specific day */
     private fun selectDay(day: Int) = AppController.runBackground { model ->
         model.day = day
     }
 
-    /**
-     * unselect if existing
-     */
+    /** unselect if existing */
     private fun unselectDay() {
         if (selected != -1) days[selected]?.border = null
         selected = -1
