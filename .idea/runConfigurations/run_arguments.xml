@@ -19,7 +19,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-fill --fromDate=asd --toDate=234 --issue=abc --comment=&quot;development&quot; -test'" />
+          <option value="--args='-fill --fromDate=+0/+0/-7 --issue=&quot;312185&quot; --comment=&quot;test&quot;'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />
