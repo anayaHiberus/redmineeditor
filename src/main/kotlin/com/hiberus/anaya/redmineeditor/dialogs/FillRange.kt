@@ -134,8 +134,8 @@ class FillRangeToolCommand : Command {
     override val parameters = "[-test] [-fromDate=+0/+0/+0] [-toDate=+0/+0/+0] --issue=123 [--comment=\"A comment\"]"
     override val help = listOf(
         "-test, if specified, nothing will be uploaded (but changes that would have happened will be logged).",
-        "--fromDate, first day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
-        "--toDate, last day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. Today (+0/+0/+0) by default",
+        "--fromDate, first day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. $TODAY_DEFAULT",
+        "--toDate, last day (inclusive) to fill. $CUSTOM_DATE_FORMAT_EXPLANATION. $TODAY_DEFAULT",
         "--issue=123 will create new entries assigned to the issue with id 123. You can specify multiple issues separating them by commas (--issue=123,456,789). In that case the missing hours will be split between them.",
         "--comment=\"A comment\" will create new entries with the comment 'A comment'. If omitted, an empty message will be used. For multiple issues you can override the comment of a specific one with --comment123=\"Specific issue\"",
         "Common usage: ./RedmineEditor(.bat) -fill --fromDate=+0/+0/-7 --issue=123 --comment=\"development\"",

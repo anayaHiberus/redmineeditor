@@ -22,39 +22,47 @@ val LocalDateRange?.days: List<LocalDate>
 
 /* ------------------------- Custom date format ------------------------- */
 
-const val CUSTOM_DATE_FORMAT_EXPLANATION = "Format: three elements separated by slash: where each element can be a number or an offset ('1', '+1' or '-1') with an optional extra day of week (mon,tue,wed,thu,fri,sat,sun) element. The day can also be 'end' meaning 'end of month' (+0/+0/end). Examples: '2020/12/31'='last day of 2020', '+0/12/31'='last day of current year', '-1/+0/end'='last day of current month from last year', '+0/+0/+0/mon'='monday of current week'"
+val WEEK_DAYS = listOf("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+val CUSTOM_DATE_FORMAT_EXPLANATION = "Format: three elements separated by slash: where each element can be a number or an offset ('1', '+1' or '-1') with an optional extra day of week element $WEEK_DAYS. The day can also be 'end' meaning 'end of month' (+0/+0/end). Examples: '2020/12/31'='last day of 2020', '+0/12/31'='last day of current year', '-1/+0/end'='last day of current month from last year', '+0/+0/+0/mon'='monday of current week'"
+
+const val TODAY_DEFAULT = "Today (+0/+0/+0) by default"
 
 /** Parses a date in the custom format. */
 fun String.parseCustomDateFormat(): LocalDate? {
     var date = LocalDate.now()
     val parts = split("/")
     if (parts.size < 3 || parts.size > 4) {
-        throw RuntimeException("Invalid date $this")
+        throw RuntimeException("The date must consist on 3 (or 4) elements separated by '/', found ${parts.size}")
     }
+    // year
     parts[0].let {
         date = when {
-            it.startsWith("+") -> date.plusYears(it.removePrefix("+").toLong())
-            it.startsWith("-") -> date.minusYears(it.removePrefix("-").toLong())
-            else -> date.withYear(it.toInt())
+            it.startsWith("+") -> date.plusYears(it.removePrefix("+").toLongOrNull() ?: throw RuntimeException("The year is not a valid positive offset"))
+            it.startsWith("-") -> date.minusYears(it.removePrefix("-").toLongOrNull() ?: throw RuntimeException("The year is not a valid negative offset"))
+            else -> date.withYear(it.toIntOrNull() ?: throw RuntimeException("The year is not a valid number"))
         }
     }
+    // month
     parts[1].let {
         date = when {
-            it.startsWith("+") -> date.plusMonths(it.removePrefix("+").toLong())
-            it.startsWith("-") -> date.minusMonths(it.removePrefix("-").toLong())
-            else -> date.withMonth(it.toInt())
+            it.startsWith("+") -> date.plusMonths(it.removePrefix("+").toLongOrNull() ?: throw RuntimeException("The month is not a valid positive offset"))
+            it.startsWith("-") -> date.minusMonths(it.removePrefix("-").toLongOrNull() ?: throw RuntimeException("The month is not a valid negative offset"))
+            else -> date.withMonth(it.toIntOrNull() ?: throw RuntimeException("The month is not a valid number"))
         }
     }
+    // day
     parts[2].let {
         date = when {
             it == "end" -> date.atEndOfMonth()
-            it.startsWith("+") -> date.plusDays(it.removePrefix("+").toLong())
-            it.startsWith("-") -> date.minusDays(it.removePrefix("-").toLong())
-            else -> date.withDayOfMonth(it.toInt())
+            it.startsWith("+") -> date.plusDays(it.removePrefix("+").toLongOrNull() ?: throw RuntimeException("The day is not a valid positive offset"))
+            it.startsWith("-") -> date.minusDays(it.removePrefix("-").toLongOrNull() ?: throw RuntimeException("The day is not a valid negative offset"))
+            else -> date.withDayOfMonth(it.toIntOrNull() ?: throw RuntimeException("The month is not a valid number"))
         }
     }
-    parts.getOrNull(3)?.let {
-        date = date.with(ChronoField.DAY_OF_WEEK, listOf("mon", "tue", "wed", "thu", "fri", "sat", "sun").indexOf(it).toLong())
+    // week
+    parts.getOrNull(3)?.lowercase()?.let { week ->
+        date = date.with(ChronoField.DAY_OF_WEEK, WEEK_DAYS.indexOf(week).toLong().takeIf { it != -1L } ?: throw RuntimeException("The week '$week' is not one of: $WEEK_DAYS"))
     }
 
     return date

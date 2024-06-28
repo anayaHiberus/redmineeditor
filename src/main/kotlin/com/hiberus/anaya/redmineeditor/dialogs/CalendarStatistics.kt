@@ -94,15 +94,15 @@ class CalendarStatisticsCommand : Command {
     override val argument = "-calStats"
     override val parameters = "[--from=1997-01-01] [--to=1997-12-31]"
     override val help = listOf(
-        "--from=1997-01-01, start of the range, inclusive. Must be a valid ISO java format. If not specified, today will be used.",
-        "--to=1997-12-31, end of the range, inclusive. Must be a valid ISO java format. If not specified, today will be used.",
+        "--from, start of the range, inclusive. $CUSTOM_DATE_FORMAT_EXPLANATION. $TODAY_DEFAULT",
+        "--to, end of the range, inclusive. $CUSTOM_DATE_FORMAT_EXPLANATION. $TODAY_DEFAULT",
         "The output will be a 'table-like' string with the information",
     )
 
     override fun run(parameters: Application.Parameters) {
         listOf("from", "to").map { argument ->
             parameters.named[argument]?.let { parameter ->
-                runCatching { LocalDate.parse(parameter) }.getOrElse {
+                runCatching { parameter.parseCustomDateFormat() }.getOrElse {
                     println("Invalid ISO date for argument $argument=$parameter: ${it.message}")
                     return
                 }

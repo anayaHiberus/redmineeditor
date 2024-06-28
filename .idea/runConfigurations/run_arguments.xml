@@ -19,7 +19,7 @@
       <option name="taskNames">
         <list>
           <option value="run" />
-          <option value="--args='-fill --fromDate=+0/+0/-7 --issue=&quot;312185&quot; --comment=&quot;test&quot;'" />
+          <option value="--args='-calStats --from=+0/+0/+0/AGH -h'" />
         </list>
       </option>
       <option name="vmOptions" value="-ea" />
