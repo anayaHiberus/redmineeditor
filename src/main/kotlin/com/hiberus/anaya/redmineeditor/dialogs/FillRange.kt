@@ -146,7 +146,7 @@ class FillRangeToolCommand : Command {
     override fun run(parameters: Application.Parameters) {
 
         // read parameters
-        val test = ("-test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
+        val test = ("test" in parameters.unnamed).ifOK { println("> Testing mode, no changes will apply") }
 
         var errors = false
         val issueIds = parameters.named["issue"]
@@ -257,10 +257,10 @@ class FixMonthToolCommand : Command {
 
     override fun run(parameters: Application.Parameters) {
         // read parameters
-        val test = "-test" in parameters.unnamed
-        val week = "-week" in parameters.unnamed
-        val relative = "-relative" in parameters.unnamed
-        val future = "-future" in parameters.unnamed
+        val test = "test" in parameters.unnamed
+        val week = "week" in parameters.unnamed
+        val relative = "relative" in parameters.unnamed
+        val future = "future" in parameters.unnamed
 
         val newParameters = listOfNotNull(
             "-fill",

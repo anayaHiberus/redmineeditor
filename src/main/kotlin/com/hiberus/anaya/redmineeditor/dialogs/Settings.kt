@@ -388,7 +388,7 @@ class SettingsCommand : Command {
 
     override fun run(parameters: Application.Parameters) {
         // list values
-        if (parameters.unnamed.contains("-list")) {
+        if (parameters.unnamed.contains("list")) {
             println("All Settings:")
             AppSettings.entries.map { entry ->
                 println("${entry.name}=${entry.value} [default: '${entry.default}']")
