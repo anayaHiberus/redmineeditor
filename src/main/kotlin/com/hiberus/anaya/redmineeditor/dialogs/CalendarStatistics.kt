@@ -88,7 +88,6 @@ class CalendarStatisticsController {
 
 /* ------------------------- Command line ------------------------- */
 
-// TODO: use the new CustomFormat for the dates
 class CalendarStatisticsCommand : Command {
     override val name = "Command line variant of the CalendarStatistics tool"
     override val argument = "-calStats"
