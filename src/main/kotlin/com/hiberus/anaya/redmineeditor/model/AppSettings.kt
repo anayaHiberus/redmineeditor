@@ -35,10 +35,10 @@ enum class AppSettings(val default: String) {
     /** Check for updates on start */
     CHECK_UPDATES("true"),
 
-    /** Check for schedule updates on start */
+    /** Check for calendar updates on start */
     CHECK_SCHEDULE_UPDATES("true"),
 
-    /** Schedule file of user (to obtain holidays) */
+    /** Calendar file of user (to obtain holidays) */
     SCHEDULE_FILE("Zaragoza"),
 
     /** How to mark used entries */

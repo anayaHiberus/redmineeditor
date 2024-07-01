@@ -47,12 +47,12 @@ internal class UpdateComponent {
                     }
                 }.onFailure { debugln("Can't get remote version, probably not permission, ignoring: $it") }
 
-                // check schedule update
+                // check calendar update
                 if (AppSettings.CHECK_SCHEDULE_UPDATES.value.toBoolean()) runCatching {
-                    getNewScheduleFile()?.let { content ->
-                        label.text = "Schedule file update found. Press here to update it."
+                    getNewCalendarFile()?.let { content ->
+                        label.text = "Calendar file update found. Press here to update it."
                         action = {
-                            replaceScheduleContent(content) {
+                            replaceCalendarContent(content) {
                                 close()
                                 AppController.reload()
                             }
@@ -60,7 +60,7 @@ internal class UpdateComponent {
                         banner.isVisible = true
                         return@daemonThread
                     }
-                }.onFailure { debugln("Can't get remote schedule file, either doesn't exists or not permission, ignoring: $it") }
+                }.onFailure { debugln("Can't get remote calendar file, either doesn't exists or not permission, ignoring: $it") }
 
             }
         }
@@ -73,7 +73,7 @@ internal class UpdateComponent {
     }
 
 
-    private var action: (() -> Unit)? = null // the new schedule
+    private var action: (() -> Unit)? = null // the new calendar
 
     @FXML
     fun onClick() = action?.let { it() } // run action
@@ -95,7 +95,7 @@ fun getNewVersion() = JSONObject(URL("https://api.github.com/repos/anayaHiberus/
     }
 
 /** Returns the new content of the calendars file, if different */
-fun getNewScheduleFile(calendar: String? = null) = URL("https://raw.githubusercontent.com/anayaHiberus/redmineeditor/main/${getCalendarFile(calendar)}").readText()
+fun getNewCalendarFile(calendar: String? = null) = URL("https://raw.githubusercontent.com/anayaHiberus/redmineeditor/main/${getCalendarFilePath(calendar)}").readText()
     .takeIf { areNewerRules(it.lineSequence(), calendar) }
 
 /** Opens the download page */

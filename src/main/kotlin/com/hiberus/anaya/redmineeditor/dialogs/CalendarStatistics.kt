@@ -120,43 +120,43 @@ private fun calculateStatistics(from: LocalDate, to: LocalDate): String {
         // interval is inverted, switch and retry
         return calculateStatistics(to, from)
     }
-    data class HoursByScheduleDate(val schedule: Schedule, val date: LocalDate, val hours: Double)
+    data class HoursByCalendarDate(val calendar: Calendar, val date: LocalDate, val hours: Double)
 
     // load all calendars
     val expectedHours = getAllCalendars()
-        .map { Schedule(it) }
+        .map { Calendar(it) }
         .filter { it.load() == null }
-        .flatMap { schedule ->
+        .flatMap { calendar ->
             // and for each day in the range
             generateSequence(from) { date -> date.plusDays(1).takeIf { it <= to } }
-                // generate an entry (the schedule at that date requires those hours)
-                .map { date -> HoursByScheduleDate(schedule, date, schedule.expectedHours(date)) }
+                // generate an entry (the calendar at that date requires those hours)
+                .map { date -> HoursByCalendarDate(calendar, date, calendar.expectedHours(date)) }
         }
 
     val matrix = mutableListOf<List<String>?>()
 
     // headers
-    matrix.add(listOf("Element", "\\ Calendar") + expectedHours.map { it.schedule.calendar ?: "error" }.distinct())
+    matrix.add(listOf("Element", "\\ Calendar") + expectedHours.map { it.calendar.calendar ?: "error" }.distinct())
     matrix.add(null)
 
     // add statistics about some entries
-    fun calculate(label: String, groupedEntries: List<HoursByScheduleDate>) {
+    fun calculate(label: String, groupedEntries: List<HoursByCalendarDate>) {
         // total days
-        matrix.add(listOf(label, "Days") + groupedEntries.groupBy { it.schedule }.map { (_, entries) ->
+        matrix.add(listOf(label, "Days") + groupedEntries.groupBy { it.calendar }.map { (_, entries) ->
             entries.size.toString()
         })
         // statistic about days count
-        listOf<Pair<String, (HoursByScheduleDate) -> Boolean>>(
+        listOf<Pair<String, (HoursByCalendarDate) -> Boolean>>(
             "Non 0h days" to { it.hours != 0.0 },
             "L-V 0h days" to { it.hours == 0.0 && it.date.dayOfWeek <= DayOfWeek.FRIDAY },
             "S-D 0h days" to { it.hours == 0.0 && DayOfWeek.SATURDAY <= it.date.dayOfWeek },
         ).forEach { (label, filter) ->
-            matrix.add(listOf("", label) + groupedEntries.groupBy { it.schedule }.map { (_, entries) ->
+            matrix.add(listOf("", label) + groupedEntries.groupBy { it.calendar }.map { (_, entries) ->
                 entries.count(filter).toString()
             })
         }
         // hours
-        matrix.add(listOf("", "Expected hours") + groupedEntries.groupBy { it.schedule }.map { (_, entries) ->
+        matrix.add(listOf("", "Expected hours") + groupedEntries.groupBy { it.calendar }.map { (_, entries) ->
             entries.sumOf { it.hours }.toString()
         })
         matrix.add(null)
@@ -180,7 +180,7 @@ private fun calculateStatistics(from: LocalDate, to: LocalDate): String {
 
     // specific day info
     expectedHours.groupBy { it.date }.forEach { (date, groupedEntries) ->
-        matrix.add(listOf(date.format(DAY_FORMATTER), "Expected hours") + groupedEntries.groupBy { it.schedule }.map { (_, entries) ->
+        matrix.add(listOf(date.format(DAY_FORMATTER), "Expected hours") + groupedEntries.groupBy { it.calendar }.map { (_, entries) ->
             entries.sumOf { it.hours }.toString() // this should be just one entry anyway
         })
     }

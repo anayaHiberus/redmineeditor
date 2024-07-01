@@ -135,23 +135,23 @@
                             <Insets bottom="10.0" top="10.0"/>
                         </VBox.margin>
                     </Separator>
-                    <CheckBox fx:id="checkScheduleUpdates" layoutX="25.0" layoutY="462.0" text="Automatically c_heck for calendar file updates when the app starts">
+                    <CheckBox fx:id="checkCalendarUpdates" layoutX="25.0" layoutY="462.0" text="Automatically c_heck for calendar file updates when the app starts">
                         <VBox.margin>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </VBox.margin>
                     </CheckBox>
                     <HBox alignment="CENTER_LEFT">
-                        <Button onAction="#checkScheduleUpdate" text="Chec_k update now">
+                        <Button onAction="#checkCalendarUpdate" text="Chec_k update now">
                             <HBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </HBox.margin>
                         </Button>
-                        <ProgressIndicator fx:id="scheduleUpdateLoading" prefHeight="24.0" prefWidth="24.0">
+                        <ProgressIndicator fx:id="calendarUpdateLoading" prefHeight="24.0" prefWidth="24.0">
                             <HBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </HBox.margin>
                         </ProgressIndicator>
-                        <Label fx:id="scheduleUpdateInfo" onMouseClicked="#downloadScheduleUpdate">
+                        <Label fx:id="calendarUpdateInfo" onMouseClicked="#downloadCalendarUpdate">
                             <HBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </HBox.margin>

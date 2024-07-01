@@ -93,7 +93,6 @@ jobs:
     steps:
       - name: Run script
         env:
-          SCHEDULE: ${{ secrets.SCHEDULE }}
           EDITOR_URL: ${{ vars.EDITOR_URL }}
           REDMINE_URL: ${{ vars.REDMINE_URL }}
           REDMINE_KEY: ${{ secrets.REDMINE_KEY }}
@@ -130,11 +129,18 @@ with
 
 ```bash
 echo "Configuring"
-echo "$SCHEDULE" > conf/calendars/custom.hours
+echo "$CALENDAR" > conf/calendars/custom.hours
 ./RedmineEditor -settings --URL="$REDMINE_URL" --KEY="$REDMINE_KEY" --SCHEDULE_FILE=custom
 ```
 
-And fill the variable accordingly.
+And add a new variable in the step (remember to fill it inside github!)
+
+```yml
+...
+env:
+  CALENDAR: ${{ secrets.CALENDAR }}
+  ...
+```
 
 </details>
 

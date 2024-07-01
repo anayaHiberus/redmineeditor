@@ -119,12 +119,12 @@ class Controller {
 
         // init
         val uninitializedSettings = AppSettings.URL.value.isBlank() || AppSettings.KEY.value.isBlank()
-        var specialDaysERROR: String? = null
+        var calendarERROR: String? = null
         var colorsERROR: String? = null
         runBackground({ model ->
 
             // reload files
-            specialDaysERROR = LoadSpecialDays()
+            calendarERROR = LoadCalendar()
             colorsERROR = LoadColors()
 
             // set now
@@ -145,11 +145,11 @@ class Controller {
                     addButton(ButtonType.OK) { ShowSettingsDialog() }
                 }.show() // don't use showAndWait, seems to fail on first launch for some reason (the settings screen is empty)
             } else {
-                if (specialDaysERROR != null) {
-                    // invalid special days, warning
+                if (calendarERROR != null) {
+                    // invalid calendar, warning
                     Alert(Alert.AlertType.WARNING).apply {
-                        title = "Special days error"
-                        contentText = "There were some issues reading the calendar file, some days may have invalid required hours:\n\n$specialDaysERROR"
+                        title = "Calendar error"
+                        contentText = "There were some issues reading the calendar file, some days may have invalid required hours:\n\n$calendarERROR"
                         stylize()
                     }.showAndWait()
                 }

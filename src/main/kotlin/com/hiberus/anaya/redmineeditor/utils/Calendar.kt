@@ -11,8 +11,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 /** Manages a Calendar. */
-// TODO: rename to calendar (and make usages consistent)
-class Schedule(val calendar: String? = null) {
+class Calendar(val calendar: String? = null) {
     private val cache = mutableMapOf<LocalDate, Double>() // caching
     private val rules = mutableListOf<Rule>() // save elements
 
@@ -23,10 +22,10 @@ class Schedule(val calendar: String? = null) {
         rules.clear()
 
         // get file
-        val (rules, errors) = (getSpecialDaysFile(calendar) ?: throw FileNotFoundException("Calendar ${getCalendarFile(calendar)} not found, maybe it was renamed?\nPlease choose another one from the settings."))
+        val (rules, errors) = (getCalendarFile(calendar) ?: throw FileNotFoundException("Calendar ${getCalendarFilePath(calendar)} not found, maybe it was renamed?\nPlease choose another one from the settings."))
             // parse lines
             .readLines().asSequence()
-            .let { parseSpecialDays(it) }
+            .let { parseCalendar(it) }
 
         // and save (reversed)
         rules.reversed().toCollection(this.rules)
@@ -45,17 +44,17 @@ class Schedule(val calendar: String? = null) {
 }
 
 
-/* ------------------------- current schedule ------------------------- */
+/* ------------------------- current calendar ------------------------- */
 
-private val SELECTED_SCHEDULE = Schedule()
+private val SELECTED_CALENDAR = Calendar()
 
-/** Load special days from the configuration file */
-fun LoadSpecialDays() = SELECTED_SCHEDULE.load()
+/** Load calendar from the configuration file */
+fun LoadCalendar() = SELECTED_CALENDAR.load()
 
 /** the expected hours you were supposed to spend this day */
 val LocalDate.expectedHours
     // tries caching value, otherwise calculates it
-    get() = SELECTED_SCHEDULE.expectedHours(this)
+    get() = SELECTED_CALENDAR.expectedHours(this)
 
 /** the expected hours you were supposed to spend this month */
 val YearMonth.expectedHours
@@ -63,42 +62,42 @@ val YearMonth.expectedHours
     get() = days().sumOf { it.expectedHours }
 
 
-/* ------------------------- Special days file ------------------------- */
+/* ------------------------- calendar file ------------------------- */
 
 
-/** Opens the special days file in an external app */
-fun OpenSpecialDaysFile() = (getSpecialDaysFile()?.openInApp() ?: false)
+/** Opens the calendar file in an external app */
+fun OpenCalendarFile() = (getCalendarFile()?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open hours file").showAndWait() }
 
-/** Returns the special days file for a calendar (current if unspecified) (if present) */
-private fun getSpecialDaysFile(calendar: String? = null) = getRelativeFile(getCalendarFile(calendar))
+/** Returns the calendar file from its name (current if unspecified) (if present) */
+private fun getCalendarFile(calendar: String? = null) = getRelativeFile(getCalendarFilePath(calendar))
 
 /**
- * Replaces the special days of a calendar (current if unspecified) file with [content] (asks first)
+ * Replaces the calendar file (current if unspecified) with [content] (asks first)
  * runs [onReplaced] if replaced
  */
-fun replaceScheduleContent(content: String, calendar: String? = null, onReplaced: () -> Unit) {
+fun replaceCalendarContent(content: String, calendar: String? = null, onReplaced: () -> Unit) {
 
     // replace file content
     Alert(Alert.AlertType.CONFIRMATION).apply {
         title = "Replace file"
-        contentText = "This will replace the content of the file ${getSpecialDaysFile(calendar)} with the remote version. Do you want to continue?"
+        contentText = "This will replace the content of the file ${getCalendarFile(calendar)} with the remote version. Do you want to continue?"
         stylize()
         addButton(ButtonType.OK) {
-            getSpecialDaysFile(calendar)?.writeText(content)
+            getCalendarFile(calendar)?.writeText(content)
             onReplaced()
         }
     }.showAndWait()
 }
 
 /** Returns the path of a calendar file (current by default) */
-fun getCalendarFile(calendar: String? = null) = CALENDARS_FOLDER + (calendar ?: AppSettings.SCHEDULE_FILE.value).lowercase() + CALENDARS_EXTENSION
+fun getCalendarFilePath(calendar: String? = null) = CALENDARS_FOLDER + (calendar ?: AppSettings.SCHEDULE_FILE.value).lowercase() + CALENDARS_EXTENSION
 
 /** Returns all calendar paths. */
 fun getAllCalendars() = getAllFiles(CALENDARS_FOLDER) { _, name -> name.endsWith(CALENDARS_EXTENSION) }.map { it.extractFileName() }.sorted()
 
 /** Returns true iff there are rules in [lines] not present in the current rules */
-fun areNewerRules(lines: Sequence<String>, calendar: String? = null) = parseSpecialDays(lines).first.toMutableList().apply { removeAll(parseSpecialDays(getRelativeFile(getCalendarFile(calendar))?.readLines()?.asSequence() ?: throw Exception("Invalid calendar file")).first) }.isNotEmpty()
+fun areNewerRules(lines: Sequence<String>, calendar: String? = null) = parseCalendar(lines).first.toMutableList().apply { removeAll(parseCalendar(getRelativeFile(getCalendarFilePath(calendar))?.readLines()?.asSequence() ?: throw Exception("Invalid calendar file")).first) }.isNotEmpty()
 
 
 /* ------------------------- internal ------------------------- */
@@ -108,7 +107,7 @@ private const val CALENDARS_FOLDER = "conf/calendars/"
 private const val CALENDARS_EXTENSION = ".hours"
 
 /** Reads a calendar file and converts its content to a list of rules, returns also a 'valid' boolean */
-private fun parseSpecialDays(lines: Sequence<String>) = lines
+private fun parseCalendar(lines: Sequence<String>) = lines
     // remove comments
     .map { it.replace("#.*".toRegex(), "") }
     // skip empty

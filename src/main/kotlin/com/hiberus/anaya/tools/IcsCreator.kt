@@ -4,7 +4,7 @@ import com.hiberus.anaya.icsapi.FullDay
 import com.hiberus.anaya.icsapi.ICS
 import com.hiberus.anaya.redmineeditor.commandline.Command
 import com.hiberus.anaya.redmineeditor.model.AppSettings
-import com.hiberus.anaya.redmineeditor.utils.Schedule
+import com.hiberus.anaya.redmineeditor.utils.Calendar
 import com.hiberus.anaya.redmineeditor.utils.errorln
 import javafx.application.Application
 import java.time.DayOfWeek.SATURDAY
@@ -36,16 +36,16 @@ class IcsCreator : Command {
                 }
             } ?: now().with(adjuster)
         }
-        val calendar = parameters.named["calendar"] ?: AppSettings.SCHEDULE_FILE.value
-        val schedule = Schedule(calendar)
-        schedule.load()?.let {
+        val calendarName = parameters.named["calendar"] ?: AppSettings.SCHEDULE_FILE.value
+        val calendar = Calendar(calendarName)
+        calendar.load()?.let {
             errorln(it)
-            errorln("The calendar file $calendar had errors. Aborted.")
+            errorln("The calendar file $calendarName had errors. Aborted.")
             return
         }
-        val fileName = parameters.named["file"] ?: "${calendar}.ics"
+        val fileName = parameters.named["file"] ?: "${calendarName}.ics"
 
-        println("Generating ICS file ($fileName) for calendar $calendar between $from and $to")
+        println("Generating ICS file ($fileName) for calendar $calendarName between $from and $to")
 
         // generate ranges
         class Range(var from: LocalDate, var to: LocalDate)
@@ -56,7 +56,7 @@ class IcsCreator : Command {
             // except weekends
             .filter { it.dayOfWeek !in listOf(SATURDAY, SUNDAY) }
             // that don't require hours
-            .filter { schedule.expectedHours(it) == 0.0 }
+            .filter { calendar.expectedHours(it) == 0.0 }
             .forEach { date ->
 
                 // check previous
@@ -70,13 +70,13 @@ class IcsCreator : Command {
             }
 
         // generate events
-        val ics = ICS(calendar)
+        val ics = ICS(calendarName)
         ranges.forEach {
             ics.addFullDaysRange(
                 FullDay(
                     from = it.from,
                     to = it.to,
-                    summary = "Holiday ($calendar)",
+                    summary = "Holiday ($calendarName)",
                     description = "Generated with RedmineEditor (https://github.com/anayaHiberus/redmineeditor/releases/tag/ics)",
                     outOfOffice = true,
                 )

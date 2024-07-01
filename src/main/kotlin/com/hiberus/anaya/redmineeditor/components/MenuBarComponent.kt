@@ -1,8 +1,8 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.dialogs.*
+import com.hiberus.anaya.redmineeditor.utils.OpenCalendarFile
 import com.hiberus.anaya.redmineeditor.utils.OpenColorsFile
-import com.hiberus.anaya.redmineeditor.utils.OpenSpecialDaysFile
 import javafx.fxml.FXML
 
 /** the top menubar with actions */
@@ -20,7 +20,7 @@ internal class MenuBarComponent {
     fun settings() = ShowSettingsDialog()
 
     @FXML
-    fun hours() = OpenSpecialDaysFile()
+    fun hours() = OpenCalendarFile()
 
     @FXML
     fun colors() = OpenColorsFile()
