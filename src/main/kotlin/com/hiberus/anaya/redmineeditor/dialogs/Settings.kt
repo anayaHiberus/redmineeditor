@@ -254,6 +254,9 @@ class SettingsController {
         testInfo.text = ""
         testInfo.backgroundColor = null
 
+        // enable if required
+        if (ignoreSSLErrors.isSelected) IgnoreSSLErrors()
+
         // run in background
         daemonThread {
             val result = runCatching {

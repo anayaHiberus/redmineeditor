@@ -63,7 +63,7 @@
                             </HBox.margin>
                         </Button>
                     </HBox>
-                    <CheckBox fx:id="ignoreSSLErrors" text="Ignore SSL errors:&#10;[WARNING] You may be connecting to a man-in-the-middle!&#10;But some VPNs are just that so perhaps that's what you want.&#10;This may require to restart the app." wrapText="true"/>
+                    <CheckBox fx:id="ignoreSSLErrors" text="Ignore SSL errors:&#10;[WARNING] You may be connecting to a man-in-the-middle!&#10;But some VPNs are just that so perhaps that's what you want.&#10;Disabling this requires to restart the app." wrapText="true"/>
                     <HBox alignment="CENTER_LEFT">
                         <Button onAction="#testAPI" text="T_est API">
                             <HBox.margin>
