@@ -47,10 +47,14 @@ jobs:
           # generate ICS files
           FROM=$(date -d "-1 year" +%Y)-01-01
           TO=$(date +%Y)-12-31
+          CALENDARS=$(find ./build/RedmineEditor/conf/calendars -iname "*.hours" -exec basename {} .hours ';')
           
-          find ./build/RedmineEditor/conf/calendars -iname "*.hours" -exec basename {} .hours ';' | while read CALENDAR; do
+          ALL=$(echo "$CALENDARS" | paste -sd ,)
+          echo "All calendars: $ALL"
+
+          echo "$CALENDARS" | while read CALENDAR; do
             echo Running for $CALENDAR
-            ./build/RedmineEditor/RedmineEditor -ics --from=$FROM --to=$TO --calendar="$CALENDAR"
+            ./build/RedmineEditor/RedmineEditor -ics --from=$FROM --to=$TO --calendar="$CALENDAR" --also="$ALL"
             echo
           done
           

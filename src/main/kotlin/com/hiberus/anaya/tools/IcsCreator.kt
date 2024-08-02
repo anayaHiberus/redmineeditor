@@ -36,19 +36,29 @@ class IcsCreator : Command {
                 }
             } ?: now().with(adjuster)
         }
-        val calendarName = parameters.named["calendar"] ?: AppSettings.SCHEDULE_FILE.value
+        val calendarName = parameters.named["calendar"]?.titleCase() ?: AppSettings.SCHEDULE_FILE.value
         val calendar = Calendar(calendarName)
-        calendar.load()?.let {
-            errorln(it)
-            errorln("The calendar file $calendarName had errors. Aborted.")
-            return
-        }
+        val alsoCalendars = parameters.named["also"]
+            ?.split(",")
+            ?.map { it.trim().titleCase() }
+            ?.filter { it != calendarName }
+            ?.map { Calendar(it) }
+            ?: emptyList()
         val fileName = parameters.named["file"] ?: "${calendarName}.ics"
 
-        println("Generating ICS file ($fileName) for calendar $calendarName between $from and $to")
+        // load calendars
+        (listOf(calendar) + alsoCalendars).forEach { cal ->
+            cal.load()?.let {
+                errorln(it)
+                errorln("The calendar file ${cal.calendar} had errors. Aborted.")
+                return
+            }
+        }
+
+        println("Generating ICS file ($fileName) for calendar $calendarName checking also $alsoCalendars between $from and $to")
 
         // generate ranges
-        class Range(var from: LocalDate, var to: LocalDate)
+        class Range(var from: LocalDate, var to: LocalDate, var alsoIn: List<String>, var alsoNotIn: List<String>)
 
         val ranges = mutableListOf<Range>()
         // for all days
@@ -57,7 +67,13 @@ class IcsCreator : Command {
             .filter { it.dayOfWeek !in listOf(SATURDAY, SUNDAY) }
             // that don't require hours
             .filter { calendar.expectedHours(it) == 0.0 }
-            .forEach { date ->
+            // associate with calendar that also have holidays (or not)
+            .associateWith { date ->
+                alsoCalendars
+                    .groupBy { it.expectedHours(date) == 0.0 }
+                    .mapValues { (_, it) -> it.map { it.calendar ?: "?" } }
+            }
+            .forEach { (date, also) ->
 
                 // check previous
                 ranges.lastOrNull()?.takeIf { it.to == date.minusDays(1) }?.let {
@@ -65,7 +81,7 @@ class IcsCreator : Command {
                     it.to = date
                 } ?: run {
                     // start a new range
-                    ranges += Range(date, date)
+                    ranges += Range(date, date, also[true] ?: emptyList(), also[false] ?: emptyList())
                 }
             }
 
@@ -77,7 +93,17 @@ class IcsCreator : Command {
                     from = it.from,
                     to = it.to,
                     summary = "Holiday ($calendarName)",
-                    description = "Generated with RedmineEditor (https://github.com/anayaHiberus/redmineeditor/releases/tag/ics)",
+                    description = buildString {
+                        if (it.alsoIn.isNotEmpty()) {
+                            appendLine("Also holiday in ${it.alsoIn.joinToString(", ")}")
+                            appendLine()
+                        }
+                        if (it.alsoNotIn.isNotEmpty()) {
+                            appendLine("Also, not a holiday in ${it.alsoNotIn.joinToString(", ")}")
+                            appendLine()
+                        }
+                        append("Generated with RedmineEditor (https://github.com/anayaHiberus/redmineeditor/releases/tag/ics)")
+                    },
                     outOfOffice = true,
                 )
             )
@@ -88,3 +114,9 @@ class IcsCreator : Command {
         print("ICS file generated with ${ranges.size} events.")
     }
 }
+
+/** Converts a string into title case: "Kotlin is tHe BEST" -> "Kotlin Is The Best". */
+fun String.titleCase(delimiter: String = " ") =
+    split(delimiter).joinToString(delimiter) { word ->
+        word.lowercase().replaceFirstChar { it.titlecaseChar() }
+    }
