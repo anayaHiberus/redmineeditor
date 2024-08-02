@@ -18,12 +18,13 @@ import java.time.temporal.TemporalAdjusters.lastDayOfYear
 class IcsCreator : Command {
     override val name = "ICS creator"
     override val argument = "-ics"
-    override val parameters = "[--from=1997-01-01] [--to=1997-12-31] [--calendar=zaragoza] [--file=zaragoza.ics]"
+    override val parameters = "[--from=1997-01-01] [--to=1997-12-31] [--calendar=zaragoza] [--file=zaragoza.ics] [--also=madrid,oviedo]"
     override val help = listOf(
-        "--from=1997-01-01, start of the range, inclusive. Must be a valid ISO java format. If not specified, the start of the current year will be used.",
-        "--to=1997-12-31, end of the range, inclusive. Must be a valid ISO java format. If not specified, the end of the current year will be used.",
-        "--calendar=zaragoza, the name of the calendar to use. If not specified, the user-configured calendar will be used.",
-        "--file=zaragoza.ics, the name of the output file. If not specified, it will have the same name as the calendar with the '.ics' extension added.",
+        "--from=1997-01-01 :: start of the range, inclusive. Must be a valid ISO java format. If not specified, the start of the current year will be used.",
+        "--to=1997-12-31 :: end of the range, inclusive. Must be a valid ISO java format. If not specified, the end of the current year will be used.",
+        "--calendar=zaragoza :: the name of the calendar to use. If not specified, the user-configured calendar will be used.",
+        "--file=zaragoza.ics :: the name of the output file. If not specified, it will have the same name as the calendar with the '.ics' extension added.",
+        "--also=madrid,oviedo :: comma separate names of other calendars that will be shown in the description (if they also have holiday or not)",
     )
 
     override fun run(parameters: Application.Parameters) {
@@ -36,18 +37,18 @@ class IcsCreator : Command {
                 }
             } ?: now().with(adjuster)
         }
-        val calendarName = parameters.named["calendar"]?.titleCase() ?: AppSettings.SCHEDULE_FILE.value
+        val calendarName = parameters.named["calendar"] ?: AppSettings.SCHEDULE_FILE.value
         val calendar = Calendar(calendarName)
-        val alsoCalendars = parameters.named["also"]
+        val alsoNames = parameters.named["also"]
             ?.split(",")
-            ?.map { it.trim().titleCase() }
-            ?.filter { it != calendarName }
-            ?.map { Calendar(it) }
+            ?.map { it.trim() }
+            ?.filter { it.lowercase() != calendarName.lowercase() }
             ?: emptyList()
+        val also = alsoNames.map { Calendar(it) }
         val fileName = parameters.named["file"] ?: "${calendarName}.ics"
 
         // load calendars
-        (listOf(calendar) + alsoCalendars).forEach { cal ->
+        (listOf(calendar) + also).forEach { cal ->
             cal.load()?.let {
                 errorln(it)
                 errorln("The calendar file ${cal.calendar} had errors. Aborted.")
@@ -55,7 +56,7 @@ class IcsCreator : Command {
             }
         }
 
-        println("Generating ICS file ($fileName) for calendar $calendarName checking also $alsoCalendars between $from and $to")
+        println("Generating ICS file ($fileName) for calendar $calendarName checking also $alsoNames between $from and $to")
 
         // generate ranges
         class Range(var from: LocalDate, var to: LocalDate, var alsoIn: List<String>, var alsoNotIn: List<String>)
@@ -69,7 +70,7 @@ class IcsCreator : Command {
             .filter { calendar.expectedHours(it) == 0.0 }
             // associate with calendar that also have holidays (or not)
             .associateWith { date ->
-                alsoCalendars
+                also
                     .groupBy { it.expectedHours(date) == 0.0 }
                     .mapValues { (_, it) -> it.map { it.calendar ?: "?" } }
             }
@@ -92,14 +93,14 @@ class IcsCreator : Command {
                 FullDay(
                     from = it.from,
                     to = it.to,
-                    summary = "Holiday ($calendarName)",
+                    summary = "Holiday (${calendarName.titleCase()})",
                     description = buildString {
                         if (it.alsoIn.isNotEmpty()) {
-                            appendLine("Also holiday in ${it.alsoIn.joinToString(", ")}")
+                            appendLine("Also holiday in ${it.alsoIn.joinToString(", ") { it.titleCase() }}")
                             appendLine()
                         }
                         if (it.alsoNotIn.isNotEmpty()) {
-                            appendLine("Also, not a holiday in ${it.alsoNotIn.joinToString(", ")}")
+                            appendLine("Also, not a holiday in ${it.alsoNotIn.joinToString(", ") { it.titleCase() }}")
                             appendLine()
                         }
                         append("Generated with RedmineEditor (https://github.com/anayaHiberus/redmineeditor/releases/tag/ics)")
