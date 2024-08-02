@@ -1,8 +1,8 @@
 package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.dialogs.*
+import com.hiberus.anaya.redmineeditor.model.OpenColorsFile
 import com.hiberus.anaya.redmineeditor.utils.OpenCalendarFile
-import com.hiberus.anaya.redmineeditor.utils.OpenColorsFile
 import javafx.fxml.FXML
 
 /** the top menubar with actions */

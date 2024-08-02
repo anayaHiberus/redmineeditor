@@ -1,6 +1,7 @@
 package com.hiberus.anaya.redmineeditor.utils
 
 import com.hiberus.anaya.redmineeditor.HEADLESS
+import com.hiberus.anaya.redmineeditor.model.multiplyOpacity
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos

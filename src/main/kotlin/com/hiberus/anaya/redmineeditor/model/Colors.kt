@@ -1,11 +1,14 @@
-package com.hiberus.anaya.redmineeditor.utils
+package com.hiberus.anaya.redmineeditor.model
 
 import com.hiberus.anaya.redmineapi.Issue
+import com.hiberus.anaya.redmineeditor.Main
+import com.hiberus.anaya.redmineeditor.utils.*
 import javafx.scene.control.Alert
 import javafx.scene.paint.Color
 import java.io.FileNotFoundException
 import java.security.InvalidParameterException
 import java.time.LocalDate
+import java.util.prefs.Preferences
 
 
 /* ------------------------- static ------------------------- */
@@ -63,7 +66,7 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 fun LoadColors() = runCatching {
     // clear first
     PROJECTS.clear()
-    COLORS.clear()
+    FILE_COLORS.clear()
     CACHE.clear()
 
     // get file
@@ -90,7 +93,7 @@ fun LoadColors() = runCatching {
                         } ?: run {
                             // basic color
                             debugln("Color found: $k = $v")
-                            COLORS[k] = Color.web(v)
+                            FILE_COLORS[k] = Color.web(v)
                         }
 
                         null
@@ -117,20 +120,36 @@ fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
 /* ------------------------- containers ------------------------- */
 
 private val PROJECTS = mutableListOf<Pair<Regex, Color>>()
-private val COLORS = mutableMapOf<String, Color>().withDefault { Color.TRANSPARENT }
+private val FILE_COLORS = mutableMapOf<String, Color>().withDefault { Color.TRANSPARENT }
 private val CACHE = mutableMapOf<String, Color?>()
 
-enum class Colors {
-    GOOD,
-    WARNING,
-    INTENSIVE,
-    PAST_ERROR,
-    SPEND_ERROR,
-    HOLIDAY,
-    MARK_USED,
-    MARK_UNUSED
+
+enum class Colors(val description: String) {
+    GOOD("The required non-zero hours are the same as the imputed"),
+    WARNING("There are missing hours for today"),
+    SPEND_ERROR("There are more hours than required"),
+    PAST_ERROR("There are missing hours for past days"),
+    INTENSIVE("There are missing hours for a future intensive day"),
+    HOLIDAY("Holiday day"),
+    MARK_USED("In Mark used = Color, entries that have 0 hours"),
+    MARK_UNUSED("In Mark used = Color, entries that don't have 0 hours"),
     ;
 
-    val value get() = COLORS.getValue(name.lowercase())
+    var value
+        get() = PREFS[prefKey, null]?.let { Color.valueOf(it) } ?: defaultValue
+        set(value) {
+            if (value != defaultValue) PREFS.put(prefKey, value.toString())
+            else PREFS.remove(prefKey) // don't save default
+        }
     val nonTransparentValue get() = value.takeUnless { it == Color.TRANSPARENT }
+    val defaultValue get() = FILE_COLORS.getValue(name.lowercase())
+
+    private val prefKey = PREF_PREFIX + name.lowercase()
 }
+
+/* ------------------------- private ------------------------- */
+
+private const val PREF_PREFIX = "COLOR_"
+
+/** loaded settings preferences */
+private val PREFS = Preferences.userNodeForPackage(Main::class.java)

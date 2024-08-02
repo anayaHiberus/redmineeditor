@@ -20,6 +20,7 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.*
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -33,11 +34,12 @@ fun ShowSettingsDialog() {
     if (AppSettings.MARK_USED in changes) AppController.fireChanges(setOf(ChangeEvent.EntryContent))
     if (AppSettings.READ_ONLY in changes) READ_ONLY = AppSettings.READ_ONLY.value.toBoolean()
     if (AppSettings.IGNORE_SSL_ERRORS in changes) IgnoreSSLErrors() // this will not 'turn off' when disabled, but that's currently not possible
+    if (Colors.entries.any { it in changes }) AppController.fireChanges((ChangeEvent.entries - ChangeEvent.Loading).toSet())
     if (ReloadSettings intersects changes) AppController.reload()
 }
 
 /** Displays the settings configuration dialog, returns the changes */
-private fun ShowSettingsDialogInternal(): Set<AppSettings> {
+private fun ShowSettingsDialogInternal(): Set<Enum<*>> {
     Stage().apply {
         title = "Settings"
         scene = Scene(FXMLLoader(ResourceLayout("settings")).load())
@@ -49,7 +51,7 @@ private fun ShowSettingsDialogInternal(): Set<AppSettings> {
         showAndWait()
 
         // return data
-        return (scene.window.userData as? Set<*>)?.filterIsInstance<AppSettings>()?.toSet() ?: emptySet()
+        return (scene.window.userData as? Set<*>)?.filterIsInstance<Enum<*>>()?.toSet() ?: emptySet()
     }
 }
 
@@ -62,7 +64,7 @@ class SettingsController {
     private val window get() = parent.scene.window // window
 
     lateinit var domain: TextField // domain setting
-    lateinit var predefined: MenuButton
+    lateinit var predefined: MenuButton // load predefined settings
     lateinit var key: PasswordField // key setting
     lateinit var testLoading: ProgressIndicator // loading indicator for testing api
     lateinit var testInfo: Label // info about api test
@@ -78,7 +80,8 @@ class SettingsController {
     lateinit var ignoreOldAssigned: Spinner<Any> // ignore old assigned number selector
     lateinit var prevDays: Spinner<Int> // number of previous days number selector
     lateinit var dark: CheckBox // dark theme setting
-    lateinit var mark_used: MenuButton // mark used spinner
+    lateinit var colors: VBox // container for the colors
+    lateinit var markUsed: MenuButton // mark used spinner
     lateinit var appUpdateLoading: ProgressIndicator // check update loading indicator
     lateinit var appUpdateInfo: Label // check update info
     lateinit var checkAppUpdate: CheckBox // check updates checkbox
@@ -107,11 +110,13 @@ class SettingsController {
         SettingMatch(AppSettings.IGNORE_OLD_ASSIGNED, { ignoreOldAssigned.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.PREV_DAYS, { prevDays.valueFactory.valueProperty() }) { it.toInt() },
         SettingMatch(AppSettings.DARK_THEME, { dark.selectedProperty() }) { it.toBoolean() },
-        SettingMatch(AppSettings.MARK_USED, { mark_used.textProperty() }) { it.lowercase() },
+        SettingMatch(AppSettings.MARK_USED, { markUsed.textProperty() }) { it.lowercase() },
         SettingMatch(AppSettings.CHECK_UPDATES, { checkAppUpdate.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.CHECK_SCHEDULE_UPDATES, { checkCalendarUpdates.selectedProperty() }) { it.toBoolean() },
         SettingMatch(AppSettings.SCHEDULE_FILE, { calendar.textProperty() }) { it },
     )
+
+    private lateinit var colorControllers: List<ColorEntrySettings>
 
     /* ------------------------- functions ------------------------- */
 
@@ -134,11 +139,11 @@ class SettingsController {
         }
 
         // mark used enum
-        with(mark_used) {
+        with(markUsed) {
             items += MarkUsed.entries.map {
                 MenuItem(it.name.lowercase()).apply {
                     onAction = EventHandler {
-                        mark_used.text = text
+                        markUsed.text = text
                     }
                 }
             }
@@ -202,6 +207,14 @@ class SettingsController {
             }
         }
 
+        // configure colors
+        colorControllers = Colors.entries.map { color ->
+            val loader = FXMLLoader(ResourceLayout("color_entry"))
+            colors.children.add(loader.load())
+            val controller = loader.getController<ColorEntrySettings>()
+            controller.initialize(color)
+            controller
+        }
 
         // intelligent save button
         with({
@@ -217,6 +230,10 @@ class SettingsController {
             // apply to all properties
             matches.map { it.property }.forEach {
                 it.addListener { _, _, _ -> this() }
+            }
+            // and color controllers
+            colorControllers.forEach {
+                it.onChange { this() }
             }
             this()
         }
@@ -342,6 +359,7 @@ class SettingsController {
                 stylize(dark.isSelected)
                 addButton(ButtonType.OK) {
                     matches.letEach { property.value = valueConverter(setting.default) }
+                    colorControllers.letEach { loadDefault() }
                 }
             }.showAndWait()
     }
@@ -361,15 +379,23 @@ class SettingsController {
     /* ------------------------- internal ------------------------- */
 
     /** List of changes */
-    private fun changes(apply: Boolean = false) =
-        // for all changes
-        matches.map { it.setting to it.property.value.toString() }
-            // keep those modified
-            .filter { (setting, value) ->
-                if (apply) setting.modify(value) // save if required
-                else setting.value != value
-                // return modified settings
-            }.map { it.first }.toSet()
+    private fun changes(apply: Boolean = false) = (
+            // for all app settings changes
+            matches.map { it.setting to it.property.value.toString() }
+                // keep those modified
+                .filter { (setting, value) ->
+                    if (apply) setting.modify(value) // save if required
+                    else setting.value != value
+                    // return modified settings
+                }.map { it.first }.toSet()
+            ) + (
+            // plus the color changes
+            colorControllers.filter {
+                // return modified
+                if (apply) it.modify()
+                else it.hasChanges
+            }.map { it.color }
+            )
 
     /** On window closes, asks to lose changes if any */
     private fun closeWindowEvent() {

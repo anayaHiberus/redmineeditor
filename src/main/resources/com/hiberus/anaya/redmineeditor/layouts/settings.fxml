@@ -7,6 +7,7 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
@@ -17,84 +18,88 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<VBox fx:id="parent" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.SettingsController">
-    <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMaxWidth="25.0" tabMinHeight="75.0" VBox.vgrow="ALWAYS">
+<VBox fx:id="parent" prefHeight="425.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.SettingsController">
+    <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="-Infinity" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMaxWidth="25.0" tabMinHeight="75.0" VBox.vgrow="ALWAYS">
         <Tab closable="false">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="400.0" prefWidth="435.0">
-                <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                    </padding>
-                    <Label text="Configuraction for the remote Redmine connection:" underline="true" wrapText="true">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <HBox alignment="CENTER">
-                        <Label text="Domain:">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <TextField fx:id="domain" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </TextField>
-                        <MenuButton fx:id="predefined" text="_Predefined" HBox.hgrow="NEVER"/>
-                    </HBox>
-                    <HBox alignment="CENTER" layoutX="20.0" layoutY="51.0">
-                        <Label text="API key:">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <PasswordField fx:id="key" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </PasswordField>
-                        <Button onAction="#instructions" text="_Instructions" HBox.hgrow="NEVER">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                    </HBox>
-                    <CheckBox fx:id="ignoreSSLErrors" text="Ignore SSL errors:&#10;[WARNING] You may be connecting to a man-in-the-middle!&#10;But some VPNs are just that so perhaps that's what you want.&#10;Disabling this requires to restart the app." wrapText="true"/>
-                    <HBox alignment="CENTER_LEFT">
-                        <Button onAction="#testAPI" text="T_est API">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <ProgressIndicator fx:id="testLoading" prefHeight="24.0" prefWidth="24.0">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </ProgressIndicator>
-                        <Label fx:id="testInfo">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
+                <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox>
                             <padding>
-                                <Insets left="5.0" right="5.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                             </padding>
-                        </Label>
-                    </HBox>
-                    <Separator prefWidth="200.0">
-                        <VBox.margin>
-                            <Insets bottom="10.0" top="10.0"/>
-                        </VBox.margin>
-                    </Separator>
-                    <CheckBox fx:id="allowGetOnly" layoutX="25.0" layoutY="346.0" text="[DEBUG] Allow only _GET petitions (modifications will be logged but not applied)" wrapText="true">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </CheckBox>
-                </VBox>
+                            <Label text="Configuraction for the remote Redmine connection:" underline="true" wrapText="true">
+                                <font>
+                                    <Font size="14.0"/>
+                                </font>
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Label>
+                            <HBox alignment="CENTER">
+                                <Label text="Domain:">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Label>
+                                <TextField fx:id="domain" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </TextField>
+                                <MenuButton fx:id="predefined" text="_Predefined" HBox.hgrow="NEVER"/>
+                            </HBox>
+                            <HBox alignment="CENTER" layoutX="20.0" layoutY="51.0">
+                                <Label text="API key:">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Label>
+                                <PasswordField fx:id="key" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </PasswordField>
+                                <Button onAction="#instructions" text="_Instructions" HBox.hgrow="NEVER">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Button>
+                            </HBox>
+                            <CheckBox fx:id="ignoreSSLErrors" minHeight="-Infinity" text="Ignore SSL errors:&#10;[WARNING] You may be connecting to a man-in-the-middle!&#10;But some VPNs are just that so perhaps that's what you want.&#10;Disabling this requires to restart the app." wrapText="true"/>
+                            <HBox alignment="CENTER_LEFT">
+                                <Button onAction="#testAPI" text="T_est API">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Button>
+                                <ProgressIndicator fx:id="testLoading" prefHeight="24.0" prefWidth="24.0">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </ProgressIndicator>
+                                <Label fx:id="testInfo">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets left="5.0" right="5.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                            <Separator prefWidth="200.0">
+                                <VBox.margin>
+                                    <Insets bottom="10.0" top="10.0"/>
+                                </VBox.margin>
+                            </Separator>
+                            <CheckBox fx:id="allowGetOnly" layoutX="25.0" layoutY="346.0" text="[DEBUG] Allow only _GET petitions (modifications will be logged but not applied)" wrapText="true">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </AnchorPane>
             <graphic>
                 <Label alignment="CENTER" minWidth="-Infinity" text="Redmine"/>
@@ -102,65 +107,69 @@
         </Tab>
         <Tab closable="false">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                    </padding>
-                    <Label text="Configuration for the calendar file to use:" underline="true" wrapText="true">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </Label>
-                    <HBox alignment="CENTER_LEFT">
-                        <HBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </HBox.margin>
-                        <Label maxWidth="1.7976931348623157E308" text="Calendar file (office) from which to use public holidays.&#10;If you want to define your own holidays, create your own file in 'conf/calendars' folder." wrapText="true" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <MenuButton fx:id="calendar" HBox.hgrow="NEVER">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </MenuButton>
-                    </HBox>
-
-                    <Separator prefWidth="200.0">
-                        <VBox.margin>
-                            <Insets bottom="10.0" top="10.0"/>
-                        </VBox.margin>
-                    </Separator>
-                    <CheckBox fx:id="checkCalendarUpdates" layoutX="25.0" layoutY="462.0" text="Automatically c_heck for calendar file updates when the app starts">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </CheckBox>
-                    <HBox alignment="CENTER_LEFT">
-                        <Button onAction="#checkCalendarUpdate" text="Chec_k update now">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <ProgressIndicator fx:id="calendarUpdateLoading" prefHeight="24.0" prefWidth="24.0">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </ProgressIndicator>
-                        <Label fx:id="calendarUpdateInfo" onMouseClicked="#downloadCalendarUpdate">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
+                <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
                             <padding>
-                                <Insets left="5.0" right="5.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                             </padding>
-                        </Label>
-                    </HBox>
-                </VBox>
+                            <Label text="Configuration for the calendar file to use:" underline="true" wrapText="true">
+                                <font>
+                                    <Font size="14.0"/>
+                                </font>
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Label>
+                            <HBox alignment="CENTER_LEFT">
+                                <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </HBox.margin>
+                                <Label maxWidth="1.7976931348623157E308" minHeight="-Infinity" text="Calendar file (office) from which to use public holidays.&#10;If you want to define your own holidays, create your own file in 'conf/calendars' folder." wrapText="true" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Label>
+                                <MenuButton fx:id="calendar" HBox.hgrow="NEVER">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </MenuButton>
+                            </HBox>
+
+                            <Separator prefWidth="200.0">
+                                <VBox.margin>
+                                    <Insets bottom="10.0" top="10.0"/>
+                                </VBox.margin>
+                            </Separator>
+                            <CheckBox fx:id="checkCalendarUpdates" layoutX="25.0" layoutY="462.0" text="Automatically c_heck for calendar file updates when the app starts">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                            <HBox alignment="CENTER_LEFT">
+                                <Button onAction="#checkCalendarUpdate" text="Chec_k update now">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Button>
+                                <ProgressIndicator fx:id="calendarUpdateLoading" prefHeight="24.0" prefWidth="24.0">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </ProgressIndicator>
+                                <Label fx:id="calendarUpdateInfo" onMouseClicked="#downloadCalendarUpdate">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets left="5.0" right="5.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </AnchorPane>
             <graphic>
                 <Label alignment="CENTER" minWidth="-Infinity" text="Calendar"/>
@@ -168,73 +177,77 @@
         </Tab>
         <Tab closable="false">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                    </padding>
-                    <Label layoutX="25.0" layoutY="25.0" text="Configuration for the list of issues shown on the main screen:" underline="true" wrapText="true">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <HBox alignment="CENTER_LEFT">
-                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Show suggestions from previous days:&#10;Number of previous days to suggest entries from, between 0 and 28.&#10;For any given day, entries spent in the specified previous days will appear as suggestions.&#10;7 recommended" wrapText="true" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <Spinner fx:id="prevDays" editable="true" max="28" min="0" HBox.hgrow="NEVER">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Spinner>
-                    </HBox>
-                    <HBox alignment="CENTER" layoutX="20.0" layoutY="51.0">
-                        <Label text="Always suggest these issues:&#10;(slightly slower startup time)" wrapText="true">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <TextField fx:id="fixedIssues" promptText="comma separated list of ids, like &quot;123,456,789&quot; (invalid will be ignored)" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </TextField>
-                    </HBox>
-                    <CheckBox fx:id="autoLoadAssigned" layoutX="25.0" layoutY="240.0" text="S_uggest assigned issues&#10;(slightly slower startup time).&#10;If disabled, you can load them by pressing 'load assigned' from the issues selector." wrapText="true">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </CheckBox>
-                    <HBox alignment="CENTER_LEFT">
-                        <Label maxWidth="1.7976931348623157E308" text="Ignore old assigned:&#10;Assigned issues with an update time older than these many days will be ignored.&#10;Set to 0 to load all.&#10;365 (1 year) by default." wrapText="true" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <Spinner fx:id="ignoreOldAssigned" editable="true" max="2147483647" min="0" HBox.hgrow="NEVER">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Spinner>
-                        <VBox.margin>
-                            <Insets left="20.0"/>
-                        </VBox.margin>
-                    </HBox>
-                    <Separator prefWidth="200.0">
-                        <VBox.margin>
-                            <Insets bottom="10.0" top="10.0"/>
-                        </VBox.margin>
-                    </Separator>
-                    <CheckBox fx:id="autoLoadTotal" text="_Automatically load total hours (slower startup and day selection time)" wrapText="true">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </CheckBox>
-                </VBox>
+                <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                            <Label layoutX="25.0" layoutY="25.0" text="Configuration for the list of issues shown on the main screen:" underline="true" wrapText="true">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                                <font>
+                                    <Font size="14.0"/>
+                                </font>
+                            </Label>
+                            <HBox alignment="CENTER_LEFT">
+                                <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" text="Show suggestions from previous days:&#10;Number of previous days to suggest entries from, between 0 and 28.&#10;For any given day, entries spent in the specified previous days will appear as suggestions.&#10;7 recommended" wrapText="true" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Label>
+                                <Spinner fx:id="prevDays" editable="true" max="28" min="0" HBox.hgrow="NEVER">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Spinner>
+                            </HBox>
+                            <HBox alignment="CENTER" layoutX="20.0" layoutY="51.0">
+                                <Label minHeight="-Infinity" text="Always suggest these issues:&#10;(slightly slower startup time)" wrapText="true">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Label>
+                                <TextField fx:id="fixedIssues" promptText="comma separated list of ids, like &quot;123,456,789&quot; (invalid will be ignored)" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </TextField>
+                            </HBox>
+                            <CheckBox fx:id="autoLoadAssigned" layoutX="25.0" layoutY="240.0" minHeight="-Infinity" text="S_uggest assigned issues&#10;(slightly slower startup time).&#10;If disabled, you can load them by pressing 'load assigned' from the issues selector." wrapText="true">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                            <HBox alignment="CENTER_LEFT">
+                                <Label maxWidth="1.7976931348623157E308" minHeight="-Infinity" text="Ignore old assigned:&#10;Assigned issues with an update time older than these many days will be ignored.&#10;Set to 0 to load all.&#10;365 (1 year) by default." wrapText="true" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Label>
+                                <Spinner fx:id="ignoreOldAssigned" editable="true" max="2147483647" min="0" HBox.hgrow="NEVER">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Spinner>
+                                <VBox.margin>
+                                    <Insets left="20.0"/>
+                                </VBox.margin>
+                            </HBox>
+                            <Separator prefWidth="200.0">
+                                <VBox.margin>
+                                    <Insets bottom="10.0" top="10.0"/>
+                                </VBox.margin>
+                            </Separator>
+                            <CheckBox fx:id="autoLoadTotal" text="_Automatically load total hours (slower startup and day selection time)" wrapText="true">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </AnchorPane>
             <graphic>
                 <Label alignment="CENTER" minWidth="-Infinity" text="Issues list"/>
@@ -242,48 +255,72 @@
         </Tab>
         <Tab closable="false">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                    </padding>
-                    <Label layoutX="25.0" layoutY="164.0" text="Configuration for styles and colors:" underline="true" wrapText="true">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <CheckBox fx:id="dark" layoutX="25.0" layoutY="192.0" text="Apply a dark _theme">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </CheckBox>
+                <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                            <Label layoutX="25.0" layoutY="164.0" text="Configuration for styles and colors:" underline="true" wrapText="true">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                                <font>
+                                    <Font size="14.0"/>
+                                </font>
+                            </Label>
+                            <CheckBox fx:id="dark" layoutX="25.0" layoutY="192.0" text="Apply a dark _theme">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
 
 
-                    <Separator prefWidth="200.0">
-                        <VBox.margin>
-                            <Insets bottom="10.0" top="10.0"/>
-                        </VBox.margin>
-                    </Separator>
+                            <Separator prefWidth="200.0">
+                                <VBox.margin>
+                                    <Insets/>
+                                </VBox.margin>
+                                <padding>
+                                    <Insets bottom="10.0" top="10.0"/>
+                                </padding>
+                            </Separator>
 
-                    <HBox alignment="CENTER_LEFT">
-                        <HBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </HBox.margin>
-                        <Label maxWidth="1.7976931348623157E308" text="Choose how to mark used entries (with non-zero spent time):&#10;Note that in transparency mode a transparent element doesn't mean that it is disabled.&#10;For color mode you can change it with the mark_used entry in the colors file." wrapText="true" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Label>
-                        <MenuButton fx:id="mark_used">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </MenuButton>
-                    </HBox>
+                            <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" minHeight="-Infinity" VBox.vgrow="NEVER">
+                                <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </HBox.margin>
+                                <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Choose how to mark used entries (with non-zero spent time):&#10;Note that in transparency mode a transparent element doesn't mean that it is disabled.&#10;For color mode you can change it with the mark_used entry in the colors file." wrapText="true" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                </Label>
+                                <MenuButton fx:id="markUsed" HBox.hgrow="NEVER">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </MenuButton>
+                            </HBox>
+                            <Separator layoutX="20.0" layoutY="87.0" prefWidth="200.0">
+                                <VBox.margin>
+                                    <Insets/>
+                                </VBox.margin>
+                                <padding>
+                                    <Insets bottom="10.0" top="10.0"/>
+                                </padding>
+                            </Separator>
+                            <Label layoutX="25.0" layoutY="25.0" text="App colors:" wrapText="true">
+                                <VBox.margin>
+                                    <Insets/>
+                                </VBox.margin>
+                            </Label>
+                            <VBox fx:id="colors" maxWidth="1.7976931348623157E308"/>
 
-                </VBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </AnchorPane>
             <graphic>
                 <Label alignment="CENTER" minWidth="-Infinity" text="Styles"/>
@@ -291,44 +328,48 @@
         </Tab>
         <Tab closable="false">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                    </padding>
-                    <Label layoutX="25.0" layoutY="434.0" text="General app configuration" underline="true" wrapText="true">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <CheckBox fx:id="checkAppUpdate" layoutX="25.0" layoutY="462.0" text="Automatically c_heck for app updates when the app starts">
-                        <VBox.margin>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                        </VBox.margin>
-                    </CheckBox>
-                    <HBox alignment="CENTER_LEFT">
-                        <Button onAction="#checkAppUpdate" text="Chec_k update now">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <ProgressIndicator fx:id="appUpdateLoading" prefHeight="24.0" prefWidth="24.0">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
-                        </ProgressIndicator>
-                        <Label fx:id="appUpdateInfo" onMouseClicked="#downloadAppUpdate">
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </HBox.margin>
+                <ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
                             <padding>
-                                <Insets left="5.0" right="5.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                             </padding>
-                        </Label>
-                    </HBox>
-                </VBox>
+                            <Label layoutX="25.0" layoutY="434.0" text="General app configuration" underline="true" wrapText="true">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                                <font>
+                                    <Font size="14.0"/>
+                                </font>
+                            </Label>
+                            <CheckBox fx:id="checkAppUpdate" layoutX="25.0" layoutY="462.0" text="Automatically c_heck for app updates when the app starts">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                            <HBox alignment="CENTER_LEFT">
+                                <Button onAction="#checkAppUpdate" text="Chec_k update now">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Button>
+                                <ProgressIndicator fx:id="appUpdateLoading" prefHeight="24.0" prefWidth="24.0">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </ProgressIndicator>
+                                <Label fx:id="appUpdateInfo" onMouseClicked="#downloadAppUpdate">
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets left="5.0" right="5.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </AnchorPane>
             <graphic>
                 <Label alignment="CENTER" minWidth="-Infinity" text="General"/>
@@ -340,7 +381,7 @@
             <Insets/>
         </VBox.margin>
     </Separator>
-    <HBox>
+    <HBox VBox.vgrow="NEVER">
         <Button onAction="#loadDefault" text="Load all _default settings">
             <HBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>

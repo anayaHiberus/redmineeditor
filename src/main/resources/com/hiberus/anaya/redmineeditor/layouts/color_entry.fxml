@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<HBox alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="500.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.ColorEntrySettings">
+    <Label fx:id="label" maxWidth="1.7976931348623157E308" minHeight="-Infinity" text="Color" HBox.hgrow="ALWAYS">
+        <HBox.margin>
+            <Insets/>
+        </HBox.margin>
+        <padding>
+            <Insets left="10.0"/>
+        </padding>
+    </Label>
+    <ColorPicker fx:id="colorPicker" HBox.hgrow="NEVER">
+        <HBox.margin>
+            <Insets/>
+        </HBox.margin>
+    </ColorPicker>
+    <Button fx:id="restoreBtn" mnemonicParsing="false" onAction="#restoreCurrent" text="restore" HBox.hgrow="NEVER"/>
+    <Button fx:id="defaultBtn" mnemonicParsing="false" onAction="#loadDefault" text="default" HBox.hgrow="NEVER"/>
+    <padding>
+        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+    </padding>
+</HBox>
