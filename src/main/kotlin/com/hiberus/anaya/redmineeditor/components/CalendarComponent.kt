@@ -111,28 +111,35 @@ internal class CalendarComponent {
             .forEach { colorDay(it, model) }
 
     /** color a single day of current month */
-    private fun colorDay(day: Int, model: Model) =
-        model.month.atDay(day).let { date ->
-            days[day - 1]?.let { label ->
-                // main color
-                val mainColor = model.getSpent(date)?.let {
-                    getColor(
-                        date.expectedHours,
-                        it,
-                        date
-                    )
-                }
-                label.backgroundColor = mainColor
+    private fun colorDay(day: Int, model: Model) {
+        val date = model.month.atDay(day)
+        val label = days[day - 1] ?: return
 
-                // special color
-                if (mainColor != null) {
-                    model.getLoadedEntriesFromDate(date)?.filter { it.spent > 0 }?.map { (it.issue.color ?: mainColor) to it.spent }?.average?.takeIf { it != mainColor }?.let {
-                        // set weighted average of issues colors if different
-                        label.indicatorColor(mainColor, it)
-                    }
-                }
-            }
+        // calculate spent
+        val spent = model.getSpent(date)
+        if (spent == null) {
+            // not loaded yet
+            label.backgroundColor = null
+            return
         }
+
+        // main color
+        val mainColor = getColor(
+            date.expectedHours,
+            spent,
+            date
+        )
+
+        // special color: average color of the used entries
+        val specialColor = model.getLoadedEntriesFromDate(date)?.filter { it.spent > 0 }?.map { (it.issue.color ?: mainColor ?: Color.TRANSPARENT) to it.spent }?.average
+
+        // intensive indicator: fixed color if the day is not extensive
+        // TODO: move this hardcoded range somewhere configurable
+        val intensiveColor = Colors.INTENSIVE.value.takeIf { 0.0 < date.expectedHours && date.expectedHours < 8.0 }
+
+        // set
+        label.indicatorColor(background = mainColor, topLeft = specialColor, verticalBars = intensiveColor)
+    }
 
     /** Updates the month/year label and color */
     private fun updateLabel(model: Model) {

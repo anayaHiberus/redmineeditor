@@ -11,10 +11,7 @@ import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
-import javafx.scene.paint.Color
-import javafx.scene.paint.CycleMethod
-import javafx.scene.paint.RadialGradient
-import javafx.scene.paint.Stop
+import javafx.scene.paint.*
 import javafx.stage.Screen
 import javafx.stage.Window
 import javafx.stage.WindowEvent
@@ -27,39 +24,55 @@ import kotlin.math.min
 
 
 /**
- * The background color of this region (null for no color)
+ * The background plain color of this region (null for no color)
  * Setter only
  */
 inline var Region.backgroundColor: Color?
     @Deprecated("", level = ERROR) get() = throw UnsupportedOperationException() // https://youtrack.jetbrains.com/issue/KT-6519#focus=Comments-27-3525647.0-0
     set(value) {
-        // create a background with that color and rounded borders
-        background = value?.let { color ->
-            Background(
-                BackgroundFill(
-                    color.multiplyOpacity(0.75),
-                    CornerRadii(5.0),
-                    Insets(1.0)
-                )
-            )
-        }
+        indicatorColor(background = value)
     }
 
-/** Sets the background color of this region with a small indicator of a secondary color */
-fun Region.indicatorColor(background: Color, special: Color) {
-    // create a background with a color and a special indicator
-    this.background = Background(
-        BackgroundFill(
+/** Sets the background color of this region with some indicators with other colors */
+fun Region.indicatorColor(background: Color? = null, topLeft: Color? = null, verticalBars: Color? = null) {
+    if (background == null && topLeft == null && verticalBars == null) {
+        // early null check
+        this.background = null
+        return
+    }
+
+    // create a background list with a color and special indicators
+    buildList {
+        // plain background
+        if (background != null) add(
+            background.multiplyOpacity(0.75)
+        )
+
+        // round top-left corner
+        if (topLeft != null) add(
             RadialGradient(
                 0.0, 0.0, 1.0, 1.0, 1.0, true, CycleMethod.NO_CYCLE, listOf(
-                    Stop(0.9, background.multiplyOpacity(0.75)),
-                    Stop(1.0, special.multiplyOpacity(0.75)),
+                    Stop(0.9, Color.TRANSPARENT),
+                    Stop(1.0, topLeft),
                 )
-            ),
-            CornerRadii(5.0),
-            Insets(1.0)
+            )
         )
-    )
+
+        // vertical left+right bars
+        if (verticalBars != null) add(
+            LinearGradient(
+                0.0, 0.0, 1.0, 0.0, true, CycleMethod.NO_CYCLE, listOf(
+                    Stop(0.1, verticalBars),
+                    Stop(0.2, Color.TRANSPARENT),
+                    Stop(0.8, Color.TRANSPARENT),
+                    Stop(0.9, verticalBars),
+                )
+            )
+        )
+    }
+        // and rounded corners
+        .map { BackgroundFill(it, CornerRadii(5.0), Insets(1.0)) }
+        .let { this.background = Background(*it.toTypedArray()) }
 }
 
 /** Bold style of a region (for its text) */

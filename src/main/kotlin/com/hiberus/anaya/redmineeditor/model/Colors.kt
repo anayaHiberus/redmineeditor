@@ -54,8 +54,6 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
     day == LocalDate.now() -> Colors.WARNING.value
     // past day and not all, ERROR!
     day.isBefore(LocalDate.now()) -> Colors.PAST_ERROR.value
-    // Need to spent less than 8 hours and nothing spent, future intensive day!
-    expected < 8.0 && spent == 0.0 -> Colors.INTENSIVE.value
     // future day, and something (not all) spent, IN PROGRESS
     spent > 0 -> Colors.GOOD.value.multiplyOpacity(0.25)
     // future day, NOTHING!
@@ -129,8 +127,8 @@ enum class Colors(val description: String) {
     WARNING("There are missing hours for today"),
     SPEND_ERROR("There are more hours than required"),
     PAST_ERROR("There are missing hours for past days"),
-    INTENSIVE("There are missing hours for a future intensive day"),
     HOLIDAY("Holiday day"),
+    INTENSIVE("Intensive day marker color"),
     MARK_USED("In Mark used = Color, entries that have 0 hours"),
     MARK_UNUSED("In Mark used = Color, entries that don't have 0 hours"),
     ;
