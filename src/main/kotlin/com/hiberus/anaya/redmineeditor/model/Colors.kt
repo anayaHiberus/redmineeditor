@@ -31,8 +31,8 @@ fun Color.multiplyOpacity(opacityFactor: Double) = withOpacity(opacity * opacity
  * cached function
  */
 val Issue.color
-    get() = CACHE.getOrPut(project) {
-        PROJECTS.firstOrNull { (regex, _) -> regex.matches(project) }?.second
+    get() = ISSUE_COLOR_CACHE.getOrPut(project) {
+        PROJECT_COLORS_FROM_FILE.firstOrNull { it.regex.matches(project) }?.color
     }
 
 /**
@@ -63,12 +63,12 @@ fun getColor(expected: Double, spent: Double, day: LocalDate) = when {
 /** Load colors from the configuration file */
 fun LoadColors() = runCatching {
     // clear first
-    PROJECTS.clear()
-    FILE_COLORS.clear()
-    CACHE.clear()
+    PROJECT_COLORS_FROM_FILE.clear()
+    APP_COLORS_FROM_FILE.clear()
+    ISSUE_COLOR_CACHE.clear()
 
     // get file
-    (colorsFile ?: throw FileNotFoundException("conf/colors.properties"))
+    (COLORS_FILE ?: throw FileNotFoundException("conf/colors.properties"))
         // parse lines
         .useLines { lines ->
             // remove comments
@@ -87,41 +87,34 @@ fun LoadColors() = runCatching {
                             // a project
                             val project = it.groupValues[1]
                             debugln("Color project found: '$project' = $v")
-                            PROJECTS.add(Regex(project) to Color.web(v))
+                            PROJECT_COLORS_FROM_FILE.add(ProjectColor(Regex(project), Color.web(v)))
                         } ?: run {
                             // basic color
                             debugln("Color found: $k = $v")
-                            FILE_COLORS[k] = Color.web(v)
+                            APP_COLORS_FROM_FILE[k] = Color.web(v)
                         }
 
                         null
                     }.getOrElse { exception ->
-                        debugln("Error reading colors file '$colorsFile' line '$line': $exception")
+                        debugln("Error reading colors file '$COLORS_FILE' line '$line': $exception")
                         exception.debugPrintStackTrace()
                         "Error on line: '$line': ${exception.message}"
                     }
                 }.toList()
         }.takeIf { it.isNotEmpty() }?.joinToString("\n")
 }.getOrElse { exception ->
-    debugln("Error reading colors file '$colorsFile': $exception")
+    debugln("Error reading colors file '$COLORS_FILE': $exception")
     exception.debugPrintStackTrace()
     "Generic error: ${exception.message}"
 }
 
-/** the colors file */
-private val colorsFile = getRelativeFile("conf/colors.properties")
-
 /** Opens the colors file in an external app */
-fun OpenColorsFile() = (colorsFile?.openInApp() ?: false)
+fun OpenColorsFile() = (COLORS_FILE?.openInApp() ?: false)
     .ifNotOK { Alert(Alert.AlertType.ERROR, "Can't open colors file").showAndWait() }
 
-/* ------------------------- containers ------------------------- */
+/* ------------------------- enums ------------------------- */
 
-private val PROJECTS = mutableListOf<Pair<Regex, Color>>()
-private val FILE_COLORS = mutableMapOf<String, Color>().withDefault { Color.TRANSPARENT }
-private val CACHE = mutableMapOf<String, Color?>()
-
-
+/** App colors, returns the one from the preferences, or the file one. */
 enum class Colors(val description: String) {
     GOOD("The required non-zero hours are the same as the imputed"),
     WARNING("There are missing hours for today"),
@@ -140,14 +133,27 @@ enum class Colors(val description: String) {
             else PREFS.remove(prefKey) // don't save default
         }
     val nonTransparentValue get() = value.takeUnless { it == Color.TRANSPARENT }
-    val defaultValue get() = FILE_COLORS.getValue(name.lowercase())
+    val defaultValue get() = APP_COLORS_FROM_FILE.getValue(name.lowercase())
 
-    private val prefKey = PREF_PREFIX + name.lowercase()
+    private val prefKey = "COLOR_" + name.lowercase()
 }
+
+/** A project color: regex to identify the project and the color to apply. */
+data class ProjectColor(val regex: Regex, val color: Color)
 
 /* ------------------------- private ------------------------- */
 
-private const val PREF_PREFIX = "COLOR_"
+/** the colors file */
+private val COLORS_FILE = getRelativeFile("conf/colors.properties")
+
+/** List of loaded project colors from the colors file. */
+private val PROJECT_COLORS_FROM_FILE = mutableListOf<ProjectColor>()
+
+/** List of loaded app colors from the colors file. */
+private val APP_COLORS_FROM_FILE = mutableMapOf<String, Color>().withDefault { Color.TRANSPARENT }
+
+/** Cache for the Issue#color method. */
+private val ISSUE_COLOR_CACHE = mutableMapOf<String, Color?>()
 
 /** loaded settings preferences */
 private val PREFS = Preferences.userNodeForPackage(Main::class.java)
