@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<VBox fx:id="parent" prefHeight="425.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.SettingsController">
+<VBox fx:id="parent" prefHeight="425.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.SettingsController">
     <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="-Infinity" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMaxWidth="25.0" tabMinHeight="75.0" VBox.vgrow="ALWAYS">
         <Tab closable="false">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="400.0" prefWidth="435.0">
@@ -28,7 +28,7 @@
                             <padding>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                             </padding>
-                            <Label text="Configuraction for the remote Redmine connection:" underline="true" wrapText="true">
+                            <Label text="Configuration for the remote Redmine connection:" underline="true" wrapText="true">
                                 <font>
                                     <Font size="14.0"/>
                                 </font>
@@ -289,7 +289,7 @@
                                 <HBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </HBox.margin>
-                                <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Choose how to mark used entries (with non-zero spent time):&#10;Note that in transparency mode a transparent element doesn't mean that it is disabled.&#10;For color mode you can change it with the mark_used entry in the colors file." wrapText="true" HBox.hgrow="ALWAYS">
+                                <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Choose how to mark used entries (with non-zero spent time):&#10;Note that in transparency mode a transparent element doesn't mean that it is disabled.&#10;For color mode you can change it with the &quot;Mark used&quot; entry below." wrapText="true" HBox.hgrow="ALWAYS">
                                     <HBox.margin>
                                         <Insets/>
                                     </HBox.margin>

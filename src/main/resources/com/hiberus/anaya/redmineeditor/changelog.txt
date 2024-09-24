@@ -1,3 +1,8 @@
+V 1.9
+- New settings screen
+- Configure non-project colors from the settings
+- Intensive days marked with vertical bars
+
 V 1.8
 - Replaced FixMonthTool with FillRangeTool
 - Improve commands descriptions and error logging
