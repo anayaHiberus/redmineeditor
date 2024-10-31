@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressIndicator?>
@@ -317,6 +318,14 @@
                                 </VBox.margin>
                             </Label>
                             <VBox fx:id="colors" maxWidth="1.7976931348623157E308"/>
+                            <Separator layoutX="20.0" layoutY="161.0" prefWidth="200.0">
+                                <padding>
+                                    <Insets bottom="10.0" top="10.0"/>
+                                </padding>
+                            </Separator>
+                            <Label layoutX="20.0" layoutY="184.0" minHeight="-Infinity" text="Project colors:&#10;Projects that match the following regexs will be colored as configured" wrapText="true"/>
+                            <ListView fx:id="projectColors" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="24.0" VBox.vgrow="NEVER"/>
+                            <Button fx:id="addProjectColor" mnemonicParsing="false" onAction="#addProjectColor" text="Add new"/>
 
                         </VBox>
                     </content>

@@ -139,7 +139,7 @@ enum class Colors(val description: String) {
 }
 
 /** A project color: regex to identify the project and the color to apply. */
-data class ProjectColor(val regex: Regex, val color: Color)
+data class ProjectColor(val regex: Regex, val color: Color, val defaultId: String? = null)
 
 /* ------------------------- private ------------------------- */
 
@@ -147,7 +147,7 @@ data class ProjectColor(val regex: Regex, val color: Color)
 private val COLORS_FILE = getRelativeFile("conf/colors.properties")
 
 /** List of loaded project colors from the colors file. */
-private val PROJECT_COLORS_FROM_FILE = mutableListOf<ProjectColor>()
+public val PROJECT_COLORS_FROM_FILE = mutableListOf<ProjectColor>()
 
 /** List of loaded app colors from the colors file. */
 private val APP_COLORS_FROM_FILE = mutableMapOf<String, Color>().withDefault { Color.TRANSPARENT }

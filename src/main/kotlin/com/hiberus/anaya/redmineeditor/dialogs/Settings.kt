@@ -4,10 +4,7 @@ import com.hiberus.anaya.redmineapi.READ_ONLY
 import com.hiberus.anaya.redmineapi.Redmine
 import com.hiberus.anaya.redmineeditor.ResourceLayout
 import com.hiberus.anaya.redmineeditor.commandline.Command
-import com.hiberus.anaya.redmineeditor.components.VERSION
-import com.hiberus.anaya.redmineeditor.components.getNewCalendarFile
-import com.hiberus.anaya.redmineeditor.components.getNewVersion
-import com.hiberus.anaya.redmineeditor.components.openDownloadUpdatePage
+import com.hiberus.anaya.redmineeditor.components.*
 import com.hiberus.anaya.redmineeditor.model.*
 import com.hiberus.anaya.redmineeditor.utils.*
 import com.hiberus.anaya.tools.IgnoreSSLErrors
@@ -81,11 +78,15 @@ class SettingsController {
     lateinit var prevDays: Spinner<Int> // number of previous days number selector
     lateinit var dark: CheckBox // dark theme setting
     lateinit var colors: VBox // container for the colors
+    lateinit var projectColors: ListView<ProjectColor> // container for the project colors
+    lateinit var addProjectColor: Button // Button to add a new project color
     lateinit var markUsed: MenuButton // mark used spinner
     lateinit var appUpdateLoading: ProgressIndicator // check update loading indicator
     lateinit var appUpdateInfo: Label // check update info
     lateinit var checkAppUpdate: CheckBox // check updates checkbox
     lateinit var save: Button // save button
+
+    lateinit var projectColorConfiguration: ProjectColorConfiguration
 
     /* ------------------------- config ------------------------- */
 
@@ -116,7 +117,7 @@ class SettingsController {
         SettingMatch(AppSettings.SCHEDULE_FILE, { calendar.textProperty() }) { it },
     )
 
-    private lateinit var colorControllers: List<ColorEntrySettings>
+    private lateinit var appColorControllers: List<AppColorEntryController>
 
     /* ------------------------- functions ------------------------- */
 
@@ -207,14 +208,17 @@ class SettingsController {
             }
         }
 
-        // configure colors
-        colorControllers = Colors.entries.map { color ->
+        // configure app colors
+        appColorControllers = Colors.entries.map { color ->
             val loader = FXMLLoader(ResourceLayout("color_entry"))
             colors.children.add(loader.load())
-            val controller = loader.getController<ColorEntrySettings>()
+            val controller = loader.getController<AppColorEntryController>()
             controller.initialize(color)
             controller
         }
+
+        // configure project colors
+        projectColorConfiguration = ProjectColorConfiguration(projectColors)
 
         // intelligent save button
         with({
@@ -232,9 +236,10 @@ class SettingsController {
                 it.addListener { _, _, _ -> this() }
             }
             // and color controllers
-            colorControllers.forEach {
+            appColorControllers.forEach {
                 it.onChange { this() }
             }
+            projectColorConfiguration.onChange { this() }
             this()
         }
     }
@@ -352,6 +357,9 @@ class SettingsController {
     }
 
     @FXML
+    fun addProjectColor() = projectColorConfiguration.addProjectColor()
+
+    @FXML
     fun loadDefault() {
         // load default settings, but ask first
         Alert(Alert.AlertType.CONFIRMATION, "Do you want to discard all data and load all default settings?")
@@ -359,7 +367,7 @@ class SettingsController {
                 stylize(dark.isSelected)
                 addButton(ButtonType.OK) {
                     matches.letEach { property.value = valueConverter(setting.default) }
-                    colorControllers.letEach { loadDefault() }
+                    appColorControllers.letEach { loadDefault() }
                 }
             }.showAndWait()
     }
@@ -390,7 +398,7 @@ class SettingsController {
                 }.map { it.first }.toSet()
             ) + (
             // plus the color changes
-            colorControllers.filter {
+            appColorControllers.filter {
                 // return modified
                 if (apply) it.modify()
                 else it.hasChanges

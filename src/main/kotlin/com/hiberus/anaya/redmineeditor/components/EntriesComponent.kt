@@ -35,7 +35,7 @@ internal class EntriesComponent {
             // set items
             items = filteredList
             // each entry is an entryComponent
-            cellFactory = Callback { EntryComponent() }
+            cellFactory = Callback { EntryCell() }
             // disable selection
             selectionModel = NoSelectionModel()
         }
@@ -60,14 +60,14 @@ internal class EntriesComponent {
         // when entry change, update entries
         AppController.onChanges(setOf(ChangeEvent.EntryContent)) {
             list.lookupAll(".cell").forEach {
-                if (it is EntryComponent) it.partialUpdate(updateEntry = true)
+                if (it is EntryCell) it.partialUpdate(updateEntry = true)
             }
         }
 
         // when issue or hours change, update issues
         AppController.onChanges(setOf(ChangeEvent.IssueContent, ChangeEvent.DayHours)) {
             list.lookupAll(".cell").forEach {
-                if (it is EntryComponent) it.partialUpdate(updateIssue = true)
+                if (it is EntryCell) it.partialUpdate(updateIssue = true)
             }
         }
 

@@ -5,7 +5,7 @@
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
-<HBox alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="500.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.dialogs.ColorEntrySettings">
+<HBox alignment="CENTER" maxWidth="1.7976931348623157E308" prefWidth="500.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hiberus.anaya.redmineeditor.components.AppColorEntryController">
     <Label fx:id="label" maxWidth="1.7976931348623157E308" minHeight="-Infinity" text="Color" HBox.hgrow="ALWAYS">
         <HBox.margin>
             <Insets/>

@@ -1,4 +1,4 @@
-package com.hiberus.anaya.redmineeditor.dialogs
+package com.hiberus.anaya.redmineeditor.components
 
 import com.hiberus.anaya.redmineeditor.model.Colors
 import com.hiberus.anaya.redmineeditor.utils.enabled
@@ -7,8 +7,8 @@ import javafx.scene.control.ColorPicker
 import javafx.scene.control.Label
 import javafx.scene.control.Tooltip
 
-/** For settings. */
-class ColorEntrySettings {
+/** Controller for the app colors entries. */
+class AppColorEntryController {
 
     lateinit var defaultBtn: Button
     lateinit var restoreBtn: Button

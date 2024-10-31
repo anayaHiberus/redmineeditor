@@ -24,7 +24,7 @@ import java.util.function.Consumer
 
 
 /** One of the entries in the entries list */
-class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
+class EntryCell : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
 
     /* ------------------------- views ------------------------- */
 
@@ -116,7 +116,7 @@ class EntryComponent : SimpleListCell<TimeEntry>(ResourceLayout("entry_cell")) {
             edTxt_comment.bold = changedComment
 
             // entry elements background color
-            this@EntryComponent.style = if (MarkUsedSetting != MarkUsed.COLOR) null else
+            this@EntryCell.style = if (MarkUsedSetting != MarkUsed.COLOR) null else
                 (if (spent > 0) Colors.MARK_USED else Colors.MARK_UNUSED).nonTransparentValue?.let { "-fx-control-inner-background: \"$it\";" }
 
             // entry elements opacity
