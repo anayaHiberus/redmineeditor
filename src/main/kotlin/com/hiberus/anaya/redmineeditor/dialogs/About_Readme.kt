@@ -40,7 +40,11 @@ fun ShowAbout() {
             |${ResourceFile("changelog.txt").readText()}
             |""".trimMargin()
             )
-        )
+        ).apply {
+            // TODO: replace with a custom layout to properly fix this
+            prefHeight = 500.0
+        }
+        isResizable = true
         stylize()
         clearButtons()
         addButton(ButtonType("Source code")) {
